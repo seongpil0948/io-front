@@ -1,0 +1,42 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "vendorProduct",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "vendorId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vendorProdName",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "orderProducts",
+      "fieldPath": "orderState",
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "arrayConfig": "CONTAINS",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION_GROUP"
+        }
+      ]
+    }
+  ]
+}
