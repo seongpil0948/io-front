@@ -1,0 +1,151 @@
+<script setup lang="ts">
+import { ShopProd } from "@/composables";
+import { shopProdExist } from "@/plugins/firebase";
+import { useAuthStore } from "@/stores";
+import type { PROD_SIZE, VendorUserProdCombined } from "@/types";
+import { useMessage } from "naive-ui";
+import { computed, ref, toRefs } from "vue";
+import { v4 as uuidv4 } from "uuid";
+
+const props = defineProps<{
+  showAddModal: boolean;
+  prod: VendorUserProdCombined;
+}>();
+
+const { prod, showAddModal } = toRefs(props);
+const imgUrls = computed(() => [
+  ...prod.value.titleImgs,
+  prod.value.bodyImgs,
+  prod.value.detailImgs,
+]);
+const selectedProdIds = ref<string[]>([]);
+const optById: { [id: string]: { color: string; size: string } } = {};
+const prodOpts = computed<{ value: string; label: string }[]>(() => {
+  const result: { value: string; label: string }[] = [];
+  prod.value.sizes.forEach((size) => {
+    prod.value.colors.forEach((color) => {
+      optById[prod.value.stockCnt[size][color].prodId] = {
+        color,
+        size,
+      };
+      result.push({
+        value: prod.value.stockCnt[size][color].prodId,
+        label: `${size} ${color} (${prod.value.stockCnt[size][color].stockCnt} ) `,
+      });
+    });
+  });
+  return result;
+});
+const emits = defineEmits(["update:showAddModal"]);
+
+const auth = useAuthStore();
+const msg = useMessage();
+async function onSubmit() {
+  selectedProdIds.value.forEach(async (prodId) => {
+    if (!(await shopProdExist(prodId, auth.currUser.userId))) {
+      msg.error(
+        `컬러 ${optById[prodId].color}, 사이즈: ${optById[prodId].size} 상품은 이미 존재합니다.`
+      );
+      return;
+    }
+  });
+  const shopProds: ShopProd[] = [];
+  for (let i = 0; i < selectedProdIds.value.length; i++) {
+    const vendorProdId = selectedProdIds.value[i];
+    const shopProd = new ShopProd({
+      vendorId: prod.value.vendorId,
+      vendorProdId,
+      shopProdId: uuidv4(),
+      shopId: auth.currUser.userId,
+      prodPrice: prod.value.vendorPrice,
+      prodName: prod.value.vendorProdName,
+      size: optById[vendorProdId].size as PROD_SIZE,
+      color: optById[vendorProdId].color,
+    });
+    shopProds.push(shopProd);
+  }
+  Promise.all(shopProds.map((x) => x.update()))
+    .then(() => {
+      msg.success("선택한 상품들이 내상품에 추가가 완료되었어요!");
+      showAddModal.value = false;
+    })
+    .catch((e) => {
+      msg.error(`상품추가 실패: ${e}`);
+    })
+    .finally(() => emits("update:showAddModal", false));
+}
+function onCheck(val: string) {
+  if (selectedProdIds.value.includes(val)) {
+    selectedProdIds.value.splice(selectedProdIds.value.indexOf(val), 1);
+  } else {
+    selectedProdIds.value.push(val);
+  }
+}
+</script>
+
+<template>
+  <n-modal
+    :show="showAddModal"
+    :on-update:show="(val: boolean) => emits('update:showAddModal', val)"
+    :mask-closable="false"
+    :title="prod.userName"
+    close-on-esc
+    size="huge"
+    preset="card"
+    style="margin: 10vw"
+  >
+    <n-card>
+      <n-space>
+        <carousel-img-card
+          :imgUrls="imgUrls"
+          :width="30"
+          :height="30"
+          unit="vw"
+        />
+        <n-space vertical>
+          <n-h2>{{ prod.vendorProdName }}</n-h2>
+          <n-h2>{{ prod.vendorPrice }}원</n-h2>
+          <div v-for="(opt, i) in prodOpts" :key="i">
+            <n-space inline>
+              <div class="check-icon" @click="onCheck(opt.value)">
+                <img
+                  class="checked-icon"
+                  v-if="selectedProdIds.includes(opt.value)"
+                  src="/logo.png"
+                />
+                <div
+                  v-else
+                  class="check-icon"
+                  style="border: 1px solid black; width: 100%; height: 100%"
+                ></div>
+              </div>
+              <n-h4>{{ opt.label }}</n-h4>
+            </n-space>
+          </div>
+        </n-space>
+      </n-space>
+    </n-card>
+
+    <template #header-extra>
+      <n-h3 v-if="prod.locations.length > 0">{{
+        prod.locations[0].phone
+      }}</n-h3>
+    </template>
+    <template #action>
+      <n-space justify="end">
+        <n-button @click="onSubmit"> 추가하기 </n-button>
+      </n-space>
+    </template>
+  </n-modal>
+</template>
+
+<style scoped>
+.checked-icon {
+  width: 3rem;
+  height: 3rem;
+}
+.check-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+</style>
