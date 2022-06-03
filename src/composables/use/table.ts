@@ -4,22 +4,28 @@ import type {
   ColumnKey,
   TableBaseColumn,
 } from "naive-ui/es/data-table/src/interface";
+import { NCheckbox } from "naive-ui";
 import { ref, watchEffect, h } from "vue";
 import { useMapper } from "..";
+import LogoChecker from "@/components/input/LogoChecker.vue";
 
-export function useTable<T extends MapperFields>(
-  userId: string,
-  colKeys: IoColOpt[]
-) {
-  const { mapper } = useMapper(userId);
+interface useTableParam {
+  userId: string;
+  colKeys: IoColOpt[];
+  useChecker?: boolean;
+  keyField?: keyof MapperFields;
+}
+export function useTable<T extends MapperFields>(p: useTableParam) {
+  const { mapper } = useMapper(p.userId);
   const columns = ref<TableBaseColumn<T>[]>([]);
   const openKey = ref("");
+  const checkedKeys = ref<string[]>([]);
   function onRequestShow(val: string) {
     openKey.value = val;
   }
   watchEffect(() => {
     if (!mapper.value) return;
-    const innerOpts = colKeys.map((opt) => {
+    const innerOpts = p.colKeys.map((opt) => {
       const inner: IoColOptInner<T> = { key: opt.key };
 
       if (opt.titleMapping) {
@@ -60,6 +66,25 @@ export function useTable<T extends MapperFields>(
       return inner;
     });
     columns.value = makeTableCols(innerOpts);
+    if (p.useChecker && p.keyField) {
+      columns.value.unshift({
+        key: "checker",
+        title: () => h(NCheckbox, { disabled: true, size: "small" }),
+        render: (row) => {
+          return h(LogoChecker, {
+            onClick: () => {
+              const val = row[p.keyField!]!.toString();
+              console.log("ON Click", val);
+              if (checkedKeys.value.includes(val)) {
+                checkedKeys.value.splice(checkedKeys.value.indexOf(val), 1);
+              } else {
+                checkedKeys.value.push(val);
+              }
+            },
+          });
+        },
+      });
+    }
   });
 
   return { columns, mapper, onRequestShow, openKey };

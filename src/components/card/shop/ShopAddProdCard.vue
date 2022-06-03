@@ -107,18 +107,10 @@ function onCheck(val: string) {
           <n-h2>{{ prod.vendorPrice }}원</n-h2>
           <div v-for="(opt, i) in prodOpts" :key="i">
             <n-space inline>
-              <div class="check-icon" @click="onCheck(opt.value)">
-                <img
-                  class="checked-icon"
-                  v-if="selectedProdIds.includes(opt.value)"
-                  src="/logo.png"
-                />
-                <div
-                  v-else
-                  class="check-icon"
-                  style="border: 1px solid black; width: 100%; height: 100%"
-                ></div>
-              </div>
+              <logo-checker
+                :checked="selectedProdIds.includes(opt.value)"
+                @click="onCheck(opt.value)"
+              />
               <n-h4>{{ opt.label }}</n-h4>
             </n-space>
           </div>
@@ -138,14 +130,3 @@ function onCheck(val: string) {
     </template>
   </n-modal>
 </template>
-
-<style scoped>
-.checked-icon {
-  width: 3rem;
-  height: 3rem;
-}
-.check-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-}
-</style>
