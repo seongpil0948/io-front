@@ -4,6 +4,15 @@ const path = require("path");
 
 module.exports = defineConfig({
   transpileDependencies: true,
+  chainWebpack: (config) => {
+    config.module
+      .rule("vue")
+      .use("vue-loader")
+      .tap((options) => {
+        console.log("vue-loader options: ", options);
+        return options;
+      });
+  },
   configureWebpack: {
     resolve: {
       alias: {

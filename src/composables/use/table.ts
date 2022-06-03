@@ -69,9 +69,11 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
     if (p.useChecker && p.keyField) {
       columns.value.unshift({
         key: "checker",
-        title: () => h(NCheckbox, { disabled: true, size: "small" }),
-        render: (row) => {
-          return h(LogoChecker, {
+        title: () => h(NCheckbox, { disabled: true }),
+        render: (row) =>
+          h(LogoChecker, {
+            size: 1,
+            checked: checkedKeys.value.includes(row[p.keyField!]!.toString()),
             onClick: () => {
               const val = row[p.keyField!]!.toString();
               console.log("ON Click", val);
@@ -81,10 +83,10 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
                 checkedKeys.value.push(val);
               }
             },
-          });
-        },
+          }),
       });
     }
+    columns.value.forEach((x) => (x.align = "center"));
   });
 
   return { columns, mapper, onRequestShow, openKey };

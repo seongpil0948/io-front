@@ -2,28 +2,14 @@
 import { toRefs } from "vue";
 const props = defineProps<{
   checked: boolean;
+  size?: number;
 }>();
-const { checked } = toRefs(props);
+const { checked, size = 3 } = toRefs(props);
 </script>
 
 <template>
-  <div class="check-icon">
-    <img class="checked-icon" v-if="checked" src="/logo.png" />
-    <div
-      v-else
-      class="check-icon"
-      style="border: 1px solid black; width: 100%; height: 100%"
-    ></div>
+  <div :style="`width: ${size}rem; height: ${size}rem;`">
+    <img :style="` width: 150%; height: 150%`" v-if="checked" src="/logo.png" />
+    <div v-else :style="`border: 1px solid; width: 100%; height: 100%`"></div>
   </div>
 </template>
-
-<style scoped>
-.checked-icon {
-  width: 3rem;
-  height: 3rem;
-}
-.check-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-}
-</style>

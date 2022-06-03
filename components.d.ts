@@ -10,6 +10,7 @@ declare module '@vue/runtime-core' {
     IoSider: typeof import('./src/components/layout/IoSider.vue')['default']
     LayoutHeader: typeof import('./src/components/layout/LayoutHeader.vue')['default']
     LoginPage: typeof import('./src/views/common/LoginPage.vue')['default']
+    LogoChecker: typeof import('./src/components/input/LogoChecker.vue')['default']
     LogoImage: typeof import('./src/components/common/LogoImage.vue')['default']
     MainView: typeof import('./src/views/MainView.vue')['default']
     MapperSaver: typeof import('./src/components/input/MapperSaver.vue')['default']

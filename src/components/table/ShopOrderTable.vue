@@ -38,7 +38,12 @@ cols.unshift({
   titleMapping: true,
   rowIdField,
 });
-const { columns, mapper } = useTable<ShopReqOrderJoined>(user.userId, cols);
+const { columns, mapper } = useTable<ShopReqOrderJoined>({
+  userId: user.userId,
+  colKeys: cols,
+  useChecker: true,
+  keyField: "shopProdId",
+});
 watchEffect(() => {
   columns.value.forEach((x) => {
     if (x.key === "orderCnt") {
