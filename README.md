@@ -1,5 +1,12 @@
 # io-front
 
+## Reference
+- JSX
+  - [vuejs](https://vuejs.org/guide/extras/render-function.html#jsx-tsx)
+  - [babel-plugin-jsx](https://github.com/vuejs/babel-plugin-jsx)
+  - [babel-preset](https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/babel-preset-app)
+  - [jsx-vue2](https://github.com/vuejs/jsx-vue2)
+
 ## Project setup
 ```
 npm install
