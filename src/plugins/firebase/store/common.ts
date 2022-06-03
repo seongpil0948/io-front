@@ -37,10 +37,10 @@ export function getIoCollection(p: getCollectParam): CollectionReference {
       str = "shopProduct";
       break;
     case IoCollection.SHOP_REQ_ORDER:
-      str = `user/${p.uid}/shopReqOrder`;
+      str = `user/${p.uid}/shopReqOrder`; // /${p.shopProdId}
       break;
-    case IoCollection.SHOP_REQ_ORDER_PROD:
-      str = `user/${p.uid}/shopReqOrder/${p.orderId}/orderProducts`;
+    case IoCollection.SHOP_REQ_ORDER_NUMBER:
+      str = `user/${p.uid}/orderNumber`; // orderId
       break;
     default:
       throw Error(`IoCollection Enum Member ${p.c.toString()} is not Exist`);

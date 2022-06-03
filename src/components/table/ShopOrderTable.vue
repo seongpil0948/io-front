@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, h, watchEffect, computed } from "vue";
+import { ref, h, watchEffect } from "vue";
 import {
   ShopReqOrder,
   useParseOrderInfo,
@@ -26,7 +26,7 @@ const cols = [
   "color",
   "size",
   "amount",
-  "orderCount",
+  "orderCnt",
   "vendorProdName",
   "stockCnt",
 ].map((c) => {
@@ -41,23 +41,23 @@ cols.unshift({
 const { columns, mapper } = useTable<ShopReqOrderJoined>(user.userId, cols);
 watchEffect(() => {
   columns.value.forEach((x) => {
-    if (x.key === "orderCount") {
+    if (x.key === "orderCnt") {
       x.render = (row) =>
         h(NInputNumber, {
           style: { width: "7rem" },
-          value: row.orderCount,
+          value: row.orderCnt,
           onUpdateValue: (val) => {
             if (val && row.prodPrice) {
-              row.orderCount = val;
-              row.amount = row.prodPrice * row.orderCount;
+              row.orderCnt = val;
+              row.amount = row.prodPrice * row.orderCnt;
             }
           },
           onBlur: async () => {
             await ShopReqOrder.fromJson(row)?.update(true);
-            msg.info(`없데이트 되었습니다.`);
+            msg.info(`업데이트 되었습니다.`);
           },
           min: 1,
-          // max: row.orderCount
+          // max: row.orderCnt
         });
     }
   });
@@ -65,15 +65,15 @@ watchEffect(() => {
 
 // <<<<< COLUMNS <<<<<
 
-const { orderJoined } = useReadOrderInfo(user.userId, props.orderStates);
-const orderIds = computed(
-  () => new Set(orderJoined.value.map((x) => x.orderId))
+const { orderJoined, existOrderIds } = useReadOrderInfo(
+  user.userId,
+  props.orderStates
 );
 useParseOrderInfo(
   mapper,
   user.userId,
   fileModel,
-  orderIds,
+  existOrderIds,
   async (newOrders) => {
     await Promise.all(newOrders.map((x) => x.update()));
   }

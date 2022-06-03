@@ -1,5 +1,4 @@
 import type { ShopUserProd } from "@/types";
-import type { PROD_SIZE } from "../product";
 import type { ORDER_STATE } from "./state";
 
 export interface ShopReqOrderCRT {
@@ -10,12 +9,11 @@ export interface ShopReqOrderCRT {
   vendorProdId: string;
   shopId: string;
   shopProdId: string;
-  color: string;
-  size: PROD_SIZE;
-  orderCount: number;
+  orderCnt: number;
+  activeCnt: number;
+  pendingCnt: number;
   amount: number;
-  stockCnt: number;
   orderState: ORDER_STATE;
-  preOrderCount: number;
+  waitApprove: boolean;
 }
 export type ShopReqOrderJoined = ShopReqOrderCRT & Partial<ShopUserProd>;

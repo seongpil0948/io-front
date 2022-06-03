@@ -89,6 +89,6 @@ const colKoMapper: { [key in keyof MapperFields]: string } = {
   size: "사이즈",
   stockCnt: "도매처현재고",
   amount: "결제금액",
-  orderCount: "주문개수",
+  orderCnt: "주문개수",
   orderId: "주문번호",
 };

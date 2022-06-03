@@ -1,6 +1,10 @@
-import { dateToTimeStamp, getIoCollection, loadDate } from "@/plugins/firebase";
 import {
-  type PROD_SIZE,
+  dateToTimeStamp,
+  getIoCollection,
+  loadDate,
+  setOrderId,
+} from "@/plugins/firebase";
+import {
   ORDER_STATE,
   type ShopReqOrderCRT,
   IoCollection,
@@ -13,22 +17,22 @@ import {
   type DocumentSnapshot,
   setDoc,
 } from "firebase/firestore";
-import { CommonField } from ".";
+import { CommonField } from "./common";
 
 class ShopReqOrder extends CommonField {
-  // 쇼핑몰, 도매처 모두 정보를 수정할 수 있되 서로의 허용이 필요한 사항이다.
+  // Both Shop and Vendor can Modify This Information
+  // But Mutual Consent is Required
   orderId: string;
   vendorId: string;
   vendorProdId: string;
   shopId: string;
   shopProdId: string;
-  color: string;
-  size: PROD_SIZE;
-  orderCount: number;
+  orderCnt: number;
+  activeCnt: number;
+  pendingCnt: number;
   amount: number;
-  stockCnt: number;
   orderState: ORDER_STATE;
-  preOrderCount: number;
+  waitApprove: boolean;
 
   constructor(data: ShopReqOrderCRT) {
     super(data.createdAt, data.updatedAt);
@@ -37,17 +41,22 @@ class ShopReqOrder extends CommonField {
     this.vendorProdId = data.vendorProdId;
     this.shopId = data.shopId;
     this.shopProdId = data.shopProdId;
-    this.color = data.color;
-    this.size = data.size;
-    this.orderCount = data.orderCount;
+    this.orderCnt = data.orderCnt;
+    this.activeCnt = data.activeCnt;
+    this.pendingCnt = data.pendingCnt;
     this.amount = data.amount;
-    this.stockCnt = data.stockCnt;
     this.orderState = data.orderState;
-    this.preOrderCount = data.preOrderCount;
+    this.waitApprove = data.waitApprove;
   }
+  // async archive(): Promise<void> {
+  //   return Error("Not Implemented");
+  //   // TODO
+  //   // 주문 완료된 상품은 다음 주문을 위해 없어져야하지만
+  //   // 내역을 저장을 위해 archive 컬렉션으로 이동해야한다.
+  // }
   async update(clear = false) {
     const shopReqRef = getIoCollection({
-      c: IoCollection.SHOP_REQ_ORDER_PROD,
+      c: IoCollection.SHOP_REQ_ORDER,
       uid: this.shopId,
       orderId: this.orderId,
     });
@@ -59,28 +68,33 @@ class ShopReqOrder extends CommonField {
     if (data && !clear) {
       data = ShopReqOrder.fromJson(data);
       if (!data)
-        throw `Error doing get ShopReqOrder docoument ${this.shopId} ${this.shopProdId}`;
-      data.orderCount += this.orderCount;
-      data.amount += this.amount;
-      await setDoc(docRef, data, { merge: true });
+        throw `ShopReqOrder docoument Aleady Exist ${this.shopId} ${this.shopProdId}`;
+      await setDoc(
+        docRef,
+        { orderCnt: data.orderCnt + this.orderCnt, amount: this.amount },
+        { merge: true }
+      );
     } else {
       await setDoc(docRef, this);
+      await setOrderId(this.shopId, this.orderId);
     }
   }
 
   static fromProd(p: ShopUserProd, orderId: string) {
-    return new ShopReqOrder(
-      Object.assign(
-        {
-          orderId: orderId,
-          amount: p.prodPrice,
-          orderCount: 1,
-          orderState: ORDER_STATE.BEFORE_ORDER,
-          preOrderCount: 0,
-        },
-        p
-      )
-    );
+    const orderCnt = 1;
+    return new ShopReqOrder({
+      orderId: orderId,
+      vendorId: p.vendorId,
+      vendorProdId: p.vendorProdId,
+      shopId: p.shopId,
+      shopProdId: p.shopProdId,
+      orderCnt: orderCnt,
+      activeCnt: 1,
+      pendingCnt: 0,
+      amount: orderCnt * p.prodPrice,
+      orderState: ORDER_STATE.BEFORE_ORDER,
+      waitApprove: false,
+    });
   }
   static fromJson(data: { [x: string]: any }): ShopReqOrder | null {
     return data && data.vendorProdId
@@ -92,18 +106,17 @@ class ShopReqOrder extends CommonField {
           vendorProdId: data.vendorProdId,
           shopId: data.shopId,
           shopProdId: data.shopProdId,
-          color: data.color,
-          size: data.size,
-          orderCount: data.orderCount,
+          orderCnt: data.orderCnt,
+          activeCnt: data.activeCnt,
+          pendingCnt: data.pendingCnt,
           amount: data.amount,
-          stockCnt: data.stockCnt,
           orderState: data.orderState,
-          preOrderCount: data.preOrderCount,
+          waitApprove: data.waitApprove,
         })
       : null;
   }
 }
-export const shopReqOrderConverter = {
+const shopReqOrderConverter = {
   toFirestore: (p: ShopReqOrder) => {
     const j = p.toJson();
     j.createdAt = dateToTimeStamp(p.createdAt);
@@ -119,4 +132,4 @@ export const shopReqOrderConverter = {
   },
 };
 
-export { ShopReqOrder };
+export { ShopReqOrder, shopReqOrderConverter };

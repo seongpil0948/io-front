@@ -1,13 +1,18 @@
-import { shopReqOrderConverter } from "../../../composables/model/order-info";
 import { IoCollection, ORDER_STATE } from "@/types";
-import type { ShopReqOrder } from "@/composables";
-import { getIoCollectionGroup, iostore } from "@/plugins/firebase";
+import { type ShopReqOrder, shopReqOrderConverter } from "@/composables";
+import {
+  getIoCollectionGroup,
+  iostore,
+  getIoCollection,
+} from "@/plugins/firebase";
 import {
   collectionGroup,
+  doc,
   getDocs,
   onSnapshot,
   query,
   QueryConstraint,
+  setDoc,
   where,
 } from "firebase/firestore";
 import type { Ref } from "vue";
@@ -44,7 +49,7 @@ export function getShopOrderInfo(
     constraints.push(where("orderState", "==", state));
   });
   const q = query(
-    collectionGroup(iostore, "orderProducts").withConverter(
+    collectionGroup(iostore, "shopReqOrder").withConverter(
       shopReqOrderConverter
     ),
     ...constraints
@@ -59,4 +64,27 @@ export function getShopOrderInfo(
     });
   });
   return { unsubscribe };
+}
+
+export async function getExistOrderIds(userId: string): Promise<Set<string>> {
+  const ioc = getIoCollection({
+    c: IoCollection.SHOP_REQ_ORDER_NUMBER,
+    uid: userId,
+  });
+  const orderIds: Set<string> = new Set();
+  const snapShot = await getDocs(ioc);
+  snapShot.forEach((doc) => orderIds.add(doc.id));
+  return orderIds;
+}
+
+export async function setOrderId(
+  userId: string,
+  orderId: string,
+  done = false
+): Promise<void> {
+  const ioc = getIoCollection({
+    c: IoCollection.SHOP_REQ_ORDER_NUMBER,
+    uid: userId,
+  });
+  await setDoc(doc(ioc, orderId), { done });
 }

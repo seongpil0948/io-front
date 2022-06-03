@@ -1,6 +1,8 @@
 # io-front
 
 ## Reference
+- Vscode Setup
+  - [typescript-vue](https://github.com/idahogurl/vs-code-prettier-eslint/tree/master/examples/typescript-vue)
 - JSX
   - [vuejs](https://vuejs.org/guide/extras/render-function.html#jsx-tsx)
   - [babel-plugin-jsx](https://github.com/vuejs/babel-plugin-jsx)

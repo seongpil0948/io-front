@@ -1,4 +1,8 @@
-import { getShopOrderInfo, getVendorGroupOrderInfo } from "@/plugins/firebase";
+import {
+  getShopOrderInfo,
+  getVendorGroupOrderInfo,
+  getExistOrderIds,
+} from "@/plugins/firebase";
 import type {
   MapKey,
   ORDER_STATE,
@@ -26,6 +30,7 @@ export function useReadOrderInfo(shopId: string, orderStates: ORDER_STATE[]) {
   const orderInfo = ref<ShopReqOrder[]>([]);
   const { userProd } = useShopUserProds(shopId, null);
   const { unsubscribe } = getShopOrderInfo(orderInfo, shopId, orderStates);
+  const existOrderIds = ref<Set<string>>(new Set());
 
   watchEffect(async () => {
     orderJoined.value = [];
@@ -34,7 +39,7 @@ export function useReadOrderInfo(shopId: string, orderStates: ORDER_STATE[]) {
         (j) => j.shopProdId === order.shopProdId
       );
       if (exist) {
-        exist.orderCount += order.orderCount;
+        exist.orderCnt += order.orderCnt;
         exist.amount += exist.prodPrice ?? 0;
       } else {
         const prod = userProd.value.find(
@@ -45,15 +50,16 @@ export function useReadOrderInfo(shopId: string, orderStates: ORDER_STATE[]) {
         }
       }
     });
+    existOrderIds.value = await getExistOrderIds(shopId);
   });
-  return { unsubscribe, orderInfo, orderJoined };
+  return { unsubscribe, orderInfo, orderJoined, existOrderIds };
 }
 
 export function useParseOrderInfo(
   mapper: Ref<Mapper | null>,
   userId: string,
   fs: Ref<File[]>,
-  existOrderIds: Ref<Set<string>>,
+  existIds: Ref<Set<string>>,
   onParse: (orders: ShopReqOrder[]) => void
 ) {
   const conditions = ref<ShopProdQField[]>([]);
@@ -75,10 +81,10 @@ export function useParseOrderInfo(
     const orderInfo: ShopReqOrder[] = [];
     for (let j = 0; j < conditions.value.length; j++) {
       const d = conditions.value[j];
-      if (existOrderIds.value.has(d.orderId)) continue;
       const prod = userProd.value.find((x) => isSameProd(x, d))!;
-      if (!prod) continue;
-      orderInfo.push(ShopReqOrder.fromProd(prod, d.orderId));
+      if (!prod || existIds.value.has(d.orderId)) continue;
+      const order = ShopReqOrder.fromProd(prod, d.orderId);
+      orderInfo.push(order);
     }
     onParse(orderInfo);
   });
