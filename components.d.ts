@@ -68,6 +68,7 @@ declare module '@vue/runtime-core' {
     ShopAddProdCard: typeof import('./src/components/card/shop/ShopAddProdCard.vue')['default']
     ShopHome: typeof import('./src/views/shop/ShopHome.vue')['default']
     ShopLayout: typeof import('./src/views/shop/ShopLayout.vue')['default']
+    ShopOrderCnt: typeof import('./src/components/input/ShopOrderCnt.vue')['default']
     ShopOrderTable: typeof import('./src/components/table/ShopOrderTable.vue')['default']
     ShopProdModifyModal: typeof import('./src/components/card/shop/ShopProdModifyModal.vue')['default']
     SignupPage: typeof import('./src/views/common/SignupPage.vue')['default']

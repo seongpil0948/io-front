@@ -3,7 +3,7 @@ import {
   getVendorGroupOrderInfo,
   getExistOrderIds,
 } from "@/plugins/firebase";
-import type {
+import {
   MapKey,
   ORDER_STATE,
   ShopProdQField,
@@ -162,4 +162,13 @@ export function useParseOrderInfo(
   }
 
   return { conditions, userProd };
+}
+
+export function orderStateKo(state: ORDER_STATE): string {
+  switch (state) {
+    case ORDER_STATE.BEFORE_ORDER:
+      return "주문전";
+    default:
+      throw `ORDER_STATE Enum memeber ${state} is not exist`;
+  }
 }

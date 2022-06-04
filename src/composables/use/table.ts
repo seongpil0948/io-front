@@ -65,18 +65,20 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
       }
       return inner;
     });
+    columns.value.forEach((x) => (x.align = "center"));
     columns.value = makeTableCols(innerOpts);
     if (p.useChecker && p.keyField) {
       columns.value.unshift({
         key: "checker",
         title: () => h(NCheckbox, { disabled: true }),
+        align: "left",
+        width: 50,
         render: (row) =>
           h(LogoChecker, {
             size: 1,
             checked: checkedKeys.value.includes(row[p.keyField!]!.toString()),
             onClick: () => {
               const val = row[p.keyField!]!.toString();
-              console.log("ON Click", val);
               if (checkedKeys.value.includes(val)) {
                 checkedKeys.value.splice(checkedKeys.value.indexOf(val), 1);
               } else {
@@ -86,7 +88,6 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
           }),
       });
     }
-    columns.value.forEach((x) => (x.align = "center"));
   });
 
   return { columns, mapper, onRequestShow, openKey };
@@ -109,7 +110,7 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
 const colKoMapper: { [key in keyof MapperFields]: string } = {
   vendorProdName: "도매처 상품명",
   userName: "도매처명",
-  prodName: "내상품명",
+  prodName: "상품명",
   vendorPrice: "도매가",
   prodPrice: "판매가",
   color: "컬러",
