@@ -12,6 +12,7 @@ import { IoColOpt, ORDER_STATE, ShopReqOrderJoined } from "@/types";
 import { NButton, NGradientText, useDialog, useMessage } from "naive-ui";
 import { TableBaseColumn } from "naive-ui/es/data-table/src/interface";
 import ShopOrderCnt from "../input/ShopOrderCnt.vue";
+import { getOrderById, getVendorProdById } from "@/plugins/firebase";
 
 interface Props {
   orderStates: ORDER_STATE[];
@@ -167,7 +168,20 @@ useParseOrderInfo(
   fileModel,
   existOrderIds,
   async (newOrders) => {
-    await Promise.all(newOrders.map((x) => x.update()));
+    for (let i = 0; i < newOrders.length; i++) {
+      const order = newOrders[i];
+      const exist = await getOrderById(order.shopId, order.shopProdId);
+      if (exist) {
+        order.orderCnt += exist.orderCnt;
+        order.amount += exist.amount;
+      }
+      const vendorProd = await getVendorProdById(order.vendorProdId);
+      if (!vendorProd)
+        throw `${order.vendorProdId} is not Exist in Vendor Prod Doc`;
+      await order.update();
+      vendorProd.stockCnt -= order.orderCnt;
+      await vendorProd.update();
+    }
   }
 );
 </script>

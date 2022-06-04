@@ -1,6 +1,8 @@
-import { vendorProdConverter, type VendorProd } from "@/composables";
+import { vendorProdConverter, VendorProd } from "@/composables";
 import { IoCollection } from "@/types";
 import {
+  doc,
+  getDoc,
   getDocs,
   onSnapshot,
   orderBy,
@@ -11,7 +13,16 @@ import {
 import { ref } from "vue";
 import { getIoCollection } from "..";
 
-export function getVendorProdById(vendorId: string) {
+export async function getVendorProdById(vendorProdId: string) {
+  const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
+    vendorProdConverter
+  );
+  const d = await getDoc(doc(c, vendorProdId));
+  const data = d.data();
+  return data ? VendorProd.fromJson(data) : null;
+}
+
+export function scribeVendorProdById(vendorId: string) {
   const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
     vendorProdConverter
   );

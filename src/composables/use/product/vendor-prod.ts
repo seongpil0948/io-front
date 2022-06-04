@@ -1,5 +1,8 @@
 import { useVendorsStore } from "@/stores";
-import { getVendorGroupOrderInfo, getVendorProdById } from "@/plugins/firebase";
+import {
+  getVendorGroupOrderInfo,
+  scribeVendorProdById,
+} from "@/plugins/firebase";
 import { computed, onBeforeMount } from "vue";
 import { ORDER_STATE, VendorOrderProd } from "@/types";
 
@@ -17,7 +20,7 @@ export function useVendors() {
 }
 
 export function useVendor(vendorId: string) {
-  const { prods } = getVendorProdById(vendorId);
+  const { prods } = scribeVendorProdById(vendorId);
   const { orders } = getVendorGroupOrderInfo({
     vendorId,
     notStates: [ORDER_STATE.BEFORE_ORDER],

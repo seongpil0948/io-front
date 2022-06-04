@@ -12,7 +12,6 @@ import {
 } from "@/types";
 import {
   doc,
-  getDoc,
   type DocumentData,
   type DocumentSnapshot,
   setDoc,
@@ -49,9 +48,6 @@ class ShopReqOrder extends CommonField {
     this.waitApprove = data.waitApprove;
   }
 
-  /* 
-  FIXME: 주석미처리된 함수는 엑셀 올릴때 기존상품에 + 1이 되는 로직
-  하지만 주문 접수시에 에러가 발생하고 있음.
   async update(clear = false) {
     const shopReqRef = getIoCollection({
       c: IoCollection.SHOP_REQ_ORDER,
@@ -64,32 +60,6 @@ class ShopReqOrder extends CommonField {
 
     if (!clear) {
       await setDoc(docRef, this, { merge: true });
-    } else {
-      await setDoc(docRef, this);
-      await setOrderId(this.shopId, this.orderId);
-    }
-  }  
-  */
-  async update(clear = false) {
-    const shopReqRef = getIoCollection({
-      c: IoCollection.SHOP_REQ_ORDER,
-      uid: this.shopId,
-      orderId: this.orderId,
-    });
-    const docRef = doc(shopReqRef, this.shopProdId).withConverter(
-      shopReqOrderConverter
-    );
-    const d = await getDoc(docRef);
-    let data = d.data();
-    if (data && !clear) {
-      data = ShopReqOrder.fromJson(data);
-      if (!data)
-        throw `ShopReqOrder docoument Aleady Exist ${this.shopId} ${this.shopProdId}`;
-      await setDoc(
-        docRef,
-        { orderCnt: data.orderCnt + this.orderCnt, amount: this.amount },
-        { merge: true }
-      );
     } else {
       await setDoc(docRef, this);
       await setOrderId(this.shopId, this.orderId);

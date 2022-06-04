@@ -1,5 +1,5 @@
 import { IoCollection, ShopOrderParam, VendorOrderParam } from "@/types";
-import { type ShopReqOrder, shopReqOrderConverter } from "@/composables";
+import { ShopReqOrder, shopReqOrderConverter } from "@/composables";
 import {
   getIoCollectionGroup,
   iostore,
@@ -8,6 +8,7 @@ import {
 import {
   collectionGroup,
   doc,
+  getDoc,
   getDocs,
   onSnapshot,
   query,
@@ -94,4 +95,17 @@ export async function setOrderId(
     uid: userId,
   });
   await setDoc(doc(ioc, orderId), { done });
+}
+
+export async function getOrderById(shopId: string, shopProdId: string) {
+  const shopReqRef = getIoCollection({
+    c: IoCollection.SHOP_REQ_ORDER,
+    uid: shopId,
+  });
+  const docRef = doc(shopReqRef, shopProdId).withConverter(
+    shopReqOrderConverter
+  );
+  const d = await getDoc(docRef);
+  const data = d.data();
+  return data ? ShopReqOrder.fromJson(data) : null;
 }
