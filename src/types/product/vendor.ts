@@ -14,6 +14,7 @@ interface VendorProdCRT {
   color: string;
   vendorPrice: number;
   stockCnt: number;
+  allowPending: boolean;
   titleImgs: string[];
   bodyImgs: string[];
   detailImgs: string[];

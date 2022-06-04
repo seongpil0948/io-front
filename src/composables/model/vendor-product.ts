@@ -27,6 +27,7 @@ export class VendorProd extends CommonField implements VendorProdCRT {
   color: string;
   vendorPrice: number;
   stockCnt: number;
+  allowPending: boolean;
   titleImgs: string[];
   bodyImgs: string[];
   detailImgs: string[];
@@ -64,6 +65,7 @@ export class VendorProd extends CommonField implements VendorProdCRT {
     this.bodyImgs = p.bodyImgs;
     this.detailImgs = p.detailImgs;
     this.size = p.size;
+    this.allowPending = p.allowPending;
   }
   static fromJson(data: { [x: string]: any }): VendorProd | null {
     return data && data.vendorProdId
@@ -79,6 +81,7 @@ export class VendorProd extends CommonField implements VendorProdCRT {
           color: data.color,
           vendorPrice: data.vendorPrice,
           stockCnt: data.stockCnt,
+          allowPending: data.allowPending ?? false,
           titleImgs: data.titleImgs,
           bodyImgs: data.bodyImgs,
           detailImgs: data.detailImgs,
