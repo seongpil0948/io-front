@@ -1,15 +1,22 @@
 <script lang="ts" setup>
 import { h, ref, watchEffect } from "vue";
-import { useParseOrderInfo, useReadOrderInfo, useTable } from "@/composables";
+import {
+  ShopReqOrder,
+  useParseOrderInfo,
+  useReadOrderInfo,
+  useTable,
+} from "@/composables";
 import { useAuthStore } from "@/stores";
 import type { IoColOpt, ORDER_STATE, ShopReqOrderJoined } from "@/types";
-import { NButton } from "naive-ui";
+import { NButton, useDialog } from "naive-ui";
 import { TableBaseColumn } from "naive-ui/es/data-table/src/interface";
 import ShopOrderCnt from "../input/ShopOrderCnt.vue";
 
 interface Props {
   orderStates: ORDER_STATE[];
 }
+const dialog = useDialog();
+
 const props = defineProps<Props>();
 const auth = useAuthStore();
 const user = auth.currUser;
@@ -28,12 +35,6 @@ const cols = [
 ].map((c) => {
   return { key: c } as IoColOpt;
 });
-// const rowIdField = "shopProdId";
-// cols.unshift({
-//   key: "orderId",
-//   titleMapping: true,
-//   rowIdField,
-// });
 const { columns, mapper } = useTable<ShopReqOrderJoined>({
   userId: user.userId,
   colKeys: cols,
@@ -77,10 +78,27 @@ watchEffect(() => {
           }),
         key: "requestOrder",
         align: "center",
-        render: () =>
-          h(NButton, Object.assign(nBtnProps, {}), {
-            default: () => "주문확정",
-          }),
+        render: (row) =>
+          h(
+            NButton,
+            Object.assign({}, nBtnProps, {
+              onClick: () => {
+                const data = ShopReqOrder.fromJson(row);
+
+                dialog.info({
+                  title: "주문요청",
+                  content: `${JSON.stringify(data)}정보로 요청`,
+                  positiveText: "주문",
+                  onPositiveClick: () => {
+                    console.log("OK");
+                  },
+                });
+              },
+            }),
+            {
+              default: () => "주문확정",
+            }
+          ),
       },
       {
         title: () =>
@@ -107,6 +125,8 @@ watchEffect(() => {
             orderCntEdit.value = false;
           },
         });
+    } else if (x.key === "amount") {
+      x.render = (row: ShopReqOrderJoined) => row.amount.toLocaleString();
     }
   });
 });

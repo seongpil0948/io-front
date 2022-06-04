@@ -18,7 +18,7 @@ const pendingCnt = computed(() =>
 );
 function onUpdate(val: number) {
   row.value.orderCnt = val;
-  row.value.amount = row.value.prodPrice ?? 0 * val;
+  row.value.amount = (row.value.prodPrice ?? 0) * val;
 }
 async function onSubmit() {
   await ShopReqOrder.fromJson(row.value)?.update(true);
