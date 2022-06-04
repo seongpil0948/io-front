@@ -35,12 +35,16 @@ const themeOverrides: GlobalThemeOverrides = {
   },
   Button: {
     color: ioColors.primary,
+    textColor: ioColors.text,
+    textColorFocus: ioColors.primary,
+    textColorFocusInfo: ioColors.text,
   },
   Select: {
     peers: {
       InternalSelection: {
         color: ioColors.primary,
         textColor: ioColors.text,
+        textColorDisabled: ioColors.text,
       },
     },
   },

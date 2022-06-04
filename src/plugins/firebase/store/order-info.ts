@@ -1,4 +1,4 @@
-import { IoCollection, ORDER_STATE } from "@/types";
+import { IoCollection, ShopOrderParam, VendorOrderParam } from "@/types";
 import { type ShopReqOrder, shopReqOrderConverter } from "@/composables";
 import {
   getIoCollectionGroup,
@@ -11,43 +11,50 @@ import {
   getDocs,
   onSnapshot,
   query,
-  QueryConstraint,
   setDoc,
   where,
 } from "firebase/firestore";
-import type { Ref } from "vue";
+import { ref } from "vue";
 
-export async function getVendorGroupOrderInfo(
-  vendorId: string,
-  states: ORDER_STATE[]
-) {
-  const orders: ShopReqOrder[] = [];
+export function getVendorGroupOrderInfo(p: VendorOrderParam) {
+  const constraints = [where("vendorId", "==", p.vendorId)];
+  if (p.inStates && p.inStates.length > 0) {
+    constraints.push(where("orderState", "in", p.inStates));
+  }
+  if (p.notStates && p.notStates.length > 0) {
+    constraints.push(where("orderState", "not-in", p.notStates));
+  }
+
+  const orders = ref<ShopReqOrder[]>([]);
   const orderQ = query(
     getIoCollectionGroup(IoCollection.SHOP_REQ_ORDER).withConverter(
       shopReqOrderConverter
     ),
-    where("vendorId", "==", vendorId),
-    where("orderState", "in", states)
+    ...constraints
   );
-  const querySnapshot = await getDocs(orderQ);
-  querySnapshot.forEach((doc) => {
-    const data = doc.data();
-    if (data) {
-      orders.push(data);
-    }
+  const subscribe = onSnapshot(orderQ, (snapshot) => {
+    orders.value = [];
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data) {
+        orders.value.push(data);
+      }
+    });
   });
-  return orders;
+
+  return { subscribe, orders };
 }
 
-export function getShopOrderInfo(
-  orders: Ref<ShopReqOrder[]>,
-  shopId: string,
-  orderStates: ORDER_STATE[]
-) {
-  const constraints: QueryConstraint[] = [];
-  orderStates.forEach((state) => {
-    constraints.push(where("orderState", "==", state));
-  });
+export function getShopOrderInfo(p: ShopOrderParam) {
+  const orders = ref<ShopReqOrder[]>([]);
+  const constraints = [where("shopId", "==", p.shopId)];
+
+  if (p.inStates && p.inStates.length > 0) {
+    constraints.push(where("orderState", "in", p.inStates));
+  }
+  if (p.notStates && p.notStates.length > 0) {
+    constraints.push(where("orderState", "not-in", p.notStates));
+  }
   const q = query(
     collectionGroup(iostore, "shopReqOrder").withConverter(
       shopReqOrderConverter
@@ -63,7 +70,7 @@ export function getShopOrderInfo(
       }
     });
   });
-  return { unsubscribe };
+  return { unsubscribe, orders };
 }
 
 export async function getExistOrderIds(userId: string): Promise<Set<string>> {

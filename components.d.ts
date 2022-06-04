@@ -54,6 +54,7 @@ declare module '@vue/runtime-core' {
     NTabPane: typeof import('naive-ui')['NTabPane']
     NTabs: typeof import('naive-ui')['NTabs']
     NText: typeof import('naive-ui')['NText']
+    NTooltip: typeof import('naive-ui')['NTooltip']
     OrderList: typeof import('./src/views/vendor/page/OrderList.vue')['default']
     OrderRequire: typeof import('./src/views/shop/page/OrderRequire.vue')['default']
     OrderSubmit: typeof import('./src/views/vendor/page/OrderSubmit.vue')['default']

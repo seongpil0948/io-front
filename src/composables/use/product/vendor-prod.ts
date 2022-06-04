@@ -1,7 +1,7 @@
-import type { VendorProd } from "@/composables";
 import { useVendorsStore } from "@/stores";
-import { getVendorProd } from "@/plugins/firebase";
-import { onBeforeMount, ref } from "vue";
+import { getVendorGroupOrderInfo, getVendorProdById } from "@/plugins/firebase";
+import { computed, onBeforeMount } from "vue";
+import { ORDER_STATE, VendorOrderProd } from "@/types";
 
 export function useVendors() {
   const vendorStore = useVendorsStore();
@@ -17,9 +17,33 @@ export function useVendors() {
 }
 
 export function useVendor(vendorId: string) {
-  const prods = ref<VendorProd[]>([]);
-  onBeforeMount(async () => {
-    prods.value = await getVendorProd(vendorId);
+  const { prods } = getVendorProdById(vendorId);
+  const { orders } = getVendorGroupOrderInfo({
+    vendorId,
+    notStates: [ORDER_STATE.BEFORE_ORDER],
   });
-  return { prods };
+  const orderProds = computed<VendorOrderProd[]>(() => {
+    const ps: VendorOrderProd[] = [];
+    prods.value.forEach((p) => {
+      const ords = orders.value.filter(
+        (o) => o.vendorProdId === p.vendorProdId
+      );
+      if (ords.length > 0) {
+        const order = ords.reduce((acc, curr, idx) => {
+          if (idx === 0) {
+            acc = curr;
+          } else {
+            acc.amount += curr.amount;
+            acc.pendingCnt += curr.pendingCnt;
+            acc.orderCnt += curr.orderCnt;
+          }
+          return acc;
+        }, {} as VendorOrderProd);
+        ps.push(Object.assign({}, p, order));
+      }
+    });
+    return ps;
+  });
+
+  return { prods, orders, orderProds };
 }

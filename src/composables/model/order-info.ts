@@ -48,12 +48,28 @@ class ShopReqOrder extends CommonField {
     this.orderState = data.orderState;
     this.waitApprove = data.waitApprove;
   }
-  // async archive(): Promise<void> {
-  //   return Error("Not Implemented");
-  //   // TODO
-  //   // 주문 완료된 상품은 다음 주문을 위해 없어져야하지만
-  //   // 내역을 저장을 위해 archive 컬렉션으로 이동해야한다.
-  // }
+
+  /* 
+  FIXME: 주석미처리된 함수는 엑셀 올릴때 기존상품에 + 1이 되는 로직
+  하지만 주문 접수시에 에러가 발생하고 있음.
+  async update(clear = false) {
+    const shopReqRef = getIoCollection({
+      c: IoCollection.SHOP_REQ_ORDER,
+      uid: this.shopId,
+      orderId: this.orderId,
+    });
+    const docRef = doc(shopReqRef, this.shopProdId).withConverter(
+      shopReqOrderConverter
+    );
+
+    if (!clear) {
+      await setDoc(docRef, this, { merge: true });
+    } else {
+      await setDoc(docRef, this);
+      await setOrderId(this.shopId, this.orderId);
+    }
+  }  
+  */
   async update(clear = false) {
     const shopReqRef = getIoCollection({
       c: IoCollection.SHOP_REQ_ORDER,

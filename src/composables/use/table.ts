@@ -119,4 +119,6 @@ const colKoMapper: { [key in keyof MapperFields]: string } = {
   amount: "결제금액",
   orderCnt: "주문개수",
   orderId: "주문번호",
+  allowPending: "자동미송",
+  pendingCnt: "미송개수",
 };

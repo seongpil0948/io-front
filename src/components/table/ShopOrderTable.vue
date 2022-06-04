@@ -1,14 +1,15 @@
 <script lang="ts" setup>
 import { h, ref, watchEffect } from "vue";
 import {
+  getPendingCnt,
   ShopReqOrder,
   useParseOrderInfo,
-  useReadOrderInfo,
+  useShopReadOrderInfo,
   useTable,
 } from "@/composables";
 import { useAuthStore } from "@/stores";
-import type { IoColOpt, ORDER_STATE, ShopReqOrderJoined } from "@/types";
-import { NButton, useDialog } from "naive-ui";
+import { IoColOpt, ORDER_STATE, ShopReqOrderJoined } from "@/types";
+import { NButton, NGradientText, useDialog, useMessage } from "naive-ui";
 import { TableBaseColumn } from "naive-ui/es/data-table/src/interface";
 import ShopOrderCnt from "../input/ShopOrderCnt.vue";
 
@@ -16,7 +17,7 @@ interface Props {
   orderStates: ORDER_STATE[];
 }
 const dialog = useDialog();
-
+const msg = useMessage();
 const props = defineProps<Props>();
 const auth = useAuthStore();
 const user = auth.currUser;
@@ -31,6 +32,7 @@ const cols = [
   "orderCnt",
   "vendorProdName",
   "stockCnt",
+  "allowPending",
   "amount",
 ].map((c) => {
   return { key: c } as IoColOpt;
@@ -78,19 +80,32 @@ watchEffect(() => {
           }),
         key: "requestOrder",
         align: "center",
-        render: (row) =>
+        render: (row: ShopReqOrderJoined) =>
           h(
             NButton,
             Object.assign({}, nBtnProps, {
               onClick: () => {
-                const data = ShopReqOrder.fromJson(row);
-
                 dialog.info({
-                  title: "주문요청",
-                  content: `${JSON.stringify(data)}정보로 요청`,
+                  title: "주문정보",
+                  content: `정말로 주문 하시겠습니까? `,
                   positiveText: "주문",
-                  onPositiveClick: () => {
-                    console.log("OK");
+                  onPositiveClick: async () => {
+                    const data = ShopReqOrder.fromJson(row);
+                    if (data && row.stockCnt) {
+                      data.pendingCnt = row.allowPending
+                        ? getPendingCnt(row.stockCnt, row.orderCnt)
+                        : 0;
+                      data.orderCnt =
+                        row.orderCnt - data.pendingCnt > row.stockCnt
+                          ? row.stockCnt
+                          : row.orderCnt - data.pendingCnt;
+                      data.amount = data.orderCnt * row.prodPrice!;
+                      data.orderState = ORDER_STATE.BEFORE_APPROVE;
+                      await data.update();
+                      msg.success("주문 요청에 성공하셨습니다.");
+                    } else {
+                      msg.error("주문에 실패하였습니다.");
+                    }
                   },
                 });
               },
@@ -127,13 +142,22 @@ watchEffect(() => {
         });
     } else if (x.key === "amount") {
       x.render = (row: ShopReqOrderJoined) => row.amount.toLocaleString();
+    } else if (x.key === "allowPending") {
+      x.render = (row: ShopReqOrderJoined) =>
+        h(
+          NGradientText,
+          {
+            type: row.allowPending ? "info" : "error",
+          },
+          { default: () => (row.allowPending ? "가능" : "불가능") }
+        );
     }
   });
 });
 
 // <<<<< COLUMNS <<<<<
 
-const { orderJoined, existOrderIds } = useReadOrderInfo(
+const { orderJoined, existOrderIds } = useShopReadOrderInfo(
   user.userId,
   props.orderStates
 );

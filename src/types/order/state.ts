@@ -31,4 +31,15 @@ const ORDER_STATE: { [key in ORDER_STATE]: ORDER_STATE } = Object.freeze({
   ORDER_DONE: "ORDER_DONE",
 });
 
-export { ORDER_STATE };
+interface OrderParam {
+  inStates?: ORDER_STATE[];
+  notStates?: ORDER_STATE[];
+}
+interface VendorOrderParam extends OrderParam {
+  vendorId: string;
+}
+interface ShopOrderParam extends OrderParam {
+  shopId: string;
+}
+
+export { ORDER_STATE, VendorOrderParam, ShopOrderParam };

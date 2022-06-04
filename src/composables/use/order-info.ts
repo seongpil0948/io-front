@@ -1,8 +1,4 @@
-import {
-  getShopOrderInfo,
-  getVendorGroupOrderInfo,
-  getExistOrderIds,
-} from "@/plugins/firebase";
+import { getShopOrderInfo, getExistOrderIds } from "@/plugins/firebase";
 import {
   MapKey,
   ORDER_STATE,
@@ -11,25 +7,20 @@ import {
 } from "@/types";
 import { DataFrame, readExcel } from "danfojs";
 import { useMessage } from "naive-ui";
-import { onBeforeMount, ref, watchEffect, type Ref } from "vue";
+import { ref, watchEffect, type Ref } from "vue";
 import { isSameProd, Mapper, ShopReqOrder, synonymMatch, uniqueArr } from "..";
 import { useShopUserProds } from "./product";
 
-export function useVendorOrderInfo(
-  vendorId: string,
-  states: ORDER_STATE[],
-  orderInfo: Ref<ShopReqOrder[]>
+export function useShopReadOrderInfo(
+  shopId: string,
+  orderStates: ORDER_STATE[]
 ) {
-  onBeforeMount(async () => {
-    orderInfo.value = await getVendorGroupOrderInfo(vendorId, states);
-  });
-}
-
-export function useReadOrderInfo(shopId: string, orderStates: ORDER_STATE[]) {
   const orderJoined = ref<ShopReqOrderJoined[]>([]);
-  const orderInfo = ref<ShopReqOrder[]>([]);
   const { userProd } = useShopUserProds(shopId, null);
-  const { unsubscribe } = getShopOrderInfo(orderInfo, shopId, orderStates);
+  const { unsubscribe, orders: orderInfo } = getShopOrderInfo({
+    shopId,
+    inStates: orderStates,
+  });
   const existOrderIds = ref<Set<string>>(new Set());
 
   watchEffect(async () => {
@@ -52,8 +43,15 @@ export function useReadOrderInfo(shopId: string, orderStates: ORDER_STATE[]) {
     });
     existOrderIds.value = await getExistOrderIds(shopId);
   });
-  return { unsubscribe, orderInfo, orderJoined, existOrderIds };
+  return {
+    unsubscribe,
+    orderInfo,
+    orderJoined,
+    existOrderIds,
+  };
 }
+export const getPendingCnt = (stockCnt: number, orderCnt: number) =>
+  stockCnt - orderCnt > 0 ? 0 : orderCnt - stockCnt;
 
 export function useParseOrderInfo(
   mapper: Ref<Mapper | null>,
@@ -168,6 +166,14 @@ export function orderStateKo(state: ORDER_STATE): string {
   switch (state) {
     case ORDER_STATE.BEFORE_ORDER:
       return "주문전";
+    case ORDER_STATE.BEFORE_APPROVE:
+      return "도매처승인중";
+    case ORDER_STATE.BEFORE_PAYMENT:
+      return "결제전";
+    case ORDER_STATE.BEFORE_SHIP:
+      return "배송전";
+    case ORDER_STATE.SHIPPING:
+      return "배송중";
     default:
       throw `ORDER_STATE Enum memeber ${state} is not exist`;
   }

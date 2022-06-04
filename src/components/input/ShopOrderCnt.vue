@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ShopReqOrder } from "@/composables";
+import { getPendingCnt, ShopReqOrder } from "@/composables";
 import { ShopReqOrderJoined } from "@/types";
 import { useMessage } from "naive-ui";
 import { toRefs, computed } from "vue";
@@ -12,9 +12,7 @@ const { edit, row } = toRefs(props);
 const msg = useMessage();
 const stockCnt = computed(() => row.value.stockCnt ?? 0);
 const pendingCnt = computed(() =>
-  stockCnt.value - row.value.orderCnt > 0
-    ? 0
-    : row.value.orderCnt - stockCnt.value
+  getPendingCnt(stockCnt.value, row.value.orderCnt)
 );
 function onUpdate(val: number) {
   row.value.orderCnt = val;
@@ -36,7 +34,11 @@ async function onSubmit() {
     :min="1"
   />
   <n-text v-else>
-    {{ stockCnt - pendingCnt < 0 ? 0 : stockCnt - pendingCnt }}
-    / {{ pendingCnt }}
+    <n-tooltip trigger="hover">
+      <template #trigger>
+        {{ row.orderCnt - pendingCnt }} / {{ pendingCnt }}
+      </template>
+      {{ row.orderCnt }}
+    </n-tooltip>
   </n-text>
 </template>

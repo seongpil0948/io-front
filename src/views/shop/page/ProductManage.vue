@@ -18,34 +18,37 @@ const { rowIdField, userProd } = useShopUserProds(
   authStore.currUser.userId,
   null
 );
-const { columns, mapper } = useTable<ShopUserProd>(authStore.currUser.userId, [
-  { key: "vendorProdName", rowIdField },
-  {
-    key: "prodName",
-    titleMapping: true,
-    cellMapping: true,
-    rowIdField,
-  },
-  { key: "vendorPrice", rowIdField },
-  {
-    key: "prodPrice",
-    titleMapping: true,
-    rowIdField,
-  },
-  {
-    key: "color",
-    titleMapping: true,
-    cellMapping: true,
-    rowIdField,
-  },
-  {
-    key: "size",
-    titleMapping: true,
-    cellMapping: true,
-    rowIdField,
-  },
-  { key: "stockCnt", rowIdField },
-]);
+const { columns, mapper } = useTable<ShopUserProd>({
+  userId: authStore.currUser.userId,
+  colKeys: [
+    { key: "vendorProdName", rowIdField },
+    {
+      key: "prodName",
+      titleMapping: true,
+      cellMapping: true,
+      rowIdField,
+    },
+    { key: "vendorPrice", rowIdField },
+    {
+      key: "prodPrice",
+      titleMapping: true,
+      rowIdField,
+    },
+    {
+      key: "color",
+      titleMapping: true,
+      cellMapping: true,
+      rowIdField,
+    },
+    {
+      key: "size",
+      titleMapping: true,
+      cellMapping: true,
+      rowIdField,
+    },
+    { key: "stockCnt", rowIdField },
+  ],
+});
 let selectedRow = ref<ShopUserProd | null>(null);
 let popVal = ref("");
 watchEffect(async () => {

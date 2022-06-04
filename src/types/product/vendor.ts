@@ -1,3 +1,4 @@
+import type { ShopReqOrder } from "@/composables";
 import type { PART } from ".";
 import type { IoUserCRT } from "../user";
 import type { GENDOR } from "./part";
@@ -14,7 +15,7 @@ interface VendorProdCRT {
   color: string;
   vendorPrice: number;
   stockCnt: number;
-  allowPending: boolean;
+  allowPending: boolean; // to change convert to false, have to pending Cnt = 0
   titleImgs: string[];
   bodyImgs: string[];
   detailImgs: string[];
@@ -35,10 +36,13 @@ interface VendorProdCombined
 }
 interface VendorUserProd extends IoUserCRT, VendorProdCRT {}
 interface VendorUserProdCombined extends IoUserCRT, VendorProdCombined {}
+interface VendorOrderProd extends VendorProdCRT, ShopReqOrder {}
+
 export type {
   VendorProdCRT,
   VendorProdCombined,
   VendorUserProd,
   VendorUserProdCombined,
   StockCntObj,
+  VendorOrderProd,
 };
