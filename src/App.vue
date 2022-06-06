@@ -54,6 +54,9 @@ const themeOverrides: GlobalThemeOverrides = {
   Tabs: {
     barColor: ioColors.black,
     tabColor: ioColors.primary,
+    tabTextColorActiveBar: ioColors.black,
+    tabTextColorBar: ioColors.black,
+    tabTextColorHoverBar: ioColors.white,
   },
 };
 </script>
@@ -86,5 +89,22 @@ body {
 }
 .space-no-mb * {
   margin-bottom: 0px !important;
+}
+
+.n-tabs .n-tabs-bar {
+  top: 2px !important;
+  height: 4px;
+  border-radius: 12px;
+  max-width: 10rem;
+}
+div.n-tabs-tab {
+  background-color: #f0c755;
+  border-radius: 25px;
+  margin-right: 2vw;
+  padding: 0.8rem 2rem !important;
+}
+
+.n-tabs-tab.n-tabs-tab--active {
+  background-color: white;
 }
 </style>

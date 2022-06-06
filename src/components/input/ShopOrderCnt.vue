@@ -19,7 +19,7 @@ function onUpdate(val: number) {
   row.value.amount = (row.value.prodPrice ?? 0) * val;
 }
 async function onSubmit() {
-  await ShopReqOrder.fromJson(row.value)?.update(true);
+  await ShopReqOrder.fromJson(row.value)?.update(["orderCnt", "amount"]);
   msg.info(`주문개수가 업데이트되었습니다.`);
   props.onSubmitPost();
 }

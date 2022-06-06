@@ -8,12 +8,13 @@ const currTab = ref<string>("reqOrderList");
 <template>
   <n-space vertical>
     <n-card>
-      <n-tabs
-        v-model:value="currTab"
-        type="card"
-        tab-style="border-radius: 25px; margin-right: 2vw; padding: 0.8rem 2rem;"
-      >
-        <n-tab-pane tab="주문 해야할 내역" name="reqOrderList">
+      <n-tabs v-model:value="currTab">
+        <!-- FIXME: 테이블 X 가 끝까지 안가는 원인을 찾고 업데이트 해야함 -->
+        <n-tab-pane
+          display-directive="show:lazy"
+          tab="주문 해야할 내역"
+          name="reqOrderList"
+        >
           <shop-order-table :orderStates="orderTableStates" />
         </n-tab-pane>
         <n-tab-pane tab="주문 완료된 내역" name="orderedList"> gg </n-tab-pane>

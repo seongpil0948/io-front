@@ -4,7 +4,7 @@ import {
   scribeVendorProdById,
 } from "@/plugins/firebase";
 import { computed, onBeforeMount } from "vue";
-import { ORDER_STATE, VendorOrderProd } from "@/types";
+import { VendorOrderProd } from "@/types";
 
 export function useVendors() {
   const vendorStore = useVendorsStore();
@@ -21,10 +21,7 @@ export function useVendors() {
 
 export function useVendor(vendorId: string) {
   const { prods } = scribeVendorProdById(vendorId);
-  const { orders } = getVendorGroupOrderInfo({
-    vendorId,
-    notStates: [ORDER_STATE.BEFORE_ORDER],
-  });
+  const { orders } = getVendorGroupOrderInfo({ vendorId });
   const orderProds = computed<VendorOrderProd[]>(() => {
     const ps: VendorOrderProd[] = [];
     prods.value.forEach((p) => {

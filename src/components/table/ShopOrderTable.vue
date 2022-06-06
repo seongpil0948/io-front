@@ -179,8 +179,6 @@ useParseOrderInfo(
       if (!vendorProd)
         throw `${order.vendorProdId} is not Exist in Vendor Prod Doc`;
       await order.update();
-      vendorProd.stockCnt -= order.orderCnt;
-      await vendorProd.update();
     }
   }
 );

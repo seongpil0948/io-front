@@ -15,10 +15,11 @@ import {
   type DocumentData,
   type DocumentSnapshot,
   setDoc,
+  getDoc,
 } from "firebase/firestore";
 import { CommonField } from "./common";
 
-class ShopReqOrder extends CommonField {
+class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
   // Both Shop and Vendor can Modify This Information
   // But Mutual Consent is Required
   orderId: string;
@@ -30,6 +31,7 @@ class ShopReqOrder extends CommonField {
   activeCnt: number;
   pendingCnt: number;
   amount: number;
+  amountPaid: number;
   orderState: ORDER_STATE;
   waitApprove: boolean;
 
@@ -44,11 +46,12 @@ class ShopReqOrder extends CommonField {
     this.activeCnt = data.activeCnt;
     this.pendingCnt = data.pendingCnt;
     this.amount = data.amount;
+    this.amountPaid = data.amountPaid;
     this.orderState = data.orderState;
     this.waitApprove = data.waitApprove;
   }
 
-  async update(clear = false) {
+  async update(fields?: (keyof ShopReqOrderCRT)[]) {
     const shopReqRef = getIoCollection({
       c: IoCollection.SHOP_REQ_ORDER,
       uid: this.shopId,
@@ -58,11 +61,24 @@ class ShopReqOrder extends CommonField {
       shopReqOrderConverter
     );
 
-    if (!clear) {
-      await setDoc(docRef, this, { merge: true });
+    if (fields) {
+      await setDoc(
+        docRef,
+        fields.reduce((acc, field) => {
+          acc[field] = this[field];
+          return acc;
+        }, {} as any),
+        { merge: true }
+      );
     } else {
-      await setDoc(docRef, this);
-      await setOrderId(this.shopId, this.orderId);
+      const d = await getDoc(docRef);
+      const data = d.data();
+      if (data) {
+        await setDoc(docRef, this, { merge: true });
+      } else {
+        await setDoc(docRef, this);
+        await setOrderId(this.shopId, this.orderId);
+      }
     }
   }
 
@@ -78,6 +94,7 @@ class ShopReqOrder extends CommonField {
       activeCnt: 1,
       pendingCnt: 0,
       amount: orderCnt * p.prodPrice,
+      amountPaid: 0,
       orderState: ORDER_STATE.BEFORE_ORDER,
       waitApprove: false,
     });
@@ -96,6 +113,7 @@ class ShopReqOrder extends CommonField {
           activeCnt: data.activeCnt,
           pendingCnt: data.pendingCnt,
           amount: data.amount,
+          amountPaid: data.amountPaid,
           orderState: data.orderState,
           waitApprove: data.waitApprove,
         })

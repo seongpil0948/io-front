@@ -3,4 +3,5 @@ export const ioColors = {
   background: "#f2f2f2",
   text: "#404040",
   black: "#404040",
+  white: "#FFFFFF",
 };
