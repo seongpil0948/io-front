@@ -35,10 +35,15 @@ const themeOverrides: GlobalThemeOverrides = {
   },
   Button: {
     color: ioColors.primary,
+    colorTertiary: ioColors.white,
     textColor: ioColors.text,
-    textColorFocus: ioColors.primary,
+    textColorGhostPrimary: ioColors.text,
+    textColorFocus: ioColors.text,
+    textColorTertiary: ioColors.text,
+    textColorPrimary: ioColors.text,
     textColorFocusInfo: ioColors.text,
   },
+  Checkbox: { textColor: ioColors.text, color: ioColors.white },
   Select: {
     peers: {
       InternalSelection: {

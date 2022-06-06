@@ -5,6 +5,7 @@ import {
 } from "@/plugins/firebase";
 import { computed, onBeforeMount } from "vue";
 import { VendorOrderProd } from "@/types";
+import { ShopReqOrder } from "@/composables/model";
 
 export function useVendors() {
   const vendorStore = useVendorsStore();
@@ -40,6 +41,8 @@ export function useVendor(vendorId: string) {
           return acc;
         }, {} as VendorOrderProd);
         ps.push(Object.assign({}, p, order));
+      } else {
+        ps.push(Object.assign(ShopReqOrder.none(), p));
       }
     });
     return ps;

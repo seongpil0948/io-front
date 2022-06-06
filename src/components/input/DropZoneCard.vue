@@ -17,7 +17,7 @@
         <div style="padding: 10% 20%">
           <div style="margin-bottom: 12px">
             <n-icon size="120" :depth="hovered ? 1 : 3">
-              <archive-icon />
+              <add-circle-outline />
             </n-icon>
           </div>
           <n-p
@@ -42,7 +42,7 @@
 <script setup>
 import { NCard, NP, NIcon, useMessage } from "naive-ui";
 import { ref, toRefs } from "vue";
-import { AddCircleOutline as ArchiveIcon } from "@vicons/ionicons5";
+import { AddCircleOutline } from "@vicons/ionicons5";
 import { useDropzone } from "vue3-dropzone";
 import { ioColors } from "@/composables";
 const props = defineProps({

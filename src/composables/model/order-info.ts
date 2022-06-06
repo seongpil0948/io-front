@@ -50,6 +50,22 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
     this.orderState = data.orderState;
     this.waitApprove = data.waitApprove;
   }
+  static none() {
+    return new ShopReqOrder({
+      orderId: "",
+      vendorId: "",
+      vendorProdId: "",
+      shopId: "",
+      shopProdId: "",
+      orderCnt: 0,
+      activeCnt: 0,
+      pendingCnt: 0,
+      amount: 0,
+      amountPaid: 0,
+      orderState: ORDER_STATE.BEFORE_ORDER,
+      waitApprove: false,
+    });
+  }
 
   async update(fields?: (keyof ShopReqOrderCRT)[]) {
     const shopReqRef = getIoCollection({
