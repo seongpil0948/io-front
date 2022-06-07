@@ -26,16 +26,18 @@ const prodModel = ref({
   part: PART.TOP,
   ctgr: "",
   name: "",
-  allowPending: [false],
+  allowPending: [],
   gendor: GENDOR.MALE,
   price: null,
   vendorPrice: 0,
   titleImgs: [] as string[],
   bodyImgs: [] as string[],
-  detailImgs: [] as string[],
   colors: ["black"],
   sizes: [] as PROD_SIZE[],
   stockCnt: 0,
+  fabric: "", // 혼용률 / 제조국
+  info: "", // 상세정보
+  description: "",
 });
 const ctgrOpts = computed(() => getCtgrOpts(prodModel.value.part));
 const sizesOpts = computed(() => getSizeOpts(prodModel.value.part));
@@ -48,52 +50,72 @@ const rules = {
   allowPending: notNullRule,
   titleImgs: arrLenRule(1),
   bodyImgs: arrLenRule(1),
-  detailImgs: arrLenRule(1),
   sizes: arrLenRule(1),
   colors: arrLenRule(1),
+  fabric: notNullRule, // 혼용률 / 제조국
+  info: notNullRule, // 상세정보
+  description: notNullRule,
 };
-const products = ref<VendorProd[]>([]);
+
+type StockCnt = { [size in PROD_SIZE]: { [color: string]: number } };
+const stockCnts = ref<StockCnt | null>(null);
+
+watchEffect(() => {
+  const v = prodModel.value;
+  if (v.allowPending.length > 1) {
+    v.allowPending.shift();
+  }
+});
 watchEffect(
   () => {
-    if (prodModel.value.allowPending.length > 1) {
-      prodModel.value.allowPending.shift();
-    }
+    stockCnts.value = {} as StockCnt;
+    prodModel.value.sizes.forEach((size) => {
+      prodModel.value.colors.forEach((color) => {
+        if (!stockCnts.value![size]) {
+          stockCnts.value![size] = {};
+        }
+        stockCnts.value![size][color] = 0;
+      });
+    });
   },
   { flush: "pre" }
 );
-watchEffect(() => {
-  const v = prodModel.value;
-  products.value = [];
-  v.sizes.forEach((size) => {
-    v.colors.forEach((color) => {
-      products.value.push(
-        new VendorProd(
-          Object.assign(v, {
-            allowPending: v.allowPending[0],
-            vendorProdName: v.name,
-            size,
-            color,
-            vendorId: currUser.userId,
-            vendorProdId: uuidv4(),
-          })
-        )
-      );
-    });
-  });
-});
 function onRegister() {
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요");
     else if (currUser.role !== USER_ROLE.VENDOR)
       return msg.error(`User Role is not Valid: ${currUser.role}`);
+    else if (!stockCnts.value) return;
+
+    const products: VendorProd[] = [];
+    const v = prodModel.value;
+    const allowPending = v.allowPending[0] === "받기" ? true : false;
+    prodModel.value.sizes.forEach((size) => {
+      prodModel.value.colors.forEach((color) => {
+        products.push(
+          new VendorProd(
+            Object.assign({}, v, {
+              allowPending,
+              vendorProdName: v.name,
+              size,
+              color,
+              vendorId: currUser.userId,
+              vendorProdId: uuidv4(),
+              stockCnt: stockCnts.value![size][color],
+            })
+          )
+        );
+      });
+    });
+
     dialog.success({
       title: "상품정보 제출",
-      content: `${products.value.length}개의 상품을 등록하시겠습니까?`,
+      content: `${products.length}개의 상품을 등록하시겠습니까?`,
       positiveText: "등록",
       negativeText: "취소",
       closeOnEsc: true,
       onPositiveClick: async () => {
-        return Promise.all(products.value.map((p) => p.update()))
+        return Promise.all(products.map((p) => p.update()))
           .then(() => {
             msg.success("상품등록이 완료되었습니다.");
             router.replace({ name: "VendorProductList" });
@@ -139,8 +161,8 @@ function onRegister() {
             <n-form-item-gi label="자동미송받기" path="allowPending">
               <n-checkbox-group v-model:value="prodModel.allowPending">
                 <n-space item-style="display: flex;">
-                  <n-checkbox :value="true" label="받기" />
-                  <n-checkbox :value="false" label="안받기" /> </n-space
+                  <n-checkbox value="받기" label="받기" />
+                  <n-checkbox value="안받기" label="안받기" /> </n-space
               ></n-checkbox-group>
             </n-form-item-gi>
             <n-form-item-gi label="파트" path="part">
@@ -190,25 +212,48 @@ function onRegister() {
                   </n-form-item>
                 </n-space>
                 <n-card
-                  v-if="products.length > 0"
+                  v-if="stockCnts"
                   title="재고수량 입력"
                   style="max-height: 20vh; overflow: auto"
                 >
-                  <div v-for="(prod, i) in products" :key="i">
-                    <n-space inline :wrap="false" style="margin-bottom: 1%">
-                      <n-text>{{ prod.size }}</n-text>
-                      <n-text>{{ prod.color }}</n-text>
-                      <n-input-number
-                        :show-button="false"
-                        :min="0"
-                        v-model:value="prod.stockCnt"
-                      />
-                    </n-space>
+                  <div v-for="(size, i) in Object.keys(stockCnts)" :key="i">
+                    <div
+                      v-for="(color, j) in Object.keys(stockCnts[size])"
+                      :key="j"
+                    >
+                      <n-space inline :wrap="false" style="margin-bottom: 1%">
+                        <n-text>{{ size }}</n-text>
+                        <n-text>{{ color }}</n-text>
+                        <n-input-number
+                          :show-button="false"
+                          :min="0"
+                          v-model:value="stockCnts[size][color]"
+                        />
+                      </n-space>
+                    </div>
                   </div>
                 </n-card>
               </n-space>
             </n-grid-item>
-
+            <n-form-item-gi span="2" label="상품정보" path="info">
+              <n-input
+                v-model:value="prodModel.info"
+                type="textarea"
+                placeholder="상품 정보 입력"
+              />
+            </n-form-item-gi>
+            <n-form-item-gi span="2" label="상품개요" path="description">
+              <n-input
+                v-model:value="prodModel.description"
+                placeholder="개요 입력"
+              />
+            </n-form-item-gi>
+            <n-form-item-gi span="2" label="혼용률/제조국" path="fabric">
+              <n-input
+                v-model:value="prodModel.fabric"
+                placeholder="원단 정보 입력"
+              />
+            </n-form-item-gi>
             <n-form-item-gi
               span="2"
               :label="`대표이미지(${prodModel.titleImgs.length})`"
@@ -233,21 +278,6 @@ function onRegister() {
                 elemetId="bodyImgs"
                 :user="currUser"
                 v-model:urls="prodModel.bodyImgs"
-                size="100px"
-                :max="5"
-              >
-                <add-circle-outline />
-              </single-image-input>
-            </n-form-item-gi>
-            <n-form-item-gi
-              span="2"
-              :label="`상세이미지(${prodModel.detailImgs.length})`"
-              path="detailImgs"
-            >
-              <single-image-input
-                elemetId="detailImgs"
-                :user="currUser"
-                v-model:urls="prodModel.detailImgs"
                 size="100px"
                 :max="5"
               >

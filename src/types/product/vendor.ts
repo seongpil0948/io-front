@@ -18,8 +18,10 @@ interface VendorProdCRT {
   allowPending: boolean; // to change convert to false, have to pending Cnt = 0
   titleImgs: string[];
   bodyImgs: string[];
-  detailImgs: string[];
   size: PROD_SIZE;
+  fabric: string; // 혼용률 / 제조국
+  info: string; // 상세정보
+  description: string;
 }
 
 type StockCntObj = {

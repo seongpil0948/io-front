@@ -30,8 +30,10 @@ export class VendorProd extends CommonField implements VendorProdCRT {
   allowPending: boolean;
   titleImgs: string[];
   bodyImgs: string[];
-  detailImgs: string[];
   size: PROD_SIZE;
+  fabric: string;
+  info: string;
+  description: string;
 
   static getCombineId(p: VendorProdCRT) {
     return p.vendorId + p.vendorProdName;
@@ -63,9 +65,11 @@ export class VendorProd extends CommonField implements VendorProdCRT {
     this.stockCnt = p.stockCnt;
     this.titleImgs = p.titleImgs;
     this.bodyImgs = p.bodyImgs;
-    this.detailImgs = p.detailImgs;
     this.size = p.size;
     this.allowPending = p.allowPending;
+    this.fabric = p.fabric;
+    this.info = p.info;
+    this.description = p.description;
   }
   static fromJson(data: { [x: string]: any }): VendorProd | null {
     return data && data.vendorProdId
@@ -84,8 +88,10 @@ export class VendorProd extends CommonField implements VendorProdCRT {
           allowPending: data.allowPending ?? false,
           titleImgs: data.titleImgs,
           bodyImgs: data.bodyImgs,
-          detailImgs: data.detailImgs,
           size: data.size,
+          fabric: data.fabric ?? "",
+          info: data.info ?? "",
+          description: data.description ?? "",
         })
       : null;
   }
