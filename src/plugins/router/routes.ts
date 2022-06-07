@@ -1,7 +1,6 @@
 import type { RouteRecordRaw } from "vue-router";
 
 export const DefaultRoot = "/vendor";
-export const notAuthName = ["Login", "SignUp", "PlayGround"];
 export const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
