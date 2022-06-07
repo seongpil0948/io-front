@@ -22,6 +22,7 @@ const dialog = useDialog();
 const formRef = ref<FormInst | null>(null);
 const currUser = getCurrUser();
 const router = useRouter();
+
 const prodModel = ref({
   part: PART.TOP,
   ctgr: "",
@@ -41,22 +42,21 @@ const prodModel = ref({
 });
 const ctgrOpts = computed(() => getCtgrOpts(prodModel.value.part));
 const sizesOpts = computed(() => getSizeOpts(prodModel.value.part));
-
 const rules = {
-  name: nameLenRule,
-  vendorPrice: notNullRule,
   part: notNullRule,
   ctgr: notNullRule,
+  name: nameLenRule,
   allowPending: notNullRule,
+  gendor: notNullRule,
+  vendorPrice: notNullRule,
   titleImgs: arrLenRule(1),
   bodyImgs: arrLenRule(1),
-  sizes: arrLenRule(1),
   colors: arrLenRule(1),
+  sizes: arrLenRule(1),
   fabric: notNullRule, // 혼용률 / 제조국
   info: notNullRule, // 상세정보
   description: notNullRule,
 };
-
 type StockCnt = { [size in PROD_SIZE]: { [color: string]: number } };
 const stockCnts = ref<StockCnt | null>(null);
 
@@ -130,172 +130,160 @@ function onRegister() {
 </script>
 <template>
   <n-card>
-    <n-space vertical style="width: 100%">
-      <n-space justify="center">
-        <n-form
-          ref="formRef"
-          :model="prodModel"
-          :rules="rules"
-          label-placement="left"
-          require-mark-placement="right-hanging"
-          label-width="auto"
-        >
-          <n-space justify="end">
-            <n-space
-              inline
-              style="width: 100%; text-align: start"
-              justify="start"
-            >
-              <n-image src="/logo.png" height="40" />
-              <n-text
-                >재고가 부족할 경우
-                <br />
-                재고수량 상관없이 주문을 받는 옵션</n-text
-              >
-            </n-space>
-          </n-space>
-          <n-grid :x-gap="12" cols="1 350:2" item-responsive>
-            <n-form-item-gi label="제품명" path="name">
-              <n-input v-model:value="prodModel.name" />
-            </n-form-item-gi>
-            <n-form-item-gi label="자동미송받기" path="allowPending">
-              <n-checkbox-group v-model:value="prodModel.allowPending">
-                <n-space item-style="display: flex;">
-                  <n-checkbox value="받기" label="받기" />
-                  <n-checkbox value="안받기" label="안받기" /> </n-space
-              ></n-checkbox-group>
-            </n-form-item-gi>
-            <n-form-item-gi label="파트" path="part">
-              <n-select v-model:value="prodModel.part" :options="partOpts" />
-            </n-form-item-gi>
-            <n-form-item-gi label="카테고리" path="ctgr">
-              <n-select v-model:value="prodModel.ctgr" :options="ctgrOpts" />
-            </n-form-item-gi>
-            <n-form-item-gi label="성별" path="part">
-              <n-select
-                v-model:value="prodModel.gendor"
-                :options="gendorOpts"
-              />
-            </n-form-item-gi>
-
-            <n-form-item-gi label="도매가" path="vendorPrice">
-              <n-input-number
-                :step="1000"
-                v-model:value="prodModel.vendorPrice"
-              >
-                <template #prefix> ₩ </template>
-                <template #suffix> 원 </template>
-              </n-input-number>
-            </n-form-item-gi>
-            <n-grid-item span="2">
-              <n-space
-                :wrap="false"
-                inline
-                justify="space-between"
-                style="width: 100%"
-              >
-                <n-space vertical justify="start">
-                  <n-form-item label="컬러" path="colors">
-                    <n-dynamic-tags
-                      style="flex-wrap: ;no-wrap; overflow-x: scroll;"
-                      v-model:value="prodModel.colors"
-                      @keydown.enter.prevent
-                    />
-                  </n-form-item>
-
-                  <n-form-item span="2" label="사이즈" path="sizes">
-                    <n-select
-                      multiple
-                      v-model:value="prodModel.sizes"
-                      :options="sizesOpts"
-                    />
-                  </n-form-item>
-                </n-space>
-                <n-card
-                  v-if="stockCnts"
-                  title="재고수량 입력"
-                  style="max-height: 20vh; overflow: auto"
-                >
-                  <div v-for="(size, i) in Object.keys(stockCnts)" :key="i">
-                    <div
-                      v-for="(color, j) in Object.keys(stockCnts[size])"
-                      :key="j"
-                    >
-                      <n-space inline :wrap="false" style="margin-bottom: 1%">
-                        <n-text>{{ size }}</n-text>
-                        <n-text>{{ color }}</n-text>
-                        <n-input-number
-                          :show-button="false"
-                          :min="0"
-                          v-model:value="stockCnts[size][color]"
-                        />
-                      </n-space>
-                    </div>
-                  </div>
-                </n-card>
-              </n-space>
-            </n-grid-item>
-            <n-form-item-gi span="2" label="상품정보" path="info">
-              <n-input
-                v-model:value="prodModel.info"
-                type="textarea"
-                placeholder="상품 정보 입력"
-              />
-            </n-form-item-gi>
-            <n-form-item-gi span="2" label="상품개요" path="description">
-              <n-input
-                v-model:value="prodModel.description"
-                placeholder="개요 입력"
-              />
-            </n-form-item-gi>
-            <n-form-item-gi span="2" label="혼용률/제조국" path="fabric">
-              <n-input
-                v-model:value="prodModel.fabric"
-                placeholder="원단 정보 입력"
-              />
-            </n-form-item-gi>
-            <n-form-item-gi
-              span="2"
-              :label="`대표이미지(${prodModel.titleImgs.length})`"
-              path="titleImgs"
-            >
-              <single-image-input
-                elemetId="titleImgs"
-                :user="currUser"
-                v-model:urls="prodModel.titleImgs"
-                size="100px"
-                :max="5"
-              >
-                <add-circle-outline />
-              </single-image-input>
-            </n-form-item-gi>
-            <n-form-item-gi
-              span="2"
-              :label="`제품이미지(${prodModel.bodyImgs.length})`"
-              path="bodyImgs"
-            >
-              <single-image-input
-                elemetId="bodyImgs"
-                :user="currUser"
-                v-model:urls="prodModel.bodyImgs"
-                size="100px"
-                :max="5"
-              >
-                <add-circle-outline />
-              </single-image-input>
-            </n-form-item-gi>
-          </n-grid>
-
-          <div style="display: flex; justify-content: flex-end">
-            <n-button round type="primary" size="large" @click="onRegister">
-              상품등록
-            </n-button>
-          </div>
-        </n-form>
+    <n-form
+      ref="formRef"
+      :model="prodModel"
+      :rules="rules"
+      label-placement="left"
+      require-mark-placement="right-hanging"
+      label-width="auto"
+    >
+      <n-space justify="end">
+        <n-space inline style="width: 100%; text-align: start" justify="start">
+          <n-image src="/logo.png" height="40" />
+          <n-text
+            >재고가 부족할 경우
+            <br />
+            재고수량 상관없이 주문을 받는 옵션</n-text
+          >
+        </n-space>
       </n-space>
-    </n-space></n-card
-  >
+      <n-grid :x-gap="12" cols="1 350:2" item-responsive>
+        <n-form-item-gi label="제품명" path="name">
+          <n-input v-model:value="prodModel.name" />
+        </n-form-item-gi>
+        <n-form-item-gi label="자동미송받기" path="allowPending">
+          <n-checkbox-group v-model:value="prodModel.allowPending">
+            <n-space item-style="display: flex;">
+              <n-checkbox value="받기" label="받기" />
+              <n-checkbox value="안받기" label="안받기" /> </n-space
+          ></n-checkbox-group>
+        </n-form-item-gi>
+        <n-form-item-gi label="파트" path="part">
+          <n-select v-model:value="prodModel.part" :options="partOpts" />
+        </n-form-item-gi>
+        <n-form-item-gi label="카테고리" path="ctgr">
+          <n-select v-model:value="prodModel.ctgr" :options="ctgrOpts" />
+        </n-form-item-gi>
+        <n-form-item-gi label="성별" path="part">
+          <n-select v-model:value="prodModel.gendor" :options="gendorOpts" />
+        </n-form-item-gi>
+
+        <n-form-item-gi label="도매가" path="vendorPrice">
+          <n-input-number :step="1000" v-model:value="prodModel.vendorPrice">
+            <template #prefix> ₩ </template>
+            <template #suffix> 원 </template>
+          </n-input-number>
+        </n-form-item-gi>
+        <n-grid-item span="2">
+          <n-space
+            :wrap="false"
+            inline
+            justify="space-between"
+            style="width: 100%; margin-bottom: 5%"
+          >
+            <n-space vertical justify="start">
+              <n-form-item label="컬러" path="colors">
+                <n-dynamic-tags
+                  style="flex-wrap: ;no-wrap; overflow-x: scroll;"
+                  v-model:value="prodModel.colors"
+                  @keydown.enter.prevent
+                />
+              </n-form-item>
+
+              <n-form-item span="2" label="사이즈" path="sizes">
+                <n-select
+                  placeholder="선택"
+                  multiple
+                  v-model:value="prodModel.sizes"
+                  :options="sizesOpts"
+                />
+              </n-form-item>
+            </n-space>
+            <n-card
+              v-if="stockCnts && Object.keys(stockCnts).length > 0"
+              title="재고수량 입력"
+              style="max-height: 20vh; overflow: auto"
+            >
+              <div v-for="(size, i) in Object.keys(stockCnts)" :key="i">
+                <div
+                  v-for="(color, j) in Object.keys(stockCnts[size])"
+                  :key="j"
+                >
+                  <n-space inline :wrap="false" style="margin-bottom: 1%">
+                    <n-text>{{ size }}</n-text>
+                    <n-text>{{ color }}</n-text>
+                    <n-input-number
+                      :show-button="false"
+                      :min="0"
+                      v-model:value="stockCnts[size][color]"
+                    />
+                  </n-space>
+                </div>
+              </div>
+            </n-card>
+          </n-space>
+        </n-grid-item>
+        <n-form-item-gi span="2" label="상품정보" path="info">
+          <n-input
+            v-model:value="prodModel.info"
+            type="textarea"
+            placeholder="상품 정보 입력"
+          />
+        </n-form-item-gi>
+        <n-form-item-gi span="2" label="상품개요" path="description">
+          <n-input
+            v-model:value="prodModel.description"
+            placeholder="개요 입력"
+          />
+        </n-form-item-gi>
+        <n-form-item-gi span="2" label="혼용률/제조국" path="fabric">
+          <n-input
+            v-model:value="prodModel.fabric"
+            placeholder="원단 정보 입력"
+          />
+        </n-form-item-gi>
+        <n-form-item-gi
+          span="2"
+          :label="`대표이미지(${prodModel.titleImgs.length})`"
+          path="titleImgs"
+        >
+          <single-image-input
+            elemetId="titleImgs"
+            :user="currUser"
+            v-model:urls="prodModel.titleImgs"
+            size="100px"
+            :max="5"
+          >
+            <add-circle-outline />
+          </single-image-input>
+        </n-form-item-gi>
+        <n-form-item-gi
+          span="2"
+          :label="`제품이미지(${prodModel.bodyImgs.length})`"
+          path="bodyImgs"
+        >
+          <single-image-input
+            elemetId="bodyImgs"
+            :user="currUser"
+            v-model:urls="prodModel.bodyImgs"
+            size="100px"
+            :max="5"
+          >
+            <add-circle-outline />
+          </single-image-input>
+        </n-form-item-gi>
+      </n-grid>
+
+      <div style="display: flex; justify-content: flex-end">
+        <n-button round type="primary" size="large" @click="onRegister">
+          상품등록
+        </n-button>
+      </div>
+    </n-form>
+  </n-card>
 </template>
+
 <style scoped>
 .n-input-number {
   width: 100%;

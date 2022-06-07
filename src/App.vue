@@ -42,8 +42,13 @@ const themeOverrides: GlobalThemeOverrides = {
     textColorTertiary: ioColors.text,
     textColorPrimary: ioColors.text,
     textColorFocusInfo: ioColors.text,
+    textColorSuccess: ioColors.text,
   },
-  Checkbox: { textColor: ioColors.text, color: ioColors.white },
+  Checkbox: {
+    textColor: ioColors.text,
+    color: ioColors.white,
+    checkMarkColor: ioColors.text,
+  },
   Select: {
     peers: {
       InternalSelection: {
@@ -62,6 +67,10 @@ const themeOverrides: GlobalThemeOverrides = {
     tabTextColorActiveBar: ioColors.black,
     tabTextColorBar: ioColors.black,
     tabTextColorHoverBar: ioColors.white,
+  },
+  Dialog: {
+    textColor: ioColors.text,
+    iconColorSuccess: ioColors.text,
   },
 };
 </script>

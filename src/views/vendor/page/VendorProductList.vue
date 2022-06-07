@@ -2,7 +2,7 @@
 import { useAuthStore } from "@/stores";
 import type { IoColOpt, VendorOrderProd } from "@/types";
 import { useTable, useVendor, VendorProd } from "@/composables";
-import { h, watchEffect } from "vue";
+import { h, ref, watchEffect } from "vue";
 import LogoChecker from "@/components/input/LogoChecker.vue";
 import { NButton, useMessage } from "naive-ui";
 const auth = useAuthStore();
@@ -67,10 +67,7 @@ watchEffect(() => {
             NButton,
             {
               round: true,
-              onClick: () => {
-                // FIXME: 상품등록 컴포넌트들 제대로만들고 카드화해서 수정시에도 사용 가능하게끔
-                console.log("Clicked 상품수정", row);
-              },
+              onClick: () => onShowProdEdit(VendorProd.fromJson(row)),
             },
             { default: () => "상품수정" }
           ),
@@ -78,6 +75,13 @@ watchEffect(() => {
     ]
   );
 });
+const showProdEdit = ref(false);
+const prodEditTarget = ref<VendorProd | null>(null);
+function onShowProdEdit(row: VendorProd | null) {
+  if (!row) return;
+  showProdEdit.value = true;
+  prodEditTarget.value = row;
+}
 </script>
 <template>
   <n-card>
@@ -91,4 +95,15 @@ watchEffect(() => {
       :bordered="false"
     />
   </n-card>
+  <n-modal
+    v-model:show="showProdEdit"
+    preset="card"
+    style="width: 50%"
+    title="상품 정보 수정"
+  >
+    <vendor-prod-edit-form
+      v-if="showProdEdit && prodEditTarget"
+      :prod="prodEditTarget"
+    />
+  </n-modal>
 </template>

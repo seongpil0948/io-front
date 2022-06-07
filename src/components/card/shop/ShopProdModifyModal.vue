@@ -7,7 +7,6 @@
     :bordered="false"
     :segmented="segmented"
   >
-    <template #header-extra> Oops! </template>
     <n-form
       ref="formRef"
       v-if="userProd"
