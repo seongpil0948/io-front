@@ -12,16 +12,21 @@ const { edit, row } = toRefs(props);
 const msg = useMessage();
 const stockCnt = computed(() => row.value.stockCnt ?? 0);
 const pendingCnt = computed(() =>
-  getPendingCnt(stockCnt.value, row.value.orderCnt)
+  row.value.allowPending ? getPendingCnt(stockCnt.value, row.value.orderCnt) : 0
 );
 function onUpdate(val: number) {
   row.value.orderCnt = val;
   row.value.amount = (row.value.prodPrice ?? 0) * val;
 }
 async function onSubmit() {
-  await ShopReqOrder.fromJson(row.value)?.update(["orderCnt", "amount"]);
-  msg.info(`주문개수가 업데이트되었습니다.`);
-  props.onSubmitPost();
+  const order = ShopReqOrder.fromJson(row.value);
+  if (order) {
+    await order.update();
+    msg.info(`주문개수가 업데이트되었습니다.`);
+    props.onSubmitPost();
+  } else {
+    msg.error(`주문개수가 업데이트에 실패하였습니다..`);
+  }
 }
 </script>
 <template>
