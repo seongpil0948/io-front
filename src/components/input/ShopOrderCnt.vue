@@ -38,7 +38,7 @@ async function onSubmit() {
       <template #trigger>
         {{ row.orderCnt - pendingCnt }} / {{ pendingCnt }}
       </template>
-      {{ row.orderCnt }}
+      주문시도 개수: {{ row.orderCnt }}
     </n-tooltip>
   </n-text>
 </template>

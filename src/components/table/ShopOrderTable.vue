@@ -28,12 +28,11 @@ const fileModel = ref<File[]>([]);
 const cols = [
   "userName",
   "prodName",
+  "orderCnt",
+  "allowPending",
+  "stockCnt",
   "color",
   "size",
-  "orderCnt",
-  "vendorProdName",
-  "stockCnt",
-  "allowPending",
   "amount",
 ].map((c) => {
   return { key: c } as IoColOpt;

@@ -91,6 +91,7 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
       const data = d.data();
       if (data) {
         await setDoc(docRef, this, { merge: true });
+        await setOrderId(this.shopId, this.orderId);
       } else {
         await setDoc(docRef, this);
         await setOrderId(this.shopId, this.orderId);
