@@ -53,6 +53,18 @@ export function useShopReadOrderInfo(
 export const getPendingCnt = (stockCnt: number, orderCnt: number) =>
   stockCnt - orderCnt > 0 ? 0 : orderCnt - stockCnt;
 
+export const getOrderCnt = (
+  stockCnt: number,
+  orderCnt: number,
+  pendingCnt: number
+) => {
+  const cnt = orderCnt - pendingCnt;
+  if (stockCnt < cnt) {
+    return stockCnt;
+  }
+  return cnt;
+};
+
 export function useParseOrderInfo(
   mapper: Ref<Mapper | null>,
   userId: string,

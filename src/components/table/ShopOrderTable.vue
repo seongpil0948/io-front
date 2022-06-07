@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { h, ref, watchEffect } from "vue";
 import {
+  getOrderCnt,
   getPendingCnt,
   ShopReqOrder,
   useParseOrderInfo,
@@ -95,10 +96,11 @@ watchEffect(() => {
                       data.pendingCnt = row.allowPending
                         ? getPendingCnt(row.stockCnt, row.orderCnt)
                         : 0;
-                      data.orderCnt =
-                        row.orderCnt - data.pendingCnt > row.stockCnt
-                          ? row.stockCnt
-                          : row.orderCnt - data.pendingCnt;
+                      data.orderCnt = getOrderCnt(
+                        row.stockCnt,
+                        row.orderCnt,
+                        data.pendingCnt
+                      );
                       data.amount = data.orderCnt * row.prodPrice!;
                       data.orderState = ORDER_STATE.BEFORE_APPROVE;
                       await data.update();

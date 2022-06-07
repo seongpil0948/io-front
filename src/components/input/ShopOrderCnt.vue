@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getPendingCnt, ShopReqOrder } from "@/composables";
+import { getOrderCnt, getPendingCnt, ShopReqOrder } from "@/composables";
 import { ShopReqOrderJoined } from "@/types";
 import { useMessage } from "naive-ui";
 import { toRefs, computed } from "vue";
@@ -21,28 +21,30 @@ function onUpdate(val: number) {
 async function onSubmit() {
   const order = ShopReqOrder.fromJson(row.value);
   if (order) {
-    await order.update();
-    msg.info(`주문개수가 업데이트되었습니다.`);
-    props.onSubmitPost();
+    order.update().then(() => {
+      msg.info(`주문개수가 업데이트되었습니다.`);
+      props.onSubmitPost();
+    });
   } else {
     msg.error(`주문개수가 업데이트에 실패하였습니다..`);
   }
 }
+const orderCnt = computed(() =>
+  getOrderCnt(row.value.stockCnt!, row.value.orderCnt, pendingCnt.value)
+);
 </script>
 <template>
   <n-input-number
     v-if="edit"
     :value="row.orderCnt"
     @update:value="onUpdate"
-    @blur="onSubmit"
-    @keyup.enter="onSubmit"
+    @blur.stop="onSubmit"
+    @keyup.enter.stop="onSubmit"
     :min="1"
   />
   <n-text v-else>
     <n-tooltip trigger="hover">
-      <template #trigger>
-        {{ row.orderCnt - pendingCnt }} / {{ pendingCnt }}
-      </template>
+      <template #trigger> {{ orderCnt }} / {{ pendingCnt }} </template>
       주문시도 개수: {{ row.orderCnt }}
     </n-tooltip>
   </n-text>
