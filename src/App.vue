@@ -34,7 +34,10 @@ const themeOverrides: GlobalThemeOverrides = {
     headerColor: ioColors.primary,
   },
   Button: {
-    color: ioColors.primary,
+    color: ioColors.white,
+    colorHover: ioColors.primary,
+    textColorHover: ioColors.white,
+    colorPrimary: ioColors.primary,
     colorTertiary: ioColors.white,
     textColor: ioColors.text,
     textColorGhostPrimary: ioColors.text,
@@ -69,9 +72,15 @@ const themeOverrides: GlobalThemeOverrides = {
   Tabs: {
     barColor: ioColors.black,
     tabColor: ioColors.primary,
+    tabTextColorActiveSegment: ioColors.black,
     tabTextColorActiveBar: ioColors.black,
+    tabTextColorActiveCard: ioColors.black,
+    tabTextColorSegment: ioColors.black,
+    tabTextColorCard: ioColors.black,
     tabTextColorBar: ioColors.black,
     tabTextColorHoverBar: ioColors.white,
+    tabTextColorHoverSegment: ioColors.white,
+    tabTextColorHoverCard: ioColors.white,
   },
   Dialog: {
     textColor: ioColors.text,
@@ -110,20 +119,23 @@ body {
   margin-bottom: 0px !important;
 }
 
+.n-tabs .n-tabs-tab {
+  min-width: 4vw;
+}
 .n-tabs .n-tabs-bar {
   top: 2px !important;
   height: 4px;
   border-radius: 12px;
   max-width: 10rem;
 }
-div.n-tabs-tab {
+.n-tabs--bar-type div.n-tabs-tab {
   background-color: #f0c755;
   border-radius: 25px;
   margin-right: 2vw;
   padding: 0.8rem 2rem !important;
 }
 
-.n-tabs-tab.n-tabs-tab--active {
+.n-tabs--bar-type .n-tabs-tab.n-tabs-tab--active {
   background-color: white;
 }
 </style>

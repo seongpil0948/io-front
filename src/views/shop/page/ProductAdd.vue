@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { useVendors } from "@/composables";
-import { PART, CATEGORIES, GENDOR, type VendorUserProdCombined } from "@/types";
+import { PART, type VendorUserProdCombined } from "@/types";
 import { ref } from "vue";
 
 const { vendorStore } = useVendors();
 let selectedPart = ref<PART | null>(null);
-function onSelectPart(part: PART) {
-  selectedPart.value = part;
-}
+let selectedCtgr = ref<string | null>(null);
 
 let showAddModal = ref(false);
 let selectedProd = ref<VendorUserProdCombined | null>(null);
@@ -39,37 +37,11 @@ function onClickProd(prod: VendorUserProdCombined) {
       <logo-image size="3rem" />
     </n-space>
     <!-- ROW1 -->
-    <div style="width: 100%; display: flex">
-      <!-- COL1 -->
-      <n-card
-        content-style="padding: 5px 10px;"
-        style="width: 25vw; flex: none"
-      >
-        <n-tabs type="segment" style="min-width: 100%">
-          <n-tab-pane :name="GENDOR.UNISEX" tab="공용">
-            <n-space>
-              <n-list>
-                <n-list-item
-                  v-for="(part, i) in Object.keys(PART)"
-                  :key="i"
-                  @click="onSelectPart(part as PART)"
-                  >{{ part }}</n-list-item
-                >
-              </n-list>
-              <n-list v-if="selectedPart">
-                <n-list-item
-                  v-for="(ctgr, i) in Object.keys(CATEGORIES[selectedPart])"
-                  :key="i"
-                  >{{ ctgr }}</n-list-item
-                >
-              </n-list>
-            </n-space>
-          </n-tab-pane>
-          <n-tab-pane :name="GENDOR.FEMALE" tab="여성"></n-tab-pane>
-          <n-tab-pane :name="GENDOR.MALE" tab="남성"></n-tab-pane>
-        </n-tabs>
-      </n-card>
-      <!-- COL2 -->
+    <n-space>
+      <part-ctgr-menu
+        v-model:selectedPart="selectedPart"
+        v-model:selectedCtgr="selectedCtgr"
+      />
       <n-card>
         <!-- prods -->
         <n-grid
@@ -92,6 +64,6 @@ function onClickProd(prod: VendorUserProdCombined) {
           </n-gi>
         </n-grid>
       </n-card>
-    </div>
+    </n-space>
   </n-space>
 </template>
