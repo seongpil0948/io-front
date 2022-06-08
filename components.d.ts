@@ -84,6 +84,7 @@ declare module '@vue/runtime-core' {
     UserProfile: typeof import('./src/components/avatar/UserProfile.vue')['default']
     VendorHome: typeof import('./src/views/vendor/VendorHome.vue')['default']
     VendorLayout: typeof import('./src/views/vendor/VendorLayout.vue')['default']
+    VendorOrderTable: typeof import('./src/components/table/VendorOrderTable.vue')['default']
     VendorProdEditForm: typeof import('./src/components/card/vendor/VendorProdEditForm.vue')['default']
     VendorProdThum: typeof import('./src/components/card/vendor/VendorProdThum.vue')['default']
     VendorProductList: typeof import('./src/views/vendor/page/VendorProductList.vue')['default']

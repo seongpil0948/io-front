@@ -66,6 +66,9 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
       waitApprove: false,
     });
   }
+  get unPaidAmount() {
+    return this.amount - this.amountPaid;
+  }
 
   async update(fields?: (keyof ShopReqOrderCRT)[]) {
     const shopReqRef = getIoCollection({

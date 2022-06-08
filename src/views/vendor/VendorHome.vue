@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { ORDER_STATE } from "@/types";
 import { ref } from "vue";
 
-const currTab = ref<string>("reqOrderList");
+const currTab = ref<string>("beforeApproveList");
 </script>
 <template>
   <n-space vertical>
@@ -10,12 +11,11 @@ const currTab = ref<string>("reqOrderList");
         <!-- FIXME: 테이블 X 가 끝까지 안가는 원인을 찾고 업데이트 해야함 -->
         <n-tab-pane
           display-directive="show:lazy"
-          tab="주문 해야할 내역"
-          name="reqOrderList"
+          tab="거래처 주문 요청"
+          name="beforeApproveList"
         >
-          <shop-order-table :orderStates="orderTableStates" />
+          <vendor-order-table :orderStates="[ORDER_STATE.BEFORE_APPROVE]" />
         </n-tab-pane>
-        <n-tab-pane tab="주문 완료된 내역" name="orderedList"> gg </n-tab-pane>
       </n-tabs>
     </n-card>
   </n-space>

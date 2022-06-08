@@ -44,10 +44,15 @@ const themeOverrides: GlobalThemeOverrides = {
     textColorFocusInfo: ioColors.text,
     textColorSuccess: ioColors.text,
   },
+  Radio: {
+    dotColorActive: ioColors.primary,
+    color: ioColors.white,
+  },
   Checkbox: {
     textColor: ioColors.text,
     color: ioColors.white,
     checkMarkColor: ioColors.text,
+    colorChecked: ioColors.white,
   },
   Select: {
     peers: {

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores";
 import type { IoColOpt, VendorOrderProd } from "@/types";
-import { useTable, useVendor, VendorProd } from "@/composables";
+import { useReadVendorOrderInfo, useTable, VendorProd } from "@/composables";
 import { h, ref, watchEffect } from "vue";
 import LogoChecker from "@/components/input/LogoChecker.vue";
 import { NButton, useMessage } from "naive-ui";
 const auth = useAuthStore();
 const msg = useMessage();
-const { orderProds } = useVendor(auth.currUser.userId);
+const { orderProds } = useReadVendorOrderInfo(auth.currUser.userId, []);
 const { columns } = useTable<VendorOrderProd>({
   userId: auth.currUser.userId,
   colKeys: [

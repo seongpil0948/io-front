@@ -1,69 +1,15 @@
-import { getShopOrderInfo, getExistOrderIds } from "@/plugins/firebase";
 import {
-  MapKey,
-  ORDER_STATE,
-  ShopProdQField,
-  ShopReqOrderJoined,
-} from "@/types";
-import { DataFrame, readExcel } from "danfojs";
+  useShopUserProds,
+  Mapper,
+  ShopReqOrder,
+  isSameProd,
+  synonymMatch,
+  uniqueArr,
+} from "@/composables";
+import { ShopProdQField, MapKey } from "@/types";
+import { readExcel, DataFrame } from "danfojs";
 import { useMessage } from "naive-ui";
-import { ref, watchEffect, type Ref } from "vue";
-import { isSameProd, Mapper, ShopReqOrder, synonymMatch, uniqueArr } from "..";
-import { useShopUserProds } from "./product";
-
-export function useShopReadOrderInfo(
-  shopId: string,
-  orderStates: ORDER_STATE[]
-) {
-  const orderJoined = ref<ShopReqOrderJoined[]>([]);
-  const { userProd } = useShopUserProds(shopId, null);
-  const { unsubscribe, orders: orderInfo } = getShopOrderInfo({
-    shopId,
-    inStates: orderStates,
-  });
-  const existOrderIds = ref<Set<string>>(new Set());
-
-  watchEffect(async () => {
-    orderJoined.value = [];
-    orderInfo.value.forEach((order) => {
-      const exist = orderJoined.value.find(
-        (j) => j.shopProdId === order.shopProdId
-      );
-      if (exist) {
-        exist.orderCnt += order.orderCnt;
-        exist.amount += exist.prodPrice ?? 0;
-      } else {
-        const prod = userProd.value.find(
-          (p) => order.shopProdId === p.shopProdId
-        );
-        if (prod) {
-          orderJoined.value.push(Object.assign(prod, order));
-        }
-      }
-    });
-    existOrderIds.value = await getExistOrderIds(shopId);
-  });
-  return {
-    unsubscribe,
-    orderInfo,
-    orderJoined,
-    existOrderIds,
-  };
-}
-export const getPendingCnt = (stockCnt: number, orderCnt: number) =>
-  stockCnt - orderCnt > 0 ? 0 : orderCnt - stockCnt;
-
-export const getOrderCnt = (
-  stockCnt: number,
-  orderCnt: number,
-  pendingCnt: number
-) => {
-  const cnt = orderCnt - pendingCnt;
-  if (stockCnt < cnt) {
-    return stockCnt;
-  }
-  return cnt;
-};
+import { Ref, ref, watchEffect } from "vue";
 
 export function useParseOrderInfo(
   mapper: Ref<Mapper | null>,
@@ -172,21 +118,4 @@ export function useParseOrderInfo(
   }
 
   return { conditions, userProd };
-}
-
-export function orderStateKo(state: ORDER_STATE): string {
-  switch (state) {
-    case ORDER_STATE.BEFORE_ORDER:
-      return "주문전";
-    case ORDER_STATE.BEFORE_APPROVE:
-      return "도매처승인중";
-    case ORDER_STATE.BEFORE_PAYMENT:
-      return "결제전";
-    case ORDER_STATE.BEFORE_SHIP:
-      return "배송전";
-    case ORDER_STATE.SHIPPING:
-      return "배송중";
-    default:
-      throw `ORDER_STATE Enum memeber ${state} is not exist`;
-  }
 }
