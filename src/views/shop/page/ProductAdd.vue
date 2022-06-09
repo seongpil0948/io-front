@@ -4,7 +4,7 @@ import { PART, type VendorUserProdCombined } from "@/types";
 import { ref } from "vue";
 
 const { vendorStore } = useVendors();
-let selectedPart = ref<PART | null>(null);
+let selectedPart = ref<PART | "전체" | null>(null);
 let selectedCtgr = ref<string | null>(null);
 
 let showAddModal = ref(false);
@@ -12,6 +12,18 @@ let selectedProd = ref<VendorUserProdCombined | null>(null);
 function onClickProd(prod: VendorUserProdCombined) {
   showAddModal.value = true;
   selectedProd.value = prod;
+}
+function validProd(prod: VendorUserProdCombined) {
+  let valid = true;
+  if (selectedPart.value && selectedPart.value !== "전체") {
+    valid = prod.part === selectedPart.value;
+  } else {
+    selectedCtgr.value = null;
+  }
+  if (selectedCtgr.value && selectedCtgr.value !== "전체") {
+    valid = prod.ctgr === selectedCtgr.value;
+  }
+  return valid;
 }
 </script>
 <template>
@@ -58,6 +70,7 @@ function onClickProd(prod: VendorUserProdCombined) {
           >
             <vendor-prod-thum
               style="width: 150px; height: 100%"
+              v-if="validProd(prod)"
               :prod="prod"
               @onClickProd="onClickProd"
             />
