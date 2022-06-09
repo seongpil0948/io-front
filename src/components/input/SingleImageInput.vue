@@ -3,6 +3,7 @@ import { toRefs, ref } from "vue";
 import { STORAGE_SVC } from "@/types";
 import { IoUser } from "@/composables";
 import { refByRoleSvc, uploadFile } from "@/plugins/firebase";
+import { useMessage } from "naive-ui";
 const props = defineProps<{
   urls: string[];
   user: IoUser;
@@ -13,18 +14,22 @@ const props = defineProps<{
 const { urls, size, max, elemetId } = toRefs(props);
 const emits = defineEmits(["update:urls"]);
 const input = ref<HTMLInputElement | null>(null);
+const msg = useMessage();
+let loading = ref(false);
 async function loadFile() {
-  console.log(input.value);
-  if (!input.value) return;
-  else if (input.value.files && input.value.files.length > 0) {
-    var file = input.value.files[0];
+  if (!input.value || !input.value!.files) return;
+  else if (input.value.files.length + urls.value.length > 5) {
+    return msg.error("5장까지 업로드 가능합니다.");
+  } else if (input.value.files && input.value.files.length > 0) {
+    loading.value = true;
     const parent = refByRoleSvc(
       props.user.role,
       STORAGE_SVC.VENDOR_PRODUCT,
       props.user.userId
     );
-    const imgs = await uploadFile(parent, [file]);
-    emits("update:urls", [...urls.value, imgs[0]]);
+    const imgs = await uploadFile(parent, input.value.files);
+    emits("update:urls", [...urls.value, ...imgs]);
+    loading.value = false;
   }
 }
 </script>
@@ -38,11 +43,15 @@ async function loadFile() {
     />
     <div v-if="urls.length < max">
       <n-card :style="`width: ${size}; height: ${size};`">
-        <label :for="elemetId"> <slot></slot> </label>
+        <label :for="elemetId">
+          <n-spin :show="loading"><slot></slot> </n-spin
+        ></label>
       </n-card>
+
       <input
         ref="input"
         type="file"
+        multiple
         style="visibility: hidden"
         :id="elemetId"
         :name="elemetId"

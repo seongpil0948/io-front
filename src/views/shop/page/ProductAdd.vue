@@ -48,8 +48,8 @@ function validProd(prod: VendorUserProdCombined) {
       </n-input-group>
       <logo-image size="3rem" />
     </n-space>
-    <!-- ROW1 -->
-    <n-space>
+    <!-- ROW2 -->
+    <n-space justify="center">
       <part-ctgr-menu
         v-model:selectedPart="selectedPart"
         v-model:selectedCtgr="selectedCtgr"

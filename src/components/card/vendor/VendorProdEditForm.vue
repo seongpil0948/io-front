@@ -5,6 +5,8 @@ import {
   notNullRule,
   VendorProd,
 } from "@/composables";
+import { useAuthStore } from "@/stores";
+import { AddCircleOutline } from "@vicons/ionicons5";
 import cloneDeep from "lodash.clonedeep";
 import { useMessage, FormInst } from "naive-ui";
 import { ref, watchEffect } from "vue";
@@ -43,6 +45,7 @@ function onEdit() {
     emits("onSubmit");
   });
 }
+const auth = useAuthStore();
 </script>
 
 <template>
@@ -93,7 +96,7 @@ function onEdit() {
       >
         <single-image-input
           elemetId="titleImgs"
-          :user="currUser"
+          :user="auth.currUser"
           v-model:urls="prod.titleImgs"
           size="100px"
           :max="5"
@@ -108,7 +111,7 @@ function onEdit() {
       >
         <single-image-input
           elemetId="bodyImgs"
-          :user="currUser"
+          :user="auth.currUser"
           v-model:urls="prod.bodyImgs"
           size="100px"
           :max="5"

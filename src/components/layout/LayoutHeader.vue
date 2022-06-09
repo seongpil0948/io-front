@@ -9,7 +9,7 @@ const router = useRouter();
   <n-layout-header bordered>
     <n-space justify="space-between" style="margin: 0% 2.5%">
       <n-space style="align-items: center" inline>
-        <logo-image size="3.5rem" />
+        <logo-image @click="router.goHome(authStore.currUser)" size="3.5rem" />
       </n-space>
       <n-space inline>
         <n-button @click="() => router.push({ name: 'VendorHome' })"

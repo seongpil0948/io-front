@@ -31,7 +31,7 @@ function completeRef(
 
 async function uploadFile(
   parent: StorageReference,
-  fs: File[]
+  fs: FileList
 ): Promise<string[]> {
   const refers: Array<StorageReference> = [];
   for (let i = 0; i < fs.length; i++) {
@@ -39,14 +39,12 @@ async function uploadFile(
   }
   if (refers.length !== fs.length)
     throw Error("반드시 참조와 파일 목록은 길이가 같아야합니다.");
-  const ps = fs.map((f, idx) => uploadBytes(refers[idx], f));
-  const result = await Promise.all(ps);
-  // https://firebasestorage.googleapis.com/v0/b/io-box.appspot.com/o/VENDOR%2Fproduct%2Fsp%2Fbb53792b-211c-4e64-a77f-3bfa04b19ea7?alt=media
-  return await Promise.all(
-    result.map((x) => {
-      return getDownloadURL(x.ref);
-    })
-  );
+  const urls: string[] = [];
+  for (let j = 0; j < fs.length; j++) {
+    const result = await uploadBytes(refers[j], fs[j]);
+    urls.push(await getDownloadURL(result.ref));
+  }
+  return urls;
 }
 
 export { refByRoleSvc, completeRef, uploadFile };
