@@ -91,25 +91,29 @@ function onCheck(val: string) {
     style="margin: 10vw"
   >
     <n-card>
-      <n-space>
+      <n-space inline>
         <carousel-img-card
           :imgUrls="imgUrls"
           :width="30"
           :height="30"
           unit="vw"
         />
-        <n-space vertical>
-          <n-h2>{{ prod.vendorProdName }}</n-h2>
-          <n-h2>{{ prod.vendorPrice }}원</n-h2>
-          <div v-for="(opt, i) in prodOpts" :key="i">
-            <n-space inline>
-              <logo-checker
-                :checked="selectedProdIds.includes(opt.value)"
-                @click="onCheck(opt.value)"
-              />
-              <n-h4>{{ opt.label }}</n-h4>
-            </n-space>
-          </div>
+        <n-space vertical style="max-height: 50vh; overflow: auto; width: 100%">
+          <n-h2>도매 상품명: {{ prod.vendorProdName }}</n-h2>
+          <n-h2>도매가: {{ prod.vendorPrice }}원</n-h2>
+          <n-space
+            inline
+            justify="space-between"
+            v-for="(opt, i) in prodOpts"
+            :key="i"
+          >
+            <logo-checker
+              :size="2"
+              :checked="selectedProdIds.includes(opt.value)"
+              @click="onCheck(opt.value)"
+            />
+            <n-h4 style="margin-left: 20px">{{ opt.label }}</n-h4>
+          </n-space>
         </n-space>
       </n-space>
     </n-card>

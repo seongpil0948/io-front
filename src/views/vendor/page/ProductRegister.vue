@@ -207,7 +207,7 @@ function onRegister() {
             >
               <div v-for="(size, i) in Object.keys(stockCnts)" :key="i">
                 <div
-                  v-for="(color, j) in Object.keys(stockCnts[size])"
+                  v-for="(color, j) in Object.keys(stockCnts[size as PROD_SIZE])"
                   :key="j"
                 >
                   <n-space inline :wrap="false" style="margin-bottom: 1%">
@@ -216,7 +216,7 @@ function onRegister() {
                     <n-input-number
                       :show-button="false"
                       :min="0"
-                      v-model:value="stockCnts[size][color]"
+                      v-model:value="stockCnts[size as PROD_SIZE][color]"
                     />
                   </n-space>
                 </div>

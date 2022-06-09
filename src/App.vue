@@ -59,8 +59,14 @@ const themeOverrides: GlobalThemeOverrides = {
   },
   Select: {
     peers: {
+      InternalSelectMenu: {
+        actionTextColor: ioColors.text,
+        optionTextColor: ioColors.text,
+        optionTextColorActive: ioColors.text,
+      },
       InternalSelection: {
         color: ioColors.primary,
+
         textColor: ioColors.text,
         textColorDisabled: ioColors.text,
       },
