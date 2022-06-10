@@ -78,9 +78,13 @@ watchEffect(() => {
 const showProdEdit = ref(false);
 const prodEditTarget = ref<VendorProd | null>(null);
 function onShowProdEdit(row: VendorProd | null) {
-  if (!row) return;
-  showProdEdit.value = true;
-  prodEditTarget.value = row;
+  if (!row) {
+    showProdEdit.value = false;
+    prodEditTarget.value = null;
+  } else {
+    showProdEdit.value = true;
+    prodEditTarget.value = row;
+  }
 }
 </script>
 <template>
@@ -98,12 +102,13 @@ function onShowProdEdit(row: VendorProd | null) {
   <n-modal
     v-model:show="showProdEdit"
     preset="card"
-    style="width: 50%"
+    style="width: 70%"
     title="상품 정보 수정"
   >
     <vendor-prod-edit-form
       v-if="showProdEdit && prodEditTarget"
       :prod="prodEditTarget"
+      @onSubmitProd="onShowProdEdit(null)"
     />
   </n-modal>
 </template>

@@ -14,7 +14,7 @@ import { ref, watchEffect } from "vue";
 const props = defineProps<{
   prod?: VendorProd;
 }>();
-const emits = defineEmits(["onSubmit"]);
+const emits = defineEmits(["onSubmitProd"]);
 
 const prod = ref<VendorProd | null>(null);
 watchEffect(() => {
@@ -42,7 +42,7 @@ function onEdit() {
     if (errors) return msg.error("상품 작성란을 올바르게 작성 해주세요");
 
     await prod.value!.update();
-    emits("onSubmit");
+    emits("onSubmitProd");
   });
 }
 const auth = useAuthStore();
@@ -70,9 +70,20 @@ const auth = useAuthStore();
       </n-form-item-gi>
       <n-form-item-gi span="2" label="자동미송여부" path="allowPending">
         <logo-checker
-          :size="1.5"
+          :size="1.6"
           :checked="prod.allowPending"
           @click="prod.allowPending = !prod.allowPending"
+        />
+      </n-form-item-gi>
+      <n-form-item-gi
+        span="6"
+        :label="`재고수량(${prod.size}, ${prod.color})`"
+        path="stockCnt"
+      >
+        <n-input-number
+          :show-button="false"
+          :min="0"
+          v-model:value="prod.stockCnt"
         />
       </n-form-item-gi>
 
