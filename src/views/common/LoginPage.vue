@@ -83,7 +83,7 @@ function onLogin(e: MouseEvent | KeyboardEvent) {
           const user = await ioSignIn(userCredential);
           authS.login(user);
           message.success(`${user.name}님 반갑습니다!`);
-          router.replace("/");
+          router.goHome(user);
         })
         .catch((error: AuthError) => {
           if (error.code === "auth/wrong-password") {

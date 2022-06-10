@@ -14,6 +14,7 @@ interface useTableParam {
   colKeys: IoColOpt[];
   useChecker?: boolean;
   keyField?: keyof MapperFields;
+  onCheckAll?: (to: boolean) => void;
 }
 export function useTable<T extends MapperFields>(p: useTableParam) {
   const { mapper } = useMapper(p.userId);
@@ -39,6 +40,9 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
               mapType: "column",
               mapKey: opt.key,
               onReqShow: onRequestShow,
+              "on-clickoutside": () => {
+                openKey.value = "";
+              },
             },
             {}
           );
@@ -59,9 +63,33 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
               rowIdField: row[opt.rowIdField!],
               targetVal: row[opt.key],
               onReqShow: onRequestShow,
+              "on-clickoutside": () => {
+                openKey.value = "";
+              },
             },
             {}
           );
+      } else if (opt.imgField) {
+        inner.cellRender = (row: T) => {
+          let src = null;
+          if (
+            Array.isArray(row[opt.key]) &&
+            (row[opt.key] as string[]).length > 0
+          ) {
+            src = (row[opt.key] as string[])[0];
+          } else if (typeof row[opt.key] === "string") {
+            src = row[opt.key];
+          }
+          return h(
+            "img",
+            {
+              src,
+              width: "50",
+              height: "50",
+            },
+            {}
+          );
+        };
       }
       return inner;
     });
@@ -70,7 +98,14 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
     if (p.useChecker && p.keyField) {
       columns.value.unshift({
         key: "checker",
-        title: () => h(NCheckbox, { disabled: true }),
+        title: () =>
+          h(NCheckbox, {
+            onUpdateChecked: (to: boolean) => {
+              if (p.onCheckAll) {
+                p.onCheckAll(to);
+              }
+            },
+          }),
         align: "left",
         width: 50,
         render: (row) =>
@@ -90,7 +125,7 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
     }
   });
 
-  return { columns, mapper, onRequestShow, openKey };
+  return { columns, mapper, onRequestShow, openKey, checkedKeys };
 }
 
 function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
@@ -121,4 +156,5 @@ const colKoMapper: { [key in keyof MapperFields]: string } = {
   orderId: "주문번호",
   allowPending: "자동미송",
   pendingCnt: "미송개수",
+  titleImgs: "이미지",
 };

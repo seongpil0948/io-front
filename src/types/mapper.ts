@@ -29,6 +29,7 @@ export interface IoColOpt {
   rowIdField?: keyof MapperFields;
   titleMapping?: boolean;
   cellMapping?: boolean;
+  imgField?: boolean;
 }
 
 export interface IoColOptInner<T> {

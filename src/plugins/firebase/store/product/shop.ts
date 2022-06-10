@@ -7,9 +7,11 @@ import {
   onSnapshot,
   query,
   where,
+  writeBatch,
 } from "firebase/firestore";
 import { ShopProd, shopProdConverter } from "@/composables";
 import { ref } from "vue";
+import { getIoStore } from "..";
 
 export async function shopProdExist(
   vendorProdId: string,
@@ -52,5 +54,11 @@ export function useGetShopProds(
 
 export async function deleteShopProds(prodIds: string[]) {
   const c = getIoCollection({ c: IoCollection.SHOP_PROD });
-  return Promise.all(prodIds.map((prodId) => deleteDoc(doc(c, prodId))));
+  if (prodIds.length < 1) return;
+  else if (prodIds.length === 1) await deleteDoc(doc(c, prodIds[0]));
+  else {
+    const batch = writeBatch(getIoStore());
+    prodIds.forEach((pid) => batch.delete(doc(c, pid)));
+    await batch.commit();
+  }
 }

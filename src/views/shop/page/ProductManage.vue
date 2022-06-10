@@ -18,10 +18,18 @@ const { rowIdField, userProd } = useShopUserProds(
   authStore.currUser.userId,
   null
 );
-const { columns, mapper } = useTable<ShopUserProd>({
+const { columns, mapper, checkedKeys } = useTable<ShopUserProd>({
   userId: authStore.currUser.userId,
+  useChecker: true,
+  keyField: rowIdField,
+  onCheckAll: (to) => {
+    console.log("onCheckAll: ", to);
+    checkedKeys.value = to ? userProd.value.map((p) => p[rowIdField]) : [];
+  },
   colKeys: [
     { key: "vendorProdName", rowIdField },
+    { key: "userName" },
+    { key: "titleImgs", imgField: true },
     {
       key: "prodName",
       titleMapping: true,
@@ -103,15 +111,34 @@ const cols = computed((): DataTableColumns<ShopUserProd> => {
     },
   ];
 });
+async function onCheckedDelete() {
+  deleteShopProds(checkedKeys.value)
+    .then(() => msg.success("삭제 완료"))
+    .catch(() => msg.error("삭제 실패"));
+}
 </script>
 <template>
   <n-card>
-    <template #header> ProductManage </template>
+    <template #header>
+      상품정보 변경을 위해서 옵션 선택을 이용 해주세요!
+    </template>
+    <template #header-extra>
+      <n-button
+        @click="onCheckedDelete"
+        size="small"
+        round
+        type="primary"
+        style="margin-right: 5px"
+      >
+        선택 상품 삭제</n-button
+      >
+      <n-button size="small" round type="primary"> 선택 상품 주문</n-button>
+    </template>
     <n-data-table
       :columns="cols"
       :data="userProd"
       :pagination="{
-        pageSize: 5,
+        pageSize: 10,
       }"
       :bordered="false"
     />

@@ -23,7 +23,7 @@ const props = defineProps([
   "show",
 ]);
 // type-based
-const emits = defineEmits(["reqShow"]);
+const emits = defineEmits(["reqShow", "on-clickoutside"]);
 
 const { mapper, mapType, mapKey, rowIdField, targetVal, value, show } =
   toRefs(props);
@@ -83,6 +83,7 @@ function onUpdateShow(val) {
     style="max-width: 40vw"
     :duration="50000"
     :on-update:show="onUpdateShow"
+    @clickoutside="emits('on-clickoutside')"
   >
     <n-card content-style="padding-bottom: 0px;">
       <n-dynamic-tags :value="synonyms" @update:value="onUpdate" />
