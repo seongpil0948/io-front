@@ -59,7 +59,9 @@ let selectedRow = ref<ShopUserProd | null>(null);
 let popVal = ref("");
 watchEffect(async () => {
   if (popVal.value === "Delete" && selectedRow.value) {
-    await deleteShopProds([selectedRow.value.shopProdId])
+    await deleteShopProds(authStore.currUser.userId, [
+      selectedRow.value.shopProdId,
+    ])
       .then(() => msg.success("삭제 완료", makeMsgOpt()))
       .catch(() => msg.error("삭제 실패", makeMsgOpt()));
   }
@@ -110,9 +112,8 @@ const cols = computed((): DataTableColumns<ShopUserProd> => {
   ];
 });
 async function onCheckedDelete() {
-  deleteShopProds(checkedKeys.value)
-    .then(() => msg.success("삭제 완료", makeMsgOpt()))
-    .catch(() => msg.error("삭제 실패", makeMsgOpt()));
+  await deleteShopProds(authStore.currUser.userId, checkedKeys.value);
+  msg.success("삭제 완료", makeMsgOpt());
 }
 function updateOrderId(arr: string[]) {
   mapper?.value?.setSyno("orderId", arr);

@@ -13,6 +13,7 @@ export interface ShopReqOrderCRT {
   activeCnt: number;
   pendingCnt: number;
   amount: number;
+  unPaidAmount?: number;
   amountPaid: number;
   orderState: ORDER_STATE;
   waitApprove: boolean;

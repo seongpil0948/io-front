@@ -32,9 +32,9 @@ export function useReadVendorOrderInfo(
           }
           return acc;
         }, {} as VendorUserOrderProd);
-        ps.push(Object.assign({}, p, order));
+        ps.push(Object.assign({ unPaidAmount: order.unPaidAmount }, p, order));
       } else {
-        ps.push(Object.assign(ShopReqOrder.none(), p));
+        ps.push(Object.assign({ unPaidAmount: 0 }, ShopReqOrder.none(), p));
       }
     });
     return ps;

@@ -4,7 +4,7 @@ import type {
   ColumnKey,
   TableBaseColumn,
 } from "naive-ui/es/data-table/src/interface";
-import { NCheckbox } from "naive-ui";
+import { NButton, NCheckbox } from "naive-ui";
 import { ref, watchEffect, h } from "vue";
 import { useMapper } from "..";
 import LogoChecker from "@/components/input/LogoChecker.vue";
@@ -125,7 +125,15 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
     }
   });
 
-  return { columns, mapper, onRequestShow, openKey, checkedKeys, colKoMapper };
+  return {
+    columns,
+    mapper,
+    onRequestShow,
+    openKey,
+    checkedKeys,
+    colKoMapper,
+    rendorTableBtn,
+  };
 }
 
 function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
@@ -144,17 +152,33 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
 
 const colKoMapper: { [key in keyof MapperFields]: string } = {
   vendorProdName: "도매처 상품명",
-  userName: "도매처명",
+  userName: "거래처명",
   prodName: "상품명",
   vendorPrice: "도매가",
   prodPrice: "판매가",
   color: "컬러",
   size: "사이즈",
   stockCnt: "도매처현재고",
-  amount: "결제금액",
   orderCnt: "주문개수",
   orderId: "주문번호",
   allowPending: "자동미송",
   pendingCnt: "미송개수",
   titleImgs: "이미지",
+  amount: "총결제금액",
+  unPaidAmount: "미결제금액",
+  amountPaid: "결제된금액",
 };
+
+function rendorTableBtn(onClick: () => void, txt: string) {
+  return h(
+    NButton,
+    {
+      round: true,
+      size: "small",
+      onClick,
+    },
+    {
+      default: () => txt,
+    }
+  );
+}

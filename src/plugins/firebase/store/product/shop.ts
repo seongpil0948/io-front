@@ -9,7 +9,7 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
-import { ShopProd, shopProdConverter } from "@/composables";
+import { Mapper, ShopProd, shopProdConverter } from "@/composables";
 import { ref } from "vue";
 import { getIoStore } from "..";
 
@@ -52,13 +52,15 @@ export function useGetShopProds(
   return { shopProds, unsubscribe };
 }
 
-export async function deleteShopProds(prodIds: string[]) {
+export async function deleteShopProds(userId: string, prodIds: string[]) {
   const c = getIoCollection({ c: IoCollection.SHOP_PROD });
   if (prodIds.length < 1) return;
-  else if (prodIds.length === 1) await deleteDoc(doc(c, prodIds[0]));
-  else {
+  else if (prodIds.length === 1) {
+    await deleteDoc(doc(c, prodIds[0]));
+  } else {
     const batch = writeBatch(getIoStore());
     prodIds.forEach((pid) => batch.delete(doc(c, pid)));
     await batch.commit();
   }
+  await Mapper.deleteProdId(userId, prodIds);
 }

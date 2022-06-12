@@ -14,7 +14,7 @@ import type { MappingJson, ShopUserProd } from ".";
 export type MapperFields = Partial<ShopUserProd & ShopReqOrderCRT>;
 export type MapKey = keyof MapperFields;
 export type MapCols = {
-  [key in MapKey]: { [vendorProdId: string]: MappingJson };
+  [key in MapKey]: { [prodId: string]: MappingJson };
 };
 export type KeyMapper = { [key in MapKey]: string[] };
 

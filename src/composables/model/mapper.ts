@@ -50,7 +50,17 @@ class Mapper implements MapperCRT {
     }
     return m;
   }
-
+  static async deleteProdId(userId: string, prodId: string[]) {
+    const m = await Mapper.getIoMapper(userId);
+    console.log("deleteProdId: ", m.cols);
+    (Object.keys(m.cols) as Array<MapKey>).forEach((mapKey) => {
+      prodId.forEach((prodId) => {
+        console.log("mapKey: ", mapKey, m.cols[mapKey][prodId]);
+        delete m.cols[mapKey][prodId];
+      });
+    });
+    await m.update();
+  }
   getSyno(key: MapKey): ValueOf<IoJson> {
     if (!this.colSynonyms[key]) {
       this.colSynonyms[key] = [];
@@ -63,38 +73,38 @@ class Mapper implements MapperCRT {
 
   setColVal(
     colName: MapKey,
-    shopProdId: string,
+    prodId: string,
     originVal: string,
     mappingVal: string | string[]
   ) {
     if (!this.cols[colName]) {
       this.cols[colName] = {};
     }
-    if (!this.cols[colName][shopProdId]) {
-      this.cols[colName][shopProdId] = {};
+    if (!this.cols[colName][prodId]) {
+      this.cols[colName][prodId] = {};
     }
     if (Array.isArray(mappingVal)) {
-      this.cols[colName][shopProdId] = {};
+      this.cols[colName][prodId] = {};
       uniqueArr(mappingVal).forEach((mVal) => {
         mVal = mapTxt(mVal);
-        this.cols[colName][shopProdId][mVal] = originVal;
+        this.cols[colName][prodId][mVal] = originVal;
       });
     } else {
       mappingVal = mapTxt(mappingVal);
-      this.cols[colName][shopProdId][mappingVal] = originVal;
+      this.cols[colName][prodId][mappingVal] = originVal;
     }
   }
-  getColVal(colName: MapKey, shopProdId: string): MappingJson {
+  getColVal(colName: MapKey, prodId: string): MappingJson {
     if (!this.cols[colName]) {
       this.cols[colName] = {};
     }
-    if (!this.cols[colName][shopProdId]) {
-      this.cols[colName][shopProdId] = {};
+    if (!this.cols[colName][prodId]) {
+      this.cols[colName][prodId] = {};
     }
-    return this.cols[colName][shopProdId];
+    return this.cols[colName][prodId];
   }
-  getKeyVal(colName: MapKey, shopProdId: string, originVal: string): string[] {
-    const col = this.getColVal(colName, shopProdId);
+  getKeyVal(colName: MapKey, prodId: string, originVal: string): string[] {
+    const col = this.getColVal(colName, prodId);
     return Object.keys(col).filter((mVal) => col[mVal] === originVal);
   }
 
@@ -114,13 +124,13 @@ class Mapper implements MapperCRT {
 
   getProdMapper() {
     // 상품 nameSyno 과 매칭되는 상품들중 하위 컬러매퍼와 매칭이 된다? 오케이
-    return Object.keys(this.cols.prodName).reduce((acc, shopProdId) => {
-      Object.entries(this.cols.prodName[shopProdId]).forEach(
+    return Object.keys(this.cols.prodName).reduce((acc, prodId) => {
+      Object.entries(this.cols.prodName[prodId]).forEach(
         ([nameSyno, ioProdName]) => {
-          acc[`${nameSyno} iobox ${shopProdId}`] = {
+          acc[`${nameSyno} iobox ${prodId}`] = {
             ioProdName,
-            colorMapper: this.cols.color[shopProdId],
-            sizeMapper: this.cols.size[shopProdId],
+            colorMapper: this.cols.color[prodId],
+            sizeMapper: this.cols.size[prodId],
           };
         }
       );

@@ -39,97 +39,70 @@ const cols = [
 ].map((c) => {
   return { key: c } as IoColOpt;
 });
-const { columns, mapper } = useTable<ShopReqOrderJoined>({
+const { columns, mapper, rendorTableBtn } = useTable<ShopReqOrderJoined>({
   userId: user.userId,
   colKeys: cols,
   useChecker: true,
   keyField: "shopProdId",
 });
 
-const nBtnProps = {
-  round: true,
-  onClick: () => console.log("Click!!!"),
-};
-
 let orderCntEdit = ref(false);
 watchEffect(() => {
   columns.value.push(
     ...([
       {
-        title: () =>
-          h(NButton, Object.assign(nBtnProps, {}), {
-            default: () => "선택주문확정",
-          }),
+        title: () => rendorTableBtn(() => console.log("clcik"), "선택주문확정"),
         key: "editCnt",
         align: "center",
         render: () =>
-          h(
-            NButton,
-            Object.assign({}, nBtnProps, {
-              onClick: () => {
-                orderCntEdit.value = !orderCntEdit.value;
-              },
-            }),
-            {
-              default: () => "주문수량수정",
-            }
-          ),
+          rendorTableBtn(() => {
+            orderCntEdit.value = !orderCntEdit.value;
+          }, "주문수량수정"),
       },
       {
-        title: () =>
-          h(NButton, Object.assign(nBtnProps, {}), {
-            default: () => "전체주문확정",
-          }),
+        title: () => rendorTableBtn(() => console.log("clcik"), "전체주문확정"),
         key: "requestOrder",
         align: "center",
         render: (row: ShopReqOrderJoined) =>
-          h(
-            NButton,
-            Object.assign({}, nBtnProps, {
-              onClick: () => {
-                dialog.info({
-                  title: "주문정보",
-                  content: `정말로 주문 하시겠습니까? `,
-                  positiveText: "주문",
-                  onPositiveClick: async () => {
-                    const data = ShopReqOrder.fromJson(row);
-                    if (data && row.stockCnt) {
-                      data.pendingCnt = row.allowPending
-                        ? getPendingCnt(row.stockCnt, row.orderCnt)
-                        : 0;
-                      data.orderCnt = getOrderCnt(
-                        row.stockCnt,
-                        row.orderCnt,
-                        data.pendingCnt
-                      );
-                      data.amount = data.orderCnt * row.prodPrice!;
-                      data.orderState = ORDER_STATE.BEFORE_APPROVE;
-                      await data.update();
-                      msg.success("주문 요청에 성공하셨습니다.", makeMsgOpt());
-                    } else {
-                      msg.error("주문에 실패하였습니다.", makeMsgOpt());
-                    }
-                  },
-                });
+          rendorTableBtn(() => {
+            dialog.info({
+              title: "주문정보",
+              content: `정말로 주문 하시겠습니까? `,
+              positiveText: "주문",
+              onPositiveClick: async () => {
+                const data = ShopReqOrder.fromJson(row);
+                if (data && row.stockCnt) {
+                  data.pendingCnt = row.allowPending
+                    ? getPendingCnt(row.stockCnt, row.orderCnt)
+                    : 0;
+                  data.orderCnt = getOrderCnt(
+                    row.stockCnt,
+                    row.orderCnt,
+                    data.pendingCnt
+                  );
+                  data.amount = data.orderCnt * row.prodPrice!;
+                  data.orderState = ORDER_STATE.BEFORE_APPROVE;
+                  await data.update();
+                  msg.success("주문 요청에 성공하셨습니다.", makeMsgOpt());
+                } else {
+                  msg.error("주문에 실패하였습니다.", makeMsgOpt());
+                }
               },
-            }),
-            {
-              default: () => "주문확정",
-            }
-          ),
+            });
+          }, "주문확정"),
       },
       {
         title: () =>
-          h(NButton, Object.assign(nBtnProps, {}), {
-            default: () => "주문완료",
-          }),
+          rendorTableBtn(() => {
+            console.log("clcik");
+          }, "주문완료"),
         key: "etc",
         align: "center",
 
         render: () =>
-          h(NButton, Object.assign(nBtnProps, {}), {
-            default: () => "아이오톡하기",
-          }),
+          rendorTableBtn(() => {
+            console.log("clcik");
+          }, "아이오톡하기"),
       },
     ] as TableBaseColumn<any>[])
   );
