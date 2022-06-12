@@ -63,7 +63,7 @@ async function onSubmit() {
   Promise.all(shopProds.map((x) => x.update()))
     .then(() => {
       msg.success("선택한 상품들이 내상품에 추가가 완료되었어요!");
-      showAddModal.value = false;
+      emits("update:showAddModal", false);
     })
     .catch((e) => {
       msg.error(`상품추가 실패: ${e}`);

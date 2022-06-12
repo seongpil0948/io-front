@@ -88,7 +88,7 @@ function onShowProdEdit(row: VendorProd | null) {
 }
 </script>
 <template>
-  <n-card>
+  <n-card style="width: 80%">
     <template #header> 상품목록 </template>
     <n-data-table
       :columns="columns"

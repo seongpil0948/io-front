@@ -6,7 +6,7 @@ const currTab = ref<string>("beforeApproveList");
 </script>
 <template>
   <n-space vertical>
-    <n-card>
+    <n-card style="width: 80%">
       <n-tabs v-model:value="currTab">
         <!-- FIXME: 테이블 X 가 끝까지 안가는 원인을 찾고 업데이트 해야함 -->
         <n-tab-pane

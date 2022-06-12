@@ -38,7 +38,7 @@ class Mapper implements MapperCRT {
     );
   }
   static async getIoMapper(uid: string): Promise<Mapper> {
-    let m = await getMapper(uid);
+    const m = await getMapper(uid);
     if (!m) {
       const mapper = new Mapper({
         userId: uid,
@@ -46,10 +46,7 @@ class Mapper implements MapperCRT {
         colSynonyms: {} as KeyMapper,
       });
       await mapper.update();
-      m = await getMapper(uid);
-      if (!m) {
-        throw Error("No such Or Null According to  Mapper document!");
-      }
+      return mapper;
     }
     return m;
   }

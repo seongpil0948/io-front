@@ -22,10 +22,8 @@ const { columns, mapper, checkedKeys } = useTable<ShopUserProd>({
   userId: authStore.currUser.userId,
   useChecker: true,
   keyField: rowIdField,
-  onCheckAll: (to) => {
-    console.log("onCheckAll: ", to);
-    checkedKeys.value = to ? userProd.value.map((p) => p[rowIdField]) : [];
-  },
+  onCheckAll: (to) =>
+    (checkedKeys.value = to ? userProd.value.map((p) => p[rowIdField]) : []),
   colKeys: [
     { key: "vendorProdName", rowIdField },
     { key: "userName" },
@@ -116,33 +114,62 @@ async function onCheckedDelete() {
     .then(() => msg.success("삭제 완료"))
     .catch(() => msg.error("삭제 실패"));
 }
+function updateOrderId(arr: string[]) {
+  mapper?.value?.setSyno("orderId", arr);
+}
 </script>
 <template>
-  <n-card>
-    <template #header>
-      상품정보 변경을 위해서 옵션 선택을 이용 해주세요!
-    </template>
-    <template #header-extra>
-      <n-button
-        @click="onCheckedDelete"
-        size="small"
-        round
-        type="primary"
-        style="margin-right: 5px"
-      >
-        선택 상품 삭제</n-button
-      >
-      <n-button size="small" round type="primary"> 선택 상품 주문</n-button>
-    </template>
-    <n-data-table
-      :columns="cols"
-      :data="userProd"
-      :pagination="{
-        pageSize: 10,
-      }"
-      :bordered="false"
-    />
-  </n-card>
+  <n-space vertical>
+    <n-card style="width: 80%">
+      <template #header>
+        상품정보 변경을 위해서 옵션 선택을 이용 해주세요!
+      </template>
+      <template #header-extra>
+        <n-button
+          @click="onCheckedDelete"
+          size="small"
+          round
+          type="primary"
+          style="margin-right: 5px"
+        >
+          선택 상품 삭제</n-button
+        >
+        <n-button size="small" round type="primary"> 선택 상품 주문</n-button>
+      </template>
+      <n-data-table
+        :columns="cols"
+        :data="userProd"
+        :pagination="{
+          pageSize: 10,
+        }"
+        :bordered="false"
+        :table-layout="'fixed'"
+        :scroll-x="1200"
+      />
+    </n-card>
+    <n-card>
+      <n-h3> 주문번호 매핑</n-h3>
+      <n-dynamic-tags
+        :value="mapper?.getSyno('orderId')"
+        @update:value="updateOrderId"
+      />
+      <template #action>
+        <n-button
+          round
+          type="primary"
+          @click="
+            async () =>
+              mapper
+                ?.update()
+                .then(() => msg.success('업데이트 성공'))
+                .catch(() => msg.error('업데이트 실패'))
+          "
+        >
+          저장
+        </n-button>
+      </template>
+    </n-card>
+  </n-space>
   <shop-prod-modify-modal
     v-if="popVal === 'Edit'"
     v-model:userProd="selectedRow"

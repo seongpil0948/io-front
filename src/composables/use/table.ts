@@ -125,7 +125,7 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
     }
   });
 
-  return { columns, mapper, onRequestShow, openKey, checkedKeys };
+  return { columns, mapper, onRequestShow, openKey, checkedKeys, colKoMapper };
 }
 
 function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {

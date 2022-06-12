@@ -1,3 +1,4 @@
+import { makeMsgOpt } from "./../../../opt/msg";
 import {
   useShopUserProds,
   Mapper,
@@ -7,9 +8,9 @@ import {
   uniqueArr,
 } from "@/composables";
 import { ShopProdQField, MapKey } from "@/types";
-import { readExcel, DataFrame } from "danfojs";
+import { readExcel, DataFrame, Series } from "danfojs";
 import { useMessage } from "naive-ui";
-import { Ref, ref, watchEffect } from "vue";
+import { h, Ref, ref, watchEffect } from "vue";
 
 export function useParseOrderInfo(
   mapper: Ref<Mapper | null>,
@@ -32,20 +33,24 @@ export function useParseOrderInfo(
         msg.error(`파일: ${fs.value[i].name}에 대한 처리에 실패 하였습니다.`);
         continue;
       }
-      conditions.value.push(...parseDf(inputDf, mapper.value));
+      conditions.value.push(...parseDf(inputDf, mapper.value, existIds.value));
     }
     const orderInfo: ShopReqOrder[] = [];
     for (let j = 0; j < conditions.value.length; j++) {
       const d = conditions.value[j];
       const prod = userProd.value.find((x) => isSameProd(x, d))!;
-      if (!prod || existIds.value.has(d.orderId)) continue;
+      if (!prod) continue;
       const order = ShopReqOrder.fromProd(prod, d.orderId);
       orderInfo.push(order);
     }
     onParse(orderInfo);
   });
 
-  function parseDf(inputDf: DataFrame, mapper: Mapper): ShopProdQField[] {
+  function parseDf(
+    inputDf: DataFrame,
+    mapper: Mapper,
+    existIds: Set<string>
+  ): ShopProdQField[] {
     inputDf = inputDf.applyMap((x: any) =>
       typeof x === "string" ? x.toLowerCase() : x
     );
@@ -55,36 +60,74 @@ export function useParseOrderInfo(
       columns: uniqueArr(Object.values(colMapper)),
     });
     const prodMapper = mapper.getProdMapper();
+    if (Object.keys(prodMapper).length === 0) {
+      msg.error("주문취합을 위해 상품매핑정보를 등록 해주십시오");
+      return [];
+    }
     const idx = getColIdx(targetDf, colMapper);
     const data: ShopProdQField[] = [];
+    const reporter: { [k: string]: string } = {};
     targetDf.apply(
-      (row: any) => {
-        for (let i = 0; i < Object.keys(prodMapper).length; i++) {
-          const nameSynoId = Object.keys(prodMapper)[i];
-          const [nameSyno] = nameSynoId.split(" iobox ");
-          if (!row[idx.prodNameIdx].includes(nameSyno)) continue;
-          const synoColor = synonymMatch(
-            prodMapper[nameSynoId].colorMapper,
-            row[idx.colorIdx]
+      (row: Series) => {
+        const orderId = row[idx.orderIdIdx];
+        const matchedNameSynoId = Object.keys(prodMapper).find((nameSynoId) => {
+          const nameSyno = nameSynoId.split(" iobox ")[0].trim();
+          return (
+            row[idx.prodNameIdx] && row[idx.prodNameIdx].includes(nameSyno)
           );
-          const synoSize = synonymMatch(
-            prodMapper[nameSynoId].sizeMapper,
-            row[idx.sizeIdx]
-          );
-
-          if (synoColor && synoSize) {
-            data.push({
-              prodName: prodMapper[nameSynoId].ioProdName,
-              size: prodMapper[nameSynoId].sizeMapper[synoSize],
-              color: prodMapper[nameSynoId].colorMapper[synoColor],
-              orderId: row[idx.orderIdIdx],
-            });
-          }
+        });
+        if (!matchedNameSynoId) {
+          reporter[orderId] = `상품명 매핑실패: ${row[idx.prodNameIdx]} `;
+          return row; // continue
+        } else if (existIds.has(orderId)) {
+          reporter[orderId] = `이미 저장된 주문번호: ${orderId},  ${
+            row[idx.prodNameIdx]
+          }`;
+          return row;
         }
+        const synoColor = synonymMatch(
+          prodMapper[matchedNameSynoId].colorMapper,
+          row[idx.colorIdx]
+        );
+        if (!synoColor) {
+          console.log(
+            row[idx.prodNameIdx],
+            matchedNameSynoId,
+            prodMapper[matchedNameSynoId].colorMapper
+          );
+          reporter[orderId] = `컬러 매핑실패: ${row[idx.prodNameIdx]},${
+            row[idx.colorIdx]
+          }`;
+          return row;
+        }
+        const synoSize = synonymMatch(
+          prodMapper[matchedNameSynoId].sizeMapper,
+          row[idx.sizeIdx]
+        );
+        if (!synoSize) {
+          reporter[orderId] = `사이즈 매핑실패: ${row[idx.prodNameIdx]},${
+            row[idx.colorIdx]
+          }`;
+          return row;
+        }
+        delete reporter[orderId];
+        data.push({
+          prodName: prodMapper[matchedNameSynoId].ioProdName,
+          size: prodMapper[matchedNameSynoId].sizeMapper[synoSize],
+          color: prodMapper[matchedNameSynoId].colorMapper[synoColor],
+          orderId,
+        });
         return row;
       },
       { axis: 1 }
     );
+    Object.values(reporter).forEach((err) =>
+      msg.error(err, makeMsgOpt({ duration: 20000 }))
+    );
+    console.log("reporter: ", reporter);
+    console.log("input DF", inputDf.shape, inputDf);
+    console.log("target DF", targetDf.shape, targetDf);
+    console.log("prod Mapper", prodMapper);
     console.log("Parse Result: ", data);
     return data;
   }
@@ -94,9 +137,9 @@ export function useParseOrderInfo(
       const synonyms = mapper.getSyno(colName);
       const col = df.columns.find((inputCol) => synonyms.includes(inputCol));
       if (!col) {
-        const content = `컬럼 매핑: 실패 엑셀파일에서 ${colName} 컬럼을 찾을 수 없습니다. \n ${synonyms}`;
-        // return msg.error(content);
-        console.log(content);
+        msg.error(
+          `컬럼매핑 실패: 실패 엑셀파일에서 ${colName} 컬럼을 찾을 수 없습니다. \n ${synonyms}`
+        );
       } else {
         curr[colName] = col;
       }
@@ -111,9 +154,6 @@ export function useParseOrderInfo(
     const colorIdx = df.columns.findIndex((c) => c === colMapper["color"]);
     const sizeIdx = df.columns.findIndex((c) => c === colMapper["size"]);
     const orderIdIdx = df.columns.findIndex((c) => c === colMapper["orderId"]);
-    console.log(
-      `Indexies: ${prodNameIdx}  ${colorIdx} ${sizeIdx} ${orderIdIdx}`
-    );
     return { prodNameIdx, colorIdx, sizeIdx, orderIdIdx };
   }
 

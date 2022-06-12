@@ -97,7 +97,7 @@ const themeOverrides: GlobalThemeOverrides = {
 
 <template>
   <n-config-provider :theme-overrides="themeOverrides">
-    <n-message-provider>
+    <n-message-provider placement="top-right">
       <n-loading-bar-provider>
         <n-dialog-provider>
           <main-view />
@@ -143,5 +143,9 @@ body {
 
 .n-tabs--bar-type .n-tabs-tab.n-tabs-tab--active {
   background-color: white;
+}
+.n-message--error-type {
+  border: 1px solid #a7171a;
+  box-shadow: 0px 1px 7px 0px #a7171a;
 }
 </style>
