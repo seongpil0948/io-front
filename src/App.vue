@@ -45,6 +45,7 @@ const themeOverrides: GlobalThemeOverrides = {
     textColorTertiary: ioColors.text,
     textColorPrimary: ioColors.text,
     textColorFocusInfo: ioColors.text,
+    textColorInfo: ioColors.text,
     textColorSuccess: ioColors.text,
   },
   Radio: {

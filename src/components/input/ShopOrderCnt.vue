@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { getOrderCnt, getPendingCnt, ShopReqOrder } from "@/composables";
+import {
+  getOrderCnt,
+  getPendingCnt,
+  makeMsgOpt,
+  ShopReqOrder,
+} from "@/composables";
 import { ShopReqOrderJoined } from "@/types";
 import { useMessage } from "naive-ui";
 import { toRefs, computed } from "vue";
@@ -22,11 +27,11 @@ async function onSubmit() {
   const order = ShopReqOrder.fromJson(row.value);
   if (order) {
     order.update().then(() => {
-      msg.info(`주문개수가 업데이트되었습니다.`);
+      msg.info(`주문개수가 업데이트되었습니다.`, makeMsgOpt());
       props.onSubmitPost();
     });
   } else {
-    msg.error(`주문개수가 업데이트에 실패하였습니다..`);
+    msg.error(`주문개수가 업데이트에 실패하였습니다..`, makeMsgOpt());
   }
 }
 const orderCnt = computed(() =>

@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores";
 import type { IoColOpt, VendorOrderProd } from "@/types";
-import { useReadVendorOrderInfo, useTable, VendorProd } from "@/composables";
+import {
+  makeMsgOpt,
+  useReadVendorOrderInfo,
+  useTable,
+  VendorProd,
+} from "@/composables";
 import { h, ref, watchEffect } from "vue";
 import LogoChecker from "@/components/input/LogoChecker.vue";
 import { NButton, useMessage } from "naive-ui";
@@ -40,10 +45,11 @@ watchEffect(() => {
               ) {
                 row.allowPending = !row.allowPending;
                 await VendorProd.fromJson(row)!.update();
-                msg.success("미송정보 수정에 성공하였습니다.");
+                msg.success("미송정보 수정에 성공하였습니다.", makeMsgOpt());
               } else {
                 msg.error(
-                  "미송 비활성화를 위해서는 미송 개수가 0이어야합니다."
+                  "미송 비활성화를 위해서는 미송 개수가 0이어야합니다.",
+                  makeMsgOpt()
                 );
               }
             },

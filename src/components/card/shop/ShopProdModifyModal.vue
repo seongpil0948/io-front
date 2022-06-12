@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { nameLenRule, notNullRule } from "@/composables/input/formRule";
+import { nameLenRule, notNullRule, makeMsgOpt } from "@/composables";
 import { ShopProd } from "@/composables";
 import { type FormInst, useMessage } from "naive-ui";
 import { ref, toRefs, watchEffect } from "vue";
@@ -76,7 +76,7 @@ watchEffect(() => {
 async function onSubmit(e: MouseEvent) {
   e.preventDefault();
   formRef.value?.validate(async (errors) => {
-    if (errors) return msg.error("상품 작성란을 작성 해주세요");
+    if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
     if (userProd && userProd.value) {
       userProd.value.prodName = formModel.value.prodName;
       userProd.value.prodPrice = formModel.value.prodPrice;

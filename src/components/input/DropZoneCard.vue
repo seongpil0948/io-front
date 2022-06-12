@@ -44,7 +44,7 @@ import { NCard, NP, NIcon, useMessage } from "naive-ui";
 import { ref, toRefs } from "vue";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { useDropzone } from "vue3-dropzone";
-import { ioColors } from "@/composables";
+import { ioColors, makeMsgOpt } from "@/composables";
 const props = defineProps({
   listenClick: {
     type: Boolean,
@@ -72,7 +72,7 @@ const emits = defineEmits(["update:fileModel"]);
 async function onDrop(acceptFiles, rejectReasons) {
   console.log("acceptFiles:", acceptFiles, "rejectReasons:", rejectReasons);
   if (rejectReasons.length > 0) {
-    msg.error("Upload Fail, Reasons: ", rejectReasons);
+    msg.error("Upload Fail, Reasons: ", rejectReasons, makeMsgOpt());
   }
   emits("update:fileModel", acceptFiles);
 }

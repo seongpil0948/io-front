@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   arrLenRule,
+  makeMsgOpt,
   nameLenRule,
   notNullRule,
   VendorProd,
@@ -39,7 +40,8 @@ const rules = {
 function onEdit() {
   if (!prod.value) return;
   formRef.value?.validate(async (errors) => {
-    if (errors) return msg.error("상품 작성란을 올바르게 작성 해주세요");
+    if (errors)
+      return msg.error("상품 작성란을 올바르게 작성 해주세요", makeMsgOpt());
 
     await prod.value!.update();
     emits("onSubmitProd");

@@ -13,6 +13,7 @@ import {
   getCtgrOpts,
   getSizeOpts,
   VendorProd,
+  makeMsgOpt,
 } from "@/composables";
 import { GENDOR, PART, PROD_SIZE, USER_ROLE } from "@/types";
 import { useRouter } from "vue-router";
@@ -82,9 +83,12 @@ watchEffect(
 );
 function onRegister() {
   formRef.value?.validate(async (errors) => {
-    if (errors) return msg.error("상품 작성란을 작성 해주세요");
+    if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
     else if (currUser.role !== USER_ROLE.VENDOR)
-      return msg.error(`User Role is not Valid: ${currUser.role}`);
+      return msg.error(
+        `User Role is not Valid: ${currUser.role}`,
+        makeMsgOpt()
+      );
     else if (!stockCnts.value) return;
 
     const products: VendorProd[] = [];
@@ -117,11 +121,11 @@ function onRegister() {
       onPositiveClick: async () => {
         return Promise.all(products.map((p) => p.update()))
           .then(() => {
-            msg.success("상품등록이 완료되었습니다.");
+            msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
             router.replace({ name: "VendorProductList" });
           })
           .catch(() => {
-            msg.error("상품등록 실패.");
+            msg.error("상품등록 실패.", makeMsgOpt());
           });
       },
     });

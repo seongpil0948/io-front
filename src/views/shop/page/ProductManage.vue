@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTable, useShopUserProds } from "@/composables";
+import { useTable, useShopUserProds, makeMsgOpt } from "@/composables";
 import { deleteShopProds } from "@/plugins/firebase";
 import { useAuthStore } from "@/stores";
 import type { ShopUserProd } from "@/types";
@@ -60,8 +60,8 @@ let popVal = ref("");
 watchEffect(async () => {
   if (popVal.value === "Delete" && selectedRow.value) {
     await deleteShopProds([selectedRow.value.shopProdId])
-      .then(() => msg.success("삭제 완료"))
-      .catch(() => msg.error("삭제 실패"));
+      .then(() => msg.success("삭제 완료", makeMsgOpt()))
+      .catch(() => msg.error("삭제 실패", makeMsgOpt()));
   }
 });
 const cols = computed((): DataTableColumns<ShopUserProd> => {
@@ -111,8 +111,8 @@ const cols = computed((): DataTableColumns<ShopUserProd> => {
 });
 async function onCheckedDelete() {
   deleteShopProds(checkedKeys.value)
-    .then(() => msg.success("삭제 완료"))
-    .catch(() => msg.error("삭제 실패"));
+    .then(() => msg.success("삭제 완료", makeMsgOpt()))
+    .catch(() => msg.error("삭제 실패", makeMsgOpt()));
 }
 function updateOrderId(arr: string[]) {
   mapper?.value?.setSyno("orderId", arr);
@@ -161,8 +161,8 @@ function updateOrderId(arr: string[]) {
             async () =>
               mapper
                 ?.update()
-                .then(() => msg.success('업데이트 성공'))
-                .catch(() => msg.error('업데이트 실패'))
+                .then(() => msg.success('업데이트 성공', makeMsgOpt()))
+                .catch(() => msg.error('업데이트 실패', makeMsgOpt()))
           "
         >
           저장

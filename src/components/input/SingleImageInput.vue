@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRefs, ref } from "vue";
 import { STORAGE_SVC } from "@/types";
-import { IoUser } from "@/composables";
+import { IoUser, makeMsgOpt } from "@/composables";
 import { refByRoleSvc, uploadFile } from "@/plugins/firebase";
 import { useMessage } from "naive-ui";
 const props = defineProps<{
@@ -19,7 +19,7 @@ let loading = ref(false);
 async function loadFile() {
   if (!input.value || !input.value!.files) return;
   else if (input.value.files.length + urls.value.length > 5) {
-    return msg.error("5장까지 업로드 가능합니다.");
+    return msg.error("5장까지 업로드 가능합니다.", makeMsgOpt());
   } else if (input.value.files && input.value.files.length > 0) {
     loading.value = true;
     const parent = refByRoleSvc(

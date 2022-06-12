@@ -3,6 +3,7 @@ import { h, ref, watchEffect } from "vue";
 import {
   getOrderCnt,
   getPendingCnt,
+  makeMsgOpt,
   ShopReqOrder,
   useParseOrderInfo,
   useShopReadOrderInfo,
@@ -104,9 +105,9 @@ watchEffect(() => {
                       data.amount = data.orderCnt * row.prodPrice!;
                       data.orderState = ORDER_STATE.BEFORE_APPROVE;
                       await data.update();
-                      msg.success("주문 요청에 성공하셨습니다.");
+                      msg.success("주문 요청에 성공하셨습니다.", makeMsgOpt());
                     } else {
-                      msg.error("주문에 실패하였습니다.");
+                      msg.error("주문에 실패하였습니다.", makeMsgOpt());
                     }
                   },
                 });

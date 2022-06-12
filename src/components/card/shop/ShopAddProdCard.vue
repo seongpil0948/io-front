@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ShopProd } from "@/composables";
+import { makeMsgOpt, ShopProd } from "@/composables";
 import { shopProdExist } from "@/plugins/firebase";
 import { useAuthStore } from "@/stores";
 import type { PROD_SIZE, VendorUserProdCombined } from "@/types";
@@ -40,7 +40,8 @@ async function onSubmit() {
   selectedProdIds.value.forEach(async (prodId) => {
     if (!(await shopProdExist(prodId, auth.currUser.userId))) {
       msg.error(
-        `컬러 ${optById[prodId].color}, 사이즈: ${optById[prodId].size} 상품은 이미 존재합니다.`
+        `컬러 ${optById[prodId].color}, 사이즈: ${optById[prodId].size} 상품은 이미 존재합니다.`,
+        makeMsgOpt()
       );
       return;
     }
@@ -62,11 +63,14 @@ async function onSubmit() {
   }
   Promise.all(shopProds.map((x) => x.update()))
     .then(() => {
-      msg.success("선택한 상품들이 내상품에 추가가 완료되었어요!");
+      msg.success(
+        "선택한 상품들이 내상품에 추가가 완료되었어요!",
+        makeMsgOpt()
+      );
       emits("update:showAddModal", false);
     })
     .catch((e) => {
-      msg.error(`상품추가 실패: ${e}`);
+      msg.error(`상품추가 실패: ${e}`, makeMsgOpt());
     })
     .finally(() => emits("update:showAddModal", false));
 }

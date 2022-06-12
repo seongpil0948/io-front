@@ -61,7 +61,7 @@ export function useParseOrderInfo(
     });
     const prodMapper = mapper.getProdMapper();
     if (Object.keys(prodMapper).length === 0) {
-      msg.error("주문취합을 위해 상품매핑정보를 등록 해주십시오");
+      msg.error("주문취합을 위해 상품매핑정보를 등록 해주십시오", makeMsgOpt());
       return [];
     }
     const idx = getColIdx(targetDf, colMapper);

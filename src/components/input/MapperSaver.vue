@@ -1,6 +1,7 @@
 <script setup>
 import { useMessage } from "naive-ui";
 import { computed, toRefs } from "vue";
+import { makeMsgOpt } from "@/composables";
 
 // type MappingType = "cell" | "column";
 // interface MapProp {
@@ -58,7 +59,7 @@ function onUpdate(val) {
 
 async function onSave() {
   await mapper?.value.update();
-  msg.success("변경사항 저장이 완료 되었어요!");
+  msg.success("변경사항 저장이 완료 되었어요!", makeMsgOpt());
   return emits("reqShow", "");
 }
 
