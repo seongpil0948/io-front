@@ -37,18 +37,16 @@ const emits = defineEmits(["update:showAddModal"]);
 const auth = useAuthStore();
 const msg = useMessage();
 async function onSubmit() {
-  selectedProdIds.value.forEach(async (prodId) => {
-    if (!(await shopProdExist(prodId, auth.currUser.userId))) {
-      msg.error(
-        `컬러 ${optById[prodId].color}, 사이즈: ${optById[prodId].size} 상품은 이미 존재합니다.`,
-        makeMsgOpt()
-      );
-      return;
-    }
-  });
-  const shopProds: ShopProd[] = [];
   for (let i = 0; i < selectedProdIds.value.length; i++) {
     const vendorProdId = selectedProdIds.value[i];
+    if (await shopProdExist(vendorProdId, auth.currUser.userId)) {
+      msg.error(
+        `컬러 ${optById[vendorProdId].color}, 사이즈: ${optById[vendorProdId].size} 상품은 이미 존재합니다.`,
+        makeMsgOpt()
+      );
+      continue;
+    }
+
     const shopProd = new ShopProd({
       vendorId: prod.value.vendorId,
       vendorProdId,
@@ -59,20 +57,10 @@ async function onSubmit() {
       size: optById[vendorProdId].size as PROD_SIZE,
       color: optById[vendorProdId].color,
     });
-    shopProds.push(shopProd);
+    await shopProd.update();
+    selectedProdIds.value = [];
   }
-  Promise.all(shopProds.map((x) => x.update()))
-    .then(() => {
-      msg.success(
-        "선택한 상품들이 내상품에 추가가 완료되었어요!",
-        makeMsgOpt()
-      );
-      emits("update:showAddModal", false);
-    })
-    .catch((e) => {
-      msg.error(`상품추가 실패: ${e}`, makeMsgOpt());
-    })
-    .finally(() => emits("update:showAddModal", false));
+  emits("update:showAddModal", false);
 }
 function onCheck(val: string) {
   if (selectedProdIds.value.includes(val)) {

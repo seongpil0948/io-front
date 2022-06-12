@@ -59,7 +59,9 @@ export async function deleteShopProds(userId: string, prodIds: string[]) {
     await deleteDoc(doc(c, prodIds[0]));
   } else {
     const batch = writeBatch(getIoStore());
-    prodIds.forEach((pid) => batch.delete(doc(c, pid)));
+    for (let i = 0; i < prodIds.length; i++) {
+      batch.delete(doc(c, prodIds[i]));
+    }
     await batch.commit();
   }
   await Mapper.deleteProdId(userId, prodIds);
