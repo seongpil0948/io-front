@@ -37,6 +37,7 @@ const emits = defineEmits(["update:showAddModal"]);
 const auth = useAuthStore();
 const msg = useMessage();
 async function onSubmit() {
+  let addCnt = selectedProdIds.value.length;
   for (let i = 0; i < selectedProdIds.value.length; i++) {
     const vendorProdId = selectedProdIds.value[i];
     if (await shopProdExist(vendorProdId, auth.currUser.userId)) {
@@ -44,6 +45,7 @@ async function onSubmit() {
         `컬러 ${optById[vendorProdId].color}, 사이즈: ${optById[vendorProdId].size} 상품은 이미 존재합니다.`,
         makeMsgOpt()
       );
+      addCnt -= 1;
       continue;
     }
 
@@ -59,6 +61,7 @@ async function onSubmit() {
     });
     await shopProd.update();
   }
+  msg.success(`${addCnt}개 상품들이 추가되었습니다.`);
   selectedProdIds.value = [];
   emits("update:showAddModal", false);
 }
