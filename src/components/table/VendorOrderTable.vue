@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useReadVendorOrderInfo, useTable } from "@/composables";
+import { ShopReqOrder, useReadVendorOrderInfo, useTable } from "@/composables";
 import { useAuthStore } from "@/stores/auth";
 import { IoColOpt, ORDER_STATE, VendorUserProd } from "@/types";
 import { toRefs, watchEffect } from "vue";
@@ -43,8 +43,13 @@ watchEffect(() => {
         console.log("CLICK TITLE");
       }, "선택주문 거부"),
     render: (row) =>
-      rendorTableBtn(() => {
-        console.log("CLICK ROW", row);
+      rendorTableBtn(async () => {
+        const order = ShopReqOrder.fromJson(row);
+        if (!order) return;
+        else if (order.orderState === ORDER_STATE.BEFORE_APPROVE) {
+          order.orderState = ORDER_STATE.BEFORE_PAYMENT;
+          await order.update();
+        }
       }, "승인 완료"),
   });
 });

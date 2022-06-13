@@ -58,8 +58,8 @@ async function onSubmit() {
       color: optById[vendorProdId].color,
     });
     await shopProd.update();
-    selectedProdIds.value = [];
   }
+  selectedProdIds.value = [];
   emits("update:showAddModal", false);
 }
 function onCheck(val: string) {

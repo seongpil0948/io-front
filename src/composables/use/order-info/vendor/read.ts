@@ -37,7 +37,7 @@ export function useReadVendorOrderInfo(
         ps.push(Object.assign({ unPaidAmount: 0 }, ShopReqOrder.none(), p));
       }
     });
-    return ps;
+    return ps.filter((x) => x.orderCnt > 0);
   });
 
   return { prods, orders, orderProds };
