@@ -3,6 +3,13 @@ import { AxiosInstance } from "axios";
 import { ioFire } from "@/plugins/firebase";
 import type { Router } from "vue-router";
 import "pinia";
+import type { Kakao } from "@types/kakao-js-sdk";
+
+declare global {
+  interface Window {
+    Kakao?: Kakao;
+  }
+}
 
 declare module "vue" {
   // provide typings for `this.$store`
@@ -21,5 +28,6 @@ declare module "pinia" {
     $http: AxiosInstance;
     $fire: typeof ioFire;
     $router: Router;
+    $kakao: Kakao;
   }
 }

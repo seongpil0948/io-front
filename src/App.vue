@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { GlobalThemeOverrides } from "naive-ui";
+import { getCurrentInstance } from "vue";
 import { ioColors } from "./composables";
+
+const app = getCurrentInstance();
+console.log("VUE APP INSTANCE: ", app);
 
 const themeOverrides: GlobalThemeOverrides = {
   common: {
