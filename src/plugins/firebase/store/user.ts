@@ -1,3 +1,4 @@
+import { useRouter } from "vue-router";
 import { userConverter } from "@/composables/model";
 import { batchInQuery, getIoCollection } from "@/plugins/firebase";
 import { IoUser } from "@/composables";
@@ -11,19 +12,15 @@ import {
   QuerySnapshot,
   where,
 } from "firebase/firestore";
+import router from "@/plugins/router";
 
-async function ioSignUp(
+async function ioSignUpCredential(
   uc: UserCredential,
   name: string,
   role: USER_ROLE
 ): Promise<void> {
   const user = await IoUser.fromCredential(uc, name, role);
   await user.update();
-}
-
-async function ioSignIn(uc: UserCredential): Promise<IoUser> {
-  const user = await getUserById(uc.user.uid);
-  return user;
 }
 
 async function getUserById(uid: string) {
@@ -33,8 +30,6 @@ async function getUserById(uid: string) {
     )
   );
   const u = snapshot.data();
-  if (!snapshot.exists() || !u)
-    throw Error("No such Or Null According to  User document!");
   return u;
 }
 async function getUserByIds(uids: string[]) {
@@ -65,4 +60,4 @@ function _usersFromSnap(snap: QuerySnapshot<IoUser | null>): IoUser[] {
   return users;
 }
 
-export { ioSignUp, ioSignIn, getUserById, getUsersByRole, getUserByIds };
+export { ioSignUpCredential, getUserById, getUsersByRole, getUserByIds };

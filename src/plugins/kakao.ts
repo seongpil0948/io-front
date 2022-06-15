@@ -31,7 +31,7 @@ function initializeScript(
 
     script.onerror = (error) => {
       throw new Error(
-        `Error while initializeScript(KAKAO) ERROR: ${error.toString()}`
+        `Error while initializeScript(KAKAO) ERROR: ${JSON.stringify(error)}`
       );
     };
     script.id = scriptId;

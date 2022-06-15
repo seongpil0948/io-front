@@ -1,7 +1,7 @@
 import { IoUser } from "@/composables";
 import { USER_ROLE } from "@/types";
 import { defineStore } from "pinia";
-
+import { getAuth, signOut } from "firebase/auth";
 interface AuthStoreInterface {
   user: IoUser | null;
 }
@@ -23,7 +23,7 @@ export const useAuthStore = defineStore({
     },
     // Getters are exactly the equivalent of computed
     currUserRole: (state) =>
-      state.user === null ? USER_ROLE.ANONYMOUSE : state.user!.role,
+      state.user === null ? USER_ROLE.ANONYMOUSE : state.user?.role,
   },
   actions: {
     async login(u: IoUser) {
@@ -34,6 +34,9 @@ export const useAuthStore = defineStore({
     async logout() {
       localStorage.clear();
       this.user = null;
+      const auth = getAuth();
+      console.log("sign out Auth", auth);
+      await signOut(auth);
       this.$router.replace({ name: "Login" }); //   this.$http.get("https://www.naver.com");
     },
   },

@@ -14,14 +14,13 @@ Date.prototype.toJSON = function () {
 const pinia = createPinia();
 const app = createApp(App);
 app.use(pinia);
-app.use(router);
 app.use(vueKakao, {
   apiKey: "96b525bca68b5ec991f5e96c39db8111",
   callback: () => {
     console.log("KAKAKO SDK is installed");
   },
 });
-
+app.use(router);
 pinia.use(({ store }) => {
   store.$router = markRaw(router);
   store.$fire = ioFire;

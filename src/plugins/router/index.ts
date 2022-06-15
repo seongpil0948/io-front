@@ -3,7 +3,7 @@ import { routes } from "./routes";
 import { useAuthStore } from "@/stores";
 import { USER_ROLE } from "@/types";
 import { IoUser } from "@/composables";
-
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 export const notAuthName = ["Login", "SignUp", "PlayGround"];
 
 declare module "vue-router" {
@@ -40,4 +40,10 @@ router.goHome = (user?: IoUser) => {
   }
 };
 
+const auth = getAuth();
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    router.replace({ name: "Login" });
+  }
+});
 export default router;

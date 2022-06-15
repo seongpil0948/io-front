@@ -17,6 +17,7 @@ declare module "vue" {
     $http: AxiosInstance;
     $fire: typeof ioFire;
     ioColors: ioColors;
+    $kakao: Kakao;
   }
 }
 

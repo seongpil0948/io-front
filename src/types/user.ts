@@ -10,6 +10,11 @@ const USER_ROLE: { [key in string]: USER_ROLE } = Object.freeze({
   ANONYMOUSE: "ANONYMOUSE",
 });
 
+type USER_PROVIDER = "EMAIL" | "KAKAO";
+const USER_PROVIDER: { [key in string]: USER_PROVIDER } = Object.freeze({
+  EMAIL: "EMAIL",
+  KAKAO: "KAKAO",
+});
 interface IoUserCRT {
   createdAt?: Date;
   updatedAt?: Date;
@@ -25,4 +30,4 @@ interface IoUserCRT {
   fcmTokens: IdTokenResult[];
 }
 
-export { type IoUserCRT, USER_ROLE };
+export { type IoUserCRT, USER_ROLE, USER_PROVIDER };

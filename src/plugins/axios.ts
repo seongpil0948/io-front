@@ -3,7 +3,7 @@ import axios from "axios";
 // Full config:  https://github.com/axios/axios#request-config
 // https://axios-http.com/docs/req_config
 const config = {
-  //   baseURL: process.env.VITE_APP_BACK_HOST,
+  baseURL: process.env.VUE_APP_WEB_SERVER_API_URL,
   //   timeout: 300 * 1000, // Timeout
   withCredentials: false, // Check cross-site Access-Control
   headers: {

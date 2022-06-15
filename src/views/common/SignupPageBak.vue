@@ -64,62 +64,41 @@
 </template>
 
 <script setup lang="ts">
-import {
-  IoUser,
-  USER_ROLE,
-  emailRule,
-  pwRule,
-  notNullRule,
-} from "@/composables";
+import { emailRule, pwRule, notNullRule } from "@/composables/input/formRule";
 import { type FormInst, type FormItemRule, useMessage } from "naive-ui";
 import { ref } from "vue";
-import { getAuth } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "vue-router";
-import { LocateCRT } from "@/types";
+import { USER_ROLE } from "@/composables/model";
+import { ioSignUpCredential } from "@/plugins/firebase/store";
 
 const router = useRouter();
-const params = router.currentRoute.value.params;
-if (!params.userId) {
-  console.error("User ID not Received In SignUp Page(Landing)", params);
-  router.replace({ name: "Login" });
-}
 const formRef = ref<FormInst | null>(null);
 const auth = getAuth();
 const message = useMessage();
 const loginInfo = ref({
-  name: params.userName as string,
-  displayName: "",
-  email: params.email as string,
+  name: "",
+  email: "",
   password: "",
   reenteredPassword: "",
   role: USER_ROLE.SHOP,
-  locations: [] as LocateCRT[],
 });
 
-async function onSignUp(e: MouseEvent) {
+function onSignUp(e: MouseEvent) {
   e.preventDefault();
-  const fcmTokens = auth.currentUser
-    ? [await auth.currentUser?.getIdTokenResult()]
-    : [];
-  console.log("====> FcmTokens", fcmTokens);
   formRef.value?.validate(async (errors) => {
     if (!errors) {
       const v = loginInfo.value;
-      const user = new IoUser({
-        userId: params.userId as string,
-        displayName: v.displayName,
-        providerId: params.providerId as string,
-        userName: v.name,
-        email: v.email,
-        emailVerified: false,
-        profileImg: params.profileImg as string,
-        locations: v.locations,
-        role: v.role,
-        fcmTokens,
-      });
-      await user.update();
-      message.success("SignUp is Success");
-      router.replace({ name: "Login" });
+      createUserWithEmailAndPassword(auth, v.email, v.password)
+        .then(async (userCredential) => {
+          await ioSignUpCredential(userCredential, v.name, v.role);
+          message.success("SignUp is Success");
+          router.replace({ name: "Login" });
+        })
+        .catch((error) => {
+          const msg = `error code: ${error.code} \n error message: ${error.message}`;
+          message.error(msg);
+        });
     } else {
       message.error("작성란을 올바르게 작성해주세요.");
     }
