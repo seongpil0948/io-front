@@ -28,6 +28,9 @@ interface IoUserCRT {
   locations: LocateCRT[];
   role: USER_ROLE;
   fcmTokens: IdTokenResult[];
+  // passed: boolean; // 관리자(주네)에게 허가받은 사용자 인지
+  // companyName?: string; // 상호명
+  // companyNo?: string; // 사업자등록번호
 }
 
 export { type IoUserCRT, USER_ROLE, USER_PROVIDER };

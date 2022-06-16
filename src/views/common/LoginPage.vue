@@ -90,7 +90,7 @@ function onKakaoLogin() {
 </script>
 
 <template>
-  <n-space id="login-page" vertical>
+  <n-space id="login-page-container" vertical>
     <n-image src="/logo.png" width="100" />
     <n-h2>In-Out Box</n-h2>
     <n-image
@@ -101,8 +101,8 @@ function onKakaoLogin() {
   </n-space>
 </template>
 
-<style scoped>
-#login-page {
+<style>
+#login-page-container {
   justify-content: center !important;
   align-items: center;
   height: 100vh;
