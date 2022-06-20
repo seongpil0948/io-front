@@ -10,7 +10,7 @@ import {
 import { ShopProdQField, MapKey } from "@/types";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { useMessage } from "naive-ui";
-import { h, Ref, ref, watchEffect } from "vue";
+import { Ref, ref, watchEffect } from "vue";
 
 export function useParseOrderInfo(
   mapper: Ref<Mapper | null>,

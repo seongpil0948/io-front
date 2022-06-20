@@ -2,15 +2,21 @@
 import { toRefs, ref } from "vue";
 import { STORAGE_SVC } from "@/types";
 import { IoUser, makeMsgOpt } from "@/composables";
-import { refByRoleSvc, uploadFile } from "@/plugins/firebase";
+import { refByRoleSvc, refByUid, uploadFile } from "@/plugins/firebase";
 import { useMessage } from "naive-ui";
 const props = defineProps<{
   urls: string[];
-  user: IoUser;
+  user?: IoUser;
+  userId?: string;
   elemetId: string;
   size: string;
   max: number;
 }>();
+if (!props.userId && !props.user)
+  throw new Error(
+    "Single Image Input Compoenent Require Whether User ID or  User"
+  );
+
 const { urls, size, max, elemetId } = toRefs(props);
 const emits = defineEmits(["update:urls"]);
 const input = ref<HTMLInputElement | null>(null);
@@ -22,11 +28,13 @@ async function loadFile() {
     return msg.error("5장까지 업로드 가능합니다.", makeMsgOpt());
   } else if (input.value.files && input.value.files.length > 0) {
     loading.value = true;
-    const parent = refByRoleSvc(
-      props.user.role,
-      STORAGE_SVC.VENDOR_PRODUCT,
-      props.user.userId
-    );
+    const parent = props.user
+      ? refByRoleSvc(
+          props.user.userInfo.role,
+          STORAGE_SVC.VENDOR_PRODUCT,
+          props.user.userInfo.userId
+        )
+      : refByUid(props.userId!);
     const imgs = await uploadFile(parent, input.value.files);
     emits("update:urls", [...urls.value, ...imgs]);
     loading.value = false;

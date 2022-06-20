@@ -1,18 +1,31 @@
+type LocateType = "매장" | "창고" | "기타";
+const LocateType: { [key: string]: LocateType } = {
+  SHOP: "매장",
+  STORAGE: "창고",
+  ETC: "기타",
+};
 interface LocateCRT {
-  latitude: number | null; // 위도
-  longitude: number | null; // 경도
-  detailLocate: string | null;
-  firstName: string | null;
-  middleName: string | null;
-  lastName: string | null;
-  phone: string | null;
-  postalCode: string | null;
+  alias: string;
+  latitude?: number; // 위도
+  longitude?: number; // 경도
+  detailLocate?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  postalCode?: string;
   country: string;
-  city: string | null;
+  city?: string;
+  loateType: LocateType;
 }
 
 type IoJson = { [key: string]: string[] };
 type MappingJson = { [mappedVal: string]: string };
 type ValueOf<T> = T[keyof T];
 
-export type { IoJson, ValueOf, MappingJson, LocateCRT };
+export {
+  type IoJson,
+  type ValueOf,
+  type MappingJson,
+  type LocateCRT,
+  LocateType,
+};

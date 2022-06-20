@@ -1,0 +1,121 @@
+<script setup lang="ts">
+import { Locate, locateTypeOpt, nameLenRule } from "@/composables";
+import { LocateCRT, LocateType } from "@/types";
+import { FormInst, useMessage } from "naive-ui";
+import { reactive, ref, toRefs, watchEffect } from "vue";
+const props = defineProps<{
+  showAppendModal: boolean;
+}>();
+const { showAppendModal } = toRefs(props);
+const showModal = ref(false);
+const emits = defineEmits<{
+  (e: "appendLocate", value: Locate): void;
+  (e: "update:showAppendModal", value: boolean): void;
+}>();
+
+watchEffect(() => {
+  showModal.value = showAppendModal.value;
+});
+const msg = useMessage();
+const formRef = ref<FormInst | null>(null);
+const formModel = reactive<{ [k in keyof LocateCRT]: LocateCRT[k] }>({
+  loateType: locateTypeOpt.value[0].value as LocateType,
+  alias: "",
+  city: undefined,
+  postalCode: undefined,
+  detailLocate: undefined,
+  firstName: undefined,
+  lastName: undefined,
+  phone: undefined,
+  country: "KO",
+  latitude: undefined,
+  longitude: undefined,
+});
+const rule = {
+  alias: nameLenRule,
+  detailLocate: nameLenRule,
+  firstName: nameLenRule,
+  lastName: nameLenRule,
+  phone: nameLenRule,
+  postalCode: nameLenRule,
+  country: nameLenRule,
+  city: nameLenRule,
+  loateType: nameLenRule,
+};
+function submitLocate() {
+  if (!formRef.value) return;
+  formRef.value.validate((errors) => {
+    if (errors) {
+      msg.error("올바른 형식의 주소를 입력 해주십시오");
+      console.error(errors);
+    } else {
+      const result = new Locate(Object.assign({}, formModel));
+      console.log("submitLocate: ", result);
+      emits("appendLocate", result);
+      emits("update:showAppendModal", false);
+    }
+  });
+}
+</script>
+
+<template>
+  <n-modal
+    v-model:show="showModal"
+    preset="card"
+    style="width: 50%"
+    title="상품 정보 수정"
+  >
+    <n-form
+      ref="formRef"
+      style="width: 60%"
+      inline
+      :label-width="80"
+      label-placement="top"
+      :model="formModel"
+      :rules="rule"
+      size="medium"
+    >
+      <n-grid cols="1">
+        <n-form-item-gi label="주소 타입" path="loateType">
+          <n-select
+            v-model:value="formModel.loateType"
+            :options="locateTypeOpt"
+          />
+        </n-form-item-gi>
+
+        <n-form-item-gi label="별칭" path="alias">
+          <n-input v-model:value="formModel.alias" placeholder="별칭 입력" />
+        </n-form-item-gi>
+        <n-form-item-gi label="도시" path="city">
+          <n-input v-model:value="formModel.city" placeholder="도시 입력" />
+        </n-form-item-gi>
+        <n-form-item-gi label="우편번호" path="postalCode">
+          <n-input
+            v-model:value="formModel.postalCode"
+            placeholder="우편번호"
+          />
+        </n-form-item-gi>
+        <n-form-item-gi label="상세주소" path="detailLocate">
+          <n-input
+            v-model:value="formModel.detailLocate"
+            placeholder="상세주소 입력"
+          />
+        </n-form-item-gi>
+        <n-form-item-gi label="받는분 성함(성)" path="firstName">
+          <n-input v-model:value="formModel.firstName" placeholder="성 입력" />
+        </n-form-item-gi>
+        <n-form-item-gi label="받는분 성함(이름)" path="lastName">
+          <n-input v-model:value="formModel.lastName" placeholder="이름 입력" />
+        </n-form-item-gi>
+        <n-form-item-gi label="연락처" path="phone">
+          <n-input v-model:value="formModel.phone" placeholder="연락처 입력" />
+        </n-form-item-gi>
+      </n-grid>
+    </n-form>
+    <template #action>
+      <n-space justify="end">
+        <n-button @click="submitLocate"> 제출 </n-button>
+      </n-space>
+    </template>
+  </n-modal>
+</template>

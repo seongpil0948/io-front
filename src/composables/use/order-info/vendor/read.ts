@@ -4,7 +4,7 @@ import {
   scribeVendorProdById,
 } from "@/plugins/firebase";
 import { ORDER_STATE, VendorUserOrderProd } from "@/types";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 
 export function useReadVendorOrderInfo(
   vendorId: string,

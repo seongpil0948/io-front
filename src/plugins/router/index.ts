@@ -23,26 +23,29 @@ router.beforeEach(async (to) => {
     authStore.currUserRole === USER_ROLE.ANONYMOUSE &&
     (!to.name || !notAuthName.includes(to.name!.toString()))
   ) {
-    // redirect the user to the login page
+    console.log("to login page from router.beforeEach");
     return { name: "Login" };
   }
 });
 
 router.goHome = (user?: IoUser) => {
-  if (!user || user.role === USER_ROLE.ANONYMOUSE) {
+  if (!user || user.userInfo.role === USER_ROLE.ANONYMOUSE) {
+    console.log("to login page from router.goHome");
     router.push({ name: "Login" });
-  } else if (user.role === USER_ROLE.VENDOR) {
+  } else if (user.userInfo.role === USER_ROLE.VENDOR) {
     router.push({ name: "VendorHome" });
-  } else if (user.role === USER_ROLE.SHOP) {
+  } else if (user.userInfo.role === USER_ROLE.SHOP) {
     router.push({ name: "ShopHome" });
-  } else if (user.role === USER_ROLE.UNCLE) {
+  } else if (user.userInfo.role === USER_ROLE.UNCLE) {
     router.push({ name: "UncleHome" });
   }
 };
 
 const auth = getAuth();
 onAuthStateChanged(auth, (user) => {
+  console.log("onAuthStateChanged: ", user);
   if (!user) {
+    console.log("to login page from onAuthStateChanged");
     router.replace({ name: "Login" });
   }
 });

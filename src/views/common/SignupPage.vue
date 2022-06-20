@@ -1,86 +1,130 @@
 <script setup lang="ts">
+import UserInfoForm from "@/components/form/UserInfoForm.vue";
 import {
-  IoUser,
-  USER_ROLE,
-  emailRule,
-  pwRule,
-  notNullRule,
-} from "@/composables";
-import { type FormInst, type FormItemRule, useMessage } from "naive-ui";
-import { onMounted, ref } from "vue";
-import { getAuth } from "firebase/auth";
+  getCurrentInstance,
+  onBeforeUnmount,
+  onMounted,
+  watchEffect,
+} from "vue";
+import { FormInst, useMessage } from "naive-ui";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { LocateCRT } from "@/types";
+import { IoUser, makeMsgOpt, useFireWork } from "@/composables";
+import {
+  ShopOperInfo,
+  USER_ROLE,
+  VendorOperInfo,
+  type USER_PROVIDER,
+} from "@/types";
+import CompanyInfoForm from "@/components/form/CompanyInfoForm.vue";
+import ShopOperInfoVue from "@/components/form/ShopOperInfo.vue";
+import VendorOperInfoVue from "@/components/form/VendorOperInfo.vue";
 
+const inst = getCurrentInstance();
 const router = useRouter();
-const params = router.currentRoute.value.params;
-// if (!params.userId) {
-//   console.error("User ID not Received In SignUp Page(Landing)", params);
-//   router.replace({ name: "Login" });
-// }
-const formRef = ref<FormInst | null>(null);
-const auth = getAuth();
-const message = useMessage();
-const loginInfo = ref({
-  name: params.userName as string,
-  displayName: "",
-  email: params.email as string,
-  password: "",
-  reenteredPassword: "",
-  role: USER_ROLE.SHOP,
-  locations: [] as LocateCRT[],
-});
+if (!router.currentRoute.value.params.userId) {
+  console.error(
+    "User ID not Received In SignUp Page(Landing)",
+    router.currentRoute.value.params
+  );
+  router.replace({ name: "Login" });
+}
 
+const msg = useMessage();
+const { play, stop } = useFireWork();
 let step = ref(1);
 onMounted(() => {
   setTimeout(() => {
     step.value = 2;
   }, 1000);
 });
+watchEffect(() => {
+  if (step.value < 8) stop();
+});
+onBeforeUnmount(() => {
+  stop();
+});
 
-async function onSignUp(e: MouseEvent) {
-  e.preventDefault();
-  const fcmTokens = auth.currentUser
-    ? [await auth.currentUser?.getIdTokenResult()]
-    : [];
-  console.log("====> FcmTokens", fcmTokens);
-  formRef.value?.validate(async (errors) => {
-    if (!errors) {
-      const v = loginInfo.value;
-      const user = new IoUser({
-        userId: params.userId as string,
-        displayName: v.displayName,
-        providerId: params.providerId as string,
-        userName: v.name,
-        email: v.email,
-        emailVerified: false,
-        profileImg: params.profileImg as string,
-        locations: v.locations,
-        role: v.role,
-        fcmTokens,
-      });
-      await user.update();
-      message.success("SignUp is Success");
-      router.replace({ name: "Login" });
+let user = ref<IoUser | null>(null);
+let acceptTerms = ref(false);
+
+async function onStep4() {
+  console.log("On Step 4");
+  if (!inst) return;
+  const userInfoForm = inst.refs.userInfoRef as InstanceType<
+    typeof UserInfoForm
+  >;
+  (userInfoForm.$refs.formRef as FormInst).validate(async (errors) => {
+    if (errors) {
+      msg.error("매장정보를 올바르게 입력해주세요", makeMsgOpt());
     } else {
-      message.error("작성란을 올바르게 작성해주세요.");
+      user.value = new IoUser({ userInfo: await userInfoForm.getUserInfo() });
+      step.value = 4;
+    }
+    console.log("userInfo", user.value);
+  });
+}
+function onStep5() {
+  console.log("On Step 5");
+  if (!inst || !user.value) return;
+  const companyInfoForm = inst.refs.comapnyInfoRef as InstanceType<
+    typeof CompanyInfoForm
+  >;
+  (companyInfoForm.$refs.formRef as FormInst).validate(async (errors) => {
+    if (errors) {
+      msg.error("회사정보를 올바르게 입력해주세요", makeMsgOpt());
+    } else {
+      const companyInfo = companyInfoForm.companyInfo;
+      user.value!.copanyInfo = companyInfo;
+      console.log("companyInfo: ", companyInfo);
+      step.value = 5;
     }
   });
 }
-const rules = {
-  name: notNullRule,
-  email: emailRule,
-  password: pwRule,
-  reenteredPassword: [
-    {
-      required: true,
-      validator: (rule: FormItemRule, value: string): boolean =>
-        value === loginInfo.value.password,
-      message: "패스워드와 같지 않습니다.",
-      trigger: ["blur", "password-input"],
-    },
-  ],
-};
+function onStep6() {
+  console.log("On Step 6");
+  if (!inst || !user.value) return;
+  if (user.value.userInfo.role === USER_ROLE.SHOP) {
+    const operForm = inst.refs.shopOperRef as InstanceType<
+      typeof ShopOperInfoVue
+    >;
+    (operForm.$refs.formRef as FormInst).validate(async (errors) => {
+      if (errors) {
+        msg.error("쇼핑몰 운영정보를 올바르게 입력해주세요", makeMsgOpt());
+      } else {
+        user.value!.operInfo = operForm.operInfo as ShopOperInfo;
+      }
+    });
+  } else if (user.value.userInfo.role === USER_ROLE.VENDOR) {
+    const operForm = inst.refs.vendorOperRef as InstanceType<
+      typeof VendorOperInfoVue
+    >;
+    (operForm.$refs.formRef as FormInst).validate(async (errors) => {
+      if (errors) {
+        msg.error("도매 운영정보를 올바르게 입력해주세요", makeMsgOpt());
+      } else {
+        user.value!.operInfo = operForm.operInfo as VendorOperInfo;
+      }
+    });
+  }
+
+  step.value = 6;
+  setTimeout(() => {
+    step.value = 7;
+  }, 3000);
+}
+
+async function onSignUp() {
+  if (!acceptTerms.value) {
+    msg.error("이용약관에 동의 해주세요", makeMsgOpt());
+    return;
+  }
+  console.log(user.value);
+  await user.value!.update();
+  msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
+  play();
+  step.value = 8;
+}
 </script>
 <template>
   <n-space id="signup-page-container" vertical>
@@ -129,69 +173,111 @@ const rules = {
             ></n-button
           >
         </Transition>
-        <n-form
-          v-if="step === 3"
-          ref="formRef"
-          style="width: 60%"
-          inline
-          :label-width="80"
-          label-placement="top"
-          :model="loginInfo"
-          :rules="rules"
-          size="medium"
-        >
-          <n-grid cols="1" :x-gap="24">
-            <n-form-item-gi label="이름" path="name">
-              <n-input
-                v-model:value="loginInfo.name"
-                type="text"
-                placeholder="이름을 입력 해주세요"
+        <n-card v-if="step > 2" :bordered="false">
+          <Transition name="one">
+            <user-info-form
+              v-if="step === 3"
+              ref="userInfoRef"
+              :userName="($route.params.userName as string)"
+              :profileImg="($route.params.profileImg as string)"
+              :email="($route.params.email as string)"
+              :userId="($route.params.userId as string)"
+              :providerId="($route.params.providerId as USER_PROVIDER)"
+            />
+          </Transition>
+          <Transition name="two">
+            <company-info-form
+              v-if="step === 4"
+              ref="comapnyInfoRef"
+              :userId="($route.params.userId as string)"
+            />
+          </Transition>
+          <Transition
+            name="two"
+            v-if="step === 5 && user && user.userInfo.role === USER_ROLE.SHOP"
+          >
+            <shop-oper-info-vue ref="shopOperRef" />
+          </Transition>
+          <Transition
+            name="two"
+            v-if="step === 5 && user && user.userInfo.role === USER_ROLE.VENDOR"
+          >
+            <vendor-oper-info-vue ref="vendorOperRef" />
+          </Transition>
+          <Transition name="one" v-if="step === 6">
+            <n-space vertical>
+              <n-image
+                preview-disabled
+                class="vibe"
+                src="/logo.png"
+                width="100"
               />
-            </n-form-item-gi>
-            <n-form-item-gi label="이메일" path="email">
-              <n-input
-                v-model:value="loginInfo.email"
-                type="text"
-                placeholder="이메일을 입력 해주세요"
-              />
-            </n-form-item-gi>
-            <n-form-item-gi label="패스워드" path="password">
-              <n-input
-                type="password"
-                v-model:value="loginInfo.password"
-                show-password-on="click"
-                placeholder="아이콘을 눌러 비밀번호를 확인 할 수 있습니다."
-              />
-            </n-form-item-gi>
-            <n-form-item-gi label="패스워드 재입력" path="reenteredPassword">
-              <n-input
-                v-model:value="loginInfo.reenteredPassword"
-                :disabled="!loginInfo.password"
-                type="password"
-                @keydown.enter.prevent
-              />
-            </n-form-item-gi>
-            <n-form-item-gi label="역할" path="role">
-              <n-radio-group v-model:value="loginInfo.role" name="Role">
-                <n-space>
-                  <n-radio :value="USER_ROLE.SHOP"> SHOP </n-radio>
-                  <n-radio :value="USER_ROLE.VENDOR"> VENDOR </n-radio>
-                  <n-radio :value="USER_ROLE.UNCLE"> UNCLE </n-radio>
-                </n-space>
-              </n-radio-group>
-            </n-form-item-gi>
-          </n-grid>
-        </n-form>
-        <template #action>
-          <n-space justify="end">
-            <n-button style="margin-right: 1vw" @click="onSignUp">
-              회원가입
-            </n-button>
-          </n-space>
-        </template>
+              <n-h2>거의 다 왔어요!</n-h2>
+            </n-space>
+          </Transition>
+          <Transition name="two" v-if="step === 7">
+            <div>
+              <n-h2>인 아웃 박스 이용 약관</n-h2>
+              <n-card>
+                <n-text>이용약관 어쩌구 저쩌구 </n-text>
+                <template #action>
+                  <n-space justify="end">
+                    <n-checkbox label="동의" v-model:checked="acceptTerms" />
+                  </n-space>
+                </template>
+              </n-card>
+              <n-button
+                style="margin-top: 3vh; font-size: 1.1rem"
+                text
+                @click.stop="onSignUp"
+              >
+                가입 완료!
+              </n-button>
+            </div>
+          </Transition>
+          <Transition name="one" v-if="step === 8">
+            <n-space vertical>
+              <n-h1
+                >가입 완료!!! <br />
+                사장님 믿고 있었다구!</n-h1
+              >
+              <n-space inline :wrap="false">
+                <n-image
+                  v-for="z in new Array(5)"
+                  :key="z"
+                  preview-disabled
+                  class="vibe"
+                  src="/logo.png"
+                  width="60"
+                />
+              </n-space>
+              <n-button
+                style="margin-top: 3vh; font-size: larger"
+                text
+                @click.stop="router.replace({ name: 'Login' })"
+              >
+                바로 이용하기 >
+              </n-button>
+            </n-space>
+          </Transition>
+          <template #action>
+            <n-space v-if="step >= 3 && step <= 5" justify="end">
+              <n-button v-if="step === 3" @click.stop="onStep4">
+                다음
+              </n-button>
+              <n-button v-else-if="step === 4" @click.stop="onStep5">
+                다음
+              </n-button>
+              <n-button v-else-if="step === 5" @click.stop="onStep6">
+                다음
+              </n-button>
+            </n-space></template
+          >
+        </n-card>
+
         <n-steps
           v-if="step > 2"
-          :current="(step - 1 as number)"
+          :current="(step - 2 as number)"
           style="margin-top: 1vh; margin-left: 7%"
         >
           <template #finish-icon>
@@ -203,9 +289,9 @@ const rules = {
               height="20"
             />
           </template>
-          <n-step title="매장 정보 입력" />
-          <n-step title="사업자 정보 입력" />
-          <n-step title="운영방식 설정" />
+          <n-step @click="step = 3" title="매장 정보 입력" />
+          <n-step @click="step = 4" title="사업자 정보 입력" />
+          <n-step @click="step = 5" title="운영방식 설정" />
           <n-step title="가입완료" />
         </n-steps>
       </n-space>

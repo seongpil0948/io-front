@@ -15,7 +15,6 @@
           <n-form-item-gi label="이메일" path="email">
             <n-input
               v-model:value="loginInfo.email"
-              type="text"
               placeholder="이메일을 입력 해주세요"
             />
           </n-form-item-gi>

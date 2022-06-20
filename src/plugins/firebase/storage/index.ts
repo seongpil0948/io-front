@@ -22,6 +22,10 @@ function refByRoleSvc(
   return ref(ioStorage, `${role}/${svc}/${userId}`);
 }
 
+export function refByUid(userId: string) {
+  return ref(ioStorage, `userId/${userId}`);
+}
+
 function completeRef(
   filename: string,
   parent: StorageReference

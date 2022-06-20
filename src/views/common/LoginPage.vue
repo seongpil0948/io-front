@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useMessage } from "naive-ui";
 import { getCurrentInstance } from "vue";
 import { getAuth, signInWithCustomToken } from "firebase/auth";
 import { useRouter } from "vue-router";
@@ -7,11 +6,12 @@ import { useEventListener } from "@/composables/event";
 import { useAuthStore } from "@/stores";
 import { getUserById } from "@/plugins/firebase";
 import { USER_PROVIDER } from "@/types";
+import { useMessage } from "naive-ui";
 const inst = getCurrentInstance();
 const router = useRouter();
 const auth = getAuth();
-const msg = useMessage();
 const authS = useAuthStore();
+const msg = useMessage();
 
 useEventListener(
   () => document.querySelector("#loginForm"),
@@ -28,33 +28,53 @@ function onKakaoLogin() {
   kakao.Auth.login({
     success: (obj: any) => {
       console.log("Login Response:", obj);
-      const accessToken: string = obj.access_token;
-      const idToken: string = obj.id_token;
-      const scope: string = obj.scope;
       kakao.API.request({
         url: "/v2/user/me",
         success: async function (res: any) {
           const http = inst?.appContext.config.globalProperties.$http;
-          const kakaoId: number = res.id;
-          const email: string = res.kakao_account.email;
-          const profileImg: string = res.properties.profile_image;
-          const customRes = await http.get(`/auth/customToken/${kakaoId}`);
-          console.log("customToken Response: ", JSON.stringify(customRes));
-          console.log("customToken Response data ", customRes.data);
+          console.log("User Info From Kakao: ", res);
+          const customRes = await http.get(`/auth/customToken/${res.id}`); // kakao id
           signInWithCustomToken(auth, customRes.data.token)
             .then(async (uc) => {
+              // kakao.API.request({
+              //   url: "/v1/api/talk/channels",
+              //   success: function (res: any) {
+              //     console.log("카카오 채널목록: ", res);
+              //     console.log("ADD CHANNEL");
+              //   },
+              //   fail: function (error: any) {
+              //     console.error("카카오 채널목록 에러: ", error);
+              //   },
+              // });
+              // kakao.Channel.addChannel({ channelPublicId: kakaoChannelId });
+              // console.log("Chat CHANNEL");
+              // kakao.Channel.chat({
+              //   channelPublicId: kakaoChannelId,
+              // });
+
               const user = await getUserById(uc.user.uid);
+              console.log(
+                "User from getUserById: ",
+                user,
+                "Uid: ",
+                uc.user.uid
+              );
               if (user) {
-                authS.login(user);
-                router.goHome(user);
+                if (user.userInfo.passed) {
+                  authS.login(user);
+                  router.goHome(user);
+                } else {
+                  msg.error("관리자가 검토중인 계정입니다.");
+                  authS.logout();
+                }
               } else {
                 router.push({
                   name: "SignUp",
                   params: {
                     userId: uc.user.uid,
                     userName: uc.user.displayName,
-                    email: email,
-                    profileImg,
+                    email: res.kakao_account.email,
+                    profileImg: res.properties.profile_image,
                     providerId: USER_PROVIDER.KAKAO,
                   },
                 });
@@ -63,7 +83,7 @@ function onKakaoLogin() {
             .catch((error) => {
               if (error.code) {
                 throw new Error(
-                  `===> Kakao signInWithCustomToken Error Code: ${error.code}, Msg: ${error.message}`
+                  `===> Kakao signInWithCustomToken Error Code: ${error.code},  ${error.message}`
                 );
               } else {
                 throw error;
@@ -77,10 +97,6 @@ function onKakaoLogin() {
           );
         },
       });
-
-      console.log("accessToken:", accessToken);
-      console.log("idToken:", idToken);
-      console.log("scope:", scope);
     },
     fail: function (err: any) {
       alert(JSON.stringify(err));
@@ -97,6 +113,7 @@ function onKakaoLogin() {
       preview-disabled
       @click="onKakaoLogin"
       src="/img/kakao_login_medium_wide.png"
+      style="cursor: pointer"
     />
   </n-space>
 </template>

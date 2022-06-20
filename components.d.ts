@@ -6,9 +6,11 @@ import '@vue/runtime-core'
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     CarouselImgCard: typeof import('./src/components/card/CarouselImgCard.vue')['default']
+    CompanyInfoForm: typeof import('./src/components/form/CompanyInfoForm.vue')['default']
     DropZoneCard: typeof import('./src/components/input/DropZoneCard.vue')['default']
     IoSider: typeof import('./src/components/layout/IoSider.vue')['default']
     LayoutHeader: typeof import('./src/components/layout/LayoutHeader.vue')['default']
+    LocateAppendModal: typeof import('./src/components/card/LocateAppendModal.vue')['default']
     LoginPage: typeof import('./src/views/common/LoginPage.vue')['default']
     LoginPageBak: typeof import('./src/views/common/LoginPageBak.vue')['default']
     LogoChecker: typeof import('./src/components/input/LogoChecker.vue')['default']
@@ -53,6 +55,7 @@ declare module '@vue/runtime-core' {
     NModal: typeof import('naive-ui')['NModal']
     NPopover: typeof import('naive-ui')['NPopover']
     NRadio: typeof import('naive-ui')['NRadio']
+    NRadioButton: typeof import('naive-ui')['NRadioButton']
     NRadioGroup: typeof import('naive-ui')['NRadioGroup']
     NSelect: typeof import('naive-ui')['NSelect']
     NSpace: typeof import('naive-ui')['NSpace']
@@ -61,6 +64,7 @@ declare module '@vue/runtime-core' {
     NSteps: typeof import('naive-ui')['NSteps']
     NTabPane: typeof import('naive-ui')['NTabPane']
     NTabs: typeof import('naive-ui')['NTabs']
+    NTag: typeof import('naive-ui')['NTag']
     NText: typeof import('naive-ui')['NText']
     NTooltip: typeof import('naive-ui')['NTooltip']
     OrderList: typeof import('./src/views/vendor/page/OrderList.vue')['default']
@@ -77,6 +81,7 @@ declare module '@vue/runtime-core' {
     ShopAddProdCard: typeof import('./src/components/card/shop/ShopAddProdCard.vue')['default']
     ShopHome: typeof import('./src/views/shop/ShopHome.vue')['default']
     ShopLayout: typeof import('./src/views/shop/ShopLayout.vue')['default']
+    ShopOperInfo: typeof import('./src/components/form/ShopOperInfo.vue')['default']
     ShopOrderCnt: typeof import('./src/components/input/ShopOrderCnt.vue')['default']
     ShopOrderTable: typeof import('./src/components/table/ShopOrderTable.vue')['default']
     ShopProdModifyModal: typeof import('./src/components/card/shop/ShopProdModifyModal.vue')['default']
@@ -88,13 +93,16 @@ declare module '@vue/runtime-core' {
     UncleManage: typeof import('./src/views/vendor/page/UncleManage.vue')['default']
     UnknownPage: typeof import('./src/views/common/UnknownPage.vue')['default']
     UserAvatar: typeof import('./src/components/avatar/UserAvatar.vue')['default']
+    UserInfoForm: typeof import('./src/components/form/UserInfoForm.vue')['default']
     UserProfile: typeof import('./src/components/avatar/UserProfile.vue')['default']
     VendorHome: typeof import('./src/views/vendor/VendorHome.vue')['default']
     VendorLayout: typeof import('./src/views/vendor/VendorLayout.vue')['default']
+    VendorOperInfo: typeof import('./src/components/form/VendorOperInfo.vue')['default']
     VendorOrderTable: typeof import('./src/components/table/VendorOrderTable.vue')['default']
     VendorProdEditForm: typeof import('./src/components/card/vendor/VendorProdEditForm.vue')['default']
     VendorProdThum: typeof import('./src/components/card/vendor/VendorProdThum.vue')['default']
     VendorProductList: typeof import('./src/views/vendor/page/VendorProductList.vue')['default']
+    YesOrNoRadio: typeof import('./src/components/input/YesOrNoRadio.vue')['default']
   }
 }
 

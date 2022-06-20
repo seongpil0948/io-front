@@ -55,6 +55,7 @@ const themeOverrides: GlobalThemeOverrides = {
   Radio: {
     dotColorActive: ioColors.primary,
     color: ioColors.white,
+    buttonTextColorActive: ioColors.white,
   },
   Checkbox: {
     textColor: ioColors.text,

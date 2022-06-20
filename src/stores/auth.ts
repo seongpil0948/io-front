@@ -23,7 +23,7 @@ export const useAuthStore = defineStore({
     },
     // Getters are exactly the equivalent of computed
     currUserRole: (state) =>
-      state.user === null ? USER_ROLE.ANONYMOUSE : state.user?.role,
+      state.user === null ? USER_ROLE.ANONYMOUSE : state.user?.userInfo.role,
   },
   actions: {
     async login(u: IoUser) {

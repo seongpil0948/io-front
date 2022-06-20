@@ -26,7 +26,7 @@ export const useVendorsStore = defineStore({
       state.vendors.length === 0 && state.vendorProds.length === 0,
     vendorsById: (state) =>
       state.vendors.reduce<{ [userId: string]: IoUser }>((acc, user) => {
-        acc[user.userId] = user;
+        acc[user.userInfo.userId] = user;
         return acc;
       }, {}),
     // vendorProdsById: (state) =>

@@ -1,8 +1,7 @@
-import { useRouter } from "vue-router";
 import { userConverter } from "@/composables/model";
 import { batchInQuery, getIoCollection } from "@/plugins/firebase";
 import { IoUser } from "@/composables";
-import { IoCollection, type USER_ROLE } from "@/types";
+import { IoCollection, USER_PROVIDER, type USER_ROLE } from "@/types";
 import type { UserCredential } from "firebase/auth";
 import {
   doc,
@@ -12,14 +11,13 @@ import {
   QuerySnapshot,
   where,
 } from "firebase/firestore";
-import router from "@/plugins/router";
 
 async function ioSignUpCredential(
   uc: UserCredential,
   name: string,
   role: USER_ROLE
 ): Promise<void> {
-  const user = await IoUser.fromCredential(uc, name, role);
+  const user = await IoUser.fromCredential(uc, name, role, USER_PROVIDER.KAKAO);
   await user.update();
 }
 

@@ -84,9 +84,9 @@ watchEffect(
 function onRegister() {
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
-    else if (currUser.role !== USER_ROLE.VENDOR)
+    else if (currUser.userInfo.role !== USER_ROLE.VENDOR)
       return msg.error(
-        `User Role is not Valid: ${currUser.role}`,
+        `User Role is not Valid: ${currUser.userInfo.role}`,
         makeMsgOpt()
       );
     else if (!stockCnts.value) return;
@@ -103,7 +103,7 @@ function onRegister() {
               vendorProdName: v.name,
               size,
               color,
-              vendorId: currUser.userId,
+              vendorId: currUser.userInfo.userId,
               vendorProdId: uuidv4(),
               stockCnt: stockCnts.value![size][color],
             })

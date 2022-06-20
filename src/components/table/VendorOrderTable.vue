@@ -12,7 +12,10 @@ interface Props {
 }
 const props = defineProps<Props>();
 const { orderStates } = toRefs(props);
-const { orderProds } = useReadVendorOrderInfo(user.userId, orderStates.value);
+const { orderProds } = useReadVendorOrderInfo(
+  user.userInfo.userId,
+  orderStates.value
+);
 
 const cols = [
   "userName",
@@ -29,7 +32,7 @@ const cols = [
   return { key: c } as IoColOpt;
 });
 const { columns, rendorTableBtn } = useTable<VendorUserProd>({
-  userId: user.userId,
+  userId: user.userInfo.userId,
   colKeys: cols,
   useChecker: true,
   keyField: "vendorProdId",

@@ -5,57 +5,52 @@ import {
   loadDate,
 } from "@/plugins/firebase";
 import { useAuthStore } from "@/stores";
-import { IoCollection, type IoUserCRT, USER_ROLE } from "@/types";
-import type { IdTokenResult, UserCredential } from "firebase/auth";
+import {
+  IoCollection,
+  type IoUserCRT,
+  USER_ROLE,
+  IoUserInfo,
+  CompanyInfo,
+  ShopOperInfo,
+  VendorOperInfo,
+  USER_PROVIDER,
+} from "@/types";
+import type { UserCredential } from "firebase/auth";
 import type {
   DocumentData,
   DocumentSnapshot,
   FirestoreDataConverter,
 } from "firebase/firestore";
 import { useRouter } from "vue-router";
-import { type Locate, CommonField } from ".";
+import { CommonField } from ".";
 
 class IoUser extends CommonField implements IoUserCRT {
-  userId: string; // VendorID OR ShopID OR UncleID
-  providerId: string | null;
-  userName: string;
-  displayName: string | null;
-  email: string | null;
-  emailVerified: boolean;
-  profileImg: string | null;
-  locations: Locate[];
-  role: USER_ROLE;
-  fcmTokens: IdTokenResult[];
+  userInfo: IoUserInfo;
+  copanyInfo?: CompanyInfo;
+  operInfo?: ShopOperInfo | VendorOperInfo;
 
   get name() {
-    return this.displayName ?? this.userName;
+    return this.userInfo.displayName ?? this.userInfo.userName;
   }
   get showId() {
-    return this.email?.split("@")[0] ?? this.name;
+    return this.userInfo.email?.split("@")[0] ?? this.name;
   }
 
   isMe(other: IoUser) {
-    return this.userId === other.userId;
+    return this.userInfo.userId === other.userInfo.userId;
   }
 
   constructor(c: IoUserCRT) {
-    super(c.createdAt, c.updatedAt);
-    this.userId = c.userId;
-    this.displayName = c.displayName;
-    this.providerId = c.providerId;
-    this.userName = c.userName;
-    this.email = c.email;
-    this.emailVerified = c.emailVerified;
-    this.profileImg = c.profileImg;
-    this.locations = c.locations;
-    this.role = c.role;
-    this.fcmTokens = c.fcmTokens;
+    super(c.userInfo.createdAt, c.userInfo.updatedAt);
+    this.userInfo = c.userInfo;
+    this.copanyInfo = c.copanyInfo;
+    this.operInfo = c.operInfo;
   }
   async update() {
     await insertById<IoUser>(
       this,
       getIoCollection({ c: IoCollection.USER }),
-      this.userId,
+      this.userInfo.userId,
       true,
       userConverter
     );
@@ -64,37 +59,32 @@ class IoUser extends CommonField implements IoUserCRT {
   static async fromCredential(
     uc: UserCredential,
     name: string,
-    role: USER_ROLE
+    role: USER_ROLE,
+    providerId: USER_PROVIDER
   ): Promise<IoUser> {
     const token = await uc.user.getIdTokenResult();
-    return new IoUser({
+    const userInfo: IoUserInfo = {
       userId: uc.user.uid,
-      providerId: uc.providerId,
+      providerId,
       userName: name,
-      displayName: uc.user.displayName,
-      email: uc.user.email,
+      displayName: uc.user.displayName ?? undefined,
+      email: uc.user.email ?? "",
       emailVerified: uc.user.emailVerified,
-      profileImg: null,
-      locations: [],
       role: role,
       fcmTokens: [token],
-    });
+      passed: false,
+    };
+    return new IoUser({ userInfo });
   }
   static fromJson(data: { [x: string]: any }): IoUser | null {
-    return data && data.userId
+    const userInfo: IoUserInfo = data.userInfo;
+    userInfo.createdAt = loadDate(userInfo.createdAt ?? new Date());
+    userInfo.updatedAt = loadDate(userInfo.updatedAt ?? new Date());
+    return data
       ? new IoUser({
-          createdAt: loadDate(data.createdAt ?? null),
-          updatedAt: loadDate(data.updatedAt ?? null),
-          userId: data.userId,
-          providerId: data.providerId ?? null,
-          userName: data.userName ?? null,
-          displayName: data.displayName ?? null,
-          email: data.email ?? null,
-          emailVerified: data.emailVerified ?? null,
-          profileImg: data.profileImg ?? null,
-          locations: data.locations ?? [],
-          role: data.role ?? null,
-          fcmTokens: data.fcmTokens ?? null,
+          userInfo,
+          copanyInfo: data.copanyInfo,
+          operInfo: data.operInfo,
         })
       : null;
   }
@@ -112,7 +102,8 @@ const userConverter: FirestoreDataConverter<IoUser | null> = {
     options: any
   ): IoUser | null => {
     const data = snapshot.data(options);
-    return data && data.userId ? IoUser.fromJson(data) : null;
+    console.log(data);
+    return data !== undefined ? IoUser.fromJson(data) : null;
   },
 };
 function getCurrUser(replace = true): IoUser {
@@ -120,6 +111,7 @@ function getCurrUser(replace = true): IoUser {
   const router = useRouter();
   const user = authStore.user;
   if (!user && replace) {
+    console.log("to login page from getCurrUser");
     router.replace({ name: "Login" });
   }
   return user!;

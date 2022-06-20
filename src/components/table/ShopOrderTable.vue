@@ -11,7 +11,7 @@ import {
 } from "@/composables";
 import { useAuthStore } from "@/stores";
 import { IoColOpt, ORDER_STATE, ShopReqOrderJoined } from "@/types";
-import { NButton, NGradientText, useDialog, useMessage } from "naive-ui";
+import { NGradientText, useDialog, useMessage } from "naive-ui";
 import { TableBaseColumn } from "naive-ui/es/data-table/src/interface";
 import ShopOrderCnt from "../input/ShopOrderCnt.vue";
 import { getOrderById, getVendorProdById } from "@/plugins/firebase";
@@ -40,7 +40,7 @@ const cols = [
   return { key: c } as IoColOpt;
 });
 const { columns, mapper, rendorTableBtn } = useTable<ShopReqOrderJoined>({
-  userId: user.userId,
+  userId: user.userInfo.userId,
   colKeys: cols,
   useChecker: true,
   keyField: "shopProdId",
@@ -134,12 +134,12 @@ watchEffect(() => {
 // <<<<< COLUMNS <<<<<
 
 const { orderJoined, existOrderIds } = useShopReadOrderInfo(
-  user.userId,
+  user.userInfo.userId,
   props.orderStates
 );
 useParseOrderInfo(
   mapper,
-  user.userId,
+  user.userInfo.userId,
   fileModel,
   existOrderIds,
   async (newOrders) => {

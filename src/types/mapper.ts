@@ -8,10 +8,26 @@ import type { ShopReqOrderCRT } from "./order/shop";
 
 import type { TableColumnTitle } from "naive-ui/es/data-table/src/interface";
 import type { VNodeChild } from "vue";
-import type { MappingJson, ShopUserProd } from ".";
+import type {
+  CompanyInfo,
+  IoUserInfo,
+  MappingJson,
+  ShopOperInfo,
+  ShopProdCRT,
+  ShopUserProd,
+  VendorOperInfo,
+} from ".";
 
 /// which each cell can be mapped
-export type MapperFields = Partial<ShopUserProd & ShopReqOrderCRT>;
+export type MapperFields = Partial<
+  ShopUserProd &
+    ShopReqOrderCRT &
+    IoUserInfo &
+    CompanyInfo &
+    ShopOperInfo &
+    VendorOperInfo &
+    ShopProdCRT
+>;
 export type MapKey = keyof MapperFields;
 export type MapCols = {
   [key in MapKey]: { [prodId: string]: MappingJson };
