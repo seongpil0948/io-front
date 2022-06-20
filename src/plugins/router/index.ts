@@ -41,12 +41,12 @@ router.goHome = (user?: IoUser) => {
   }
 };
 
-const auth = getAuth();
-onAuthStateChanged(auth, (user) => {
-  console.log("onAuthStateChanged: ", user);
-  if (!user) {
-    console.log("to login page from onAuthStateChanged");
-    router.replace({ name: "Login" });
-  }
-});
+// const auth = getAuth();
+// onAuthStateChanged(auth, (user) => {
+//   console.log("onAuthStateChanged: ", user);
+//   if (!user) {
+//     console.log("to login page from onAuthStateChanged");
+//     router.replace({ name: "Login" });
+//   }
+// });
 export default router;
