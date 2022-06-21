@@ -1,5 +1,7 @@
 import type { App } from "vue";
 // https://github.com/eggplantiny/vue-kakao-sdk/blob/main/src/main.js
+// https://developers.kakao.com/sdk/reference/js/release/Kakao.Auth.html
+
 function initialized() {
   if (!window.Kakao) {
     return false;

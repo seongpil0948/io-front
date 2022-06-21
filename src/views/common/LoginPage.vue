@@ -16,13 +16,13 @@ const msg = useMessage();
 useEventListener(
   () => document.querySelector("#loginForm"),
   "keyup",
-  (evt: KeyboardEvent) => {
+  async (evt: KeyboardEvent) => {
     if (evt.key === "Enter") {
-      onKakaoLogin();
+      await onKakaoLogin();
     }
   }
 );
-function onKakaoLogin() {
+async function onKakaoLogin() {
   const kakao = inst?.appContext.config.globalProperties.$kakao;
   console.log("kakao: ", kakao);
   kakao.Auth.login({
