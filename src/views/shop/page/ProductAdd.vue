@@ -32,7 +32,11 @@ function validProd(prod: VendorUserProdCombined) {
     v-model:showAddModal="showAddModal"
     :prod="selectedProd"
   />
-  <n-space vertical style="width: 100%">
+  <n-space
+    v-if="Object.values(vendorStore.vendorUserCombinedProds).length > 0"
+    vertical
+    style="width: 100%"
+  >
     <!-- ROW1 -->
     <n-space justify="space-between">
       <logo-image size="3rem" />
@@ -79,4 +83,11 @@ function validProd(prod: VendorUserProdCombined) {
       </n-card>
     </n-space>
   </n-space>
+  <div v-else>
+    <n-result
+      style="margin-top: 30%"
+      status="error"
+      title="상품 데이터가 없습니다"
+    />
+  </div>
 </template>

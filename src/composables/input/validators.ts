@@ -15,4 +15,4 @@ export const length = (str: string | Array<string | number>, len = 1) =>
 export const checkInRange = (x: number, min: number, max: number) =>
   x !== null && x >= min && x <= max;
 
-export const checkNotNull = (x: any) => x && x.length > 1;
+export const checkNotNull = (x: any) => x !== null && x !== undefined;
