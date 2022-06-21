@@ -25,7 +25,8 @@ useEventListener(
 async function onKakaoLogin() {
   const kakao = inst?.appContext.config.globalProperties.$kakao;
   console.log("kakao: ", kakao);
-  kakao.Auth.login({
+  // kakao.Auth.login({ // with auto login
+  kakao.Auth.loginForm({
     success: (obj: any) => {
       console.log("Login Response:", obj);
       kakao.API.request({
