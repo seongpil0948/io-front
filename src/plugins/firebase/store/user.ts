@@ -43,7 +43,7 @@ const getUsersByRole = async (role: USER_ROLE) => {
   const c = getIoCollection({ c: IoCollection.USER }).withConverter(
     userConverter
   );
-  const snap = await getDocs(query(c, where("role", "==", role)));
+  const snap = await getDocs(query(c, where("userInfo.role", "==", role)));
   return _usersFromSnap(snap);
 };
 function _usersFromSnap(snap: QuerySnapshot<IoUser | null>): IoUser[] {

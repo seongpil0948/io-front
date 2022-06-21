@@ -36,7 +36,7 @@ export const useVendorsStore = defineStore({
     //   }, {}),
     vendorUserProds(): VendorUserProd[] {
       return this.vendorProds.map((p) =>
-        Object.assign(p, this.vendorsById[p.vendorId] ?? {})
+        Object.assign(p, this.vendorsById[p.vendorId])
       );
     },
     vendorUserCombinedProds(): {

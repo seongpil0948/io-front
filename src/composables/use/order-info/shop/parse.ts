@@ -106,7 +106,7 @@ export function useParseOrderInfo(
         );
         if (!synoSize) {
           reporter[orderId] = `사이즈 매핑실패: ${row[idx.prodNameIdx]},${
-            row[idx.colorIdx]
+            row[idx.sizeIdx]
           }`;
           return row;
         }
