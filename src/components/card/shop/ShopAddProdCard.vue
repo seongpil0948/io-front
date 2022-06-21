@@ -40,7 +40,7 @@ async function onSubmit() {
   let addCnt = selectedProdIds.value.length;
   for (let i = 0; i < selectedProdIds.value.length; i++) {
     const vendorProdId = selectedProdIds.value[i];
-    if (await shopProdExist(vendorProdId, auth.currUser.userId)) {
+    if (await shopProdExist(vendorProdId, auth.currUser.userInfo.userId)) {
       msg.error(
         `컬러 ${optById[vendorProdId].color}, 사이즈: ${optById[vendorProdId].size} 상품은 이미 존재합니다.`,
         makeMsgOpt()
@@ -53,7 +53,7 @@ async function onSubmit() {
       vendorId: prod.value.vendorId,
       vendorProdId,
       shopProdId: uuidv4(),
-      shopId: auth.currUser.userId,
+      shopId: auth.currUser.userInfo.userId,
       prodPrice: prod.value.vendorPrice,
       prodName: prod.value.vendorProdName,
       size: optById[vendorProdId].size as PROD_SIZE,
@@ -79,7 +79,7 @@ function onCheck(val: string) {
     :show="showAddModal"
     :on-update:show="(val: boolean) => emits('update:showAddModal', val)"
     :mask-closable="false"
-    :title="prod.userName"
+    :title="prod.userInfo.userName"
     close-on-esc
     size="huge"
     preset="card"
@@ -114,8 +114,8 @@ function onCheck(val: string) {
     </n-card>
 
     <template #header-extra>
-      <n-h3 v-if="prod.locations.length > 0">{{
-        prod.locations[0].phone
+      <n-h3 v-if="prod.copanyInfo && prod.copanyInfo.locations.length > 0">{{
+        prod.copanyInfo?.locations[0].phone
       }}</n-h3>
     </template>
     <template #action>

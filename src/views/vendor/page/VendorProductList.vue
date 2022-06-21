@@ -12,9 +12,12 @@ import LogoChecker from "@/components/input/LogoChecker.vue";
 import { NButton, useMessage } from "naive-ui";
 const auth = useAuthStore();
 const msg = useMessage();
-const { orderProds } = useReadVendorOrderInfo(auth.currUser.userId, []);
+const { orderProds } = useReadVendorOrderInfo(
+  auth.currUser.userInfo.userId,
+  []
+);
 const { columns } = useTable<VendorOrderProd>({
-  userId: auth.currUser.userId,
+  userId: auth.currUser.userInfo.userId,
   colKeys: [
     "vendorProdName",
     "vendorPrice",

@@ -15,11 +15,11 @@ const authStore = useAuthStore();
 const msg = useMessage();
 
 const { rowIdField, userProd } = useShopUserProds(
-  authStore.currUser.userId,
+  authStore.currUser.userInfo.userId,
   null
 );
 const { columns, mapper, checkedKeys } = useTable<ShopUserProd>({
-  userId: authStore.currUser.userId,
+  userId: authStore.currUser.userInfo.userId,
   useChecker: true,
   keyField: rowIdField,
   onCheckAll: (to) =>
@@ -59,7 +59,7 @@ let selectedRow = ref<ShopUserProd | null>(null);
 let popVal = ref("");
 watchEffect(async () => {
   if (popVal.value === "Delete" && selectedRow.value) {
-    await deleteShopProds(authStore.currUser.userId, [
+    await deleteShopProds(authStore.currUser.userInfo.userId, [
       selectedRow.value.shopProdId,
     ])
       .then(() => msg.success("삭제 완료", makeMsgOpt()))
@@ -112,7 +112,7 @@ const cols = computed((): DataTableColumns<ShopUserProd> => {
   ];
 });
 async function onCheckedDelete() {
-  await deleteShopProds(authStore.currUser.userId, checkedKeys.value);
+  await deleteShopProds(authStore.currUser.userInfo.userId, checkedKeys.value);
   msg.success("삭제 완료", makeMsgOpt());
 }
 function updateOrderId(arr: string[]) {
