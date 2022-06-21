@@ -131,10 +131,11 @@ async function onSignUp() {
     <n-image preview-disabled src="/logo.png" width="30" />
     <n-h5 class="txt" style="color: dimgray">
       <div v-if="step === 1">백날 로고를 눌러도 흔들리는 기능 뿐이에요</div>
-      <div v-if="step === 2">히힛 간지러워요! 으익</div>
-      <div v-if="step > 2">우리 천천히 하나씩 다 해나아가요 :)</div>
+      <div v-else-if="step === 2">히힛 간지러워요! 으익</div>
+      <div v-else-if="step === 7">동의 후 가입완료!!</div>
+      <div v-else-if="step > 2">우리 천천히 하나씩 다 해나아가요 :)</div>
     </n-h5>
-    <n-card style="width: 95vw; height: 80vh">
+    <n-card style="width: 95vw; height: 85vh; overflow-y: auto">
       <n-space
         vertical
         style="align-items: center; height: 100%"
@@ -216,7 +217,7 @@ async function onSignUp() {
             </n-space>
           </Transition>
           <Transition name="two" v-if="step === 7">
-            <div>
+            <div style="padding: 3vw">
               <n-h2>인 아웃 박스 이용 약관</n-h2>
               <n-card>
                 <n-text>이용약관 어쩌구 저쩌구 </n-text>
