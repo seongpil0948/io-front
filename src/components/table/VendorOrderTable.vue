@@ -12,7 +12,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const { orderStates } = toRefs(props);
-const { orderProds } = useReadVendorOrderInfo(
+const { prods, orders, orderProds } = useReadVendorOrderInfo(
   user.userInfo.userId,
   orderStates.value
 );
@@ -59,7 +59,6 @@ watchEffect(() => {
 </script>
 <template>
   <n-data-table
-    v-if="orderProds"
     :table-layout="'fixed'"
     scroll-x="1200"
     :columns="columns"
