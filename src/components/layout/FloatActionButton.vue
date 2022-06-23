@@ -1,19 +1,29 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { WalletOutline, PersonCircleOutline } from "@vicons/ionicons5";
+import { CloudLogging } from "@vicons/carbon";
+</script>
 
 <template>
-  <div class="menu" onclick="this.classList.toggle('open')">
-    <div class="button"></div>
-    <div class="button"></div>
-    <div class="button"></div>
+  <div style="position: absolute; bottom: 5%; right: 100px">
+    <div class="menu" onclick="this.classList.toggle('open')">
+      <n-icon class="button" size="25">
+        <WalletOutline />
+      </n-icon>
+      <n-icon class="button" size="25">
+        <CloudLogging />
+      </n-icon>
+      <n-icon class="button" size="25">
+        <PersonCircleOutline />
+      </n-icon>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 @import "../../asset/variables.scss";
 .menu {
-  position: absolute;
-  bottom: 5%;
-  right: 100px;
+  position: relative;
+
   background: $io-background;
   padding: 30px;
   border-radius: 100%;
@@ -57,27 +67,22 @@
       &:first-of-type {
         bottom: 40px;
         right: 70px;
-        background: url("https://bassets.github.io/cam.svg") no-repeat 50%/50%
-          $io-grey3;
       }
       &:nth-of-type(2) {
         bottom: 80px;
-        background: url("https://bassets.github.io/img.svg") no-repeat 50%/ 50% $io-grey3;
         transition-delay: 0.05s;
       }
-      &:last-of-type {
+      &:nth-of-type(3) {
         bottom: 40px;
         right: -70px;
-        background: url("https://bassets.github.io/music.svg") no-repeat 50% 45%/50%
-          45% $io-grey3;
-        transition-delay: 0.1s;
+        transition-delay: 0.05s;
       }
     }
   }
 }
 
 .button {
-  padding: 30px;
+  padding: 15px;
   border-radius: 50%;
   cursor: pointer;
   background: #e8e8f3;
