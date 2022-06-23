@@ -113,7 +113,12 @@ const themeOverrides: GlobalThemeOverrides = {
   </n-config-provider>
 </template>
 
-<style>
+<style lang="scss">
+@import "./asset/variables.scss";
+.io-bacground {
+  background: $io-background;
+}
+
 body {
   width: 100vw;
   height: 100vh;
@@ -141,7 +146,7 @@ body {
   max-width: 10rem;
 }
 .n-tabs--bar-type div.n-tabs-tab {
-  background-color: #f0c755;
+  background-color: $io-primary;
   border-radius: 25px;
   margin-right: 2vw;
   padding: 0.8rem 2rem !important;
@@ -151,7 +156,7 @@ body {
   background-color: white;
 }
 .n-message--error-type {
-  border: 1px solid #a7171a;
-  box-shadow: 0px 1px 7px 0px #a7171a;
+  border: 1px solid $io-red;
+  box-shadow: 0px 1px 7px 0px $io-red;
 }
 </style>

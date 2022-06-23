@@ -46,6 +46,8 @@
     "eslint-plugin-vue": "^8.0.3",
     "naive-ui": "^2.29.0",
     "prettier": "^2.4.1",
+    "sass": "^1.53.0",
+    "sass-loader": "^13.0.0",
     "typescript": "~4.5.5",
     "unplugin-vue-components": "^0.19.6",
     "vue-loader": "^17.0.0",

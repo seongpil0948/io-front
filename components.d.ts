@@ -8,6 +8,7 @@ declare module '@vue/runtime-core' {
     CarouselImgCard: typeof import('./src/components/card/CarouselImgCard.vue')['default']
     CompanyInfoForm: typeof import('./src/components/form/CompanyInfoForm.vue')['default']
     DropZoneCard: typeof import('./src/components/input/DropZoneCard.vue')['default']
+    FloatActionButton: typeof import('./src/components/layout/FloatActionButton.vue')['default']
     IoSider: typeof import('./src/components/layout/IoSider.vue')['default']
     LayoutHeader: typeof import('./src/components/layout/LayoutHeader.vue')['default']
     LocateAppendModal: typeof import('./src/components/card/LocateAppendModal.vue')['default']
