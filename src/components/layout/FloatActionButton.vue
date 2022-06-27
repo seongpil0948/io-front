@@ -6,9 +6,15 @@ import { CloudLogging } from "@vicons/carbon";
 <template>
   <div style="position: absolute; bottom: 10%; right: 100px">
     <div class="menu" onclick="this.classList.toggle('open')">
-      <n-icon class="button" size="25">
-        <WalletOutline />
-      </n-icon>
+      <n-popover trigger="click">
+        <template #trigger>
+          <n-icon class="button" size="25">
+            <WalletOutline />
+          </n-icon>
+        </template>
+        <coin-wallet />
+      </n-popover>
+
       <n-icon class="button" size="25">
         <CloudLogging />
       </n-icon>

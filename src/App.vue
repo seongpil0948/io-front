@@ -173,7 +173,8 @@ body {
   margin-top: 12px;
   margin-bottom: 12px;
 }
-.n-tooltip {
+.n-tooltip,
+.n-popover {
   border: $io-primary solid 0.3rem;
 }
 </style>
