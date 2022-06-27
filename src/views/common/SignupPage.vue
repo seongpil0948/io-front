@@ -49,7 +49,6 @@ let user = ref<IoUser | null>(null);
 let acceptTerms = ref(false);
 
 async function onStep4() {
-  console.log("On Step 4");
   if (!inst) return;
   const userInfoForm = inst.refs.userInfoRef as InstanceType<
     typeof UserInfoForm
@@ -65,7 +64,6 @@ async function onStep4() {
   });
 }
 function onStep5() {
-  console.log("On Step 5");
   if (!inst || !user.value) return;
   const companyInfoForm = inst.refs.comapnyInfoRef as InstanceType<
     typeof CompanyInfoForm
@@ -82,7 +80,6 @@ function onStep5() {
   });
 }
 function onStep6() {
-  console.log("On Step 6");
   if (!inst || !user.value) return;
   if (user.value.userInfo.role === USER_ROLE.SHOP) {
     const operForm = inst.refs.shopOperRef as InstanceType<

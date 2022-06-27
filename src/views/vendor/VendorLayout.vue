@@ -47,12 +47,11 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(PersonIcon),
   },
 ];
-const minHeight = "95vh";
+const minHeight = "100vh";
 </script>
 <template>
   <n-space vertical>
     <n-layout>
-      <layout-header />
       <n-layout has-sider :style="`min-height: ${minHeight}`">
         <io-sider
           :style="`min-height: ${minHeight};`"

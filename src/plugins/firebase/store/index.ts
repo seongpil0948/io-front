@@ -12,3 +12,4 @@ export * from "./mapper";
 export * from "./user";
 export * from "./product";
 export * from "./order-info";
+export * from "./pay";

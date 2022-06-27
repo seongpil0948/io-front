@@ -1,5 +1,6 @@
 type IoCollection =
   | "USER"
+  | "IO_PAY"
   | "VENDOR_PROD"
   | "SHOP_PROD"
   | "MAPPER"
@@ -8,6 +9,7 @@ type IoCollection =
 
 const IoCollection: { [key in IoCollection]: IoCollection } = Object.freeze({
   USER: "USER",
+  IO_PAY: "IO_PAY",
   MAPPER: "MAPPER",
   VENDOR_PROD: "VENDOR_PROD",
   SHOP_PROD: "SHOP_PROD",

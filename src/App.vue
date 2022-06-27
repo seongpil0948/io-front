@@ -24,11 +24,11 @@ const themeOverrides: GlobalThemeOverrides = {
     textColorBase: ioColors.text,
     textColor1: ioColors.text,
     textColor2: ioColors.text,
-    textColor3: ioColors.text,
     placeholderColor: ioColors.text,
     iconColor: ioColors.text,
     hoverColor: ioColors.primary,
     bodyColor: ioColors.background,
+    fontWeightStrong: "700",
   },
   Input: {
     color: ioColors.primary,
@@ -98,6 +98,15 @@ const themeOverrides: GlobalThemeOverrides = {
     textColor: ioColors.text,
     iconColorSuccess: ioColors.text,
   },
+  Popover: {
+    dividerColor: ioColors.primary,
+  },
+  Tooltip: {
+    color: ioColors.white,
+    textColor: ioColors.black,
+    boxShadow: ioColors.primary,
+    borderRadius: "10px",
+  },
 };
 </script>
 
@@ -158,5 +167,13 @@ body {
 .n-message--error-type {
   border: 1px solid $io-red;
   box-shadow: 0px 1px 7px 0px $io-red;
+}
+
+.n-divider:not(.n-divider--vertical) {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.n-tooltip {
+  border: $io-primary solid 0.3rem;
 }
 </style>

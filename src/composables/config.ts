@@ -6,3 +6,7 @@ export const ioColors = {
   white: "#FFFFFF",
   red: "#A7171A",
 };
+
+// amount * COIN_PAY_RATIO ->  num of coin
+export const COIN_PAY_RATIO = 100;
+export const COIN_FEE = 0.05;

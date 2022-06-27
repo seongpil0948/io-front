@@ -2,7 +2,7 @@
 import { renderIcon, renderRoute } from "@/composables";
 import type { MenuOption } from "naive-ui";
 import { ProductHunt, ShoppingCart } from "@vicons/fa";
-const minHeight = "95vh";
+const minHeight = "100vh";
 const menuOptions: MenuOption[] = [
   {
     label: "상품",
@@ -40,7 +40,6 @@ const menuOptions: MenuOption[] = [
 <template>
   <n-space vertical>
     <n-layout>
-      <layout-header />
       <n-layout has-sider :style="`min-height: ${minHeight}`">
         <io-sider
           :style="`min-height: ${minHeight}`"

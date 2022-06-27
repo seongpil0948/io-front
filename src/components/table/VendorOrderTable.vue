@@ -12,7 +12,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 const { orderStates } = toRefs(props);
-const { prods, orders, orderProds } = useReadVendorOrderInfo(
+const { orderProds } = useReadVendorOrderInfo(
   user.userInfo.userId,
   orderStates.value
 );
