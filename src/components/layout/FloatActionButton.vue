@@ -4,7 +4,7 @@ import { CloudLogging } from "@vicons/carbon";
 </script>
 
 <template>
-  <div style="position: absolute; bottom: 10%; right: 100px">
+  <div style="position: fixed; bottom: 10%; right: 100px">
     <div class="menu" onclick="this.classList.toggle('open')">
       <n-popover trigger="click">
         <template #trigger>

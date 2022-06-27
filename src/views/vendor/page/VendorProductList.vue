@@ -14,7 +14,8 @@ const auth = useAuthStore();
 const msg = useMessage();
 const { orderProds } = useReadVendorOrderInfo(
   auth.currUser.userInfo.userId,
-  []
+  [],
+  false
 );
 const { columns } = useTable<VendorOrderProd>({
   userId: auth.currUser.userInfo.userId,

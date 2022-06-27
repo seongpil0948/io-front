@@ -8,7 +8,8 @@ import { computed } from "vue";
 
 export function useReadVendorOrderInfo(
   vendorId: string,
-  orderStates: ORDER_STATE[]
+  orderStates: ORDER_STATE[],
+  orderExist = true
 ) {
   const { prods } = scribeVendorProdById(vendorId);
   const { orders } = getVendorGroupOrderInfo({
@@ -38,7 +39,7 @@ export function useReadVendorOrderInfo(
       }
     });
     // return ps;
-    return ps.filter((x) => x.orderCnt > 0);
+    return orderExist ? ps.filter((x) => x.orderCnt > 0) : ps;
   });
 
   return { prods, orders, orderProds };

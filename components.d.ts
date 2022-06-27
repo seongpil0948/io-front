@@ -75,7 +75,6 @@ declare module '@vue/runtime-core' {
     OrderSubmit: typeof import('./src/views/vendor/page/OrderSubmit.vue')['default']
     PartCtgrMenu: typeof import('./src/components/menu/PartCtgrMenu.vue')['default']
     PlayGround: typeof import('./src/views/common/PlayGround.vue')['default']
-    PopOverIcon: typeof import('./src/components/common/PopOverIcon.vue')['default']
     ProductAdd: typeof import('./src/views/shop/page/ProductAdd.vue')['default']
     ProductManage: typeof import('./src/views/shop/page/ProductManage.vue')['default']
     ProductRegister: typeof import('./src/views/vendor/page/ProductRegister.vue')['default']

@@ -8,7 +8,7 @@ const router = useRouter();
   <router-view></router-view>
   <n-layout-footer
     bordered
-    position="absolute"
+    position="fixed"
     style="
       height: 64px;
       padding: 24px;

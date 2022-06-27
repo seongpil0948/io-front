@@ -119,6 +119,7 @@ function onRegister() {
       negativeText: "취소",
       closeOnEsc: true,
       onPositiveClick: async () => {
+        console.log("PRODS:", products);
         return Promise.all(products.map((p) => p.update()))
           .then(() => {
             msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
