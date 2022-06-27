@@ -6,17 +6,20 @@ import { v4 as uuidv4 } from "uuid";
 import { useAuthStore } from "@/stores";
 import { getIoPayByUser } from "@/plugins/firebase";
 import { QuestionCircleRegular } from "@vicons/fa";
+import { useMessage } from "naive-ui";
 
 const APP_ID = "62b45e0fe38c3000215aec6b";
 const inst = getCurrentInstance();
 const authStore = useAuthStore();
+const msg = useMessage();
 const user = authStore.currUser;
 const { userPay } = getIoPayByUser(user.userInfo.userId);
 
 async function reqPay() {
   const date = new Date();
+  const price = IoPay.coinToMoney(chargeCoin.value).toString();
   const response = BootPay.request({
-    price: IoPay.coinToMoney(chargeCoin.value).toString(), //실제 결제되는 가격
+    price, //실제 결제되는 가격
     application_id: APP_ID,
     name: "인코인 구매", //결제창에서 보여질 이름
     show_agree_window: 1, // 부트페이 정보 동의 창 보이기 여부
@@ -31,6 +34,7 @@ async function reqPay() {
     params: {
       callback1: "그대로 콜백받을 변수 1",
       customvar1234: "변수명도 마음대로",
+      mey: price,
     },
     account_expire_at: date
       .toLocaleDateString()
@@ -46,6 +50,7 @@ async function reqPay() {
     .error(function (data) {
       //결제 진행시 에러가 발생하면 수행됩니다.
       console.error("On Payment Error", data);
+      msg.error(`${data.action}, code: ${data.code}, message: ${data.message}`);
     })
     .cancel(function (data) {
       //결제가 취소되면 수행됩니다.
@@ -61,40 +66,9 @@ async function reqPay() {
       // 예) 현대 앱카드 인증 후 최종 결제 눌렀을때 실행됌
       // https://docs.bootpay.co.kr/rest/verify
       console.log("On Payment Confirm", data);
-      // data = {
-      //   action: "BootpayDone",
-      //   parent: 2,
-      //   receipt_id: "62b5079a2701800020be3e2d",
-      //   price: 1000,
-      //   card_no: "943135*********7",
-      //   card_code: "04",
-      //   card_name: "현대카드",
-      //   card_quota: "00",
-      //   receipt_url:
-      //     "https://iniweb.inicis.com/DefaultWebApp/mall/cr/cm/mCmReceipt_head.jsp?noTid=StdpayCARDCAEjiwob6b20220624094248093135&noMethod=1",
-      //   params: {
-      //     callback1: "그대로 콜백받을 변수 1",
-      //     callback2: "그대로 콜백받을 변수 2",
-      //     customvar1234: "변수명도 마음대로",
-      //   },
-      //   item_name: "블링블링 마스카라",
-      //   order_id: "order_id_1234",
-      //   url: "http://localhost:8080",
-      //   tax_free: 0,
-      //   payment_name: "ISP / 앱카드결제",
-      //   pg_name: "이니시스",
-      //   pg: "inicis",
-      //   method: "card",
-      //   method_name: "ISP / 앱카드결제",
-      //   payment_group: "card",
-      //   payment_group_name: "신용카드",
-      //   requested_at: "2022-06-24 09:38:50",
-      //   purchased_at: "2022-06-24 09:42:49",
-      //   status: 1,
-      // };
       const http = inst?.appContext.config.globalProperties.$http;
       const resp = await http.get(
-        `/payment/verifyReceipt?price=${chargeString.value}&receiptId=${data.receipt_id}`
+        `/payment/verifyReceipt?price=${data.params.mey}&receiptId=${data.receipt_id}`
       );
       console.log("/payment/verifyReceipt Response: ", resp);
       var enable = resp.data === "sp"; // 재고 수량 관리 로직 혹은 다른 처리

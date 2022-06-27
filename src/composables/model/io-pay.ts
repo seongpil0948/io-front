@@ -55,7 +55,7 @@ export class IoPay extends CommonField implements IoPayCRT {
   }
   static coinToMoney(coin: number) {
     const money = coin * COIN_PAY_RATIO;
-    return money * COIN_FEE; // tax
+    return money * (1 + COIN_FEE); // tax
   }
   static moneyToCoin(money: number) {
     if (money % COIN_PAY_RATIO !== 0)
