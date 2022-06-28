@@ -104,7 +104,6 @@ const userConverter: FirestoreDataConverter<IoUser | null> = {
     options: any
   ): IoUser | null => {
     const data = snapshot.data(options);
-    console.log(data);
     return data !== undefined ? IoUser.fromJson(data) : null;
   },
 };

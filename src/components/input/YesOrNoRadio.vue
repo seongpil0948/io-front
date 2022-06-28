@@ -42,17 +42,9 @@ watch(
 
 <template>
   <n-radio-group v-model:value="radioModel">
-    <n-radio-button
-      style="min-width: 5vw"
-      key="yes"
-      value="yes"
-      :label="yesLabel ?? 'YES'"
-    />
-    <n-radio-button
-      style="min-width: 5vw"
-      key="no"
-      value="no"
-      :label="noLabel ?? 'NO'"
-    />
+    <n-space item-style="margin-right: none;">
+      <n-radio-button key="yes" value="yes" :label="yesLabel ?? 'YES'" />
+      <n-radio-button key="no" value="no" :label="noLabel ?? 'NO'" />
+    </n-space>
   </n-radio-group>
 </template>

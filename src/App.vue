@@ -36,6 +36,7 @@ const themeOverrides: GlobalThemeOverrides = {
   Layout: {
     color: ioColors.background,
     headerColor: ioColors.primary,
+    footerColor: ioColors.background,
   },
   Button: {
     color: ioColors.white,

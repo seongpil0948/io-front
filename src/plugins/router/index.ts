@@ -22,8 +22,10 @@ router.beforeEach(async (to) => {
     authStore.currUserRole === USER_ROLE.ANONYMOUSE &&
     (!to.name || !notAuthName.includes(to.name!.toString()))
   ) {
-    console.log("to login page from router.beforeEach");
-    return { name: "Login" };
+    // >>> TEMP >>>
+    // console.log("to login page from router.beforeEach");
+    // return { name: "Login" };
+    // <<< TEMP <<<
   }
 });
 

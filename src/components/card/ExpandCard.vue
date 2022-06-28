@@ -16,7 +16,7 @@ let expanded = ref(false);
   <n-card
     :bordered="false"
     :style="`
-    width: ${expanded ? '50vw' : 'fit-content'}; 
+    width: ${expanded ? '70vw' : '35vw'}; 
     height: ${expanded ? '70vh' : 'fit-content'};`"
     header-style="
         padding: 0; text-align: end; border-bottom: lightgray 1px solid;

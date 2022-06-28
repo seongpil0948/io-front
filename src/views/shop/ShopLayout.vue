@@ -45,7 +45,14 @@ const menuOptions: MenuOption[] = [
           :style="`min-height: ${minHeight}`"
           :menuOptions="menuOptions"
         />
-        <div style="padding: 2%; width: 100%"><router-view /></div>
+        <n-space
+          vertical
+          justify="space-between"
+          style="padding: 2%; width: 100%"
+        >
+          <router-view />
+          <io-footer />
+        </n-space>
       </n-layout>
 
       <!-- <n-layout-footer bordered> Footer Footer Footer </n-layout-footer> -->

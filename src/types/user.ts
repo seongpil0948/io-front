@@ -42,14 +42,14 @@ interface IoUserInfo {
   createdAt?: Date;
   updatedAt?: Date;
   userId: string;
-  providerId: USER_PROVIDER;
+  providerId: USER_PROVIDER | Extract<keyof USER_PROVIDER, string>;
   userName: string;
   displayName?: string;
   email?: string;
   emailVerified: boolean;
   profileImg?: string;
-  role: USER_ROLE;
-  fcmTokens: IdTokenResult[];
+  role: USER_ROLE | Extract<keyof USER_ROLE, string>;
+  fcmTokens: IdTokenResult[] | [];
   passed: boolean; // 관리자(주네)에게 허가받은 사용자 인지
 }
 interface CompanyInfo {
