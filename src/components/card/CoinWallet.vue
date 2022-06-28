@@ -128,12 +128,7 @@ const chargeString = computed(() => IoPay.toMoneyString(chargeCoin.value));
 const chargeValidator = (x) => x % 10 === 0;
 </script>
 <template>
-  <n-card
-    v-if="userPay"
-    size="huge"
-    style="text-align: start; width: fit-content"
-    :bordered="false"
-  >
+  <n-space vertical style="text-align: start" v-if="userPay">
     <n-h2>In-Coin 월렛</n-h2>
     <n-space justify="space-between">
       <n-text strong>코인 보유량 : </n-text>
@@ -185,17 +180,13 @@ const chargeValidator = (x) => x % 10 === 0;
         {{ m.toLocaleString() }}
       </n-button>
     </n-space>
-    <template #action>
-      <n-space justify="space-between" style="line-height: 2rem">
-        <div>
-          <n-text strong>금액 : </n-text>
-          <n-text>{{ chargeString }} </n-text>
-        </div>
+    <n-space justify="space-between" style="line-height: 2rem">
+      <div>
+        <n-text strong>금액 : </n-text>
+        <n-text>{{ chargeString }} </n-text>
+      </div>
 
-        <n-button @click="reqPay"
-          >결제하기<logo-image size="1.6rem"
-        /></n-button>
-      </n-space>
-    </template>
-  </n-card>
+      <n-button @click="reqPay">결제하기<logo-image size="1.6rem" /></n-button>
+    </n-space>
+  </n-space>
 </template>

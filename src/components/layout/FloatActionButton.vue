@@ -12,15 +12,24 @@ import { CloudLogging } from "@vicons/carbon";
             <WalletOutline />
           </n-icon>
         </template>
-        <coin-wallet />
+        <expand-card>
+          <coin-wallet />
+        </expand-card>
       </n-popover>
 
       <n-icon class="button" size="25">
         <CloudLogging />
       </n-icon>
-      <n-icon class="button" size="25">
-        <PersonCircleOutline />
-      </n-icon>
+      <n-popover trigger="click">
+        <template #trigger>
+          <n-icon class="button" size="25">
+            <PersonCircleOutline />
+          </n-icon>
+        </template>
+        <expand-card>
+          <user-info-collapse />
+        </expand-card>
+      </n-popover>
     </div>
   </div>
 </template>

@@ -78,3 +78,5 @@ export const locateTypeOpt = computed(() =>
     return { label: LocateType[l], value: l };
   })
 );
+
+export const deadOpt = rangeOpts(1, 32, (n) => `${n}일`);

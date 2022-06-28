@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, toRefs, watchEffect } from "vue";
+import { onMounted, ref, toRefs, watch } from "vue";
 
 const props = defineProps<{
   value: any;
@@ -12,28 +12,44 @@ const { yesVal, noVal } = toRefs(props);
 const emits = defineEmits<{
   (e: "update:value", value: typeof yesVal.value | typeof noVal.value): void;
 }>();
-const radioModel = ref("yes");
-
-watchEffect(() => {
-  const newVal = radioModel.value;
-  if (newVal === "yes") {
-    emits("update:value", yesVal.value);
-  } else {
-    emits("update:value", noVal.value);
+onMounted(() => {
+  if (
+    typeof props.value !== typeof yesVal.value ||
+    typeof props.value !== typeof noVal.value
+  ) {
+    console.error(
+      "yes or no radio compoent의 Model Value 와 yes or no val이 다릅니다.",
+      typeof props.value,
+      typeof yesVal.value,
+      typeof noVal.value
+    );
   }
 });
+const radioModel = ref(props.value === yesVal.value ? "yes" : "no");
+
+watch(
+  radioModel,
+  (newVal) => {
+    if (newVal === "yes") {
+      emits("update:value", yesVal.value);
+    } else {
+      emits("update:value", noVal.value);
+    }
+  },
+  { immediate: false }
+);
 </script>
 
 <template>
   <n-radio-group v-model:value="radioModel">
     <n-radio-button
-      style="min-width: 20vw"
+      style="min-width: 5vw"
       key="yes"
       value="yes"
       :label="yesLabel ?? 'YES'"
     />
     <n-radio-button
-      style="min-width: 20vw"
+      style="min-width: 5vw"
       key="no"
       value="no"
       :label="noLabel ?? 'NO'"

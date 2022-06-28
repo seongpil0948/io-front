@@ -72,9 +72,9 @@ function onStep5() {
     if (errors) {
       msg.error("회사정보를 올바르게 입력해주세요", makeMsgOpt());
     } else {
-      const companyInfo = companyInfoForm.companyInfo;
-      user.value!.copanyInfo = companyInfo;
-      console.log("companyInfo: ", companyInfo);
+      const copanyInfo = companyInfoForm.copanyInfo;
+      user.value!.copanyInfo = copanyInfo;
+      console.log("copanyInfo: ", copanyInfo);
       step.value = 5;
     }
   });

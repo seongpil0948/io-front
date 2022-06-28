@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { arrLenRule, emailRule, Locate, nameLenRule } from "@/composables";
+import {
+  arrLenRule,
+  emailRule,
+  Locate,
+  nameLenRule,
+  locateStr,
+} from "@/composables";
 import { reactive, ref } from "vue";
 import { CompanyInfo } from "@/types";
 import { FormInst } from "naive-ui";
@@ -49,7 +55,7 @@ function onAppendLocate(l: Locate) {
   formModel.locations.push(l);
 }
 
-defineExpose({ companyInfo: formModel });
+defineExpose({ copanyInfo: formModel });
 </script>
 <template>
   <n-form
@@ -98,14 +104,17 @@ defineExpose({ companyInfo: formModel });
       </n-form-item-gi>
       <n-form-item-gi span="2" label="주소목록" path="locations">
         <n-space justify="space-around">
-          <n-tag
+          <n-tooltip
+            trigger="hover"
             v-for="(i, idx) in formModel.locations"
             :key="idx"
-            closable
-            @close="onLocateClose(i)"
           >
-            {{ i.alias }}</n-tag
-          >
+            <template #trigger>
+              <n-tag closable @close="onLocateClose(i)"> {{ i.alias }}</n-tag>
+            </template>
+            {{ locateStr(i) }}
+          </n-tooltip>
+
           <n-button @click="showAppendModal = true">주소지 추가 </n-button>
         </n-space>
         <locate-append-modal
@@ -122,10 +131,10 @@ defineExpose({ companyInfo: formModel });
       <n-form-item-gi label="운영링크" path="shopLink">
         <n-input v-model:value="formModel.shopLink" placeholder="운영 링크" />
       </n-form-item-gi>
-      <n-form-item-gi label="대표자이름" path="ceoName">
+      <n-form-item-gi label="대표자명" path="ceoName">
         <n-input v-model:value="formModel.ceoName" placeholder="대표자이름" />
       </n-form-item-gi>
-      <n-form-item-gi label="대표자연락처" path="ceoPhone">
+      <n-form-item-gi label="대표 연락처" path="ceoPhone">
         <n-input
           v-model:value="formModel.ceoPhone"
           placeholder="대표자연락처"

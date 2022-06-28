@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { notNullRule, rangeOpts, newProdQuantityOpt } from "@/composables";
+import {
+  notNullRule,
+  rangeOpts,
+  newProdQuantityOpt,
+  deadOpt,
+} from "@/composables";
 import { SALE_MANAGE, VendorOperInfo } from "@/types";
 import { FormInst } from "naive-ui";
 import { reactive, ref } from "vue";
@@ -15,7 +20,6 @@ const rule = {
   saleManageType: notNullRule,
 };
 defineExpose({ operInfo: formModel });
-const deadOpt = rangeOpts(1, 32, (n) => `${n}일`);
 </script>
 
 <template>

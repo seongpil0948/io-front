@@ -49,4 +49,10 @@ class Locate implements LocateCRT {
   }
 }
 
+export function locateStr(l: LocateCRT) {
+  return `도시: ${l.city}, 우편번호: ${l.postalCode}, 상세주소: ${
+    l.detailLocate
+  }, 받는분: ${l.firstName! + l.lastName}, 핸드폰번호: ${l.phone}`;
+}
+
 export { Locate, CommonField };

@@ -47,6 +47,7 @@ class IoUser extends CommonField implements IoUserCRT {
     this.operInfo = c.operInfo;
   }
   async update() {
+    const authS = useAuthStore();
     await insertById<IoUser>(
       this,
       getIoCollection({ c: IoCollection.USER }),
@@ -54,6 +55,7 @@ class IoUser extends CommonField implements IoUserCRT {
       true,
       userConverter
     );
+    await authS.login(this);
   }
 
   static async fromCredential(
