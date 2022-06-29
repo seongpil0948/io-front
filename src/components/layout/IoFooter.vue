@@ -5,7 +5,9 @@ import { IoUser } from "@/composables";
 // >>> TEMP >>>
 import shops from "../../../tests/e2e/fixtures/users/shops";
 import vendors from "../../../tests/e2e/fixtures/users/vendors";
+import { useRouter } from "vue-router";
 const auth = useAuthStore();
+const router = useRouter();
 onBeforeMount(() => {
   if (!auth.$state.user) {
     const user = IoUser.fromJson(shops[0]) ?? IoUser.fromJson(vendors[0]);
@@ -14,11 +16,13 @@ onBeforeMount(() => {
     }
   }
 });
-function toVendor() {
-  auth.login(IoUser.fromJson(vendors[0])!);
+async function toVendor() {
+  await auth.login(IoUser.fromJson(vendors[0])!);
+  router.goHome(auth.user!);
 }
-function toShop() {
+async function toShop() {
   auth.login(IoUser.fromJson(shops[0])!);
+  router.goHome(auth.user!);
 }
 // <<< TEMP <<<
 </script>
@@ -37,8 +41,8 @@ function toShop() {
       사업자등록번호: 720-08-02296 | 문의: inoutboxofficial@gmail.com
     </n-text>
     <!-- >>> TEMP >>> -->
-    <n-button @click="toVendor">도매계정전환</n-button>
-    <n-button @click="toShop">소매계정전환</n-button>
+    <n-button round type="primary" @click="toVendor">도매계정전환</n-button>
+    <n-button round type="primary" @click="toShop">소매계정전환</n-button>
     <!-- <<< TEMP <<< -->
   </n-layout-footer>
 </template>
