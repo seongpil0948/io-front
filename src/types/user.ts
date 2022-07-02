@@ -1,5 +1,4 @@
 import type { LocateCRT } from "./common";
-import type { IdTokenResult } from "firebase/auth";
 import { IoAccount } from "@/composables";
 
 type USER_ROLE = "SHOP" | "VENDOR" | "UNCLE" | "ADMIN" | "ANONYMOUSE";
@@ -49,7 +48,7 @@ interface IoUserInfo {
   emailVerified: boolean;
   profileImg?: string;
   role: USER_ROLE | Extract<keyof USER_ROLE, string>;
-  fcmTokens: IdTokenResult[] | [];
+  fcmTokens: string[];
   passed: boolean; // 관리자(주네)에게 허가받은 사용자 인지
 }
 interface CompanyInfo {

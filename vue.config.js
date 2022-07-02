@@ -1,5 +1,6 @@
 const { defineConfig } = require("@vue/cli-service");
 const { NaiveUiResolver } = require("unplugin-vue-components/resolvers");
+
 const path = require("path");
 
 module.exports = defineConfig({
@@ -14,6 +15,9 @@ module.exports = defineConfig({
       });
   },
   configureWebpack: {
+    output: {
+      filename: "[name].js",
+    },
     resolve: {
       alias: {
         "@": path.join(__dirname, "src/"),
@@ -40,5 +44,10 @@ module.exports = defineConfig({
         ],
       }),
     ],
+  },
+  pwa: {
+    appleMobileWebAppCapable: "yes",
+    name: "inout-box",
+    workboxPluginMode: "GenerateSW",
   },
 });

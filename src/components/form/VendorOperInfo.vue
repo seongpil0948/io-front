@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  notNullRule,
-  rangeOpts,
-  newProdQuantityOpt,
-  deadOpt,
-} from "@/composables";
+import { notNullRule, newProdQuantityOpt, deadOpt } from "@/composables";
 import { SALE_MANAGE, VendorOperInfo } from "@/types";
 import { FormInst } from "naive-ui";
 import { reactive, ref } from "vue";

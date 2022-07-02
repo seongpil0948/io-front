@@ -3,9 +3,9 @@
 import { ExpandOutline } from "@vicons/ionicons5";
 import { ref } from "vue";
 
-const emits = defineEmits<{
-  (e: "clickClose", value: boolean): void;
-}>();
+// const emits = defineEmits<{
+//   (e: "clickClose", value: boolean): void;
+// }>();
 // function clickCloseBtn() {
 //   console.log("clickClose");
 //   emits("clickClose", true);

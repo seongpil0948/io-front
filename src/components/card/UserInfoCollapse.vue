@@ -8,7 +8,7 @@ import {
 } from "@/composables";
 import { useAuthStore } from "@/stores";
 import { ShopOperInfo, VendorOperInfo, SALE_MANAGE } from "@/types";
-import { onBeforeMount, ref, watch, watchEffect } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 import clone from "lodash.clonedeep";
 
 const authStore = useAuthStore();
@@ -41,19 +41,19 @@ watch(
       <n-space vertical style="width: 100%">
         <div class="io-row">
           <n-text strong>업체명</n-text>
-          <n-text>{{authModel.copanyInfo!.companyName}}</n-text>
+          <n-text>{{ authModel.copanyInfo!.companyName }}</n-text>
         </div>
         <div class="io-row">
           <n-text strong>사업자 등록번호</n-text>
-          <n-text>{{authModel.copanyInfo!.companyNo}}</n-text>
+          <n-text>{{ authModel.copanyInfo!.companyNo }}</n-text>
         </div>
         <div class="io-row">
           <n-text strong>대표자명</n-text>
-          <n-text>{{authModel.copanyInfo!.ceoName}}</n-text>
+          <n-text>{{ authModel.copanyInfo!.ceoName }}</n-text>
         </div>
         <div class="io-row">
           <n-text strong>대표 연락처</n-text>
-          <n-text>{{authModel.copanyInfo!.ceoPhone}}</n-text>
+          <n-text>{{ authModel.copanyInfo!.ceoPhone }}</n-text>
         </div>
         <div class="io-row">
           <n-text strong>주소지</n-text>
@@ -72,7 +72,8 @@ watch(
         </div>
         <n-a
           href="https://docs.google.com/forms/d/e/1FAIpQLSfiqRLuVKfhiIvk6JwuAp-daQ7OQ2_vcQOToxgy7vGDz-4NtQ/viewform"
-          >정보 변경 요청하기</n-a
+        >
+          정보 변경 요청하기</n-a
         >
       </n-space>
     </n-collapse-item>
@@ -117,7 +118,7 @@ watch(
         <div class="io-row">
           <n-text strong>현재사입방식</n-text>
           <n-select
-            v-model:value="(authModel.operInfo as ShopOperInfo).purchaseMethod "
+            v-model:value="(authModel.operInfo as ShopOperInfo).purchaseMethod"
             :options="shipMethodOpt"
           />
         </div>
@@ -171,9 +172,11 @@ watch(
   justify-content: space-between;
   width: 100%;
   text-align: start;
+
   > :nth-child(1) {
     max-width: 30%;
   }
+
   :nth-child(2) {
     max-width: 50%;
   }

@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores";
-import { onBeforeMount } from "vue";
-import { IoUser } from "@/composables";
-// >>> TEMP >>>
+import { getCurrentInstance, onBeforeMount } from "vue";
+import { IoUser, KAKAO_CHANNEL_ID } from "@/composables";
 import shops from "../../../tests/e2e/fixtures/users/shops";
 import vendors from "../../../tests/e2e/fixtures/users/vendors";
 import { useRouter } from "vue-router";
+const inst = getCurrentInstance();
+
+function csChat() {
+  const kakao = inst?.appContext.config.globalProperties.$kakao;
+  kakao.Channel.chat({
+    channelPublicId: KAKAO_CHANNEL_ID,
+  });
+}
+// >>> TEMP >>>
 const auth = useAuthStore();
 const router = useRouter();
 onBeforeMount(() => {
@@ -24,6 +32,7 @@ async function toShop() {
   auth.login(IoUser.fromJson(shops[0])!);
   router.goHome(auth.user!);
 }
+
 // <<< TEMP <<<
 </script>
 
@@ -44,5 +53,6 @@ async function toShop() {
     <n-button round type="primary" @click="toVendor">도매계정전환</n-button>
     <n-button round type="primary" @click="toShop">소매계정전환</n-button>
     <!-- <<< TEMP <<< -->
+    <n-button round type="primary" @click="csChat">채팅 상담</n-button>
   </n-layout-footer>
 </template>

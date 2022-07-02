@@ -7,6 +7,7 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import { ioColors } from "./composables";
 import vueKakao from "./plugins/kakao";
+import { getMessaging, onMessage } from "@firebase/messaging";
 Date.prototype.toJSON = function () {
   return moment(this).format();
 };
@@ -30,3 +31,16 @@ app.config.globalProperties.$http = _axios;
 app.config.globalProperties.$fire = ioFire;
 app.config.globalProperties.ioColors = ioColors;
 app.mount("#app");
+
+const messaging = getMessaging();
+onMessage(messaging, (payload) => {
+  console.log("Message received. in onMessage ", payload);
+});
+
+const channel = new BroadcastChannel("sw-messages");
+channel.addEventListener("message", function (event) {
+  console.log(
+    "Receive message in foreground-side from  sw-messages channel event: ",
+    event
+  );
+});

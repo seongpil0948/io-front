@@ -2,7 +2,7 @@
 import { getCurrentInstance } from "vue";
 import { getAuth, signInWithCustomToken } from "firebase/auth";
 import { useRouter } from "vue-router";
-import { useEventListener } from "@/composables/event";
+import { useEventListener, KAKAO_CHANNEL_ID, IoUser } from "@/composables";
 import { useAuthStore } from "@/stores";
 import { getUserById } from "@/plugins/firebase";
 import { USER_PROVIDER } from "@/types";
@@ -24,7 +24,6 @@ useEventListener(
 );
 async function onKakaoLogin() {
   const kakao = inst?.appContext.config.globalProperties.$kakao;
-  console.log("kakao: ", kakao);
   // kakao.Auth.login({ // with auto login
   kakao.Auth.loginForm({
     success: (obj: any) => {
@@ -37,21 +36,22 @@ async function onKakaoLogin() {
           const customRes = await http.get(`/auth/customToken/${res.id}`); // kakao id
           signInWithCustomToken(auth, customRes.data.token)
             .then(async (uc) => {
-              // kakao.API.request({
-              //   url: "/v1/api/talk/channels",
-              //   success: function (res: any) {
-              //     console.log("카카오 채널목록: ", res);
-              //     console.log("ADD CHANNEL");
-              //   },
-              //   fail: function (error: any) {
-              //     console.error("카카오 채널목록 에러: ", error);
-              //   },
-              // });
-              // kakao.Channel.addChannel({ channelPublicId: kakaoChannelId });
-              // console.log("Chat CHANNEL");
-              // kakao.Channel.chat({
-              //   channelPublicId: kakaoChannelId,
-              // });
+              kakao.API.request({
+                url: "/v1/api/talk/channels",
+                success: function (res: any) {
+                  const ioChannel = (res.channels as any[]).find(
+                    (x) => x.channel_public_id === KAKAO_CHANNEL_ID
+                  );
+                  if (!ioChannel) {
+                    kakao.Channel.addChannel({
+                      channelPublicId: KAKAO_CHANNEL_ID,
+                    });
+                  }
+                },
+                fail: function (error: any) {
+                  console.error("카카오 채널목록 에러: ", error);
+                },
+              });
 
               const user = await getUserById(uc.user.uid);
               console.log(
@@ -61,6 +61,12 @@ async function onKakaoLogin() {
                 uc.user.uid
               );
               if (user) {
+                const token = await IoUser.getFcmToken();
+                if (!user.userInfo.fcmTokens.includes(token)) {
+                  user.userInfo.fcmTokens.push(token);
+                }
+
+                await user.update();
                 if (user.userInfo.passed) {
                   authS.login(user);
                   router.goHome(user);

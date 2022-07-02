@@ -17,4 +17,4 @@ const ioFire: IoFire = {
   analytics,
 };
 
-export { ioFire };
+export { ioFire, IoFire };

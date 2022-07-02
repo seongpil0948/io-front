@@ -15,6 +15,7 @@ import {
   VendorOperInfo,
   USER_PROVIDER,
 } from "@/types";
+import { getMessaging, getToken } from "@firebase/messaging";
 import type { UserCredential } from "firebase/auth";
 import type {
   DocumentData,
@@ -57,6 +58,13 @@ class IoUser extends CommonField implements IoUserCRT {
     );
     await authS.login(this);
   }
+  static async getFcmToken() {
+    const messaging = getMessaging();
+    return await getToken(messaging, {
+      vapidKey:
+        "BDATZH9Zt9gMTBQqOUpt2VMWb7wX2V8t0PeyO_UVCUf46kNkJ_smqT2nx31StrXKHVD_BRq5Bqhr2wsCCXQhLPw",
+    });
+  }
 
   static async fromCredential(
     uc: UserCredential,
@@ -64,7 +72,8 @@ class IoUser extends CommonField implements IoUserCRT {
     role: USER_ROLE,
     providerId: USER_PROVIDER
   ): Promise<IoUser> {
-    const token = await uc.user.getIdTokenResult();
+    // const token = await uc.user.getIdTokenResult();
+    const token = await IoUser.getFcmToken();
     const userInfo: IoUserInfo = {
       userId: uc.user.uid,
       providerId,

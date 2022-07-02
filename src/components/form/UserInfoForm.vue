@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { emailRule, pwRule, nameLenRule } from "@/composables";
+import { emailRule, nameLenRule, IoUser } from "@/composables";
 import { IoUserInfo, LocateCRT, USER_PROVIDER, USER_ROLE } from "@/types";
 import { getAuth } from "@firebase/auth";
-import { FormInst, FormItemRule } from "naive-ui";
+import { FormInst } from "naive-ui";
 import { reactive, ref } from "vue";
 
 const auth = getAuth();
@@ -19,12 +19,11 @@ const formModel = reactive({
   userName: props.userName,
   displayName: "",
   email: props.email,
-  password: "",
-  reenteredPassword: "",
   role: USER_ROLE.SHOP,
   locations: [] as LocateCRT[],
 });
 async function getUserInfo(): Promise<IoUserInfo> {
+  const token = await IoUser.getFcmToken();
   const obj: IoUserInfo = Object.assign(
     {},
     {
@@ -33,9 +32,7 @@ async function getUserInfo(): Promise<IoUserInfo> {
       emailVerified: false,
       profileImg: props.profileImg,
       passed: false,
-      fcmTokens: auth.currentUser
-        ? [await auth.currentUser?.getIdTokenResult()]
-        : [],
+      fcmTokens: auth.currentUser ? [token] : [],
     },
     formModel
   );
@@ -46,16 +43,6 @@ const rule = {
   userName: nameLenRule,
   displayName: nameLenRule,
   email: emailRule,
-  password: pwRule,
-  reenteredPassword: [
-    {
-      required: true,
-      validator: (rule: FormItemRule, value: string): boolean =>
-        value === formModel.password,
-      message: "패스워드와 같지 않습니다.",
-      trigger: ["blur", "password-input"],
-    },
-  ],
 };
 </script>
 
@@ -89,22 +76,7 @@ const rule = {
           placeholder="이메일을 입력 해주세요"
         />
       </n-form-item-gi>
-      <n-form-item-gi label="패스워드" path="password">
-        <n-input
-          type="password"
-          v-model:value="formModel.password"
-          show-password-on="click"
-          placeholder="아이콘을 눌러 비밀번호를 확인 할 수 있습니다."
-        />
-      </n-form-item-gi>
-      <n-form-item-gi label="패스워드 재입력" path="reenteredPassword">
-        <n-input
-          v-model:value="formModel.reenteredPassword"
-          :disabled="!formModel.password"
-          type="password"
-          @keydown.enter.prevent
-        />
-      </n-form-item-gi>
+
       <n-form-item-gi label="역할" path="role">
         <n-radio-group v-model:value="formModel.role" name="Role">
           <n-space>
