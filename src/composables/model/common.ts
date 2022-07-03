@@ -4,7 +4,7 @@ import { ValidationError } from "..";
 class CommonField {
   createdAt?: Date;
   updatedAt?: Date;
-  constructor(createdAt: Date | undefined, updatedAt: Date | undefined) {
+  constructor(createdAt?: Date, updatedAt?: Date) {
     this.createdAt = createdAt ?? new Date();
     this.updatedAt = updatedAt ?? new Date();
   }

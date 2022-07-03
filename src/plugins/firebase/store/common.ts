@@ -45,6 +45,9 @@ export function getIoCollection(p: getCollectParam): CollectionReference {
     case IoCollection.SHOP_REQ_ORDER_NUMBER:
       str = `user/${p.uid}/orderNumber`; // orderId
       break;
+    case IoCollection.USER_LOG:
+      str = `user/${p.uid}/logs`; // orderId
+      break;
     default:
       throw Error(`IoCollection Enum Member ${p.c.toString()} is not Exist`);
   }

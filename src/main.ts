@@ -8,6 +8,8 @@ import App from "./App.vue";
 import { ioColors } from "./composables";
 import vueKakao from "./plugins/kakao";
 import { getMessaging, onMessage } from "@firebase/messaging";
+import { logger } from "./plugins/logger";
+
 Date.prototype.toJSON = function () {
   return moment(this).format();
 };
@@ -22,6 +24,7 @@ app.use(vueKakao, {
   },
 });
 app.use(router);
+app.use(logger);
 pinia.use(({ store }) => {
   store.$router = markRaw(router);
   store.$fire = ioFire;
