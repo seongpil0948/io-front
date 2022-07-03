@@ -94,7 +94,6 @@ export const payConverter: FirestoreDataConverter<IoPay | null> = {
     options: any
   ): IoPay | null => {
     const data = snapshot.data(options);
-    console.log(data);
     return data !== undefined ? IoPay.fromJson(data) : null;
   },
 };

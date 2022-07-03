@@ -51,7 +51,7 @@ watchEffect(() => {
   columns.value.push(
     ...([
       {
-        title: () => rendorTableBtn(() => console.log("clcik"), "선택주문확정"),
+        title: () => rendorTableBtn(() => null, "선택주문확정"),
         key: "editCnt",
         align: "center",
         render: () =>
@@ -60,7 +60,7 @@ watchEffect(() => {
           }, "주문수량수정"),
       },
       {
-        title: () => rendorTableBtn(() => console.log("clcik"), "전체주문확정"),
+        title: () => rendorTableBtn(() => null, "전체주문확정"),
         key: "requestOrder",
         align: "center",
         render: (row: ShopReqOrderJoined) =>
@@ -92,17 +92,11 @@ watchEffect(() => {
           }, "주문확정"),
       },
       {
-        title: () =>
-          rendorTableBtn(() => {
-            console.log("clcik");
-          }, "주문완료"),
+        title: () => rendorTableBtn(() => null, "주문완료"),
         key: "etc",
         align: "center",
 
-        render: () =>
-          rendorTableBtn(() => {
-            console.log("clcik");
-          }, "아이오톡하기"),
+        render: () => rendorTableBtn(() => null, "아이오톡하기"),
       },
     ] as TableBaseColumn<any>[])
   );

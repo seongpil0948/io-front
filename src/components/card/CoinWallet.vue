@@ -7,7 +7,9 @@ import { useAuthStore } from "@/stores";
 import { getIoPayByUser } from "@/plugins/firebase";
 import { QuestionCircleRegular } from "@vicons/fa";
 import { useMessage } from "naive-ui";
+import { useLogger } from "vue-logger-plugin";
 
+const log = useLogger();
 const APP_ID = "62b45e0fe38c3000215aec6b";
 const inst = getCurrentInstance();
 const authStore = useAuthStore();
@@ -49,28 +51,28 @@ async function reqPay() {
   })
     .error(function (data) {
       //결제 진행시 에러가 발생하면 수행됩니다.
-      console.error("On Payment Error", data);
+      log.error(user.userInfo.userId, "On Payment Error", data);
       msg.error(`${data.action}, code: ${data.code}, message: ${data.message}`);
     })
     .cancel(function (data) {
       //결제가 취소되면 수행됩니다.
-      console.log("On Payment Cancel", data);
+      log.debug(user.userInfo.userId, "On Payment Cancel", data);
     })
     .ready(function (data) {
       // 가상계좌 입금 계좌번호가 발급되면 호출되는 함수입니다.
-      console.log("On Payment Ready", data);
+      log.debug(user.userInfo.userId, "On Payment Ready", data);
     })
     .confirm(async function (data) {
       //결제가 실행되기 전에 수행되며, 주로 재고를 확인하는 로직이 들어갑니다.
       //주의 - 카드 수기결제일 경우 이 부분이 실행되지 않습니다.
       // 예) 현대 앱카드 인증 후 최종 결제 눌렀을때 실행됌
       // https://docs.bootpay.co.kr/rest/verify
-      console.log("On Payment Confirm", data);
+      log.debug(user.userInfo.userId, "On Payment Confirm", data);
       const http = inst?.appContext.config.globalProperties.$http;
       const resp = await http.get(
         `/payment/verifyReceipt?price=${data.params.mey}&receiptId=${data.receipt_id}`
       );
-      console.log("/payment/verifyReceipt Response: ", resp);
+      log.debug("/payment/verifyReceipt Response: ", resp);
       var enable = resp.data === "sp"; // 재고 수량 관리 로직 혹은 다른 처리
       if (enable) {
         BootPay.transactionConfirm(data); // 조건이 맞으면 승인 처리를 한다.
@@ -80,7 +82,7 @@ async function reqPay() {
     })
     .close(function (data) {
       // 결제창이 닫힐때 수행됩니다. (성공,실패,취소에 상관없이 모두 수행됨)
-      console.log("On Close Payment", data);
+      log.debug(user.userInfo.userId, "On Close Payment", data);
     })
     .done(async function (data) {
       // Logic after transactionConfirm(data)
@@ -115,12 +117,12 @@ async function reqPay() {
       //   purchased_at: "2022-06-24 09:42:49",
       //   status: 1,
       // };
-      console.log("On Payment Done", data);
+      log.debug("On Payment Done", data);
       const coin = IoPay.moneyToCoin(data.price);
       userPay.value.budget += coin;
       await userPay.value.update();
     });
-  console.log("REsponse data: ", response);
+  log.debug(user.userInfo.userId, "REsponse data: ", response);
 }
 const minCharge = 50;
 const chargeCoin = ref(minCharge);

@@ -12,7 +12,6 @@ function logging() {
   log.info(null, "Test info Message", testObject);
   log.warn(null, "Test warn Message", testObject);
   log.error(null, "Test error Message", testObject);
-  log.log(null, "Test Log Message", testObject);
 }
 function userActLog() {
   const testObject = {

@@ -17,7 +17,9 @@ import {
 } from "@/composables";
 import { GENDOR, PART, PROD_SIZE, USER_ROLE } from "@/types";
 import { useRouter } from "vue-router";
+import { useLogger } from "vue-logger-plugin";
 
+const log = useLogger();
 const msg = useMessage();
 const dialog = useDialog();
 const formRef = ref<FormInst | null>(null);
@@ -119,7 +121,7 @@ function onRegister() {
       negativeText: "취소",
       closeOnEsc: true,
       onPositiveClick: async () => {
-        console.log("PRODS:", products);
+        log.debug("PRODS:", products);
         return Promise.all(products.map((p) => p.update()))
           .then(() => {
             msg.success("상품등록이 완료되었습니다.", makeMsgOpt());

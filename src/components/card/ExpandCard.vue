@@ -7,7 +7,6 @@ import { ref } from "vue";
 //   (e: "clickClose", value: boolean): void;
 // }>();
 // function clickCloseBtn() {
-//   console.log("clickClose");
 //   emits("clickClose", true);
 // }
 let expanded = ref(false);
@@ -15,9 +14,12 @@ let expanded = ref(false);
 <template>
   <n-card
     :bordered="false"
-    :style="`
+    :content-style="`
+    height: ${expanded ? '70vw' : '35vw'};
     width: ${expanded ? '70vw' : '35vw'}; 
-    height: ${expanded ? '70vh' : 'fit-content'};`"
+    overflow: scroll;
+    `"
+    style="padding-bottom: 5%"
     header-style="
         padding: 0; text-align: end; border-bottom: lightgray 1px solid;
         padding-bottom: 7px; padding-right: 10px; margin-bottom: 10px;"

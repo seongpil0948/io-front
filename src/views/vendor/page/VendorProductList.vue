@@ -10,6 +10,9 @@ import {
 import { h, ref, watchEffect } from "vue";
 import LogoChecker from "@/components/input/LogoChecker.vue";
 import { NButton, useMessage } from "naive-ui";
+import { useLogger } from "vue-logger-plugin";
+
+const log = useLogger();
 const auth = useAuthStore();
 const msg = useMessage();
 const { orderProds } = useReadVendorOrderInfo(
@@ -66,7 +69,7 @@ watchEffect(() => {
             {
               round: true,
               onClick: () => {
-                console.log("Clicked 변경사항 수정 Title");
+                log.debug("Clicked 변경사항 수정 Title");
               },
             },
             { default: () => "변경사항 수정" }

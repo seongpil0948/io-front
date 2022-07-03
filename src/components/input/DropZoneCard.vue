@@ -70,7 +70,6 @@ const { getRootProps, getInputProps, isDragActive } = useDropzone({
 const emits = defineEmits(["update:fileModel"]);
 
 async function onDrop(acceptFiles, rejectReasons) {
-  console.log("acceptFiles:", acceptFiles, "rejectReasons:", rejectReasons);
   if (rejectReasons.length > 0) {
     msg.error("Upload Fail, Reasons: ", rejectReasons, makeMsgOpt());
   }

@@ -3,6 +3,9 @@ import { Locate, locateTypeOpt, nameLenRule } from "@/composables";
 import { LocateCRT, LocateType } from "@/types";
 import { FormInst, useMessage } from "naive-ui";
 import { reactive, ref, toRefs, watchEffect } from "vue";
+import { useLogger } from "vue-logger-plugin";
+
+const log = useLogger();
 const props = defineProps<{
   showAppendModal: boolean;
 }>();
@@ -47,10 +50,10 @@ function submitLocate() {
   formRef.value.validate((errors) => {
     if (errors) {
       msg.error("올바른 형식의 주소를 입력 해주십시오");
-      console.error(errors);
+      log.debug(null, errors);
     } else {
       const result = new Locate(Object.assign({}, formModel));
-      console.log("submitLocate: ", result);
+      log.debug(null, errors, "submitLocate: ", result);
       emits("appendLocate", result);
       emits("update:showAppendModal", false);
     }

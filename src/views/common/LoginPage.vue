@@ -7,6 +7,9 @@ import { useAuthStore } from "@/stores";
 import { getUserById } from "@/plugins/firebase";
 import { USER_PROVIDER } from "@/types";
 import { useMessage } from "naive-ui";
+import { useLogger } from "vue-logger-plugin";
+
+const log = useLogger();
 const inst = getCurrentInstance();
 const router = useRouter();
 const auth = getAuth();
@@ -27,12 +30,10 @@ async function onKakaoLogin() {
   // kakao.Auth.login({ // with auto login
   kakao.Auth.loginForm({
     success: (obj: any) => {
-      console.log("Login Response:", obj);
       kakao.API.request({
         url: "/v2/user/me",
         success: async function (res: any) {
           const http = inst?.appContext.config.globalProperties.$http;
-          console.log("User Info From Kakao: ", res);
           const customRes = await http.get(`/auth/customToken/${res.id}`); // kakao id
           signInWithCustomToken(auth, customRes.data.token)
             .then(async (uc) => {
@@ -49,17 +50,16 @@ async function onKakaoLogin() {
                   }
                 },
                 fail: function (error: any) {
-                  console.error("카카오 채널목록 에러: ", error);
+                  log.error(
+                    user?.userInfo.userId,
+                    "카카오 채널목록 에러: ",
+                    error
+                  );
                 },
               });
 
               const user = await getUserById(uc.user.uid);
-              console.log(
-                "User from getUserById: ",
-                user,
-                "Uid: ",
-                uc.user.uid
-              );
+              log.debug("User from getUserById: ", user, "Uid: ", uc.user.uid);
               if (user) {
                 const token = await IoUser.getFcmToken();
                 if (!user.userInfo.fcmTokens.includes(token)) {

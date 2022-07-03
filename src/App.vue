@@ -2,9 +2,11 @@
 import type { GlobalThemeOverrides } from "naive-ui";
 import { getCurrentInstance } from "vue";
 import { ioColors } from "./composables";
+import { useLogger } from "vue-logger-plugin";
 
 const app = getCurrentInstance();
-console.log("VUE APP INSTANCE: ", app);
+const log = useLogger();
+log.debug("VUE APP INSTANCE: ", app);
 
 const themeOverrides: GlobalThemeOverrides = {
   common: {

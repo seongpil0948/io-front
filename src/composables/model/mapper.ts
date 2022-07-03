@@ -1,4 +1,5 @@
 import { getIoCollection, getMapper, insertById } from "@/plugins/firebase";
+import { logger as log } from "@/plugins/logger";
 import {
   IoCollection,
   type IoJson,
@@ -52,10 +53,10 @@ class Mapper implements MapperCRT {
   }
   static async deleteProdId(userId: string, prodId: string[]) {
     const m = await Mapper.getIoMapper(userId);
-    console.log("deleteProdId: ", m.cols);
+    log.debug(null, "deleteProdId: ", m.cols);
     (Object.keys(m.cols) as Array<MapKey>).forEach((mapKey) => {
       prodId.forEach((prodId) => {
-        console.log("mapKey: ", mapKey, m.cols[mapKey][prodId]);
+        log.debug(null, "mapKey: ", mapKey, m.cols[mapKey][prodId]);
         delete m.cols[mapKey][prodId];
       });
     });

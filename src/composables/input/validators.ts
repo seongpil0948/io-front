@@ -16,3 +16,5 @@ export const checkInRange = (x: number, min: number, max: number) =>
   x !== null && x >= min && x <= max;
 
 export const checkNotNull = (x: any) => x !== null && x !== undefined;
+
+export const isObject = (x: any) => typeof x === "object" && !Array.isArray(x);

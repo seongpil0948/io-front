@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, toRefs, watch } from "vue";
+import { useLogger } from "vue-logger-plugin";
 
+const log = useLogger();
 const props = defineProps<{
   value: any;
   yesVal: unknown;
@@ -17,7 +19,8 @@ onMounted(() => {
     typeof props.value !== typeof yesVal.value ||
     typeof props.value !== typeof noVal.value
   ) {
-    console.error(
+    log.error(
+      null,
       "yes or no radio compoent의 Model Value 와 yes or no val이 다릅니다.",
       typeof props.value,
       typeof yesVal.value,

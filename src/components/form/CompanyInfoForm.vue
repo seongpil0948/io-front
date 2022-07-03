@@ -44,14 +44,12 @@ const rule = {
 };
 let showAppendModal = ref(false);
 function onLocateClose(l: Locate) {
-  console.log("On Close Locate", l);
   formModel.locations.splice(
     formModel.locations.findIndex((x) => x.alias === l.alias),
     1
   );
 }
 function onAppendLocate(l: Locate) {
-  console.log("On Append Locate", l);
   formModel.locations.push(l);
 }
 

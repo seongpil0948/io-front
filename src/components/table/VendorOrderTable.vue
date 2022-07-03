@@ -41,10 +41,7 @@ watchEffect(() => {
   columns.value.push({
     key: "oooorder",
 
-    title: () =>
-      rendorTableBtn(() => {
-        console.log("CLICK TITLE");
-      }, "선택주문 거부"),
+    title: () => rendorTableBtn(() => null, "선택주문 거부"),
     render: (row) =>
       rendorTableBtn(async () => {
         const order = ShopReqOrder.fromJson(row);

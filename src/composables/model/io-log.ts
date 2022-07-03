@@ -1,25 +1,38 @@
-import { dateToTimeStamp, getIoCollection, loadDate } from "@/plugins/firebase";
+import {
+  dateToTimeStamp,
+  getIoCollection,
+  iostore,
+  loadDate,
+} from "@/plugins/firebase";
 import { IoCollection } from "@/types";
 import {
   DocumentData,
   DocumentSnapshot,
   setDoc,
   doc,
+  orderBy,
+  startAfter,
+  limit,
+  collectionGroup,
+  getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 import { CommonField } from "./common";
-
+import { logger } from "@/plugins/logger";
+import { onBeforeMount, ref } from "vue";
 export interface IoLogCRT {
   createdAt?: Date;
   uid?: string;
   category?: string;
-  txts: string[];
+  txts: any[];
   severity: string;
 }
 
 export class IoLog extends CommonField implements IoLogCRT {
   uid?: string;
   category?: string;
-  txts: string[];
+  txts: any[];
   severity: string;
   constructor(data: IoLogCRT) {
     super(data.createdAt);
@@ -36,7 +49,7 @@ export class IoLog extends CommonField implements IoLogCRT {
   }
   async save() {
     if (!this.uid)
-      return console.error("user-log save fail: user id is required");
+      return logger.error(null, "user-log save fail: user id is required: ");
     await setDoc(
       doc(
         getIoCollection({
@@ -49,7 +62,7 @@ export class IoLog extends CommonField implements IoLogCRT {
   }
 
   static fromJson(data: { [x: string]: any }): IoLog | null {
-    return data && data.vendorProdId
+    return data
       ? new IoLog({
           createdAt: loadDate(data.createdAt ?? null),
           uid: data.uid,
@@ -70,7 +83,54 @@ export const ioLogConverter = {
   },
   fromFirestore: (snapshot: DocumentSnapshot<DocumentData>): IoLog | null => {
     const data = snapshot.data();
-    if (!data || !data.vendorProdId) return null;
-    return IoLog.fromJson(data);
+    if (data) {
+      return IoLog.fromJson(data);
+    }
+    return null;
   },
 };
+
+export interface ReadLogParam {
+  uids: string[];
+  limit: number;
+}
+
+export function useReadLogger(param: ReadLogParam) {
+  const userLogs = ref<IoLog[]>([]);
+  const lastLog = ref<any | null>(null);
+  const noMore = ref(false);
+  function getQuery() {
+    const constraints = [where("uid", "in", param.uids), orderBy("createdAt")];
+    if (lastLog.value) {
+      constraints.push(startAfter(lastLog.value));
+    }
+    constraints.push(limit(param.limit));
+    return query(
+      collectionGroup(iostore, "logs").withConverter(ioLogConverter),
+      ...constraints
+    );
+  }
+  async function next() {
+    if (noMore.value) return;
+    const len = userLogs.value.length;
+
+    const docs = await getDocs(getQuery());
+    docs.forEach((doc) => {
+      const data = doc.data();
+      if (data) {
+        userLogs.value.push(data);
+      }
+    });
+    lastLog.value = len > 0 ? userLogs.value[len - 1] : null;
+    noMore.value =
+      lastLog.value === null ||
+      userLogs.value[-1].createdAt === lastLog.value!.createdAt;
+  }
+  async function init() {
+    lastLog.value = null;
+    userLogs.value = [];
+    await next();
+  }
+  onBeforeMount(async () => await init());
+  return { userLogs, lastLog, next, noMore };
+}

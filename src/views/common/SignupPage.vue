@@ -19,11 +19,14 @@ import {
 import CompanyInfoForm from "@/components/form/CompanyInfoForm.vue";
 import ShopOperInfoVue from "@/components/form/ShopOperInfo.vue";
 import VendorOperInfoVue from "@/components/form/VendorOperInfo.vue";
+import { useLogger } from "vue-logger-plugin";
 
+const log = useLogger();
 const inst = getCurrentInstance();
 const router = useRouter();
 if (!router.currentRoute.value.params.userId) {
-  console.error(
+  log.error(
+    null,
     "User ID not Received In SignUp Page(Landing)",
     router.currentRoute.value.params
   );
@@ -60,7 +63,7 @@ async function onStep4() {
       user.value = new IoUser({ userInfo: await userInfoForm.getUserInfo() });
       step.value = 4;
     }
-    console.log("userInfo", user.value);
+    log.debug("userInfo", user.value);
   });
 }
 function onStep5() {
@@ -74,7 +77,7 @@ function onStep5() {
     } else {
       const copanyInfo = companyInfoForm.copanyInfo;
       user.value!.copanyInfo = copanyInfo;
-      console.log("copanyInfo: ", copanyInfo);
+      log.debug("copanyInfo: ", copanyInfo);
       step.value = 5;
     }
   });
@@ -116,7 +119,7 @@ async function onSignUp() {
     msg.error("이용약관에 동의 해주세요", makeMsgOpt());
     return;
   }
-  console.log(user.value);
+  log.debug(user.value);
   await user.value!.update();
   msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
   play();

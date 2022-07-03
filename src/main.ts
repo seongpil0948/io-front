@@ -20,7 +20,7 @@ app.use(pinia);
 app.use(vueKakao, {
   apiKey: "96b525bca68b5ec991f5e96c39db8111",
   callback: () => {
-    console.log("KAKAKO SDK is installed");
+    logger.debug(null, "KAKAKO SDK is installed");
   },
 });
 app.use(router);
@@ -37,12 +37,13 @@ app.mount("#app");
 
 const messaging = getMessaging();
 onMessage(messaging, (payload) => {
-  console.log("Message received. in onMessage ", payload);
+  logger.debug(null, "Message received. in onMessage ", payload);
 });
 
 const channel = new BroadcastChannel("sw-messages");
 channel.addEventListener("message", function (event) {
-  console.log(
+  logger.debug(
+    null,
     "Receive message in foreground-side from  sw-messages channel event: ",
     event
   );

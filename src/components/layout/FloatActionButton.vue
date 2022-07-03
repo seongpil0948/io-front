@@ -17,9 +17,17 @@ import { CloudLogging } from "@vicons/carbon";
         </expand-card>
       </n-popover>
 
-      <n-icon class="button" size="25">
-        <CloudLogging />
-      </n-icon>
+      <n-popover trigger="click">
+        <template #trigger>
+          <n-icon class="button" size="25">
+            <CloudLogging />
+          </n-icon>
+        </template>
+        <expand-card>
+          <user-log-list />
+        </expand-card>
+      </n-popover>
+
       <n-popover trigger="click">
         <template #trigger>
           <n-icon class="button" size="25">

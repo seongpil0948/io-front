@@ -121,7 +121,6 @@ function getCurrUser(replace = true): IoUser {
   const router = useRouter();
   const user = authStore.user;
   if (!user && replace) {
-    console.log("to login page from getCurrUser");
     router.replace({ name: "Login" });
   }
   return user!;

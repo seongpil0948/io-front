@@ -19,10 +19,8 @@ onBeforeMount(() => {
 watch(
   authModel,
   async (val, oldVal) => {
-    console.log(val, oldVal);
     if (!oldVal) return;
     else if (val) {
-      console.log("changeUser in Watch");
       await val.update();
     }
   },

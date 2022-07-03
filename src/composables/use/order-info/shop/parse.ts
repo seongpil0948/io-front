@@ -11,6 +11,7 @@ import { ShopProdQField, MapKey } from "@/types";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { useMessage } from "naive-ui";
 import { Ref, ref, watchEffect } from "vue";
+import { logger as log } from "@/plugins/logger";
 
 export function useParseOrderInfo(
   mapper: Ref<Mapper | null>,
@@ -90,7 +91,7 @@ export function useParseOrderInfo(
           row[idx.colorIdx]
         );
         if (!synoColor) {
-          console.log(
+          log.debug(
             row[idx.prodNameIdx],
             matchedNameSynoId,
             prodMapper[matchedNameSynoId].colorMapper
@@ -124,11 +125,11 @@ export function useParseOrderInfo(
     Object.values(reporter).forEach((err) =>
       msg.error(err, makeMsgOpt({ duration: 20000 }))
     );
-    console.log("reporter: ", reporter);
-    console.log("input DF", inputDf.shape, inputDf);
-    console.log("target DF", targetDf.shape, targetDf);
-    console.log("prod Mapper", prodMapper);
-    console.log("Parse Result: ", data);
+    log.debug("reporter: ", reporter);
+    log.debug("input DF", inputDf.shape, inputDf);
+    log.debug("target DF", targetDf.shape, targetDf);
+    log.debug("prod Mapper", prodMapper);
+    log.debug("Parse Result: ", data);
     return data;
   }
 

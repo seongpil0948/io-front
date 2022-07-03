@@ -1,5 +1,3 @@
-import { doc, setDoc } from "@firebase/firestore";
-import { IoCollection } from "@/types";
 import {
   createLogger,
   LogEvent,
@@ -7,12 +5,10 @@ import {
   StringifyObjectsHook,
 } from "vue-logger-plugin";
 import _axios from "@/plugins/axios";
-import { getIoCollection } from "../firebase";
 import { IoLog } from "@/composables";
 
 const ServerLogHook: LoggerHook = {
   async run(event: LogEvent) {
-    // console.log("In ServerLogHook: ", event, _axios);
     if (event.level !== "debug" && event.argumentArray.length > 1) {
       if (event.level === "log") {
         console.error("Not Support Log Level : log");
