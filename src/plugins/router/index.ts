@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { routes } from "./routes";
-import { useAuthStore } from "@/stores";
+import { useAuthStore, useCommonStore } from "@/stores";
 import { USER_ROLE } from "@/types";
 import { IoUser } from "@/composables";
+import { logger } from "../logger";
 export const notAuthName = ["Login", "SignUp", "PlayGround"];
 
 const router = createRouter({
@@ -24,11 +25,24 @@ router.beforeEach(async (to, from) => {
     // next({ name: "Login" });
     // <<< TEMP <<<
   } else if (to.meta.allowRoles && !to.meta.allowRoles.includes(role)) {
-    if (!from.meta.allowRoles || from.meta.allowRoles.includes(role)) {
-      return false;
-    } else {
-      return { name: getHomeName(authStore.currUser.userInfo.role) };
-    }
+    logger.error(
+      authStore.currUser.userInfo.userId,
+      "유효하지 않은 페이지 접근",
+      to
+    );
+    useCommonStore().$patch((state) => {
+      state.msgQueue.push({
+        isError: true,
+        content: "소유한 권한에 대해 유효하지 않은 페이지입니다.",
+      });
+      state.loading = true;
+      state.showSpin = true;
+    });
+    setTimeout(() => {
+      useCommonStore().$patch({ loading: false, showSpin: false });
+    }, 5000);
+
+    return { name: getHomeName(authStore.currUser.userInfo.role) };
     // TODO: common store 메시지 큐에 추가해서 보여줘야함
   }
 });
