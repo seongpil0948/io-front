@@ -5,42 +5,55 @@ import { USER_ROLE } from "@/types";
 import { IoUser } from "@/composables";
 export const notAuthName = ["Login", "SignUp", "PlayGround"];
 
-declare module "vue-router" {
-  interface Router {
-    goHome(user?: IoUser): void;
-  }
-}
-
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes: routes,
 });
 
-router.beforeEach(async (to) => {
+router.beforeEach(async (to, from) => {
   const authStore = useAuthStore();
-  if (
-    authStore.currUserRole === USER_ROLE.ANONYMOUSE &&
+  const role = authStore.currUserRole;
+  if (to.path === "/")
+    return { name: getHomeName(authStore.currUser.userInfo.role) };
+  else if (
+    role === USER_ROLE.ANONYMOUSE &&
     (!to.name || !notAuthName.includes(to.name!.toString()))
   ) {
     // >>> TEMP >>>
     // console.log("to login page from router.beforeEach");
-    // return { name: "Login" };
+    // next({ name: "Login" });
     // <<< TEMP <<<
+  } else if (to.meta.allowRoles && !to.meta.allowRoles.includes(role)) {
+    if (!from.meta.allowRoles || from.meta.allowRoles.includes(role)) {
+      return false;
+    } else {
+      return { name: getHomeName(authStore.currUser.userInfo.role) };
+    }
+    // TODO: common store 메시지 큐에 추가해서 보여줘야함
   }
 });
 
 router.goHome = (user?: IoUser) => {
-  if (!user || user.userInfo.role === USER_ROLE.ANONYMOUSE) {
-    console.log("to login page from router.goHome");
-    router.push({ name: "Login" });
-  } else if (user.userInfo.role === USER_ROLE.VENDOR) {
-    router.push({ name: "VendorHome" });
-  } else if (user.userInfo.role === USER_ROLE.SHOP) {
-    router.push({ name: "ShopHome" });
-  } else if (user.userInfo.role === USER_ROLE.UNCLE) {
-    router.push({ name: "UncleHome" });
-  }
+  console.log("GO HOME: ", user?.userInfo.role);
+  router.push({ name: getHomeName(user?.userInfo.role) });
 };
+function getHomeName(role?: USER_ROLE) {
+  if (!role || role === USER_ROLE.ANONYMOUSE) return "Login";
+  else if (role === USER_ROLE.VENDOR) return "VendorHome";
+  else if (role === USER_ROLE.SHOP) return "ShopHome";
+  else if (role === USER_ROLE.UNCLE) return "UncleHome";
+  return "Login";
+}
+export function getPathByRole() {
+  console.log("getPathByRole", useAuthStore, useAuthStore());
+  const authStore = useAuthStore();
+  const role = authStore.currUserRole;
+  if (!role || role === USER_ROLE.ANONYMOUSE) return "/login";
+  else if (role === USER_ROLE.VENDOR) return "/vendor";
+  else if (role === USER_ROLE.SHOP) return "/shop";
+  else if (role === USER_ROLE.UNCLE) return "/uncle";
+  return "/login";
+}
 
 // const auth = getAuth();
 // onAuthStateChanged(auth, (user) => {

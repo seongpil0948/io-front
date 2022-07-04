@@ -29,6 +29,7 @@ async function onKakaoLogin() {
   const kakao = inst?.appContext.config.globalProperties.$kakao;
   // kakao.Auth.login({ // with auto login
   kakao.Auth.loginForm({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     success: (obj: any) => {
       kakao.API.request({
         url: "/v2/user/me",

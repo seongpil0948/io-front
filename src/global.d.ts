@@ -4,6 +4,7 @@ import { ioFire } from "@/plugins/firebase";
 import type { Router } from "vue-router";
 import "pinia";
 import type { Kakao } from "@types/kakao-js-sdk";
+import { USER_ROLE } from "./types";
 
 declare global {
   interface Window {
@@ -30,5 +31,14 @@ declare module "pinia" {
     $fire: typeof ioFire;
     $router: Router;
     $kakao: Kakao;
+  }
+}
+
+declare module "vue-router" {
+  export declare interface RouteMeta {
+    allowRoles?: USER_ROLE[];
+  }
+  interface Router {
+    goHome(user?: IoUser): void;
   }
 }

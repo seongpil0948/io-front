@@ -2,7 +2,7 @@ import {
   createLogger,
   LogEvent,
   LoggerHook,
-  StringifyObjectsHook,
+  // StringifyObjectsHook,
 } from "vue-logger-plugin";
 import _axios from "@/plugins/axios";
 import { IoLog } from "@/composables";
@@ -53,7 +53,7 @@ const logger = createLogger({
           caller?.functionName
         }:${caller?.lineNumber}]`
       : `[${level.toUpperCase()}]`,
-  beforeHooks: [StringifyObjectsHook],
+  // beforeHooks: [StringifyObjectsHook],
   afterHooks: [ServerLogHook],
 });
 
