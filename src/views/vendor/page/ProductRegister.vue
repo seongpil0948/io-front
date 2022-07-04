@@ -28,7 +28,7 @@ const router = useRouter();
 
 const prodModel = ref({
   part: PART.TOP,
-  ctgr: "",
+  ctgr: getCtgrOpts(PART.TOP)[0].value,
   name: "",
   allowPending: [],
   gendor: GENDOR.MALE,
@@ -83,12 +83,15 @@ watchEffect(
   },
   { flush: "pre" }
 );
+function changePart() {
+  prodModel.value.ctgr = ctgrOpts.value[0].value;
+}
 function onRegister() {
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
     else if (currUser.userInfo.role !== USER_ROLE.VENDOR)
       return msg.error(
-        `User Role is not Valid: ${currUser.userInfo.role}`,
+        `도매 상품등록 페이지는 도매 계정만 접근 가능합니다.`,
         makeMsgOpt()
       );
     else if (!stockCnts.value) return;
@@ -125,10 +128,12 @@ function onRegister() {
         return Promise.all(products.map((p) => p.update()))
           .then(() => {
             msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
+            log.info("상품 등록 성공", products);
             router.replace({ name: "VendorProductList" });
           })
           .catch(() => {
             msg.error("상품등록 실패.", makeMsgOpt());
+            log.error(currUser.userInfo.userId, "상품등록 실패.", products);
           });
       },
     });
@@ -157,7 +162,7 @@ function onRegister() {
       </n-space>
       <n-grid :x-gap="12" cols="1 350:2" item-responsive>
         <n-form-item-gi label="제품명" path="name">
-          <n-input v-model:value="prodModel.name" />
+          <n-input v-model:value="prodModel.name" placeholder="제품명 입력" />
         </n-form-item-gi>
         <n-form-item-gi label="자동미송받기" path="allowPending">
           <n-checkbox-group v-model:value="prodModel.allowPending">
@@ -167,7 +172,11 @@ function onRegister() {
           ></n-checkbox-group>
         </n-form-item-gi>
         <n-form-item-gi label="파트" path="part">
-          <n-select v-model:value="prodModel.part" :options="partOpts" />
+          <n-select
+            @update:value="changePart"
+            v-model:value="prodModel.part"
+            :options="partOpts"
+          />
         </n-form-item-gi>
         <n-form-item-gi label="카테고리" path="ctgr">
           <n-select v-model:value="prodModel.ctgr" :options="ctgrOpts" />
@@ -192,6 +201,7 @@ function onRegister() {
             <n-space vertical justify="start">
               <n-form-item label="컬러" path="colors">
                 <n-dynamic-tags
+                  round
                   style="flex-wrap: ;no-wrap; overflow-x: scroll;"
                   v-model:value="prodModel.colors"
                   @keydown.enter.prevent
@@ -218,13 +228,14 @@ function onRegister() {
                   :key="j"
                 >
                   <n-space inline :wrap="false" style="margin-bottom: 1%">
-                    <n-text>{{ size }}</n-text>
-                    <n-text>{{ color }}</n-text>
-                    <n-input-number
-                      :show-button="false"
-                      :min="0"
-                      v-model:value="stockCnts[size as PROD_SIZE][color]"
-                    />
+                    <n-form-item-gi span="2" :label="`${color} ${size}`">
+                      <n-input-number
+                        :show-button="false"
+                        :min="0"
+                        :validator="(x: number) => x % 1 === 0"
+                        v-model:value="stockCnts[size as PROD_SIZE][color]"
+                      />
+                    </n-form-item-gi>
                   </n-space>
                 </div>
               </div>
@@ -238,7 +249,7 @@ function onRegister() {
             placeholder="상품 정보 입력"
           />
         </n-form-item-gi>
-        <n-form-item-gi span="2" label="상품개요" path="description">
+        <n-form-item-gi span="2" label="상품 요약" path="description">
           <n-input
             v-model:value="prodModel.description"
             placeholder="개요 입력"

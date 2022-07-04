@@ -10,6 +10,13 @@ import vueKakao from "./plugins/kakao";
 import { getMessaging, onMessage } from "@firebase/messaging";
 import { logger } from "./plugins/logger";
 
+window.onerror = function (errorMsg, url, errorObj) {
+  logger.error(
+    null,
+    "Error: " + errorMsg + " Script: " + url + " StackTrace: ",
+    errorObj
+  );
+};
 Date.prototype.toJSON = function () {
   return moment(this).format();
 };
@@ -37,12 +44,12 @@ app.mount("#app");
 
 const messaging = getMessaging();
 onMessage(messaging, (payload) => {
-  logger.debug(null, "Message received. in onMessage ", payload);
+  logger.info(null, "Foreground Message received. in onMessage ", payload);
 });
 
 const channel = new BroadcastChannel("sw-messages");
 channel.addEventListener("message", function (event) {
-  logger.debug(
+  logger.info(
     null,
     "Receive message in foreground-side from  sw-messages channel event: ",
     event

@@ -62,7 +62,7 @@ watch(
               :key="idx"
             >
               <template #trigger>
-                <n-tag> {{ i.alias }}</n-tag>
+                <n-tag round> {{ i.alias }}</n-tag>
               </template>
               {{ locateStr(i) }}
             </n-tooltip>

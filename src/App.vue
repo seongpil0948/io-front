@@ -31,6 +31,7 @@ const themeOverrides: GlobalThemeOverrides = {
     hoverColor: ioColors.primary,
     bodyColor: ioColors.background,
     fontWeightStrong: "700",
+    borderRadius: "10px",
   },
   Input: {
     color: ioColors.primary,

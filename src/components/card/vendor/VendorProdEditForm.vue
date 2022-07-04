@@ -96,7 +96,7 @@ const auth = useAuthStore();
           placeholder="상품 정보 입력"
         />
       </n-form-item-gi>
-      <n-form-item-gi span="6" label="상품개요" path="description">
+      <n-form-item-gi span="6" label="상품 요약" path="description">
         <n-input v-model:value="prod.description" placeholder="개요 입력" />
       </n-form-item-gi>
       <n-form-item-gi span="6" label="혼용률/제조국" path="fabric">

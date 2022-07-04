@@ -108,7 +108,9 @@ defineExpose({ copanyInfo: formModel });
             :key="idx"
           >
             <template #trigger>
-              <n-tag closable @close="onLocateClose(i)"> {{ i.alias }}</n-tag>
+              <n-tag round closable @close="onLocateClose(i)">
+                {{ i.alias }}</n-tag
+              >
             </template>
             {{ locateStr(i) }}
           </n-tooltip>
