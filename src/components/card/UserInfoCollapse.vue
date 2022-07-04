@@ -69,6 +69,8 @@ watch(
           </n-space>
         </div>
         <n-a
+          target="_blank"
+          rel="noopener noreferrer"
           href="https://docs.google.com/forms/d/e/1FAIpQLSfiqRLuVKfhiIvk6JwuAp-daQ7OQ2_vcQOToxgy7vGDz-4NtQ/viewform"
         >
           정보 변경 요청하기</n-a
