@@ -68,7 +68,6 @@ export default [
       managerPhone: "ㅇ",
     },
     operInfo: {
-      autoPending: true,
       saleAverage: "300~1,000",
       purchaseMethod: "엉클",
     },

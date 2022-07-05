@@ -5,7 +5,6 @@ import { FormInst } from "naive-ui";
 import { reactive, ref } from "vue";
 const formRef = ref<FormInst | null>(null);
 const formModel = reactive<{ [k in keyof VendorOperInfo]: VendorOperInfo[k] }>({
-  autoPending: false,
   autoOrderApprove: false,
   saleManageType: "",
   taxDeadlineDay: 1,
@@ -30,13 +29,6 @@ defineExpose({ operInfo: formModel });
     size="medium"
   >
     <n-grid cols="1" :x-gap="24">
-      <n-form-item-gi label="상품 자동 미송받기" path="autoPending">
-        <yes-or-no-radio
-          v-model:value="formModel.autoPending"
-          :yesVal="true"
-          :noVal="false"
-        />
-      </n-form-item-gi>
       <n-form-item-gi label="상품 주문 자동 승인" path="autoOrderApprove">
         <yes-or-no-radio
           v-model:value="formModel.autoOrderApprove"

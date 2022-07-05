@@ -26,12 +26,10 @@ const SALE_MANAGE: { [key in SALE_MANAGE]: string } = Object.freeze({
   ONLINE: "포스&온라인",
 });
 interface ShopOperInfo {
-  autoPending: boolean;
   saleAverage: string; // (10~300 / 300~1000 / 1000 ~5000 / 5000 ~ 10,000 / 10,000 ~ )
   purchaseMethod: SHIP_METHOD[keyof SHIP_METHOD]; // 현재 동대문 사입방식
 }
 interface VendorOperInfo {
-  autoPending: boolean; // 전상품 미송잡기
   autoOrderApprove: boolean; // 모든주문 자동승인
   saleManageType: string; // 현재 장기 종류 (수기, 포스&온라인)
   taxDeadlineDay: number; // 세금계산서 마감일

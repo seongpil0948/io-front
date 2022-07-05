@@ -47,8 +47,5 @@ export const useAuthStore = defineStore({
       await signOut(auth);
       this.$router.replace({ name: "Login" }); //   this.$http.get("https://www.naver.com");
     },
-    async setAllUsers() {
-      throw Error("Not Implement Function: setAllUsers");
-    },
   },
 });

@@ -5,7 +5,6 @@ import { FormInst } from "naive-ui";
 import { reactive, ref } from "vue";
 const formRef = ref<FormInst | null>(null);
 const formModel = reactive<{ [k in keyof ShopOperInfo]: ShopOperInfo[k] }>({
-  autoPending: false,
   saleAverage: saleAvgOpt.value[0].value,
   purchaseMethod: SHIP_METHOD.UNCLE,
 });
@@ -28,13 +27,6 @@ defineExpose({ operInfo: formModel });
     size="medium"
   >
     <n-grid cols="1" :x-gap="24">
-      <n-form-item-gi label="상품 자동 미송잡기" path="autoPending">
-        <yes-or-no-radio
-          v-model:value="formModel.autoPending"
-          :yesVal="true"
-          :noVal="false"
-        />
-      </n-form-item-gi>
       <n-form-item-gi label="1달 평균 판매량" path="saleAverage">
         <n-select
           v-model:value="formModel.saleAverage"

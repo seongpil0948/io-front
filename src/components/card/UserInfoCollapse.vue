@@ -17,7 +17,7 @@ onBeforeMount(() => {
   authModel.value = clone(authStore.currUser);
 });
 watch(
-  authModel,
+  () => authModel.value,
   async (val, oldVal) => {
     if (!oldVal) return;
     else if (val) {
@@ -108,14 +108,6 @@ watch(
         v-if="authModel.userInfo.role === USER_ROLE.SHOP"
       >
         <div class="io-row">
-          <n-text strong>자동 미송잡기</n-text>
-          <yes-or-no-radio
-            v-model:value="authModel.operInfo!.autoPending"
-            :yesVal="true"
-            :noVal="false"
-          />
-        </div>
-        <div class="io-row">
           <n-text strong>현재사입방식</n-text>
           <n-select
             v-model:value="(authModel.operInfo as ShopOperInfo).purchaseMethod"
@@ -128,14 +120,6 @@ watch(
         style="width: 100%"
         v-if="authModel.userInfo.role === USER_ROLE.VENDOR"
       >
-        <div class="io-row">
-          <n-text strong>자동 미송받기</n-text>
-          <yes-or-no-radio
-            v-model:value="authModel.operInfo!.autoPending"
-            :yesVal="true"
-            :noVal="false"
-          />
-        </div>
         <div class="io-row">
           <n-text strong>주문 자동 승인</n-text>
           <yes-or-no-radio

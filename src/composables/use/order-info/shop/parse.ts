@@ -21,7 +21,6 @@ export function useParseOrderInfo(
   onParse: (orders: ShopReqOrder[]) => void
 ) {
   const conditions = ref<ShopProdQField[]>([]);
-
   const { userProd } = useShopUserProds(userId, conditions);
   const msg = useMessage();
 
@@ -31,7 +30,9 @@ export function useParseOrderInfo(
     for (let i = 0; i < fs.value.length; i++) {
       const inputDf = (await readExcel(fs.value[i])) as DataFrame;
       if (!inputDf) {
-        msg.error(`파일: ${fs.value[i].name}에 대한 처리에 실패 하였습니다.`);
+        const message = `파일: ${fs.value[i].name}에 대한 처리에 실패 하였습니다.`;
+        msg.error(message, makeMsgOpt());
+        log.error(userId, message);
         continue;
       }
       conditions.value.push(...parseDf(inputDf, mapper.value, existIds.value));
@@ -62,7 +63,9 @@ export function useParseOrderInfo(
     });
     const prodMapper = mapper.getProdMapper();
     if (Object.keys(prodMapper).length === 0) {
-      msg.error("주문취합을 위해 상품매핑정보를 등록 해주십시오", makeMsgOpt());
+      const message = "주문취합을 위해 상품매핑정보를 등록 해주십시오";
+      msg.error(message, makeMsgOpt());
+      log.error(userId, message);
       return [];
     }
     const idx = getColIdx(targetDf, colMapper);
@@ -122,9 +125,10 @@ export function useParseOrderInfo(
       },
       { axis: 1 }
     );
-    Object.values(reporter).forEach((err) =>
-      msg.error(err, makeMsgOpt({ duration: 20000 }))
-    );
+    Object.values(reporter).forEach((err) => {
+      msg.error(err, makeMsgOpt({ duration: 20000 }));
+      log.error(userId, err);
+    });
     log.debug("reporter: ", reporter);
     log.debug("input DF", inputDf.shape, inputDf);
     log.debug("target DF", targetDf.shape, targetDf);
@@ -138,9 +142,9 @@ export function useParseOrderInfo(
       const synonyms = mapper.getSyno(colName);
       const col = df.columns.find((inputCol) => synonyms.includes(inputCol));
       if (!col) {
-        msg.error(
-          `컬럼매핑 실패: 실패 엑셀파일에서 ${colName} 컬럼을 찾을 수 없습니다. \n ${synonyms}`
-        );
+        const message = `컬럼매핑 실패: 실패 엑셀파일에서 ${colName} 컬럼을 찾을 수 없습니다. \n ${synonyms}`;
+        msg.error(message);
+        log.error(userId, message);
       } else {
         curr[colName] = col;
       }

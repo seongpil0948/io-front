@@ -69,7 +69,6 @@ export default [
     },
     operInfo: {
       taxDeadlineDay: 4,
-      autoPending: false,
       saleManageType: "수기",
       autoOrderApprove: false,
       expectNumProdMonthly: "100~500",
@@ -146,7 +145,6 @@ export default [
     operInfo: {
       taxDeadlineDay: 1,
       saleManageType: "수기",
-      autoPending: true,
       autoOrderApprove: true,
       expectNumProdMonthly: "100~500",
     },
