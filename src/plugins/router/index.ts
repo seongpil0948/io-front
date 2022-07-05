@@ -35,20 +35,12 @@ router.beforeEach(async (to) => {
         isError: true,
         content: "소유한 권한에 대해 유효하지 않은 페이지입니다.",
       });
-      state.loading = true;
-      state.showSpin = true;
     });
-    setTimeout(() => {
-      useCommonStore().$patch({ loading: false, showSpin: false });
-    }, 5000);
-
     return { name: getHomeName(authStore.currUser.userInfo.role) };
-    // TODO: common store 메시지 큐에 추가해서 보여줘야함
   }
 });
 
 router.goHome = (user?: IoUser) => {
-  console.log("GO HOME: ", user?.userInfo.role);
   router.push({ name: getHomeName(user?.userInfo.role) });
 };
 function getHomeName(role?: USER_ROLE) {

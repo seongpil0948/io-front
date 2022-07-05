@@ -91,11 +91,6 @@ function changePart() {
 function onRegister() {
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
-    else if (currUser.userInfo.role !== USER_ROLE.VENDOR)
-      return msg.error(
-        `도매 상품등록 페이지는 도매 계정만 접근 가능합니다.`,
-        makeMsgOpt()
-      );
     else if (!stockCnts.value) return;
 
     const products: VendorProd[] = [];
@@ -130,7 +125,7 @@ function onRegister() {
         return Promise.all(products.map((p) => p.update()))
           .then(() => {
             msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
-            log.info("상품 등록 성공", products);
+            log.info(currUser.userInfo.userId, "상품 등록 성공", products);
             router.replace({ name: "VendorProductList" });
           })
           .catch(() => {

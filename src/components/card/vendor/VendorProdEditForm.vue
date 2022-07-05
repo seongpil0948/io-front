@@ -11,12 +11,13 @@ import { AddCircleOutline } from "@vicons/ionicons5";
 import cloneDeep from "lodash.clonedeep";
 import { useMessage, FormInst } from "naive-ui";
 import { ref, watchEffect } from "vue";
+import { useLogger } from "vue-logger-plugin";
 
 const props = defineProps<{
   prod?: VendorProd;
 }>();
 const emits = defineEmits(["onSubmitProd"]);
-
+const log = useLogger();
 const prod = ref<VendorProd | null>(null);
 watchEffect(() => {
   if (props.prod) {
@@ -44,6 +45,7 @@ function onEdit() {
       return msg.error("상품 작성란을 올바르게 작성 해주세요", makeMsgOpt());
 
     await prod.value!.update();
+    log.info(prod.value?.vendorId, "도매상품 수정완료", prod.value);
     emits("onSubmitProd");
   });
 }

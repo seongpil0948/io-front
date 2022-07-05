@@ -57,7 +57,7 @@ watchEffect(() => {
 <template>
   <n-data-table
     :table-layout="'fixed'"
-    scroll-x="1200"
+    :scroll-x="1800"
     :columns="columns"
     :data="orderProds"
     :pagination="{

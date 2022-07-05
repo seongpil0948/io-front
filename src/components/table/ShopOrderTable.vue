@@ -153,11 +153,15 @@ useParseOrderInfo(
 );
 </script>
 <template>
-  <drop-zone-card :listenClick="false" v-model:fileModel="fileModel">
+  <drop-zone-card
+    style="width: 80%"
+    :listenClick="false"
+    v-model:fileModel="fileModel"
+  >
     <n-data-table
       v-if="orderJoined && orderJoined.length > 0"
       :table-layout="'fixed'"
-      scroll-x="1800"
+      :scroll-x="1800"
       :columns="columns"
       :data="orderJoined"
       :pagination="{
