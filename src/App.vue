@@ -181,4 +181,8 @@ body {
 .n-popover {
   border: $io-primary solid 0.3rem;
 }
+.n-tabs .n-tab-pane {
+  justify-content: center;
+  display: flex;
+}
 </style>

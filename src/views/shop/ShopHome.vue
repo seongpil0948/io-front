@@ -17,7 +17,8 @@ const currTab = ref<string>("reqOrderList");
         >
           <shop-order-table :orderStates="orderTableStates" />
         </n-tab-pane>
-        <n-tab-pane tab="주문 완료된 내역" name="orderedList"> gg </n-tab-pane>
+        <n-tab-pane tab="실시간 픽업 현황" name="pickStatus"> gg </n-tab-pane>
+        <n-tab-pane tab="통계" name="statistics"> gg </n-tab-pane>
       </n-tabs>
     </n-card>
   </n-space>

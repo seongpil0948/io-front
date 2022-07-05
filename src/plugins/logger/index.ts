@@ -22,6 +22,12 @@ const ServerLogHook: LoggerHook = {
       formData.set("txt", event.argumentArray.slice(1).join("&&"));
       formData.set("severity", event.level);
       if (isUserLog) {
+        if (typeof event.argumentArray[1] !== "string") {
+          console.error(
+            "event.argumentArray[1]는 반드시 문자열이어야 합니다.",
+            event.argumentArray
+          );
+        }
         const ctgr = "user-log";
         const ioLog = new IoLog({
           uid: event.argumentArray[0],

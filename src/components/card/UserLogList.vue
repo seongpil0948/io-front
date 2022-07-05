@@ -14,13 +14,15 @@ const logTxts = computed(() => {
   const txts: string[][] = [];
   const parseTxts = (ts: { [b: string]: any | string }[]) => {
     const texts: string[] = [];
-    ts.forEach((x) => {
-      if (typeof x === "string") {
-        texts.push(x);
-      } else if (isObject(x)) {
-        texts.push(JSON.stringify(x).substring(0, 18));
+    for (let t = 0; t < ts.length; t++) {
+      const txt = ts[t];
+      if (typeof txt === "string") {
+        texts.push(txt);
+      } else if (isObject(txt)) {
+        texts.push(JSON.stringify(txt).substring(0, 18));
       }
-    });
+      break;
+    }
     return texts.join(" ");
   };
   userLogs.value.forEach((x) => {
