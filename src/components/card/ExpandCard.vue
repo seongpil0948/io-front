@@ -1,21 +1,21 @@
 <script setup lang="ts">
 // import { Close } from "@vicons/carbon";
-import { ExpandOutline } from "@vicons/ionicons5";
+import { ExpandOutline, CloseOutline } from "@vicons/ionicons5";
 import { ref } from "vue";
 
-// const emits = defineEmits<{
-//   (e: "clickClose", value: boolean): void;
-// }>();
-// function clickCloseBtn() {
-//   emits("clickClose", true);
-// }
+const emits = defineEmits<{
+  (e: "clickClose", value: boolean): void;
+}>();
+function clickCloseBtn() {
+  emits("clickClose", true);
+}
 let expanded = ref(false);
 </script>
 <template>
   <n-card
     :bordered="false"
     :content-style="`
-    height: ${expanded ? '70vw' : '35vw'};
+    max-height: ${expanded ? '70vh' : '35vh'};
     width: ${expanded ? '70vw' : '35vw'}; 
     overflow: scroll;
     `"
@@ -30,6 +30,11 @@ let expanded = ref(false);
         <n-button quaternary circle @click="expanded = !expanded">
           <template #icon>
             <n-icon size="20"><ExpandOutline /></n-icon>
+          </template>
+        </n-button>
+        <n-button quaternary circle @click="clickCloseBtn">
+          <template #icon>
+            <n-icon size="20"><CloseOutline /></n-icon>
           </template>
         </n-button>
         <!-- <n-button

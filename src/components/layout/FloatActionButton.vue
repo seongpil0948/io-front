@@ -1,40 +1,48 @@
 <script setup lang="ts">
 import { WalletOutline, PersonCircleOutline } from "@vicons/ionicons5";
 import { CloudLogging } from "@vicons/carbon";
+import { ref } from "vue";
+
+const walletShow = ref(false);
+const handleWalletClose = () => (walletShow.value = false);
+const personalShow = ref(false);
+const handlePersonalClose = () => (personalShow.value = false);
+const userLogShow = ref(false);
+const handleUserLogClose = () => (userLogShow.value = false);
 </script>
 
 <template>
   <div style="position: fixed; bottom: 10%; right: 100px">
     <div class="menu" onclick="this.classList.toggle('open')">
-      <n-popover trigger="click">
+      <n-popover v-model:show="walletShow" trigger="click">
         <template #trigger>
           <n-icon class="button" size="25">
             <WalletOutline />
           </n-icon>
         </template>
-        <expand-card>
+        <expand-card @clickClose="handleWalletClose">
           <coin-wallet />
         </expand-card>
       </n-popover>
 
-      <n-popover trigger="click">
+      <n-popover v-model:show="personalShow" trigger="click">
         <template #trigger>
           <n-icon class="button" size="25">
             <CloudLogging />
           </n-icon>
         </template>
-        <expand-card>
+        <expand-card @clickClose="handlePersonalClose">
           <user-log-list />
         </expand-card>
       </n-popover>
 
-      <n-popover trigger="click">
+      <n-popover v-model:show="userLogShow" trigger="click">
         <template #trigger>
           <n-icon class="button" size="25">
             <PersonCircleOutline />
           </n-icon>
         </template>
-        <expand-card>
+        <expand-card @clickClose="handleUserLogClose">
           <user-info-collapse />
         </expand-card>
       </n-popover>

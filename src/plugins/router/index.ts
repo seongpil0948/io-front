@@ -11,7 +11,7 @@ const router = createRouter({
   routes: routes,
 });
 
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore();
   const role = authStore.currUserRole;
   if (to.path === "/")

@@ -18,7 +18,7 @@ const logTxts = computed(() => {
       if (typeof x === "string") {
         texts.push(x);
       } else if (isObject(x)) {
-        texts.push(Object.values(x).join(" __ "));
+        texts.push(JSON.stringify(x).substring(0, 18));
       }
     });
     return texts.join(" ");

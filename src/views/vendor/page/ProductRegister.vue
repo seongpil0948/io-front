@@ -71,13 +71,15 @@ watchEffect(() => {
 });
 watchEffect(
   () => {
+    const prev = Object.assign({}, stockCnts.value);
     stockCnts.value = {} as StockCnt;
     prodModel.value.sizes.forEach((size) => {
       prodModel.value.colors.forEach((color) => {
         if (!stockCnts.value![size]) {
           stockCnts.value![size] = {};
         }
-        stockCnts.value![size][color] = 0;
+        stockCnts.value![size][color] =
+          prev[size] && prev[size][color] ? prev[size][color] : 0;
       });
     });
   },
