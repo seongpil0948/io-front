@@ -52,7 +52,7 @@ function onScroll(e: any) {
         맨위로
       </n-button>
     </n-button-group> -->
-    <n-space v-for="(txt, idx) in [...logTxts, ...logTxts]" :key="idx">
+    <n-space v-for="(txt, idx) in logTxts" :key="idx">
       <n-text strong> {{ txt[0] }} </n-text>
       <n-text italic> {{ txt[1] }} </n-text>
     </n-space>

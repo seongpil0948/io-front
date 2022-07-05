@@ -188,7 +188,7 @@ const chargeValidator = (x) => x % 10 === 0;
         <n-text>{{ chargeString }} </n-text>
       </div>
 
-      <n-button @click="reqPay">결제하기<logo-image size="1.6rem" /></n-button>
+      <n-button @click="reqPay">결제하기<coin-image size="1.6rem" /></n-button>
     </n-space>
   </n-space>
 </template>

@@ -100,7 +100,10 @@ export function useReadLogger(param: ReadLogParam) {
   const lastLog = ref<any | null>(null);
   const noMore = ref(false);
   function getQuery() {
-    const constraints = [where("uid", "in", param.uids), orderBy("createdAt")];
+    const constraints = [
+      where("uid", "in", param.uids),
+      orderBy("createdAt", "desc"),
+    ];
     if (lastLog.value) {
       constraints.push(startAfter(lastLog.value));
     }

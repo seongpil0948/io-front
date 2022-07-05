@@ -10,7 +10,12 @@ import {
   useTable,
 } from "@/composables";
 import { useAuthStore } from "@/stores";
-import { IoColOpt, ORDER_STATE, ShopReqOrderJoined } from "@/types";
+import {
+  IoColOpt,
+  ORDER_STATE,
+  ShopReqOrderJoined,
+  type VendorOperInfo,
+} from "@/types";
 import { NGradientText, useDialog, useMessage } from "naive-ui";
 import { TableBaseColumn } from "naive-ui/es/data-table/src/interface";
 import ShopOrderCnt from "../input/ShopOrderCnt.vue";
@@ -81,7 +86,12 @@ watchEffect(() => {
                     data.pendingCnt
                   );
                   data.amount = data.orderCnt * row.prodPrice!;
-                  data.orderState = ORDER_STATE.BEFORE_APPROVE;
+                  if ((row.operInfo as VendorOperInfo).autoOrderApprove) {
+                    data.orderState = ORDER_STATE.BEFORE_PAYMENT;
+                  } else {
+                    data.orderState = ORDER_STATE.BEFORE_APPROVE;
+                  }
+
                   await data.update();
                   msg.success("주문 요청에 성공하셨습니다.", makeMsgOpt());
                 } else {

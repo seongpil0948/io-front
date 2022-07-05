@@ -6,6 +6,7 @@ import '@vue/runtime-core'
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     CarouselImgCard: typeof import('./src/components/card/CarouselImgCard.vue')['default']
+    CoinImage: typeof import('./src/components/common/CoinImage.vue')['default']
     CoinWallet: typeof import('./src/components/card/CoinWallet.vue')['default']
     CompanyInfoForm: typeof import('./src/components/form/CompanyInfoForm.vue')['default']
     DropZoneCard: typeof import('./src/components/input/DropZoneCard.vue')['default']

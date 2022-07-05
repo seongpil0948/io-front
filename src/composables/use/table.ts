@@ -138,7 +138,7 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
 
 function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
   return colKeys.map((opt) => {
-    if (!opt.key) throw Error("Column Key must not Nullllll!!!!");
+    if (!opt.key) throw Error("Column Key must not Null!!!!");
     const col: TableBaseColumn<T> = {
       key: opt.key as ColumnKey,
       title: opt.colRendor ?? colKoMapper[opt.key],

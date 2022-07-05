@@ -29,7 +29,9 @@ export function useShopReadOrderInfo(
           (p) => order.shopProdId === p.shopProdId
         );
         if (prod) {
-          orderJoined.value.push(Object.assign(prod, order));
+          orderJoined.value.push(
+            Object.assign({ userName: prod.userInfo?.userName }, prod, order)
+          );
         }
       }
     });
