@@ -157,7 +157,7 @@ function onRegister() {
           >
         </n-space>
       </n-space>
-      <n-grid :x-gap="12" cols="1 350:2" item-responsive>
+      <n-grid :x-gap="12" cols="1 600:2" item-responsive>
         <n-form-item-gi label="제품명" path="name">
           <n-input v-model:value="prodModel.name" placeholder="제품명 입력" />
         </n-form-item-gi>

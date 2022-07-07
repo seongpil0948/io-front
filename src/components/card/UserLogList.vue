@@ -8,6 +8,7 @@ const authStore = useAuthStore();
 const { userLogs } = useReadLogger({
   uids: [authStore.currUser.userInfo.userId],
   limit: 30,
+  severity: ["error"],
 });
 
 const logTxts = computed(() => {

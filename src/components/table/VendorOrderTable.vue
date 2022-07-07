@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { ShopReqOrder, useReadVendorOrderInfo, useTable } from "@/composables";
+import {
+  ShopReqOrder,
+  useReadVendorOrderInfo,
+  useTable,
+  getScreenSize,
+  ScreenSize,
+} from "@/composables";
 import { useAuthStore } from "@/stores/auth";
 import { IoColOpt, ORDER_STATE, VendorUserProd } from "@/types";
 import { toRefs, watchEffect } from "vue";
@@ -56,7 +62,7 @@ watchEffect(() => {
 </script>
 <template>
   <n-data-table
-    :table-layout="'fixed'"
+    :table-layout="getScreenSize() === ScreenSize.L ? 'fixed' : 'auto'"
     :scroll-x="1800"
     :columns="columns"
     :data="orderProds"
@@ -64,5 +70,6 @@ watchEffect(() => {
       pageSize: 10,
     }"
     :bordered="false"
+    style="min-height: 50vh"
   />
 </template>

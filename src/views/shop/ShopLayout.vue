@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { renderIcon, renderRoute } from "@/composables";
+import {
+  renderIcon,
+  renderRoute,
+  getScreenSize,
+  ScreenSize,
+} from "@/composables";
 import type { MenuOption } from "naive-ui";
 import { ProductHunt, ShoppingCart } from "@vicons/fa";
 const minHeight = "100vh";
@@ -39,7 +44,7 @@ const menuOptions: MenuOption[] = [
 
 <template>
   <n-space vertical>
-    <n-layout>
+    <n-layout v-if="getScreenSize() === ScreenSize.L">
       <n-layout has-sider :style="`min-height: ${minHeight}`">
         <io-sider
           :style="`min-height: ${minHeight}`"
@@ -54,8 +59,26 @@ const menuOptions: MenuOption[] = [
           <io-footer />
         </n-space>
       </n-layout>
-
       <!-- <n-layout-footer bordered> Footer Footer Footer </n-layout-footer> -->
+    </n-layout>
+    <n-layout v-else :style="`height: ${minHeight}`">
+      <n-layout-header>
+        <n-menu
+          :collapsed-width="64"
+          :collapsed-icon-size="22"
+          :options="menuOptions"
+          mode="horizontal"
+        />
+      </n-layout-header>
+      <n-space
+        vertical
+        justify="space-between"
+        align="center"
+        style="padding: 2%; width: 100%; height: fit-content"
+      >
+        <router-view />
+        <io-footer />
+      </n-space>
     </n-layout>
   </n-space>
 </template>

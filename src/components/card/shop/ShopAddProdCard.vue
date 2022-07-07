@@ -83,10 +83,9 @@ function onCheck(val: string) {
     close-on-esc
     size="huge"
     preset="card"
-    style="margin: 10vw"
   >
     <n-card>
-      <n-space inline>
+      <n-space inline justify="center">
         <carousel-img-card
           :imgUrls="imgUrls"
           :width="30"

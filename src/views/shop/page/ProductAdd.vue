@@ -63,7 +63,7 @@ function validProd(prod: VendorUserProdCombined) {
         <n-grid
           x-gap="12"
           y-gap="12"
-          cols="1 s:2 m:2 l:5 xl:6 2xl:7"
+          cols="2 s:2 m:2 l:5 xl:6 2xl:7"
           responsive="screen"
         >
           <n-gi

@@ -1,3 +1,4 @@
+import { length } from "./../../../input/validators";
 import { makeMsgOpt } from "./../../../opt/msg";
 import {
   useShopUserProds,
@@ -74,13 +75,15 @@ export function useParseOrderInfo(
     targetDf.apply(
       (row: Series) => {
         const orderId = row[idx.orderIdIdx];
-        const matchedNameSynoId = Object.keys(prodMapper).find((nameSynoId) => {
-          const nameSyno = nameSynoId.split(" iobox ")[0].trim();
-          return (
-            row[idx.prodNameIdx] && row[idx.prodNameIdx].includes(nameSyno)
-          );
-        });
-        if (!matchedNameSynoId) {
+        const matchedNameSynoIds = Object.keys(prodMapper).filter(
+          (nameSynoId) => {
+            const nameSyno = nameSynoId.split(" iobox ")[0].trim();
+            return (
+              row[idx.prodNameIdx] && row[idx.prodNameIdx].includes(nameSyno)
+            );
+          }
+        );
+        if (matchedNameSynoIds.length < 1) {
           reporter[orderId] = `상품명 매핑실패: ${row[idx.prodNameIdx]} `;
           return row; // continue
         } else if (existIds.has(orderId)) {
@@ -89,36 +92,38 @@ export function useParseOrderInfo(
           }`;
           return row;
         }
-        const synoColor = synonymMatch(
-          prodMapper[matchedNameSynoId].colorMapper,
-          row[idx.colorIdx]
-        );
-        if (!synoColor) {
-          log.debug(
-            row[idx.prodNameIdx],
-            matchedNameSynoId,
-            prodMapper[matchedNameSynoId].colorMapper
-          );
-          reporter[orderId] = `컬러 매핑실패: ${row[idx.prodNameIdx]},${
+
+        let synoColor = undefined;
+        let synoSize = undefined;
+        let matchedNameSynoId = undefined;
+        for (let i = 0; i < matchedNameSynoIds.length; i++) {
+          const matchedId = matchedNameSynoIds[i];
+          synoColor = synonymMatch(
+            prodMapper[matchedId].colorMapper,
             row[idx.colorIdx]
-          }`;
-          return row;
-        }
-        const synoSize = synonymMatch(
-          prodMapper[matchedNameSynoId].sizeMapper,
-          row[idx.sizeIdx]
-        );
-        if (!synoSize) {
-          reporter[orderId] = `사이즈 매핑실패: ${row[idx.prodNameIdx]},${
+          );
+          synoSize = synonymMatch(
+            prodMapper[matchedId].sizeMapper,
             row[idx.sizeIdx]
-          }`;
+          );
+          if (synoSize && synoColor) {
+            matchedNameSynoId = matchedId;
+            break;
+          }
+        }
+        if (!synoColor || !synoSize) {
+          reporter[orderId] = `${
+            prodMapper[matchedNameSynoId!].ioProdName
+          } 상품의 매핑에 실패 하였습니다. 컬러 매핑실패정보,${
+            row[idx.colorIdx]
+          } 사이즈 매핑실패정보: ${row[idx.sizeIdx]}`;
           return row;
         }
         delete reporter[orderId];
         data.push({
-          prodName: prodMapper[matchedNameSynoId].ioProdName,
-          size: prodMapper[matchedNameSynoId].sizeMapper[synoSize],
-          color: prodMapper[matchedNameSynoId].colorMapper[synoColor],
+          prodName: prodMapper[matchedNameSynoId!].ioProdName,
+          size: prodMapper[matchedNameSynoId!].sizeMapper[synoSize],
+          color: prodMapper[matchedNameSynoId!].colorMapper[synoColor],
           orderId,
         });
         return row;

@@ -17,6 +17,7 @@ import {
   getDocs,
   query,
   where,
+  onSnapshot,
 } from "firebase/firestore";
 import { CommonField } from "./common";
 import { logger } from "@/plugins/logger";
@@ -93,6 +94,7 @@ export const ioLogConverter = {
 export interface ReadLogParam {
   uids: string[];
   limit: number;
+  severity?: string[];
 }
 
 export function useReadLogger(param: ReadLogParam) {
@@ -104,6 +106,11 @@ export function useReadLogger(param: ReadLogParam) {
       where("uid", "in", param.uids),
       orderBy("createdAt", "desc"),
     ];
+    if (param.severity) {
+      param.severity.forEach((s) => {
+        constraints.push(where("severity", "==", s));
+      });
+    }
     if (lastLog.value) {
       constraints.push(startAfter(lastLog.value));
     }
@@ -113,6 +120,19 @@ export function useReadLogger(param: ReadLogParam) {
       ...constraints
     );
   }
+  const unsubscribe = onSnapshot(getQuery(), (snapshot) => {
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data) {
+        userLogs.value.push(data);
+      }
+    });
+    const len = userLogs.value.length;
+    lastLog.value = len > 0 ? userLogs.value[len - 1] : null;
+    noMore.value =
+      lastLog.value === null ||
+      userLogs.value[-1].createdAt === lastLog.value!.createdAt;
+  });
   async function next() {
     if (noMore.value) return;
     const len = userLogs.value.length;
@@ -135,5 +155,5 @@ export function useReadLogger(param: ReadLogParam) {
     await next();
   }
   onBeforeMount(async () => await init());
-  return { userLogs, lastLog, next, noMore };
+  return { userLogs, lastLog, next, noMore, unsubscribe };
 }

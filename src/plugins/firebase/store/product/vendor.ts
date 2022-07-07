@@ -28,7 +28,7 @@ export function scribeVendorProdById(vendorId: string) {
   );
   const prods = ref<VendorProd[]>([]);
   const subscribe = onSnapshot(
-    query(c, where("vendorId", "==", vendorId), orderBy("vendorProdName")),
+    query(c, where("vendorId", "==", vendorId), orderBy("createdAt", "desc")),
     (snapshot) => {
       prods.value = [];
       snapshot.forEach((d) => {

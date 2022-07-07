@@ -3,7 +3,12 @@ import type { MenuOption } from "naive-ui";
 import { BookOutline as BookIcon } from "@vicons/ionicons5";
 import { ProductHunt } from "@vicons/fa";
 import { Person as PersonIcon } from "@vicons/carbon";
-import { renderIcon, renderRoute } from "@/composables";
+import {
+  renderIcon,
+  renderRoute,
+  getScreenSize,
+  ScreenSize,
+} from "@/composables";
 
 const menuOptions: MenuOption[] = [
   {
@@ -51,7 +56,7 @@ const minHeight = "100vh";
 </script>
 <template>
   <n-space vertical>
-    <n-layout>
+    <n-layout v-if="getScreenSize() === ScreenSize.L">
       <n-layout has-sider :style="`min-height: ${minHeight}`">
         <io-sider
           :style="`min-height: ${minHeight};`"
@@ -67,6 +72,25 @@ const minHeight = "100vh";
         </n-space>
       </n-layout>
       <!-- <n-layout-footer bordered> Footer Footer Footer </n-layout-footer> -->
+    </n-layout>
+    <n-layout v-else :style="`height: ${minHeight}`">
+      <n-layout-header>
+        <n-menu
+          :collapsed-width="64"
+          :collapsed-icon-size="22"
+          :options="menuOptions"
+          mode="horizontal"
+        />
+      </n-layout-header>
+      <n-space
+        vertical
+        justify="space-between"
+        align="center"
+        style="padding: 2%; width: 100%"
+      >
+        <router-view />
+        <io-footer />
+      </n-space>
     </n-layout>
   </n-space>
 </template>

@@ -108,7 +108,7 @@ function onShowProdEdit(row: VendorProd | null) {
       :columns="columns"
       :data="orderProds"
       :pagination="{
-        pageSize: 5,
+        pageSize: 10,
       }"
       :bordered="false"
     />
