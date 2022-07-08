@@ -9,7 +9,6 @@ import {
 import {
   collectionGroup,
   doc,
-  getDoc,
   getDocs,
   onSnapshot,
   query,
@@ -51,6 +50,7 @@ export function getVendorGroupOrderInfo(p: VendorOrderParam) {
 export function getShopOrderInfo(p: ShopOrderParam) {
   const orders = ref<ShopReqOrder[]>([]);
   const constraints = [where("shopId", "==", p.shopId)];
+  console.log("getShopOrderInfo: ", p);
 
   if (p.inStates && p.inStates.length > 0) {
     constraints.push(where("orderState", "in", p.inStates));
@@ -99,19 +99,6 @@ export async function setOrderId(
   await setDoc(doc(ioc, orderId), { done });
 }
 
-export async function getOrderById(shopId: string, shopProdId: string) {
-  const shopReqRef = getIoCollection({
-    c: IoCollection.SHOP_REQ_ORDER,
-    uid: shopId,
-  });
-  const docRef = doc(shopReqRef, shopProdId).withConverter(
-    shopReqOrderConverter
-  );
-  const d = await getDoc(docRef);
-  const data = d.data();
-  return data ? ShopReqOrder.fromJson(data) : null;
-}
-
 export async function writeOrderBatch(shopId: string, orders: ShopReqOrder[]) {
   /// overwrite if shopProdID exist
   const db = getIoStore();
@@ -129,7 +116,7 @@ export async function writeOrderBatch(shopId: string, orders: ShopReqOrder[]) {
   for (let i = 0; i < orders.length; i++) {
     const order = orders[i];
     batch.set(doc(ioc, order.orderId), { done: false });
-    const exist = ods.find((x) => x.sameProd(order));
+    const exist = ods.find((x) => x.sameOrder(order));
     if (exist) {
       exist.orderCnt += order.orderCnt;
       exist.amount += order.amount;
@@ -139,7 +126,7 @@ export async function writeOrderBatch(shopId: string, orders: ShopReqOrder[]) {
   }
 
   ods.forEach((o) => {
-    batch.set(doc(shopReqRef, o.shopProdId), o);
+    batch.set(doc(shopReqRef, o.dbId), o);
   });
   await batch.commit();
 }

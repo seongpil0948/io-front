@@ -23,7 +23,13 @@ const orderAvailCnt = computed(() =>
   getOrderCnt(row.value.stockCnt!, row.value.orderCnt, pendingCnt.value)
 );
 
-function onUpdate(val: number) {
+function onUpdate(val: number | null) {
+  if (!val) return;
+  else if (val < 1) {
+    msg.warning("주문개수는 0이상이어야 합니다.");
+    val = row.value.orderCnt;
+    return;
+  }
   row.value.orderCnt = val;
   row.value.amount = (row.value.prodPrice ?? 0) * val;
 }
@@ -49,7 +55,6 @@ async function onSubmit() {
     @update:value="onUpdate"
     @blur.stop="onSubmit"
     @keyup.enter.stop="onSubmit"
-    :min="1"
   />
   <n-text style="color: inherit" @click="edit = true" v-else>
     <n-tooltip trigger="hover">

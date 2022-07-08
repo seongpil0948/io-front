@@ -16,8 +16,8 @@ export function useShopReadOrderInfo(p: ShopOrderParam) {
         (j) => j.shopProdId === order.shopProdId
       );
       if (exist) {
-        exist.orderCnt += order.orderCnt;
-        exist.amount += exist.prodPrice ?? 0;
+        exist.orderCnt! += order.orderCnt;
+        exist.amount! += exist.prodPrice ?? 0;
       } else {
         const prod = userProd.value.find(
           (p) => order.shopProdId === p.shopProdId

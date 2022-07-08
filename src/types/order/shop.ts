@@ -17,5 +17,13 @@ export interface ShopReqOrderCRT {
   amountPaid: number;
   orderState: ORDER_STATE;
   waitApprove: boolean;
+  dbId: string;
 }
-export type ShopReqOrderJoined = ShopReqOrderCRT & Partial<ShopUserProd>;
+export interface ShopReqOrderJoined extends ShopReqOrderCRT, ShopUserProd {}
+export interface ShopOrderCombined extends ShopReqOrderJoined {
+  cnt: number;
+  orderStates: ORDER_STATE[];
+  amounts: number[];
+  pendingCnts: number[];
+  unPaidAmounts: number[];
+}

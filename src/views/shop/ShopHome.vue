@@ -13,14 +13,20 @@ const currTab = ref<string>("reqOrderList");
         tab="주문 해야할 내역"
         name="reqOrderList"
       >
-        <shop-add-order-table :orderStates="[ORDER_STATE.BEFORE_ORDER]" />
+        <shop-add-order-table :inStates="[ORDER_STATE.BEFORE_ORDER]" />
       </n-tab-pane>
       <n-tab-pane
         display-directive="show:lazy"
         tab="주문 완료된 내역"
         name="afterOrderList"
       >
-        <shop-order-table :notStates="[ORDER_STATE.BEFORE_ORDER]" />
+        <shop-order-table
+          :inStates="[
+            ORDER_STATE.BEFORE_APPROVE,
+            ORDER_STATE.BEFORE_PAYMENT,
+            ORDER_STATE.PAYMENT_COMPLETE,
+          ]"
+        />
       </n-tab-pane>
       <n-tab-pane tab="실시간 픽업 현황" name="pickStatus"> gg </n-tab-pane>
       <n-tab-pane tab="통계" name="statistics"> gg </n-tab-pane>

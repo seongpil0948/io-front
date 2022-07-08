@@ -18,10 +18,12 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { CommonField } from "./common";
+import { v4 as uuidv4 } from "uuid";
 
 class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
   // Both Shop and Vendor can Modify This Information
   // But Mutual Consent is Required
+  dbId: string;
   orderId: string;
   vendorId: string;
   vendorProdId: string;
@@ -37,6 +39,7 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
 
   constructor(data: ShopReqOrderCRT) {
     super(data.createdAt, data.updatedAt);
+    this.dbId = data.dbId;
     this.orderId = data.orderId;
     this.vendorId = data.vendorId;
     this.vendorProdId = data.vendorProdId;
@@ -52,6 +55,7 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
   }
   static none() {
     return new ShopReqOrder({
+      dbId: "",
       orderId: "",
       vendorId: "",
       vendorProdId: "",
@@ -70,8 +74,12 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
     return this.amount - this.amountPaid;
   }
 
-  sameProd(p: ShopReqOrder) {
-    return this.shopProdId === p.shopProdId && this.shopId === p.shopId;
+  sameOrder(p: ShopReqOrder) {
+    return (
+      this.shopProdId === p.shopProdId &&
+      this.shopId === p.shopId &&
+      this.orderState === p.orderState
+    );
   }
 
   async update(fields?: (keyof ShopReqOrderCRT)[]) {
@@ -80,7 +88,7 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
       uid: this.shopId,
       orderId: this.orderId,
     });
-    const docRef = doc(shopReqRef, this.shopProdId).withConverter(
+    const docRef = doc(shopReqRef, this.dbId).withConverter(
       shopReqOrderConverter
     );
 
@@ -109,6 +117,7 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
   static fromProd(p: ShopUserProd, orderId: string) {
     const orderCnt = 1;
     return new ShopReqOrder({
+      dbId: uuidv4(),
       orderId: orderId,
       vendorId: p.vendorId,
       vendorProdId: p.vendorProdId,
@@ -128,6 +137,7 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
       ? new ShopReqOrder({
           createdAt: loadDate(data.createdAt ?? null),
           updatedAt: loadDate(data.updatedAt ?? null),
+          dbId: data.dbId,
           orderId: data.orderId,
           vendorId: data.vendorId,
           vendorProdId: data.vendorProdId,
@@ -159,5 +169,11 @@ const shopReqOrderConverter = {
     return ShopReqOrder.fromJson(data);
   },
 };
-
+export const orderAble = (
+  stockCnt: number,
+  orderCnt: number,
+  pendingCnt: number
+) => {
+  return stockCnt + pendingCnt >= orderCnt;
+};
 export { ShopReqOrder, shopReqOrderConverter };

@@ -38,7 +38,7 @@ async function toShop() {
 
 <template>
   <n-layout-footer
-    class="io-bacground"
+    class="io-background"
     bordered
     position="fixed"
     style="height: 64px; padding: 24px; border: none; font-size: smaller"

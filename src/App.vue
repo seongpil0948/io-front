@@ -11,7 +11,7 @@ log.debug("VUE APP INSTANCE: ", app);
 const themeOverrides: GlobalThemeOverrides = {
   common: {
     primaryColor: ioColors.primary,
-    primaryColorHover: ioColors.primary,
+    primaryColorHover: ioColors.white,
     primaryColorPressed: ioColors.primary,
     primaryColorSuppl: ioColors.primary,
     infoColor: ioColors.primary,
@@ -44,7 +44,9 @@ const themeOverrides: GlobalThemeOverrides = {
   Button: {
     color: ioColors.white,
     colorHover: ioColors.primary,
-    textColorHover: ioColors.white,
+    colorPressed: ioColors.primary,
+    colorHoverPrimary: ioColors.white,
+    colorPressedPrimary: ioColors.white,
     colorPrimary: ioColors.primary,
     colorTertiary: ioColors.white,
     textColor: ioColors.text,
@@ -128,7 +130,7 @@ const themeOverrides: GlobalThemeOverrides = {
 
 <style lang="scss">
 @import "./asset/variables.scss";
-.io-bacground {
+.io-background {
   background: $io-background;
 }
 
