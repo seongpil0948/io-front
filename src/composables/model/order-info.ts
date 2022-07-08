@@ -70,6 +70,10 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
     return this.amount - this.amountPaid;
   }
 
+  sameProd(p: ShopReqOrder) {
+    return this.shopProdId === p.shopProdId && this.shopId === p.shopId;
+  }
+
   async update(fields?: (keyof ShopReqOrderCRT)[]) {
     const shopReqRef = getIoCollection({
       c: IoCollection.SHOP_REQ_ORDER,

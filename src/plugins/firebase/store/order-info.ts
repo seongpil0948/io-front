@@ -4,6 +4,7 @@ import {
   getIoCollectionGroup,
   iostore,
   getIoCollection,
+  getIoStore,
 } from "@/plugins/firebase";
 import {
   collectionGroup,
@@ -14,6 +15,7 @@ import {
   query,
   setDoc,
   where,
+  writeBatch,
 } from "firebase/firestore";
 import { ref } from "vue";
 
@@ -108,4 +110,36 @@ export async function getOrderById(shopId: string, shopProdId: string) {
   const d = await getDoc(docRef);
   const data = d.data();
   return data ? ShopReqOrder.fromJson(data) : null;
+}
+
+export async function writeOrderBatch(shopId: string, orders: ShopReqOrder[]) {
+  /// overwrite if shopProdID exist
+  const db = getIoStore();
+  const batch = writeBatch(db);
+  const shopReqRef = getIoCollection({
+    c: IoCollection.SHOP_REQ_ORDER,
+    uid: shopId,
+  }).withConverter(shopReqOrderConverter);
+  const ioc = getIoCollection({
+    c: IoCollection.SHOP_REQ_ORDER_NUMBER,
+    uid: shopId,
+  });
+
+  const ods: typeof orders = [];
+  for (let i = 0; i < orders.length; i++) {
+    const order = orders[i];
+    batch.set(doc(ioc, order.orderId), { done: false });
+    const exist = ods.find((x) => x.sameProd(order));
+    if (exist) {
+      exist.orderCnt += order.orderCnt;
+      exist.amount += order.amount;
+    } else {
+      ods.push(order);
+    }
+  }
+
+  ods.forEach((o) => {
+    batch.set(doc(shopReqRef, o.shopProdId), o);
+  });
+  await batch.commit();
 }

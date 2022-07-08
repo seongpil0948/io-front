@@ -15,7 +15,7 @@ import {
   VendorProd,
   makeMsgOpt,
 } from "@/composables";
-import { GENDOR, PART, PROD_SIZE, USER_ROLE } from "@/types";
+import { GENDOR, PART, PROD_SIZE } from "@/types";
 import { useRouter } from "vue-router";
 import { useLogger } from "vue-logger-plugin";
 

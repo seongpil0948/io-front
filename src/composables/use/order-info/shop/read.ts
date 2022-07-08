@@ -1,18 +1,12 @@
 import { useShopUserProds } from "@/composables";
 import { getShopOrderInfo, getExistOrderIds } from "@/plugins/firebase";
-import { ORDER_STATE, ShopReqOrderJoined } from "@/types";
+import { ShopReqOrderJoined, ShopOrderParam } from "@/types";
 import { ref, watchEffect } from "vue";
 
-export function useShopReadOrderInfo(
-  shopId: string,
-  orderStates: ORDER_STATE[]
-) {
+export function useShopReadOrderInfo(p: ShopOrderParam) {
   const orderJoined = ref<ShopReqOrderJoined[]>([]);
-  const { userProd } = useShopUserProds(shopId, null);
-  const { unsubscribe, orders: orderInfo } = getShopOrderInfo({
-    shopId,
-    inStates: orderStates,
-  });
+  const { userProd } = useShopUserProds(p.shopId, null);
+  const { unsubscribe, orders: orderInfo } = getShopOrderInfo(p);
   const existOrderIds = ref<Set<string>>(new Set());
 
   watchEffect(async () => {
@@ -35,7 +29,7 @@ export function useShopReadOrderInfo(
         }
       }
     });
-    existOrderIds.value = await getExistOrderIds(shopId);
+    existOrderIds.value = await getExistOrderIds(p.shopId);
   });
   return {
     unsubscribe,

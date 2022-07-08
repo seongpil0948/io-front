@@ -1,4 +1,3 @@
-import { length } from "./../../../input/validators";
 import { makeMsgOpt } from "./../../../opt/msg";
 import {
   useShopUserProds,
@@ -87,9 +86,6 @@ export function useParseOrderInfo(
           reporter[orderId] = `상품명 매핑실패: ${row[idx.prodNameIdx]} `;
           return row; // continue
         } else if (existIds.has(orderId)) {
-          reporter[orderId] = `이미 저장된 주문번호: ${orderId},  ${
-            row[idx.prodNameIdx]
-          }`;
           return row;
         }
 
@@ -130,7 +126,8 @@ export function useParseOrderInfo(
       },
       { axis: 1 }
     );
-    Object.values(reporter).forEach((err) => {
+    const errors = Object.values(reporter);
+    errors.forEach((err) => {
       msg.error(err, makeMsgOpt({ duration: 20000 }));
       log.error(userId, err);
     });
@@ -139,7 +136,8 @@ export function useParseOrderInfo(
     log.debug("target DF", targetDf.shape, targetDf);
     log.debug("prod Mapper", prodMapper);
     log.debug("Parse Result: ", data);
-    return data;
+
+    return errors.length > 0 ? [] : data;
   }
 
   function getColMapper(df: DataFrame, ioColNames: MapKey[], mapper: Mapper) {
