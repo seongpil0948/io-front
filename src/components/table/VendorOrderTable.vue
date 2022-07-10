@@ -5,6 +5,7 @@ import {
   useTable,
   getScreenSize,
   ScreenSize,
+  orderStateKo,
 } from "@/composables";
 import { useAuthStore } from "@/stores/auth";
 import {
@@ -21,6 +22,7 @@ const user = auth.currUser;
 interface Props {
   inStates?: ORDER_STATE[];
   notStates?: ORDER_STATE[];
+  showState?: boolean;
 }
 const props = defineProps<Props>();
 const { inStates, notStates } = toRefs(props);
@@ -52,6 +54,13 @@ const { columns, rendorTableBtn } = useTable<VendorUserOrderProd>({
   keyField: "vendorProdId",
 });
 watchEffect(() => {
+  if (props.showState && !columns.value.some((x) => x.key === "state")) {
+    columns.value.splice(2, 0, {
+      key: "state",
+      title: () => "주문상태",
+      render: (row) => orderStateKo(row.orderState),
+    });
+  }
   if (
     inStates &&
     inStates.value &&

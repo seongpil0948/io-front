@@ -28,6 +28,7 @@ export function orderStateKo(state: ORDER_STATE): string {
     case ORDER_STATE.SHIPPING:
       return "배송중";
     default:
-      throw `ORDER_STATE Enum memeber ${state} is not exist`;
+      console.error(`ORDER_STATE Enum memeber ${state} is not exist`);
+      return state;
   }
 }

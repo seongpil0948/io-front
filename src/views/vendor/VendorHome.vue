@@ -2,6 +2,10 @@
 import { ORDER_STATE } from "@/types";
 import { ref } from "vue";
 
+// 유저에게 계좌 필드 (이름, 은행, 계좌번호 ) 추가, 인터페이스 구현
+// 주문상태 한국어 표시 필요
+// 쇼핑몰에게 계좌공개 필요
+// 입금확인시 도매처측 입금확인 -> BEFORE_SHIP
 const currTab = ref<string>("beforeApproveList");
 </script>
 <template>
@@ -22,6 +26,7 @@ const currTab = ref<string>("beforeApproveList");
           name="afterApproveList"
         >
           <vendor-order-table
+            showState
             :notStates="[ORDER_STATE.BEFORE_APPROVE, ORDER_STATE.BEFORE_ORDER]"
           />
         </n-tab-pane>

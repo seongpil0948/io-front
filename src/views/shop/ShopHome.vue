@@ -29,7 +29,7 @@ function onClickOrder() {
           :inStates="[
             ORDER_STATE.BEFORE_APPROVE,
             ORDER_STATE.BEFORE_PAYMENT,
-            ORDER_STATE.PAYMENT_COMPLETE,
+            ORDER_STATE.BEFORE_SHIP,
           ]"
           @clickOrder="onClickOrder"
         />
