@@ -124,6 +124,14 @@ export const routes: Array<RouteRecordRaw> = [
           allowRoles: [USER_ROLE.SHOP],
         },
       },
+      {
+        path: "/ordercomplete",
+        name: "OrderComplete",
+        component: () => import("@/views/shop/page/OrderComplete.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP],
+        },
+      },
     ],
   },
   {

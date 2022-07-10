@@ -1,4 +1,9 @@
-import { vendorProdConverter, VendorProd } from "@/composables";
+import {
+  vendorProdConverter,
+  VendorProd,
+  shopProdConverter,
+  ShopProd,
+} from "@/composables";
 import { IoCollection } from "@/types";
 import {
   doc,

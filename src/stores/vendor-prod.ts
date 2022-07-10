@@ -81,3 +81,5 @@ export const useVendorsStore = defineStore({
     },
   },
 });
+
+// csp#4466

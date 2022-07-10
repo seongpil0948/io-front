@@ -14,7 +14,16 @@ const currTab = ref<string>("beforeApproveList");
           tab="거래처 주문 요청"
           name="beforeApproveList"
         >
-          <vendor-order-table :orderStates="[ORDER_STATE.BEFORE_APPROVE]" />
+          <vendor-order-table :inStates="[ORDER_STATE.BEFORE_APPROVE]" />
+        </n-tab-pane>
+        <n-tab-pane
+          display-directive="show:lazy"
+          tab="승인 완료된 주문"
+          name="afterApproveList"
+        >
+          <vendor-order-table
+            :notStates="[ORDER_STATE.BEFORE_APPROVE, ORDER_STATE.BEFORE_ORDER]"
+          />
         </n-tab-pane>
       </n-tabs>
     </n-card>

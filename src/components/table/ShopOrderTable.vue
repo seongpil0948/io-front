@@ -10,6 +10,10 @@ interface Props {
   notStates?: ORDER_STATE[];
 }
 const props = defineProps<Props>();
+const emits = defineEmits<{
+  (e: "clickOrder", value: typeof orderJoined.value): void;
+}>();
+
 const user = useAuthStore().currUser;
 const { orderJoined } = useShopReadOrderInfo({
   shopId: user.userInfo.userId,
@@ -30,6 +34,7 @@ const vendorCombined = computed(() => {
       exist.amounts.push(o.amount);
       exist.pendingCnts.push(o.pendingCnt);
       exist.unPaidAmounts.push(o.amountPaid);
+      exist.vendorProdIds.push(o.vendorProdId);
     } else {
       result.push(
         Object.assign(
@@ -39,6 +44,7 @@ const vendorCombined = computed(() => {
             amounts: [o.amount],
             pendingCnts: [o.pendingCnt],
             unPaidAmounts: [o.unPaidAmount!],
+            vendorProdIds: [o.vendorProdId],
           },
           o
         )
@@ -70,9 +76,11 @@ const refinedCols = computed(() => {
       h(
         NButton,
         {
-          onClick: function () {
-            console.log("on click");
-          },
+          onClick: () =>
+            emits(
+              "clickOrder",
+              orderJoined.value.filter((o) => o.vendorId === row.vendorId)
+            ),
         },
         { default: () => `${row.cnt} 건 ∇` }
       ),

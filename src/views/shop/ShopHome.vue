@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { ORDER_STATE } from "@/types";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const currTab = ref<string>("reqOrderList");
+const router = useRouter();
+function onClickOrder() {
+  router.push({ name: "OrderComplete" });
+}
 </script>
 <template>
   <n-card>
@@ -26,6 +31,7 @@ const currTab = ref<string>("reqOrderList");
             ORDER_STATE.BEFORE_PAYMENT,
             ORDER_STATE.PAYMENT_COMPLETE,
           ]"
+          @clickOrder="onClickOrder"
         />
       </n-tab-pane>
       <n-tab-pane tab="실시간 픽업 현황" name="pickStatus"> gg </n-tab-pane>

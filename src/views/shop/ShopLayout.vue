@@ -34,8 +34,12 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(ShoppingCart),
     children: [
       {
-        label: () => renderRoute("주문해야할 리스트", "OrderRequire"),
+        label: () => renderRoute("주문요청내역", "OrderRequire"),
         key: "OrderRequire",
+      },
+      {
+        label: () => renderRoute("주문완료내역", "OrderComplete"),
+        key: "OrderComplete",
       },
     ],
   },

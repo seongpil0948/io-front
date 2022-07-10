@@ -94,7 +94,6 @@ async function order(row: ShopReqOrderJoined) {
     }
 
     await data.update();
-    msg.success("주문 요청에 성공하셨습니다.", makeMsgOpt());
   }
 }
 async function orderChecked() {
@@ -104,7 +103,17 @@ async function orderChecked() {
   for (let i = 0; i < targets.length; i++) {
     const target = targets[i];
     await order(target);
+    msg.success("주문 요청에 성공하셨습니다.", makeMsgOpt());
   }
+}
+async function orderAll() {
+  const orders = [];
+  for (let i = 0; i < orderJoined.value.length; i++) {
+    orders.push(order(orderJoined.value[i]));
+  }
+  Promise.all(orders).then(() => {
+    msg.success("주문 요청에 성공하셨습니다.", makeMsgOpt());
+  });
 }
 function rowClassName(row: ShopReqOrderJoined) {
   const pendingCnt = row.allowPending
@@ -146,18 +155,24 @@ function downXlsx() {
     :listenClick="false"
     v-model:fileModel="fileModel"
   >
-    <template #header-extra>
-      <n-button size="small" type="primary" @click="orderChecked"
-        >선택상품 주문</n-button
-      ></template
-    >
     <template #header>
       <n-space justify="start">
-        <n-button size="small" type="primary" @click="downXlsx"
-          >주문취합 엑셀양식 다운</n-button
-        >
-      </n-space></template
-    >
+        <n-button size="small" type="primary" @click="downXlsx">
+          주문취합 엑셀양식 다운
+        </n-button>
+      </n-space>
+    </template>
+    <template #header-extra>
+      <n-space justify="start">
+        <n-button size="small" type="primary" @click="orderChecked">
+          선택상품 주문
+        </n-button>
+        <n-button size="small" type="primary" @click="orderAll">
+          전체상품 주문
+        </n-button>
+      </n-space>
+    </template>
+
     <n-data-table
       v-if="orderJoined && orderJoined.length > 0"
       :table-layout="'fixed'"

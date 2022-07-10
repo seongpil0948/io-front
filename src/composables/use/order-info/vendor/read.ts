@@ -1,46 +1,53 @@
-import { ShopReqOrder } from "@/composables/model";
+import { useShopStore } from "@/stores/shops";
+import { logger } from "@/plugins/logger";
 import {
   getVendorGroupOrderInfo,
   scribeVendorProdById,
 } from "@/plugins/firebase";
-import { ORDER_STATE, VendorUserOrderProd } from "@/types";
-import { computed } from "vue";
+import { VendorOrderParam, VendorUserOrderProd } from "@/types";
+import { computed, watchEffect, ref } from "vue";
 
-export function useReadVendorOrderInfo(
-  vendorId: string,
-  orderStates: ORDER_STATE[],
-  orderExist = true
-) {
-  const { prods } = scribeVendorProdById(vendorId);
-  const { orders } = getVendorGroupOrderInfo({
-    vendorId,
-    inStates: orderStates,
-  });
-  const orderProds = computed<VendorUserOrderProd[]>(() => {
-    const ps: VendorUserOrderProd[] = [];
-    prods.value.forEach((p) => {
-      const ords = orders.value.filter(
-        (o) => o.vendorProdId === p.vendorProdId
-      );
-      if (ords.length > 0) {
-        const order = ords.reduce((acc, curr, idx) => {
-          if (idx === 0) {
-            acc = curr;
-          } else {
-            acc.amount += curr.amount;
-            acc.pendingCnt += curr.pendingCnt;
-            acc.orderCnt += curr.orderCnt;
-          }
-          return acc;
-        }, {} as VendorUserOrderProd);
-        ps.push(Object.assign({ unPaidAmount: order.unPaidAmount }, p, order));
-      } else {
-        ps.push(Object.assign({ unPaidAmount: 0 }, ShopReqOrder.none(), p));
+export function useReadVendorOrderInfo(p: VendorOrderParam) {
+  const { prods } = scribeVendorProdById(p.vendorId);
+  const { orders } = getVendorGroupOrderInfo(p);
+  const shopStore = useShopStore();
+  const ordProds = ref<VendorUserOrderProd[]>([]);
+
+  watchEffect(async () => {
+    ordProds.value = [];
+    for (let i = 0; i < orders.value.length; i++) {
+      const ord = orders.value[i];
+      const shopUser = await shopStore.getShop(ord.shopId);
+      if (!shopUser) {
+        logger.error(null, "There is no shopUser for order: ", ord.orderId);
+        continue;
       }
-    });
-    // return ps;
-    return orderExist ? ps.filter((x) => x.orderCnt > 0) : ps;
+      const prod = prods.value.find((y) => y.vendorProdId === ord.vendorProdId);
+      if (!prod) {
+        logger.error(null, "There is no product for order: ", ord.orderId);
+        continue;
+      }
+      const exist = ordProds.value.find(
+        (z) => z.shopId === ord.shopId && z.vendorProdId === ord.vendorProdId
+      );
+      if (exist) {
+        exist.amount += ord.amount;
+        exist.pendingCnt += ord.pendingCnt;
+        exist.orderCnt += ord.orderCnt;
+      } else {
+        ordProds.value.push(
+          Object.assign(
+            { shopUser, unPaidAmount: 0, userName: shopUser.userInfo.userName },
+            prod,
+            ord
+          )
+        );
+      }
+    }
   });
+  const orderProds = computed<VendorUserOrderProd[]>(() =>
+    p.orderExist ? ordProds.value.filter((x) => x.orderCnt > 0) : ordProds.value
+  );
 
   return { prods, orders, orderProds };
 }

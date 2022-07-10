@@ -7,21 +7,29 @@ import {
   ScreenSize,
 } from "@/composables";
 import { useAuthStore } from "@/stores/auth";
-import { IoColOpt, ORDER_STATE, VendorUserProd } from "@/types";
+import {
+  IoColOpt,
+  ORDER_STATE,
+  VendorUserOrderProd,
+  VendorUserProd,
+} from "@/types";
 import { toRefs, watchEffect } from "vue";
 
 const auth = useAuthStore();
 const user = auth.currUser;
 
 interface Props {
-  orderStates: ORDER_STATE[];
+  inStates?: ORDER_STATE[];
+  notStates?: ORDER_STATE[];
 }
 const props = defineProps<Props>();
-const { orderStates } = toRefs(props);
-const { orderProds } = useReadVendorOrderInfo(
-  user.userInfo.userId,
-  orderStates.value
-);
+const { inStates, notStates } = toRefs(props);
+const { orderProds } = useReadVendorOrderInfo({
+  vendorId: user.userInfo.userId,
+  inStates: inStates?.value,
+  notStates: notStates?.value,
+  orderExist: false,
+});
 
 const cols = [
   "userName",
@@ -37,33 +45,44 @@ const cols = [
 ].map((c) => {
   return { key: c } as IoColOpt;
 });
-const { columns, rendorTableBtn } = useTable<VendorUserProd>({
+const { columns, rendorTableBtn } = useTable<VendorUserOrderProd>({
   userId: user.userInfo.userId,
   colKeys: cols,
   useChecker: true,
   keyField: "vendorProdId",
 });
 watchEffect(() => {
-  columns.value.push({
-    key: "oooorder",
-
-    title: () => rendorTableBtn(() => null, "선택주문 거부"),
-    render: (row) =>
-      rendorTableBtn(async () => {
-        const order = ShopReqOrder.fromJson(row);
-        if (!order) return;
-        else if (order.orderState === ORDER_STATE.BEFORE_APPROVE) {
-          order.orderState = ORDER_STATE.BEFORE_PAYMENT;
-          await order.update();
-        }
-      }, "승인 완료"),
-  });
+  if (
+    inStates &&
+    inStates.value &&
+    inStates.value.includes(ORDER_STATE.BEFORE_APPROVE) &&
+    !columns.value.some((x) => x.key === "oooorder")
+  ) {
+    columns.value.push({
+      key: "oooorder",
+      title: () => rendorTableBtn(() => null, "선택주문 거부"),
+      render: (row) =>
+        row.orderState === ORDER_STATE.BEFORE_APPROVE
+          ? rendorTableBtn(async () => {
+              const order = ShopReqOrder.fromJson(row);
+              if (!order) return;
+              else if (order.orderState === ORDER_STATE.BEFORE_APPROVE) {
+                order.orderState = ORDER_STATE.BEFORE_PAYMENT;
+                await order.update();
+              }
+            }, "주문승인")
+          : rendorTableBtn(() => {
+              console.log("dd");
+            }, "-"),
+    });
+  }
 });
+// FIXME: 샵 오더인포로 해야 소매 이름을 가져올수 있나?
 </script>
 <template>
   <n-data-table
     :table-layout="getScreenSize() === ScreenSize.L ? 'fixed' : 'auto'"
-    :scroll-x="1800"
+    :scroll-x="1200"
     :columns="columns"
     :data="orderProds"
     :pagination="{

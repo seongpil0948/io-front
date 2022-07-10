@@ -1,5 +1,5 @@
-import type { ShopReqOrder } from "@/composables";
-import type { PART } from ".";
+import type { IoUser, ShopReqOrder } from "@/composables";
+import type { PART, ShopProdCRT } from ".";
 import type { IoUserCRT } from "../user";
 import type { GENDOR } from "./part";
 import type { PROD_SIZE } from "./size";
@@ -39,7 +39,9 @@ interface VendorProdCombined
 interface VendorUserProd extends IoUserCRT, VendorProdCRT {}
 interface VendorUserProdCombined extends IoUserCRT, VendorProdCombined {}
 interface VendorOrderProd extends VendorProdCRT, ShopReqOrder {}
-interface VendorUserOrderProd extends VendorProdCRT, ShopReqOrder {}
+interface VendorUserOrderProd extends VendorProdCRT, ShopReqOrder {
+  shopUser: IoUser;
+}
 
 export type {
   VendorProdCRT,

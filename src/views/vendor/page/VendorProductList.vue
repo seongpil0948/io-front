@@ -15,11 +15,12 @@ import { useLogger } from "vue-logger-plugin";
 const log = useLogger();
 const auth = useAuthStore();
 const msg = useMessage();
-const { orderProds } = useReadVendorOrderInfo(
-  auth.currUser.userInfo.userId,
-  [],
-  false
-);
+const { orderProds } = useReadVendorOrderInfo({
+  vendorId: auth.currUser.userInfo.userId,
+  orderExist: false,
+  inStates: [],
+  notStates: [],
+});
 const { columns } = useTable<VendorOrderProd>({
   userId: auth.currUser.userInfo.userId,
   colKeys: [

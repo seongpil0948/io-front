@@ -26,4 +26,5 @@ export interface ShopOrderCombined extends ShopReqOrderJoined {
   amounts: number[];
   pendingCnts: number[];
   unPaidAmounts: number[];
+  vendorProdIds: string[];
 }

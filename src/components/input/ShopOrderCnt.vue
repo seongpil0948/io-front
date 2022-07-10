@@ -5,7 +5,7 @@ import {
   makeMsgOpt,
   ShopReqOrder,
 } from "@/composables";
-import { ShopReqOrderJoined } from "@/types";
+import { ORDER_STATE, ShopReqOrderJoined } from "@/types";
 import { useMessage } from "naive-ui";
 import { toRefs, computed, ref } from "vue";
 const props = defineProps<{
@@ -47,6 +47,12 @@ async function onSubmit() {
   }
   edit.value = false;
 }
+
+function setEditMode() {
+  if (row.value.orderState === ORDER_STATE.BEFORE_ORDER) {
+    edit.value = true;
+  }
+}
 </script>
 <template>
   <n-input-number
@@ -56,7 +62,7 @@ async function onSubmit() {
     @blur.stop="onSubmit"
     @keyup.enter.stop="onSubmit"
   />
-  <n-text style="color: inherit" @click="edit = true" v-else>
+  <n-text v-else style="color: inherit" @click="setEditMode">
     <n-tooltip trigger="hover">
       <template #trigger> {{ orderAvailCnt }} / {{ pendingCnt }} </template>
       주문시도 개수: {{ row.orderCnt }}, 재고 개수: {{ row.stockCnt }}
