@@ -115,7 +115,7 @@ export async function writeOrderBatch(shopId: string, orders: ShopReqOrder[]) {
   const ods: typeof orders = [];
   for (let i = 0; i < orders.length; i++) {
     const order = orders[i];
-    batch.set(doc(ioc, order.orderId), { done: false });
+    batch.set(doc(ioc, order.orderId.toString()), { done: false });
     const exist = ods.find((x) => x.sameOrder(order));
     if (exist) {
       exist.orderCnt += order.orderCnt;

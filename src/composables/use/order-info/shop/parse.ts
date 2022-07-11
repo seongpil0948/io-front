@@ -108,11 +108,18 @@ export function useParseOrderInfo(
           }
         }
         if (!synoColor || !synoSize) {
-          reporter[orderId] = `${
-            prodMapper[matchedNameSynoId!].ioProdName
-          } 상품의 매핑에 실패 하였습니다. 컬러 매핑실패정보,${
-            row[idx.colorIdx]
-          } 사이즈 매핑실패정보: ${row[idx.sizeIdx]}`;
+          console.log("prodMapper: ", prodMapper);
+          console.log("matchedNameSynoId: ", matchedNameSynoId);
+          console.log("synoColor: ", synoColor);
+          console.log("synoSize: ", synoSize);
+          let msg = `${row[idx.prodNameIdx]} 상품의 매핑에 실패 하였습니다.`;
+          if (!synoColor) {
+            msg += ` 컬러 매핑실패정보,${row[idx.colorIdx]} `;
+          }
+          if (!synoSize) {
+            msg += ` 사이즈 매핑실패정보: ${row[idx.sizeIdx]} `;
+          }
+          reporter[orderId] = msg;
           return row;
         }
         delete reporter[orderId];
