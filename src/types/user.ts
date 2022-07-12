@@ -63,10 +63,16 @@ interface CompanyInfo {
   managerName: string;
   managerPhone: string;
 }
+export interface AccountInfo {
+  account: string;
+  name: string;
+  bankName: string;
+}
 interface IoUserCRT {
   userInfo: IoUserInfo;
   copanyInfo?: CompanyInfo;
   operInfo?: ShopOperInfo | VendorOperInfo;
+  account?: AccountInfo;
 }
 
 export {

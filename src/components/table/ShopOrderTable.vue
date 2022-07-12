@@ -2,7 +2,7 @@
 import { useShopReadOrderInfo, useTable } from "@/composables";
 import { useAuthStore } from "@/stores";
 import { ORDER_STATE, IoColOpt, ShopOrderCombined } from "@/types";
-import { NButton, NText } from "naive-ui";
+import { NButton, NPopover, NText, useMessage } from "naive-ui";
 import { computed, h, watchEffect } from "vue";
 
 interface Props {
@@ -13,7 +13,7 @@ const props = defineProps<Props>();
 const emits = defineEmits<{
   (e: "clickOrder", value: typeof orderJoined.value): void;
 }>();
-
+const msg = useMessage();
 const user = useAuthStore().currUser;
 const { orderJoined } = useShopReadOrderInfo({
   shopId: user.userInfo.userId,
@@ -58,7 +58,7 @@ const cols = ["userName", "amount"].map((c) => {
   return { key: c } as IoColOpt;
 });
 const keyField = "vendorId";
-const { columns, checkedKeys } = useTable<ShopOrderCombined>({
+const { columns, checkedKeys, rendorTableBtn } = useTable<ShopOrderCombined>({
   userId: user.userInfo.userId,
   colKeys: cols,
   useChecker: true,
@@ -83,16 +83,6 @@ const refinedCols = computed(() => {
             ),
         },
         { default: () => `${row.cnt} 건 ∇` }
-      ),
-  };
-  const paidCol: typeof columns.value[0] = {
-    key: "amountTotal",
-    title: "결제금액",
-    render: (row) =>
-      h(
-        NText,
-        {},
-        { default: () => row.amounts.reduce((prev, acc) => prev + acc, 0) }
       ),
   };
   const stateCol: typeof columns.value[0] = {
@@ -134,36 +124,48 @@ const refinedCols = computed(() => {
         }
       ),
   };
-  return [
-    ...columns.value,
-    orderedCol,
-    paidCol,
-    stateCol,
-    isPaidCol,
-    pendingCol,
-  ];
+  const accountCol: typeof columns.value[0] = {
+    key: "accountInfo",
+    title: "계좌확인",
+    render: (row) =>
+      h(
+        NPopover,
+        {
+          placement: "bottom",
+        },
+        {
+          trigger: () =>
+            rendorTableBtn(() => {
+              if (row.account) {
+                navigator.clipboard.writeText(
+                  row.account.bankName + " " + row.account.account
+                );
+                msg.info("계좌정보가 클립보드에 복사 되었습니다.");
+              }
+            }, row.account?.bankName ?? ""),
+          default: () => `${row.account?.account}  ${row.account?.name}`,
+        }
+      ),
+  };
+  const cols = [...columns.value];
+  const keys = columns.value.map((x) => x.key);
+  if (!keys.includes(orderedCol.key)) {
+    cols.push(orderedCol);
+  }
+  if (!keys.includes(stateCol.key)) {
+    cols.push(stateCol);
+  }
+  if (!keys.includes(isPaidCol.key)) {
+    cols.push(isPaidCol);
+  }
+  if (!keys.includes(pendingCol.key)) {
+    cols.push(pendingCol);
+  }
+  if (!keys.includes(accountCol.key)) {
+    cols.push(accountCol);
+  }
+  return cols;
 });
-watchEffect(
-  () => {
-    // columns.value.forEach((x) => {
-    //   if (x.key === "orderCnt") {
-    //     x.render = (row: ShopOrderCombined) => h(ShopOrderCnt, { row });
-    //   } else if (x.key === "amount") {
-    //     x.render = (row: ShopOrderCombined) => row.amount!.toLocaleString();
-    //   } else if (x.key === "allowPending") {
-    //     x.render = (row: ShopOrderCombined) =>
-    //       h(
-    //         NGradientText,
-    //         {
-    //           type: row.allowPending ? "info" : "error",
-    //         },
-    //         { default: () => (row.allowPending ? "가능" : "불가능") }
-    //       );
-    //   }
-    // });
-  },
-  { flush: "pre" }
-);
 </script>
 
 <template>

@@ -25,11 +25,15 @@ onBeforeMount(() => {
   }
 });
 async function toVendor() {
-  await auth.login(IoUser.fromJson(vendors[0])!);
+  const u = IoUser.fromJson(vendors[0])!;
+  // await u.update();
+  await auth.login(u);
   router.goHome(auth.user!);
 }
 async function toShop() {
-  auth.login(IoUser.fromJson(shops[0])!);
+  const u = IoUser.fromJson(shops[0])!;
+  // await u.update();
+  auth.login(u);
   router.goHome(auth.user!);
 }
 

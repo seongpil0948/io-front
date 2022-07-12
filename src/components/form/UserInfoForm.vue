@@ -1,6 +1,12 @@
 <script setup lang="ts">
-import { emailRule, nameLenRule, IoUser } from "@/composables";
-import { IoUserInfo, LocateCRT, USER_PROVIDER, USER_ROLE } from "@/types";
+import { emailRule, nameLenRule, IoUser, strLenRule } from "@/composables";
+import {
+  AccountInfo,
+  IoUserInfo,
+  LocateCRT,
+  USER_PROVIDER,
+  USER_ROLE,
+} from "@/types";
 import { getAuth } from "@firebase/auth";
 import { FormInst } from "naive-ui";
 import { reactive, ref } from "vue";
@@ -16,13 +22,19 @@ const props = defineProps<{
 defineExpose({ getUserInfo });
 const formRef = ref<FormInst | null>(null);
 const formModel = reactive({
-  userName: props.userName,
+  userName: props.userName ?? "",
   displayName: "",
-  email: props.email,
+  email: props.email ?? "",
   role: USER_ROLE.SHOP,
   locations: [] as LocateCRT[],
+  account: "",
+  name: "",
+  bankName: "",
 });
-async function getUserInfo(): Promise<IoUserInfo> {
+async function getUserInfo(): Promise<{
+  userInfo: IoUserInfo;
+  account: AccountInfo;
+}> {
   const token = await IoUser.getFcmToken();
   const obj: IoUserInfo = Object.assign(
     {},
@@ -36,13 +48,17 @@ async function getUserInfo(): Promise<IoUserInfo> {
     },
     formModel
   );
-  return obj;
+  const acc: AccountInfo = formModel;
+  return { userInfo: obj, account: acc };
 }
 
 const rule = {
   userName: nameLenRule,
   displayName: nameLenRule,
   email: emailRule,
+  account: strLenRule(10),
+  name: strLenRule(2),
+  bankName: strLenRule(2),
 };
 </script>
 
@@ -85,6 +101,25 @@ const rule = {
             <n-radio :value="USER_ROLE.UNCLE"> 사입삼춘 </n-radio>
           </n-space>
         </n-radio-group>
+      </n-form-item-gi>
+
+      <n-form-item-gi label="거래은행(ex 신한)" path="bankName">
+        <n-input
+          v-model:value="formModel.bankName"
+          placeholder="IBK, 농협, ..."
+        />
+      </n-form-item-gi>
+      <n-form-item-gi label="계좌 명의" path="name">
+        <n-input
+          v-model:value="formModel.name"
+          placeholder="송금시 확인 가능한 이름"
+        />
+      </n-form-item-gi>
+      <n-form-item-gi label="계좌번호" path="account">
+        <n-input
+          v-model:value="formModel.account"
+          placeholder="계좌번호 입력"
+        />
       </n-form-item-gi>
     </n-grid>
   </n-form>

@@ -14,6 +14,14 @@ export const nameLenRule = {
   trigger: ["blur", "input"],
   message: "이름을 입력 해주세요.",
 };
+export const strLenRule = (len: number) => {
+  return {
+    validator: (rule: FormRules, value: string) => lenValidator(value, len),
+    required: true,
+    trigger: ["blur", "input"],
+    message: "이름을 입력 해주세요.",
+  };
+};
 export const pwRule = {
   validator: (rule: FormRules, value: string) => pwValidator(value),
   required: true,

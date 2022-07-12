@@ -58,6 +58,7 @@ const { columns, mapper, checkedKeys } = useTable<ShopReqOrderJoined>({
 watchEffect(() => {
   columns.value.forEach((x) => {
     if (x.key === "orderCnt") {
+      x.title = "주문/미송";
       x.render = (row: ShopReqOrderJoined) => h(ShopOrderCnt, { row });
     } else if (x.key === "amount") {
       x.render = (row: ShopReqOrderJoined) => row.amount!.toLocaleString();

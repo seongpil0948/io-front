@@ -4,7 +4,7 @@ import {
   LoggerHook,
   // StringifyObjectsHook,
 } from "vue-logger-plugin";
-import _axios from "@/plugins/axios";
+// import _axios from "@/plugins/axios";
 import { IoLog } from "@/composables";
 
 const ServerLogHook: LoggerHook = {

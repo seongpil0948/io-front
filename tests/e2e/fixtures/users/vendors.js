@@ -73,6 +73,11 @@ export default [
       autoOrderApprove: false,
       expectNumProdMonthly: "100~500",
     },
+    account: {
+      account: "3520289183853",
+      name: "최성필",
+      bankName: "신한",
+    },
   },
   {
     userInfo: {
@@ -147,6 +152,11 @@ export default [
       saleManageType: "수기",
       autoOrderApprove: false,
       expectNumProdMonthly: "100~500",
+    },
+    account: {
+      account: "3520289183853",
+      name: "최성필",
+      bankName: "신한",
     },
   },
 ];

@@ -71,5 +71,15 @@ export default [
       saleAverage: "300~1,000",
       purchaseMethod: "엉클",
     },
+    account: {
+      userName: "뭉멍소매",
+      displayName: "뭉멍이",
+      email: "seongpil0948@gmail.com",
+      role: "SHOP",
+      locations: [],
+      account: "3520289183853",
+      name: "최성필",
+      bankName: "농협",
+    },
   },
 ];

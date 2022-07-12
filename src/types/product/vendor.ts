@@ -1,5 +1,5 @@
 import type { IoUser, ShopReqOrder } from "@/composables";
-import type { PART, ShopProdCRT } from ".";
+import type { PART } from ".";
 import type { IoUserCRT } from "../user";
 import type { GENDOR } from "./part";
 import type { PROD_SIZE } from "./size";

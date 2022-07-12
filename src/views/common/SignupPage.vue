@@ -24,14 +24,14 @@ import { useLogger } from "vue-logger-plugin";
 const log = useLogger();
 const inst = getCurrentInstance();
 const router = useRouter();
-if (!router.currentRoute.value.params.userId) {
-  log.error(
-    null,
-    "User ID not Received In SignUp Page(Landing)",
-    router.currentRoute.value.params
-  );
-  router.replace({ name: "Login" });
-}
+// if (!router.currentRoute.value.params.userId) {
+//   log.error(
+//     null,
+//     "User ID not Received In SignUp Page(Landing)",
+//     router.currentRoute.value.params
+//   );
+//   router.replace({ name: "Login" });
+// }
 
 const msg = useMessage();
 const { play, stop } = useFireWork();
@@ -60,7 +60,8 @@ async function onStep4() {
     if (errors) {
       msg.error("매장정보를 올바르게 입력해주세요", makeMsgOpt());
     } else {
-      user.value = new IoUser({ userInfo: await userInfoForm.getUserInfo() });
+      const { userInfo, account } = await userInfoForm.getUserInfo();
+      user.value = new IoUser({ userInfo, account });
       step.value = 4;
     }
     log.debug("userInfo", user.value);

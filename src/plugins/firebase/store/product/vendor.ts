@@ -1,9 +1,4 @@
-import {
-  vendorProdConverter,
-  VendorProd,
-  shopProdConverter,
-  ShopProd,
-} from "@/composables";
+import { vendorProdConverter, VendorProd } from "@/composables";
 import { IoCollection } from "@/types";
 import {
   doc,
@@ -14,9 +9,10 @@ import {
   query,
   QueryConstraint,
   where,
+  writeBatch,
 } from "firebase/firestore";
 import { ref } from "vue";
-import { getIoCollection } from "..";
+import { getIoCollection, getIoStore } from "..";
 
 export async function getVendorProdById(vendorProdId: string) {
   const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
@@ -67,4 +63,16 @@ export async function getVendorProd(vendorId: string | null) {
     }
   });
   return prods;
+}
+
+export async function vendorProdsModify(prods: VendorProd[]) {
+  const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
+    vendorProdConverter
+  );
+  const batch = writeBatch(getIoStore());
+  for (let i = 0; i < prods.length; i++) {
+    const prod = prods[i];
+    batch.update(doc(c, prod.vendorProdId), prod.toJson());
+  }
+  await batch.commit();
 }

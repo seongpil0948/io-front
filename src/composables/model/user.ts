@@ -14,6 +14,7 @@ import {
   ShopOperInfo,
   VendorOperInfo,
   USER_PROVIDER,
+  AccountInfo,
 } from "@/types";
 import { getMessaging, getToken } from "@firebase/messaging";
 import type { UserCredential } from "firebase/auth";
@@ -29,6 +30,7 @@ class IoUser extends CommonField implements IoUserCRT {
   userInfo: IoUserInfo;
   copanyInfo?: CompanyInfo;
   operInfo?: ShopOperInfo | VendorOperInfo;
+  account?: AccountInfo;
 
   get name() {
     return this.userInfo.displayName ?? this.userInfo.userName;
@@ -46,6 +48,7 @@ class IoUser extends CommonField implements IoUserCRT {
     this.userInfo = c.userInfo;
     this.copanyInfo = c.copanyInfo;
     this.operInfo = c.operInfo;
+    this.account = c.account;
   }
   async update() {
     const authS = useAuthStore();
@@ -96,6 +99,7 @@ class IoUser extends CommonField implements IoUserCRT {
           userInfo,
           copanyInfo: data.copanyInfo,
           operInfo: data.operInfo,
+          account: data.account,
         })
       : null;
   }
