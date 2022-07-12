@@ -25,11 +25,11 @@ const { columns } = useTable<VendorOrderProd>({
   userId: auth.currUser.userInfo.userId,
   colKeys: [
     "vendorProdName",
-    "vendorPrice",
-    "amount",
     "size",
     "color",
     "stockCnt",
+    "vendorPrice",
+    "amount",
     "amount",
     "pendingCnt",
   ].map((x) => {

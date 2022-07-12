@@ -6,15 +6,18 @@ import {
   ScreenSize,
   orderStateKo,
   VendorProd,
+  makeMsgOpt,
 } from "@/composables";
 import { updateOrderBatch, vendorProdsModify } from "@/plugins/firebase";
 import { useAuthStore } from "@/stores/auth";
 import { IoColOpt, ORDER_STATE, VendorUserOrderProd } from "@/types";
+import { useMessage } from "naive-ui";
 import { toRefs, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const auth = useAuthStore();
 const user = auth.currUser;
+const msg = useMessage();
 const log = useLogger();
 interface Props {
   inStates?: ORDER_STATE[];
@@ -76,43 +79,64 @@ function getOrderByShop(targets: VendorUserOrderProd[]) {
   }
   return orderDbIdByShops;
 }
+const msging = (len: number) =>
+  msg.success(`주문 ${len}건 처리완료 `, makeMsgOpt());
+
 async function approveChecked() {
   const targets = getTargets();
-  await updateOrderBatch({
-    orderDbIdByShops: getOrderByShop(targets),
-    orderState: ORDER_STATE.BEFORE_PAYMENT,
-  });
   targets.forEach((t) => {
-    t.stockCnt -= t.orderCnt - t.pendingCnt;
+    t.stockCnt = t.stockCnt - (t.orderCnt - t.pendingCnt);
     log.debug("to stockCnt: ", t.stockCnt);
     if (t.stockCnt < 0) {
-      log.error(null, "상품재고량은 0 이하가 될 수 없습니다.");
+      return log.error(null, "상품재고량은 0 이하가 될 수 없습니다.");
     }
   });
-  await vendorProdsModify(targets.map((t) => VendorProd.fromJson(t)!));
+  return Promise.all([
+    vendorProdsModify(targets.map((t) => VendorProd.fromJson(t)!)),
+    updateOrderBatch({
+      orderDbIdByShops: getOrderByShop(targets),
+      orderState: ORDER_STATE.BEFORE_PAYMENT,
+    }),
+  ])
+    .then(() => msging(targets.length))
+    .catch(() => msg.error(`처리실패 `, makeMsgOpt()));
 }
+
 async function rejectChecked() {
   const targets = getTargets();
-  await updateOrderBatch({
+  updateOrderBatch({
     orderDbIdByShops: getOrderByShop(targets),
     orderState: ORDER_STATE.BEFORE_ORDER,
-  });
+  })
+    .then(() => msging(targets.length))
+    .catch(() => msg.error(`처리실패 `, makeMsgOpt()));
 }
+
 async function depositedChecked() {
   const targets = getTargets();
-  await updateOrderBatch({
+  if (targets.some((x) => x.orderState !== ORDER_STATE.BEFORE_PAYMENT)) {
+    return msg.error("결재대기중인 주문만 가능합니다. ", makeMsgOpt());
+  }
+  return updateOrderBatch({
     orderDbIdByShops: getOrderByShop(targets),
     orderState: ORDER_STATE.BEFORE_SHIP,
-  });
+  })
+    .then(() => msging(targets.length))
+    .catch(() => msg.error(`처리실패 `, makeMsgOpt()));
 }
+
 async function cancelChecked() {
   const targets = getTargets();
-  await rejectChecked();
   targets.forEach((t) => {
-    t.stockCnt += t.orderCnt - t.pendingCnt;
+    t.stockCnt = t.stockCnt + (t.orderCnt - t.pendingCnt);
     log.debug("to stockCnt: ", t.stockCnt);
   });
-  await vendorProdsModify(targets.map((t) => VendorProd.fromJson(t)!));
+  return Promise.all([
+    rejectChecked(),
+    vendorProdsModify(targets.map((t) => VendorProd.fromJson(t)!)),
+  ])
+    .then(() => msging(targets.length))
+    .catch(() => msg.error(`처리실패 `, makeMsgOpt()));
 }
 </script>
 <template>
@@ -141,16 +165,16 @@ async function cancelChecked() {
         "
       >
         <n-button size="small" type="primary" @click="depositedChecked">
-          결제완료처리
+          선택결제완료처리
         </n-button>
         <n-button size="small" type="primary" @click="cancelChecked">
-          미결제 취소
+          선택미결제 취소
         </n-button>
       </n-space>
     </template>
     <n-data-table
       :table-layout="getScreenSize() === ScreenSize.L ? 'fixed' : 'auto'"
-      :scroll-x="1200"
+      :scroll-x="800"
       :columns="columns"
       :data="orderProds"
       :pagination="{

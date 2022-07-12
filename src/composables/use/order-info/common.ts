@@ -1,8 +1,11 @@
 import { ORDER_STATE } from "@/types";
 
+// 주문량보다 재고량이 많으면: 0
+// 주문량이 더많으면 : 주문량 - 재고량
 export const getPendingCnt = (stockCnt: number, orderCnt: number) =>
   stockCnt - orderCnt > 0 ? 0 : orderCnt - stockCnt;
 
+// 주문량
 export const getOrderCnt = (
   stockCnt: number,
   orderCnt: number,

@@ -4,22 +4,19 @@ import {
   getOrderCnt,
   getPendingCnt,
   makeMsgOpt,
-  orderAble,
-  ShopReqOrder,
   useParseOrderInfo,
   useShopReadOrderInfo,
   useTable,
 } from "@/composables";
 import { useAuthStore } from "@/stores";
-import {
-  IoColOpt,
-  ORDER_STATE,
-  ShopReqOrderJoined,
-  VendorOperInfo,
-} from "@/types";
+import { IoColOpt, ORDER_STATE, ShopReqOrderJoined } from "@/types";
 import { NGradientText, useMessage } from "naive-ui";
 import ShopOrderCnt from "../input/ShopOrderCnt.vue";
-import { writeOrderBatch } from "@/plugins/firebase";
+import {
+  writeOrderBatch,
+  orderVendorProd,
+  deleteOrders,
+} from "@/plugins/firebase";
 import { useLogger } from "vue-logger-plugin";
 
 interface Props {
@@ -74,47 +71,30 @@ watchEffect(() => {
     }
   });
 });
-
-async function order(row: ShopReqOrderJoined) {
-  const data = ShopReqOrder.fromJson(row);
-  if (data && row.stockCnt !== undefined) {
-    data.pendingCnt = row.allowPending
-      ? getPendingCnt(row.stockCnt, row.orderCnt!)
-      : 0;
-    data.orderCnt = getOrderCnt(row.stockCnt, row.orderCnt!, data.pendingCnt);
-    if (!orderAble(row.stockCnt, data.orderCnt, data.pendingCnt)) {
-      msg.error("미송 + 재고의 수량이 주문 수량보다 적습니다.", makeMsgOpt());
-      return;
-    }
-    data.amount = data.orderCnt * row.prodPrice!;
-    if ((row.operInfo as VendorOperInfo).autoOrderApprove) {
-      data.orderState = ORDER_STATE.BEFORE_PAYMENT;
-    } else {
-      data.orderState = ORDER_STATE.BEFORE_APPROVE;
-      data.waitApprove = true;
-    }
-
-    await data.update();
-  }
+async function deleteChecked() {
+  const targets = orderInfo.value.filter((x) =>
+    checkedKeys.value.includes(x[keyField]!)
+  );
+  return deleteOrders(targets)
+    .then(() => msg.success("삭제 성공.", makeMsgOpt()))
+    .catch(() => msg.success("삭제 실패.", makeMsgOpt()));
 }
 async function orderChecked() {
   const targets = orderJoined.value.filter((x) =>
     checkedKeys.value.includes(x[keyField]!)
   );
-  for (let i = 0; i < targets.length; i++) {
-    const target = targets[i];
-    await order(target);
-    msg.success("주문 요청에 성공하셨습니다.", makeMsgOpt());
-  }
+  return Promise.all(targets.map((t) => orderVendorProd(t)))
+    .then(() => msg.success("주문 성공.", makeMsgOpt()))
+    .catch(() => msg.success("주문 실패.", makeMsgOpt()));
 }
 async function orderAll() {
   const orders = [];
   for (let i = 0; i < orderJoined.value.length; i++) {
-    orders.push(order(orderJoined.value[i]));
+    orders.push(orderVendorProd(orderJoined.value[i]));
   }
-  Promise.all(orders).then(() => {
-    msg.success("주문 요청에 성공하셨습니다.", makeMsgOpt());
-  });
+  return Promise.all(orders)
+    .then(() => msg.success("주문 성공", makeMsgOpt()))
+    .catch(() => msg.success("주문 실패.", makeMsgOpt()));
 }
 function rowClassName(row: ShopReqOrderJoined) {
   const pendingCnt = row.allowPending
@@ -126,7 +106,7 @@ function rowClassName(row: ShopReqOrderJoined) {
 }
 // <<<<< COLUMNS <<<<<
 
-const { orderJoined, existOrderIds } = useShopReadOrderInfo({
+const { orderJoined, existOrderIds, orderInfo } = useShopReadOrderInfo({
   shopId: user.userInfo.userId,
   inStates: props.inStates ?? [],
   notStates: props.notStates ?? [],
@@ -166,10 +146,13 @@ function downXlsx() {
     <template #header-extra>
       <n-space justify="start">
         <n-button size="small" type="primary" @click="orderChecked">
-          선택상품 주문
+          선택주문
         </n-button>
         <n-button size="small" type="primary" @click="orderAll">
-          전체상품 주문
+          전체주문
+        </n-button>
+        <n-button size="small" type="primary" @click="deleteChecked">
+          선택삭제
         </n-button>
       </n-space>
     </template>
@@ -181,7 +164,7 @@ function downXlsx() {
       :columns="columns"
       :data="orderJoined"
       :pagination="{
-        pageSize: 10,
+        pageSize: 5,
       }"
       :bordered="false"
       :row-class-name="rowClassName"

@@ -3,7 +3,7 @@ import { useShopReadOrderInfo, useTable } from "@/composables";
 import { useAuthStore } from "@/stores";
 import { ORDER_STATE, IoColOpt, ShopOrderCombined } from "@/types";
 import { NButton, NPopover, NText, useMessage } from "naive-ui";
-import { computed, h, watchEffect } from "vue";
+import { computed, h } from "vue";
 
 interface Props {
   inStates?: ORDER_STATE[];
