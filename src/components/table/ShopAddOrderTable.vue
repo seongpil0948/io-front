@@ -42,21 +42,42 @@ const cols = [
 ].map((c) => {
   return { key: c } as IoColOpt;
 });
+const tableRef = ref<any>(null);
+const tablePageSize = ref(5);
 const keyField = "shopProdId";
 const { columns, mapper, checkedKeys } = useTable<ShopReqOrderJoined>({
   userId: user.userInfo.userId,
   colKeys: cols,
   useChecker: true,
   keyField: keyField,
-  onCheckAll: (to) =>
-    (checkedKeys.value = to ? orderJoined.value.map((p) => p[keyField]) : []),
+  onCheckAll: (to) => {
+    if (tableRef.value) {
+      const idxes = (tableRef.value.paginatedData as any[]).map((x) => x.index);
+      checkedKeys.value = to
+        ? orderJoined.value
+            .filter((o, idx) => idxes.includes(idx))
+            .map((p) => p[keyField])
+        : [];
+    }
+  },
 });
 
 watchEffect(() => {
   columns.value.forEach((x) => {
     if (x.key === "orderCnt") {
       x.title = "주문/미송";
-      x.render = (row: ShopReqOrderJoined) => h(ShopOrderCnt, { row });
+      x.render = (row: ShopReqOrderJoined) =>
+        h(ShopOrderCnt, {
+          row,
+          onSubmitPost: () => {
+            !row.allowPending
+              ? msg.warning(
+                  "해당상품은 미송을 잡을 수 없는 상품입니다.",
+                  makeMsgOpt()
+                )
+              : msg.info(`주문개수가 업데이트되었습니다.`, makeMsgOpt());
+          },
+        });
     } else if (x.key === "amount") {
       x.render = (row: ShopReqOrderJoined) => row.amount!.toLocaleString();
     } else if (x.key === "allowPending") {
@@ -79,22 +100,29 @@ async function deleteChecked() {
     .then(() => msg.success("삭제 성공.", makeMsgOpt()))
     .catch(() => msg.success("삭제 실패.", makeMsgOpt()));
 }
+async function deleteAll() {
+  return deleteOrders(orderInfo.value)
+    .then(() => msg.success("삭제 성공.", makeMsgOpt()))
+    .catch(() => msg.success("삭제 실패.", makeMsgOpt()));
+}
 async function orderChecked() {
   const targets = orderJoined.value.filter((x) =>
     checkedKeys.value.includes(x[keyField]!)
   );
   return Promise.all(targets.map((t) => orderVendorProd(t)))
     .then(() => msg.success("주문 성공.", makeMsgOpt()))
-    .catch(() => msg.success("주문 실패.", makeMsgOpt()));
+    .catch((err) => {
+      msg.success(`주문 실패. ${err}`, makeMsgOpt());
+      log.error(user.userInfo.userId, `주문 실패. ${err}`);
+    });
 }
 async function orderAll() {
-  const orders = [];
-  for (let i = 0; i < orderJoined.value.length; i++) {
-    orders.push(orderVendorProd(orderJoined.value[i]));
-  }
-  return Promise.all(orders)
-    .then(() => msg.success("주문 성공", makeMsgOpt()))
-    .catch(() => msg.success("주문 실패.", makeMsgOpt()));
+  return Promise.all(orderJoined.value.map((t) => orderVendorProd(t)))
+    .then(() => msg.success("주문 성공.", makeMsgOpt()))
+    .catch((err) => {
+      msg.success(`주문 실패. ${err}`, makeMsgOpt());
+      log.error(user.userInfo.userId, `주문 실패. ${err}`);
+    });
 }
 function rowClassName(row: ShopReqOrderJoined) {
   const pendingCnt = row.allowPending
@@ -118,14 +146,18 @@ useParseOrderInfo(
   existOrderIds,
   async (newOrders) => {
     log.debug("newOrders: ", newOrders);
-    await writeOrderBatch(user.userInfo.userId, newOrders);
+    writeOrderBatch(user.userInfo.userId, newOrders).then(() => {
+      newOrders.forEach((ord) => {
+        existOrderIds.value.add(ord.orderId);
+      });
+    });
   }
 );
 function downXlsx() {
   const a = document.createElement("a");
   // a.href = url
-  a.href = "/example/combine-order-example.xlsx";
-  a.download = "combine-order-example.xlsx";
+  a.href = "/example/sample.xlsx";
+  a.download = "sample.xlsx";
   a.click();
   a.remove();
 }
@@ -154,17 +186,21 @@ function downXlsx() {
         <n-button size="small" type="primary" @click="deleteChecked">
           선택삭제
         </n-button>
+        <n-button size="small" type="primary" @click="deleteAll">
+          전체삭제
+        </n-button>
       </n-space>
     </template>
 
     <n-data-table
+      ref="tableRef"
       v-if="orderJoined && orderJoined.length > 0"
       :table-layout="'fixed'"
       :scroll-x="800"
       :columns="columns"
       :data="orderJoined"
       :pagination="{
-        pageSize: 5,
+        pageSize: tablePageSize,
       }"
       :bordered="false"
       :row-class-name="rowClassName"

@@ -35,7 +35,6 @@ interface OrderParam {
 }
 interface VendorOrderParam extends OrderParam {
   vendorId: string;
-  orderExist: boolean;
 }
 interface ShopOrderParam extends OrderParam {
   shopId: string;

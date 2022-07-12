@@ -47,7 +47,7 @@ export async function orderVendorProd(row: ShopReqOrderJoined) {
         ord.waitApprove = true;
       }
       if (!orderAble(prod.stockCnt, ord.orderCnt, ord.pendingCnt)) {
-        throw "미송 + 재고의 수량이 주문 수량보다 적습니다.";
+        throw `미송 + 재고의 수량이 주문 수량보다 적습니다. 상품정보: ${row.vendorProdName}, ${row.color}, ${row.size}}`;
       }
       transaction.update(ordRef, shopReqOrderConverter.toFirestore(ord));
       return ord;

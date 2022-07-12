@@ -30,7 +30,6 @@ const { orderProds } = useReadVendorOrderInfo({
   vendorId: user.userInfo.userId,
   inStates: inStates?.value,
   notStates: notStates?.value,
-  orderExist: false,
 });
 
 const cols = [

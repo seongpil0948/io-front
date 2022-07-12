@@ -73,7 +73,7 @@ export function useParseOrderInfo(
     const reporter: { [k: string]: string } = {};
     targetDf.apply(
       (row: Series) => {
-        const orderId = row[idx.orderIdIdx];
+        const orderId = row[idx.orderIdIdx].toString();
         const matchedNameSynoIds = Object.keys(prodMapper).filter(
           (nameSynoId) => {
             const nameSyno = nameSynoId.split(" iobox ")[0].trim();

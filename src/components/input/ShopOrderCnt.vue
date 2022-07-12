@@ -10,7 +10,7 @@ import { useMessage } from "naive-ui";
 import { toRefs, computed, ref } from "vue";
 const props = defineProps<{
   row: ShopReqOrderJoined;
-  onSubmitPost?: () => void;
+  onSubmitPost: () => void;
 }>();
 const { row } = toRefs(props);
 let edit = ref(false);
@@ -37,10 +37,7 @@ async function onSubmit() {
   const order = ShopReqOrder.fromJson(row.value);
   if (order) {
     order.update().then(() => {
-      msg.info(`주문개수가 업데이트되었습니다.`, makeMsgOpt());
-      if (props.onSubmitPost) {
-        props.onSubmitPost();
-      }
+      props.onSubmitPost();
     });
   } else {
     msg.error(`주문개수가 업데이트에 실패하였습니다..`, makeMsgOpt());

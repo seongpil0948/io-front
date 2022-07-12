@@ -17,7 +17,6 @@ const auth = useAuthStore();
 const msg = useMessage();
 const { orderProds } = useReadVendorOrderInfo({
   vendorId: auth.currUser.userInfo.userId,
-  orderExist: false,
   inStates: [],
   notStates: [],
 });
@@ -27,11 +26,10 @@ const { columns } = useTable<VendorOrderProd>({
     "vendorProdName",
     "size",
     "color",
+    "pendingCnt",
     "stockCnt",
     "vendorPrice",
     "amount",
-    "amount",
-    "pendingCnt",
   ].map((x) => {
     return { key: x } as IoColOpt;
   }),
@@ -105,7 +103,7 @@ function onShowProdEdit(row: VendorProd | null) {
   <n-card style="width: 80%">
     <template #header> 상품목록 </template>
     <n-data-table
-      :scroll-x="1800"
+      :scroll-x="1200"
       :columns="columns"
       :data="orderProds"
       :pagination="{

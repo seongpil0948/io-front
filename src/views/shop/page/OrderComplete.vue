@@ -52,7 +52,13 @@ watchEffect(() => {
   columns.value.forEach((x) => {
     if (x.key === "orderCnt") {
       x.title = "주문/미송";
-      x.render = (row: ShopReqOrderJoined) => h(ShopOrderCnt, { row });
+      x.render = (row: ShopReqOrderJoined) =>
+        h(ShopOrderCnt, {
+          row,
+          onSubmitPost: () => {
+            console.log("on submit");
+          },
+        });
     } else if (x.key === "amount") {
       x.render = (row: ShopReqOrderJoined) => row.amount!.toLocaleString();
     } else if (x.key === "allowPending") {

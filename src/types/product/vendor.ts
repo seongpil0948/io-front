@@ -40,7 +40,7 @@ interface VendorUserProd extends IoUserCRT, VendorProdCRT {}
 interface VendorUserProdCombined extends IoUserCRT, VendorProdCombined {}
 interface VendorOrderProd extends VendorProdCRT, ShopReqOrder {}
 interface VendorUserOrderProd extends VendorProdCRT, ShopReqOrder {
-  shopUser: IoUser;
+  shopUser?: IoUser;
 }
 
 export type {
