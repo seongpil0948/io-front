@@ -18,12 +18,21 @@ const { rowIdField, userProd } = useShopUserProds(
   authStore.currUser.userInfo.userId,
   null
 );
+const tableRef = ref<any>(null);
 const { columns, mapper, checkedKeys } = useTable<ShopUserProd>({
   userId: authStore.currUser.userInfo.userId,
   useChecker: true,
   keyField: rowIdField,
-  onCheckAll: (to) =>
-    (checkedKeys.value = to ? userProd.value.map((p) => p[rowIdField]) : []),
+  onCheckAll: (to) => {
+    if (tableRef.value) {
+      const idxes = (tableRef.value.paginatedData as any[]).map((x) => x.index);
+      checkedKeys.value = to
+        ? userProd.value
+            .filter((o, idx) => idxes.includes(idx))
+            .map((p) => p[rowIdField])
+        : [];
+    }
+  },
   colKeys: [
     { key: "vendorProdName", rowIdField },
     { key: "userName" },
@@ -138,6 +147,7 @@ function updateOrderId(arr: string[]) {
         <n-button size="small" round type="primary"> 선택 상품 주문</n-button>
       </template>
       <n-data-table
+        ref="tableRef"
         :columns="cols"
         :data="userProd"
         :pagination="{

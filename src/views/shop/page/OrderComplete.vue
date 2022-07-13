@@ -35,17 +35,23 @@ const cols = [
 ].map((c) => {
   return { key: c } as IoColOpt;
 });
+const tableRef = ref<any>(null);
 const keyField = "shopProdId";
 const { columns, checkedKeys } = useTable<ShopReqOrderJoined>({
   userId: user.userInfo.userId,
   colKeys: cols,
   useChecker: true,
   keyField: keyField,
-  onCheckAll: (to) =>
-    (checkedKeys.value =
-      to && targetOrders.value
-        ? targetOrders.value.map((p) => p[keyField])
-        : []),
+  onCheckAll: (to) => {
+    if (tableRef.value && targetOrders.value) {
+      const idxes = (tableRef.value.paginatedData as any[]).map((x) => x.index);
+      checkedKeys.value = to
+        ? targetOrders.value
+            .filter((o, idx) => idxes.includes(idx))
+            .map((p) => p[keyField])
+        : [];
+    }
+  },
 });
 
 watchEffect(() => {
@@ -92,6 +98,7 @@ watchEffect(() => {
       style="width: 80%"
     >
       <n-data-table
+        ref="tableRef"
         :table-layout="'fixed'"
         :scroll-x="800"
         :columns="columns"

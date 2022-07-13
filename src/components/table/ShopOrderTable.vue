@@ -3,7 +3,7 @@ import { useShopReadOrderInfo, useTable } from "@/composables";
 import { useAuthStore } from "@/stores";
 import { ORDER_STATE, IoColOpt, ShopOrderCombined } from "@/types";
 import { NButton, NPopover, NText, useMessage } from "naive-ui";
-import { computed, h } from "vue";
+import { computed, h, ref } from "vue";
 
 interface Props {
   inStates?: ORDER_STATE[];
@@ -58,15 +58,22 @@ const cols = ["userName", "amount"].map((c) => {
   return { key: c } as IoColOpt;
 });
 const keyField = "vendorId";
+const tableRef = ref<any>(null);
 const { columns, checkedKeys, rendorTableBtn } = useTable<ShopOrderCombined>({
   userId: user.userInfo.userId,
   colKeys: cols,
   useChecker: true,
   keyField,
-  onCheckAll: (to) =>
-    (checkedKeys.value = to
-      ? vendorCombined.value.map((p) => p[keyField])
-      : []),
+  onCheckAll: (to) => {
+    if (tableRef.value) {
+      const idxes = (tableRef.value.paginatedData as any[]).map((x) => x.index);
+      checkedKeys.value = to
+        ? vendorCombined.value
+            .filter((o, idx) => idxes.includes(idx))
+            .map((p) => p[keyField])
+        : [];
+    }
+  },
 });
 const refinedCols = computed(() => {
   const orderedCol: typeof columns.value[0] = {
@@ -171,6 +178,7 @@ const refinedCols = computed(() => {
 <template>
   <n-card style="width: 80%">
     <n-data-table
+      ref="tableRef"
       :table-layout="'fixed'"
       :scroll-x="800"
       :columns="refinedCols"

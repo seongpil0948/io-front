@@ -12,7 +12,7 @@ import { updateOrderBatch, vendorProdsModify } from "@/plugins/firebase";
 import { useAuthStore } from "@/stores/auth";
 import { IoColOpt, ORDER_STATE, VendorUserOrderProd } from "@/types";
 import { useMessage } from "naive-ui";
-import { computed, toRefs, watchEffect } from "vue";
+import { computed, nextTick, ref, toRefs, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const auth = useAuthStore();
@@ -47,13 +47,21 @@ const cols = [
   return { key: c } as IoColOpt;
 });
 const keyField = "shopProdId";
+const tableRef = ref<any>(null);
 const { columns, checkedKeys } = useTable<VendorUserOrderProd>({
   userId: user.userInfo.userId,
   colKeys: cols,
   useChecker: true,
   keyField,
-  onCheckAll: function (to) {
-    checkedKeys.value = to ? orderProds.value.map((p) => p[keyField]) : [];
+  onCheckAll: (to) => {
+    if (tableRef.value) {
+      const idxes = (tableRef.value.paginatedData as any[]).map((x) => x.index);
+      checkedKeys.value = to
+        ? tableData.value
+            .filter((o, idx) => idxes.includes(idx))
+            .map((p) => p[keyField])
+        : [];
+    }
   },
 });
 watchEffect(() => {
@@ -174,6 +182,7 @@ async function cancelChecked() {
       </n-space>
     </template>
     <n-data-table
+      ref="tableRef"
       :table-layout="getScreenSize() === ScreenSize.L ? 'fixed' : 'auto'"
       :scroll-x="800"
       :columns="columns"
