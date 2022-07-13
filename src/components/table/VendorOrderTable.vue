@@ -12,7 +12,7 @@ import { updateOrderBatch, vendorProdsModify } from "@/plugins/firebase";
 import { useAuthStore } from "@/stores/auth";
 import { IoColOpt, ORDER_STATE, VendorUserOrderProd } from "@/types";
 import { useMessage } from "naive-ui";
-import { toRefs, watchEffect } from "vue";
+import { computed, toRefs, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const auth = useAuthStore();
@@ -31,7 +31,9 @@ const { orderProds } = useReadVendorOrderInfo({
   inStates: inStates?.value,
   notStates: notStates?.value,
 });
-
+const tableData = computed(() =>
+  orderProds.value.filter((x) => x.dbId.length > 3)
+);
 const cols = [
   "userName",
   "vendorProdName",
@@ -175,9 +177,9 @@ async function cancelChecked() {
       :table-layout="getScreenSize() === ScreenSize.L ? 'fixed' : 'auto'"
       :scroll-x="800"
       :columns="columns"
-      :data="orderProds"
+      :data="tableData"
       :pagination="{
-        pageSize: 10,
+        pageSize: 5,
       }"
       :bordered="false"
       style="min-height: 50vh"

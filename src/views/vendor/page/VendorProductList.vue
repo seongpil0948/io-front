@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores";
-import type { IoColOpt, VendorOrderProd } from "@/types";
+import type { IoColOpt, VendorOrderProd, VendorUserOrderProd } from "@/types";
 import {
   makeMsgOpt,
   useReadVendorOrderInfo,
   useTable,
   VendorProd,
 } from "@/composables";
-import { h, ref, watchEffect } from "vue";
+import { computed, h, ref, watchEffect } from "vue";
 import LogoChecker from "@/components/input/LogoChecker.vue";
 import { NButton, useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
@@ -20,6 +20,20 @@ const { orderProds } = useReadVendorOrderInfo({
   inStates: [],
   notStates: [],
 });
+const tableData = computed(() =>
+  orderProds.value.reduce((acc, p) => {
+    const exist = acc.find((x) => x.vendorProdId === p.vendorProdId);
+    if (exist) {
+      exist.amount += p.amount;
+      exist.orderCnt += p.orderCnt;
+      exist.activeCnt += p.activeCnt;
+      exist.pendingCnt += p.pendingCnt;
+    } else {
+      acc.push(p);
+    }
+    return acc;
+  }, [] as VendorUserOrderProd[])
+);
 const { columns } = useTable<VendorOrderProd>({
   userId: auth.currUser.userInfo.userId,
   colKeys: [
@@ -105,7 +119,7 @@ function onShowProdEdit(row: VendorProd | null) {
     <n-data-table
       :scroll-x="1200"
       :columns="columns"
-      :data="orderProds"
+      :data="tableData"
       :pagination="{
         pageSize: 10,
       }"
