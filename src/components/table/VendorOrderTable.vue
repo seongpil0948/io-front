@@ -12,7 +12,7 @@ import { updateOrderBatch, vendorProdsModify } from "@/plugins/firebase";
 import { useAuthStore } from "@/stores/auth";
 import { IoColOpt, ORDER_STATE, VendorUserOrderProd } from "@/types";
 import { useMessage } from "naive-ui";
-import { computed, nextTick, ref, toRefs, watchEffect } from "vue";
+import { computed, ref, toRefs, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const auth = useAuthStore();

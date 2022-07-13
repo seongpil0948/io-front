@@ -40,6 +40,7 @@ const { columns } = useTable<VendorOrderProd>({
     "vendorProdName",
     "size",
     "color",
+    "orderCnt",
     "pendingCnt",
     "stockCnt",
     "vendorPrice",
@@ -121,7 +122,7 @@ function onShowProdEdit(row: VendorProd | null) {
       :columns="columns"
       :data="tableData"
       :pagination="{
-        pageSize: 10,
+        pageSize: 7,
       }"
       :bordered="false"
     />

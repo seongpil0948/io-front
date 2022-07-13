@@ -60,18 +60,12 @@ export function useReadVendorOrderInfo(p: VendorOrderParam) {
   }
   watch(
     () => prods,
-    async function () {
-      console.log("watch prods: ");
-      await refreshData();
-    },
+    async () => await refreshData(),
     { deep: true }
   );
   watch(
     () => orders,
-    async function () {
-      console.log("watch orders: ");
-      await refreshData();
-    },
+    async () => await refreshData(),
     { deep: true }
   );
 
