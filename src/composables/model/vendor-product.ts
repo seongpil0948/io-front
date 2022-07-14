@@ -4,6 +4,7 @@ import {
   insertById,
   loadDate,
 } from "@/plugins/firebase";
+import { logger } from "@/plugins/logger";
 import {
   type PART,
   type PROD_SIZE,
@@ -72,28 +73,31 @@ export class VendorProd extends CommonField implements VendorProdCRT {
     this.description = p.description;
   }
   static fromJson(data: { [x: string]: any }): VendorProd | null {
-    return data && data.vendorProdId
-      ? new VendorProd({
-          createdAt: loadDate(data.createdAt ?? null),
-          updatedAt: loadDate(data.updatedAt ?? null),
-          vendorProdId: data.vendorProdId,
-          vendorId: data.vendorId,
-          vendorProdName: data.vendorProdName,
-          gendor: data.gendor,
-          part: data.part,
-          ctgr: data.ctgr,
-          color: data.color,
-          vendorPrice: data.vendorPrice,
-          stockCnt: data.stockCnt,
-          allowPending: data.allowPending ?? false,
-          titleImgs: data.titleImgs,
-          bodyImgs: data.bodyImgs,
-          size: data.size,
-          fabric: data.fabric ?? "",
-          info: data.info ?? "",
-          description: data.description ?? "",
-        })
-      : null;
+    if (data && data.vendorProdId) {
+      return new VendorProd({
+        createdAt: loadDate(data.createdAt ?? null),
+        updatedAt: loadDate(data.updatedAt ?? null),
+        vendorProdId: data.vendorProdId,
+        vendorId: data.vendorId,
+        vendorProdName: data.vendorProdName,
+        gendor: data.gendor,
+        part: data.part,
+        ctgr: data.ctgr,
+        color: data.color,
+        vendorPrice: data.vendorPrice,
+        stockCnt: data.stockCnt,
+        allowPending: data.allowPending ?? false,
+        titleImgs: data.titleImgs,
+        bodyImgs: data.bodyImgs,
+        size: data.size,
+        fabric: data.fabric ?? "",
+        info: data.info ?? "",
+        description: data.description ?? "",
+      });
+    } else {
+      logger.error(null, "vendor product from json return null, data: ", data);
+      return null;
+    }
   }
 }
 export const vendorProdConverter = {

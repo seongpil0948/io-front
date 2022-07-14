@@ -46,6 +46,7 @@ interface updateParam {
   orderState?: ORDER_STATE;
 }
 export async function updateOrderBatch(p: updateParam) {
+  console.log("updateOrderBatch: ", p);
   if (!p.orderState) return;
   const { batch, shopReqRef } = getBatchSrc();
   for (let i = 0; i < Object.keys(p.orderDbIdByShops).length; i++) {
@@ -53,7 +54,7 @@ export async function updateOrderBatch(p: updateParam) {
     const reqRef = shopReqRef(shopId);
     for (let j = 0; j < p.orderDbIdByShops[shopId].length; j++) {
       const ordId = p.orderDbIdByShops[shopId][j];
-      batch.update(doc(reqRef, ordId.toString()), {
+      batch.update(doc(reqRef, ordId), {
         orderState: p.orderState,
       });
     }

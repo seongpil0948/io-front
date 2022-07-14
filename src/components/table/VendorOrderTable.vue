@@ -113,7 +113,7 @@ async function approveChecked() {
 
 async function rejectChecked() {
   const targets = getTargets();
-  updateOrderBatch({
+  return updateOrderBatch({
     orderDbIdByShops: getOrderByShop(targets),
     orderState: ORDER_STATE.BEFORE_ORDER,
   })

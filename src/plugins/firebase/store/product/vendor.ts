@@ -32,7 +32,6 @@ export function scribeVendorProdById(vendorId: string) {
     query(c, where("vendorId", "==", vendorId), orderBy("createdAt", "desc")),
     (snapshot) => {
       prods.value = [];
-      console.log("scribeVendorProdById");
       snapshot.forEach((d) => {
         const data = d.data();
         if (data) {

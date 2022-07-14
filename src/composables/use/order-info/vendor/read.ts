@@ -28,8 +28,8 @@ export function useReadVendorOrderInfo(p: VendorOrderParam) {
               unPaidAmount: 0,
               userName: "",
             },
-            prod,
-            ShopReqOrder.none()
+            ShopReqOrder.none(),
+            prod
           )
         );
         continue;

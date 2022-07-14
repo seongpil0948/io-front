@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { getPendingCnt, getOrderCnt, useTable } from "@/composables";
+import {
+  getPendingCnt,
+  getOrderCnt,
+  useTable,
+  orderStateKo,
+} from "@/composables";
 import { useAuthStore } from "@/stores";
 import { IoColOpt, ORDER_STATE, ShopReqOrderJoined } from "@/types";
 import { NGradientText } from "naive-ui";
@@ -76,6 +81,13 @@ watchEffect(() => {
           },
           { default: () => (row.allowPending ? "가능" : "불가능") }
         );
+    }
+    if (!columns.value.some((x) => x.key === "state")) {
+      columns.value.splice(2, 0, {
+        key: "state",
+        title: () => "주문상태",
+        render: (row) => orderStateKo(row.orderState),
+      });
     }
   });
 });

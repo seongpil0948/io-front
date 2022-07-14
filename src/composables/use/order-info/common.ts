@@ -23,7 +23,7 @@ export function orderStateKo(state: ORDER_STATE): string {
     case ORDER_STATE.BEFORE_ORDER:
       return "주문전";
     case ORDER_STATE.BEFORE_APPROVE:
-      return "도매처승인중";
+      return "승인대기";
     case ORDER_STATE.BEFORE_PAYMENT:
       return "결제전";
     case ORDER_STATE.BEFORE_SHIP:

@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores";
-import type { IoColOpt, VendorOrderProd, VendorUserOrderProd } from "@/types";
+import {
+  IoColOpt,
+  ORDER_STATE,
+  VendorOrderProd,
+  VendorUserOrderProd,
+} from "@/types";
 import {
   makeMsgOpt,
   useReadVendorOrderInfo,
@@ -18,7 +23,7 @@ const msg = useMessage();
 const { orderProds } = useReadVendorOrderInfo({
   vendorId: auth.currUser.userInfo.userId,
   inStates: [],
-  notStates: [],
+  notStates: [ORDER_STATE.BEFORE_ORDER, ORDER_STATE.BEFORE_APPROVE],
 });
 const tableData = computed(() =>
   orderProds.value.reduce((acc, p) => {
