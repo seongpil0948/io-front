@@ -176,7 +176,7 @@ function downXlsx() {
       </n-space>
     </template>
     <template #header-extra>
-      <n-space justify="start">
+      <n-space justify="start" style="margin-left: 5px" :wrap="false">
         <n-button size="small" type="primary" @click="orderChecked">
           선택주문
         </n-button>

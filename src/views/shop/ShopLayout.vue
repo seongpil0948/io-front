@@ -7,7 +7,11 @@ import {
 } from "@/composables";
 import type { MenuOption } from "naive-ui";
 import { ProductHunt, ShoppingCart } from "@vicons/fa";
+import { useAuthStore } from "@/stores";
+import { useRouter } from "vue-router";
 const minHeight = "100vh";
+const router = useRouter();
+const authStore = useAuthStore();
 const menuOptions: MenuOption[] = [
   {
     label: "상품",
@@ -67,6 +71,11 @@ const menuOptions: MenuOption[] = [
     </n-layout>
     <n-layout v-else :style="`height: ${minHeight}`">
       <n-layout-header>
+        <logo-image
+          style="position: absolute; left: 3%; top: 1%"
+          @click="router.goHome(authStore.currUser)"
+          size="1.8rem"
+        />
         <n-menu
           :collapsed-width="64"
           :collapsed-icon-size="22"

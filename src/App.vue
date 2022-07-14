@@ -187,4 +187,7 @@ body {
   justify-content: center;
   display: flex;
 }
+.n-card-header {
+  overflow: scroll;
+}
 </style>

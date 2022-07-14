@@ -22,3 +22,7 @@ export function isMobile() {
     return false;
   }
 }
+
+export function useResponsive() {
+  return { getScreenSize, isMobile };
+}

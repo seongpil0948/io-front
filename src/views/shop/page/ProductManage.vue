@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { useTable, useShopUserProds, makeMsgOpt } from "@/composables";
+import {
+  useTable,
+  useShopUserProds,
+  makeMsgOpt,
+  useResponsive,
+} from "@/composables";
 import { deleteShopProds } from "@/plugins/firebase";
 import { useAuthStore } from "@/stores";
 import type { ShopUserProd } from "@/types";
@@ -13,7 +18,7 @@ import { computed, h, ref, watchEffect } from "vue";
 
 const authStore = useAuthStore();
 const msg = useMessage();
-
+const R = useResponsive();
 const { rowIdField, userProd } = useShopUserProds(
   authStore.currUser.userInfo.userId,
   null
@@ -132,10 +137,13 @@ function updateOrderId(arr: string[]) {
   <n-space vertical>
     <n-card style="width: 80%">
       <template #header>
-        상품정보 변경을 위해서 옵션 선택을 이용 해주세요!
+        <n-h4 v-if="!R.isMobile()">
+          상품정보 변경을 위해서 옵션 선택을 이용 해주세요!
+        </n-h4>
       </template>
       <template #header-extra>
         <n-button
+          v-if="!R.isMobile()"
           @click="onCheckedDelete"
           size="small"
           round
@@ -144,7 +152,9 @@ function updateOrderId(arr: string[]) {
         >
           선택 상품 삭제</n-button
         >
-        <n-button size="small" round type="primary"> 선택 상품 주문</n-button>
+        <n-button v-if="!R.isMobile()" size="small" round type="primary">
+          선택 상품 주문</n-button
+        >
       </template>
       <n-data-table
         ref="tableRef"
