@@ -88,10 +88,10 @@ defineExpose({ copanyInfo: formModel });
           elemetId="companyCertificate"
           :userId="props.userId"
           v-model:urls="formModel.companyCertificate"
-          size="100px"
+          size="100"
           :max="3"
         >
-          <Certificate />
+          <Certificate style="cursor: pointer" />
         </single-image-input>
       </n-form-item-gi>
       <n-form-item-gi label="세금 계산서 이메일 주소" path="emailTax">

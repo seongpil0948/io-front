@@ -267,10 +267,9 @@ function onRegister() {
             elemetId="titleImgs"
             :user="currUser"
             v-model:urls="prodModel.titleImgs"
-            size="100px"
             :max="5"
           >
-            <add-circle-outline />
+            <add-circle-outline style="cursor: pointer" />
           </single-image-input>
         </n-form-item-gi>
         <n-form-item-gi
@@ -282,10 +281,10 @@ function onRegister() {
             elemetId="bodyImgs"
             :user="currUser"
             v-model:urls="prodModel.bodyImgs"
-            size="100px"
+            size="100"
             :max="5"
           >
-            <add-circle-outline />
+            <add-circle-outline style="cursor: pointer" />
           </single-image-input>
         </n-form-item-gi>
       </n-grid>

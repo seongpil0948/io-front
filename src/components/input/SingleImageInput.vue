@@ -4,6 +4,8 @@ import { STORAGE_SVC } from "@/types";
 import { IoUser, makeMsgOpt } from "@/composables";
 import { refByRoleSvc, refByUid, uploadFile } from "@/plugins/firebase";
 import { useMessage } from "naive-ui";
+import { CloseCircle } from "@vicons/ionicons5";
+
 const props = defineProps<{
   urls: string[];
   user?: IoUser;
@@ -40,17 +42,31 @@ async function loadFile() {
     loading.value = false;
   }
 }
+function closeFile(src: string) {
+  emits(
+    "update:urls",
+    urls.value.filter((x) => x !== src)
+  );
+}
 </script>
 <template>
-  <n-space inline>
-    <n-image
+  <n-space inline justify="space-around">
+    <div
       v-for="(src, i) in urls"
       :key="i"
-      :style="`width: ${size}; height: ${size};`"
-      :src="src"
-    />
+      :style="`width: ${size}px; height: ${size}px; position: relative`"
+    >
+      <n-image :src="src" object-fit="contain" :width="size" :height="size" />
+      <n-icon
+        style="position: absolute; top: -15px; right: -15px; cursor: grabbing"
+        size="25"
+        @click="closeFile(src)"
+        :component="CloseCircle"
+      />
+    </div>
+
     <div v-if="urls.length < max">
-      <n-card :style="`width: ${size}; height: ${size};`">
+      <n-card :style="`width: ${size}px; height: ${size}px; `">
         <label :for="elemetId">
           <n-spin :show="loading"><slot></slot> </n-spin
         ></label>

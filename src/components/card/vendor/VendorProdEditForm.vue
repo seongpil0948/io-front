@@ -112,11 +112,11 @@ const auth = useAuthStore();
         <single-image-input
           elemetId="titleImgs"
           :user="auth.currUser"
+          size="100"
           v-model:urls="prod.titleImgs"
-          size="100px"
           :max="5"
         >
-          <add-circle-outline />
+          <add-circle-outline style="cursor: pointer" />
         </single-image-input>
       </n-form-item-gi>
       <n-form-item-gi
@@ -128,10 +128,10 @@ const auth = useAuthStore();
           elemetId="bodyImgs"
           :user="auth.currUser"
           v-model:urls="prod.bodyImgs"
-          size="100px"
+          size="100"
           :max="5"
         >
-          <add-circle-outline />
+          <add-circle-outline style="cursor: pointer" />
         </single-image-input>
       </n-form-item-gi>
     </n-grid>
