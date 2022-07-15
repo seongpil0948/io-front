@@ -78,17 +78,6 @@ watchEffect(() => {
               : msg.info(`주문개수가 업데이트되었습니다.`, makeMsgOpt());
           },
         });
-    } else if (x.key === "amount") {
-      x.render = (row: ShopReqOrderJoined) => row.amount!.toLocaleString();
-    } else if (x.key === "allowPending") {
-      x.render = (row: ShopReqOrderJoined) =>
-        h(
-          NGradientText,
-          {
-            type: row.allowPending ? "info" : "error",
-          },
-          { default: () => (row.allowPending ? "가능" : "불가능") }
-        );
     }
   });
 });

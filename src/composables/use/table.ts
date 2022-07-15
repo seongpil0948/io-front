@@ -4,10 +4,11 @@ import type {
   ColumnKey,
   TableBaseColumn,
 } from "naive-ui/es/data-table/src/interface";
-import { NButton, NCheckbox } from "naive-ui";
+import { NButton, NCheckbox, NGradientText } from "naive-ui";
 import { ref, watchEffect, h } from "vue";
 import { useMapper } from "..";
 import LogoChecker from "@/components/input/LogoChecker.vue";
+import { Key } from "@vicons/fa";
 
 interface useTableParam {
   userId: string;
@@ -143,6 +144,32 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
       key: opt.key as ColumnKey,
       title: opt.colRendor ?? colKoMapper[opt.key],
     };
+    if (opt.key === "allowPending") {
+      col.filterOptions = [
+        {
+          label: "미송불가",
+          value: "false",
+        },
+        {
+          label: "미송가능",
+          value: "true",
+        },
+      ];
+      col.render = (row: any) =>
+        h(
+          NGradientText,
+          {
+            type: row.allowPending ? "info" : "error",
+          },
+          { default: () => (row.allowPending ? "가능" : "불가능") }
+        );
+      col.filter = (value, row: any) => row.allowPending.toString() === value;
+    } else if (col.key === "amount") {
+      col.render = (row: any) => row.amount!.toLocaleString();
+    }
+    if ((["userName", "prodName"] as any[]).includes(col.key)) {
+      col.sorter = "default";
+    }
     if (opt.cellRender) {
       col.render = opt.cellRender;
     }
