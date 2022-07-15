@@ -20,6 +20,8 @@ interface ShopProdQField {
   orderId: string;
 }
 
-interface ShopUserProd extends IoUserCRT, ShopProdCRT, VendorProdCRT {}
+interface ShopUserProd extends IoUserCRT, ShopProdCRT, VendorProdCRT {
+  userName?: string;
+}
 
 export type { ShopProdCRT, ShopUserProd, ShopProdQField };

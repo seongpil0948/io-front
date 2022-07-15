@@ -116,7 +116,8 @@ watchEffect(() => {
         :columns="columns"
         :data="targetOrders"
         :pagination="{
-          pageSize: 10,
+          'show-size-picker': true,
+          'page-sizes': [5, 10, 25, 50, 100],
         }"
         :bordered="false"
         :row-class-name="rowClassName"

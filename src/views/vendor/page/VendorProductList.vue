@@ -127,7 +127,8 @@ function onShowProdEdit(row: VendorProd | null) {
       :columns="columns"
       :data="tableData"
       :pagination="{
-        pageSize: 7,
+        'show-size-picker': true,
+        'page-sizes': [5, 10, 25, 50, 100],
       }"
       :bordered="false"
     />

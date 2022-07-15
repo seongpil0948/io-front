@@ -36,7 +36,17 @@ export function useShopUserProds(
     vendorStore.vendorUserProds.forEach((vendorUnit) => {
       const prod = shopProds.value.find((p) => p.isSameWithVendor(vendorUnit));
       if (!prod) return;
-      userProd.value.push(Object.assign({}, vendorUnit, prod));
+      else if (vendorUnit.userInfo) {
+        userProd.value.push(
+          Object.assign(
+            { userName: vendorUnit.userInfo.userName },
+            vendorUnit,
+            prod
+          )
+        );
+      } else {
+        userProd.value.push(Object.assign({}, vendorUnit, prod));
+      }
     });
   });
   return { rowIdField, userProd };

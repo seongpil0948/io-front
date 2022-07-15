@@ -188,7 +188,8 @@ async function cancelChecked() {
       :columns="columns"
       :data="tableData"
       :pagination="{
-        pageSize: 5,
+        'show-size-picker': true,
+        'page-sizes': [5, 10, 25, 50, 100],
       }"
       :bordered="false"
       style="min-height: 50vh"
