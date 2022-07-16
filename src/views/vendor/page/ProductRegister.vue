@@ -14,6 +14,7 @@ import {
   getSizeOpts,
   VendorProd,
   makeMsgOpt,
+  biggerThanNRule,
 } from "@/composables";
 import { GENDOR, PART, PROD_SIZE } from "@/types";
 import { useRouter } from "vue-router";
@@ -33,12 +34,12 @@ const prodModel = ref({
   allowPending: [],
   gendor: GENDOR.MALE,
   price: null,
-  vendorPrice: 0,
+  vendorPrice: 1000,
   titleImgs: [] as string[],
   bodyImgs: [] as string[],
   colors: ["black"],
   sizes: [] as PROD_SIZE[],
-  stockCnt: 0,
+  stockCnt: 10,
   fabric: "", // 혼용률 / 제조국
   info: "", // 상세정보
   description: "",
@@ -51,7 +52,7 @@ const rules = {
   name: nameLenRule,
   allowPending: notNullRule,
   gendor: notNullRule,
-  vendorPrice: notNullRule,
+  vendorPrice: biggerThanNRule(999),
   titleImgs: arrLenRule(1),
   bodyImgs: arrLenRule(1),
   colors: arrLenRule(1),
@@ -96,8 +97,13 @@ function onRegister() {
     const products: VendorProd[] = [];
     const v = prodModel.value;
     const allowPending = v.allowPending[0] === "받기" ? true : false;
+    let valid = true;
     prodModel.value.sizes.forEach((size) => {
       prodModel.value.colors.forEach((color) => {
+        if (stockCnts.value![size][color] < 1) {
+          msg.error("상품의 재고량을 1이상으로 설정 해주십시오.");
+          valid = false;
+        }
         products.push(
           new VendorProd(
             Object.assign({}, v, {
@@ -113,27 +119,28 @@ function onRegister() {
         );
       });
     });
-
-    dialog.success({
-      title: "상품정보 제출",
-      content: `${products.length}개의 상품을 등록하시겠습니까?`,
-      positiveText: "등록",
-      negativeText: "취소",
-      closeOnEsc: true,
-      onPositiveClick: async () => {
-        log.debug("PRODS:", products);
-        return Promise.all(products.map((p) => p.update()))
-          .then(() => {
-            msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
-            log.info(currUser.userInfo.userId, "상품 등록 성공", products);
-            router.replace({ name: "VendorProductList" });
-          })
-          .catch(() => {
-            msg.error("상품등록 실패.", makeMsgOpt());
-            log.error(currUser.userInfo.userId, "상품등록 실패.", products);
-          });
-      },
-    });
+    if (valid) {
+      dialog.success({
+        title: "상품정보 제출",
+        content: `${products.length}개의 상품을 등록하시겠습니까?`,
+        positiveText: "등록",
+        negativeText: "취소",
+        closeOnEsc: true,
+        onPositiveClick: async () => {
+          log.debug("PRODS:", products);
+          return Promise.all(products.map((p) => p.update()))
+            .then(() => {
+              msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
+              log.info(currUser.userInfo.userId, "상품 등록 성공", products);
+              router.replace({ name: "VendorProductList" });
+            })
+            .catch(() => {
+              msg.error("상품등록 실패.", makeMsgOpt());
+              log.error(currUser.userInfo.userId, "상품등록 실패.", products);
+            });
+        },
+      });
+    }
   });
 }
 </script>
@@ -183,7 +190,11 @@ function onRegister() {
         </n-form-item-gi>
 
         <n-form-item-gi label="도매가" path="vendorPrice">
-          <n-input-number :step="1000" v-model:value="prodModel.vendorPrice">
+          <n-input-number
+            :min="1000"
+            :step="1000"
+            v-model:value="prodModel.vendorPrice"
+          >
             <template #prefix> ₩ </template>
             <template #suffix> 원 </template>
           </n-input-number>
@@ -228,7 +239,7 @@ function onRegister() {
                     <n-form-item-gi span="2" :label="`${color} ${size}`">
                       <n-input-number
                         :show-button="false"
-                        :min="0"
+                        :min="1"
                         :validator="(x: number) => x % 1 === 0"
                         v-model:value="stockCnts[size as PROD_SIZE][color]"
                       />
@@ -267,6 +278,7 @@ function onRegister() {
             elemetId="titleImgs"
             :user="currUser"
             v-model:urls="prodModel.titleImgs"
+            size="100"
             :max="5"
           >
             <add-circle-outline style="cursor: pointer" />

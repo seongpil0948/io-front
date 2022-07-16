@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   arrLenRule,
+  biggerThanNRule,
   makeMsgOpt,
   nameLenRule,
   notNullRule,
@@ -30,12 +31,13 @@ const formRef = ref<FormInst | null>(null);
 
 const rules = {
   vendorProdName: nameLenRule,
-  vendorPrice: notNullRule,
+  vendorPrice: biggerThanNRule(999),
   titleImgs: arrLenRule(1),
   bodyImgs: arrLenRule(1),
   fabric: notNullRule, // 혼용률 / 제조국
   info: notNullRule, // 상세정보
   description: notNullRule,
+  stockCnt: biggerThanNRule(0),
 };
 
 function onEdit() {
@@ -67,7 +69,11 @@ const auth = useAuthStore();
         <n-input v-model:value="prod.vendorProdName" />
       </n-form-item-gi>
       <n-form-item-gi span="4" label="도매가" path="vendorPrice">
-        <n-input-number :step="1000" v-model:value="prod.vendorPrice">
+        <n-input-number
+          :min="1000"
+          :step="1000"
+          v-model:value="prod.vendorPrice"
+        >
           <template #prefix> ₩ </template>
           <template #suffix> 원 </template>
         </n-input-number>
@@ -82,11 +88,12 @@ const auth = useAuthStore();
       <n-form-item-gi
         span="6"
         :label="`재고수량(${prod.size}, ${prod.color})`"
+        :min="1"
         path="stockCnt"
       >
         <n-input-number
           :show-button="false"
-          :min="0"
+          :min="1"
           v-model:value="prod.stockCnt"
         />
       </n-form-item-gi>

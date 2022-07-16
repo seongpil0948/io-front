@@ -114,3 +114,19 @@ export const notNullRule = {
   trigger: ["blur", "input"],
   message: "값을 입력 해주세요.",
 };
+
+export const biggerThanNRule = (n: number) => {
+  return {
+    validator: (rule: FormRules, value: string) => {
+      try {
+        const inputN = parseInt(value);
+        return inputN > n;
+      } catch (e) {
+        return false;
+      }
+    },
+    required: true,
+    trigger: ["blur", "input"],
+    message: `${n}초과의 값을 입력 해주세요.`,
+  };
+};

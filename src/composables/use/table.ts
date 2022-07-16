@@ -8,7 +8,6 @@ import { NButton, NCheckbox, NGradientText } from "naive-ui";
 import { ref, watchEffect, h } from "vue";
 import { useMapper } from "..";
 import LogoChecker from "@/components/input/LogoChecker.vue";
-import { Key } from "@vicons/fa";
 
 interface useTableParam {
   userId: string;

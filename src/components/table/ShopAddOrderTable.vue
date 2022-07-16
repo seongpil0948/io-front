@@ -10,7 +10,7 @@ import {
 } from "@/composables";
 import { useAuthStore } from "@/stores";
 import { IoColOpt, ORDER_STATE, ShopReqOrderJoined } from "@/types";
-import { NGradientText, useMessage } from "naive-ui";
+import { useMessage } from "naive-ui";
 import ShopOrderCnt from "../input/ShopOrderCnt.vue";
 import {
   writeOrderBatch,
