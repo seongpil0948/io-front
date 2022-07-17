@@ -82,7 +82,7 @@ function onUpdateShow(val) {
     :show="show"
     trigger="hover"
     style="max-width: 40vw"
-    :duration="50000"
+    :duration="30000"
     :on-update:show="onUpdateShow"
     @clickoutside="emits('on-clickoutside')"
   >
