@@ -37,11 +37,11 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(BookIcon),
     children: [
       {
-        label: () => renderRoute("주문내역", "OrderList"),
+        label: () => renderRoute("거래처 주문 요청", "BeforeApproveList"),
         key: "OrderList",
       },
       {
-        label: () => renderRoute("주문접수", "OrderSubmit"),
+        label: () => renderRoute("승인 완료된 주문", "AfterApproveList"),
         key: "OrderSubmit",
       },
     ],

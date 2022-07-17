@@ -23,6 +23,7 @@ interface Props {
   inStates?: ORDER_STATE[];
   notStates?: ORDER_STATE[];
   showState?: boolean;
+  showSizes: boolean;
 }
 const props = defineProps<Props>();
 const { inStates, notStates } = toRefs(props);
@@ -187,10 +188,14 @@ async function cancelChecked() {
       :scroll-x="800"
       :columns="columns"
       :data="tableData"
-      :pagination="{
-        'show-size-picker': true,
-        'page-sizes': [5, 10, 25, 50, 100],
-      }"
+      :pagination="
+        showSizes
+          ? {
+              'show-size-picker': true,
+              'page-sizes': [5, 10, 25, 50, 100],
+            }
+          : false
+      "
       :bordered="false"
       style="min-height: 50vh"
     />

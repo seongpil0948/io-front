@@ -1,4 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ORDER_STATE } from "@/types";
+</script>
 <template>
-  <n-h1>Not Implement</n-h1>
+  <shop-add-order-table
+    :inStates="[ORDER_STATE.BEFORE_ORDER]"
+    :showSizes="true"
+  />
 </template>

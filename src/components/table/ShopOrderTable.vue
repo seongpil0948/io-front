@@ -8,6 +8,7 @@ import { computed, h, ref } from "vue";
 interface Props {
   inStates?: ORDER_STATE[];
   notStates?: ORDER_STATE[];
+  showSizes: boolean;
 }
 const props = defineProps<Props>();
 const emits = defineEmits<{
@@ -183,10 +184,14 @@ const refinedCols = computed(() => {
       :scroll-x="800"
       :columns="refinedCols"
       :data="vendorCombined"
-      :pagination="{
-        'show-size-picker': true,
-        'page-sizes': [5, 10, 25, 50, 100],
-      }"
+      :pagination="
+        showSizes
+          ? {
+              'show-size-picker': true,
+              'page-sizes': [5, 10, 25, 50, 100],
+            }
+          : false
+      "
       :bordered="false"
     />
   </n-card>

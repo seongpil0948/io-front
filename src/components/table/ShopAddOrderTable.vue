@@ -22,6 +22,7 @@ import { useLogger } from "vue-logger-plugin";
 interface Props {
   inStates?: ORDER_STATE[];
   notStates?: ORDER_STATE[];
+  showSizes: boolean;
 }
 const msg = useMessage();
 const props = defineProps<Props>();
@@ -43,7 +44,6 @@ const cols = [
   return { key: c } as IoColOpt;
 });
 const tableRef = ref<any>(null);
-const tablePageSize = ref(5);
 const keyField = "shopProdId";
 const { columns, mapper, checkedKeys } = useTable<ShopReqOrderJoined>({
   userId: user.userInfo.userId,
@@ -188,9 +188,14 @@ function downXlsx() {
       :scroll-x="800"
       :columns="columns"
       :data="orderJoined"
-      :pagination="{
-        pageSize: tablePageSize,
-      }"
+      :pagination="
+        showSizes
+          ? {
+              'show-size-picker': true,
+              'page-sizes': [5, 10, 25, 50, 100],
+            }
+          : false
+      "
       :bordered="false"
       :row-class-name="rowClassName"
     />

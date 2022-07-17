@@ -102,6 +102,7 @@ watchEffect(() => {
           ORDER_STATE.BEFORE_PAYMENT,
           ORDER_STATE.BEFORE_SHIP,
         ]"
+        :showSizes="true"
       />
     </n-card>
     <n-card

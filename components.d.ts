@@ -5,6 +5,8 @@ import '@vue/runtime-core'
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    AfterApproveList: typeof import('./src/views/vendor/page/AfterApproveList.vue')['default']
+    BeforeApproveList: typeof import('./src/views/vendor/page/BeforeApproveList.vue')['default']
     CarouselImgCard: typeof import('./src/components/card/CarouselImgCard.vue')['default']
     CoinImage: typeof import('./src/components/common/CoinImage.vue')['default']
     CoinWallet: typeof import('./src/components/card/CoinWallet.vue')['default']
@@ -83,9 +85,7 @@ declare module '@vue/runtime-core' {
     NText: typeof import('naive-ui')['NText']
     NTooltip: typeof import('naive-ui')['NTooltip']
     OrderComplete: typeof import('./src/views/shop/page/OrderComplete.vue')['default']
-    OrderList: typeof import('./src/views/vendor/page/OrderList.vue')['default']
     OrderRequire: typeof import('./src/views/shop/page/OrderRequire.vue')['default']
-    OrderSubmit: typeof import('./src/views/vendor/page/OrderSubmit.vue')['default']
     PartCtgrMenu: typeof import('./src/components/menu/PartCtgrMenu.vue')['default']
     PlayGround: typeof import('./src/views/common/PlayGround.vue')['default']
     ProductAdd: typeof import('./src/views/shop/page/ProductAdd.vue')['default']

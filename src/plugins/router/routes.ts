@@ -54,25 +54,25 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/orderlist",
-        name: "OrderList",
-        component: () => import("@/views/vendor/page/OrderList.vue"),
-        meta: {
-          allowRoles: [USER_ROLE.VENDOR],
-        },
-      },
-      {
-        path: "/ordersubmit",
-        name: "OrderSubmit",
-        meta: {
-          allowRoles: [USER_ROLE.VENDOR],
-        },
-        component: () => import("@/views/vendor/page/OrderSubmit.vue"),
-      },
-      {
         path: "/unclemanage",
         name: "UncleManage",
         component: () => import("@/views/vendor/page/UncleManage.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.VENDOR],
+        },
+      },
+      {
+        path: "/beforeApproveList",
+        name: "BeforeApproveList",
+        component: () => import("@/views/vendor/page/BeforeApproveList.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.VENDOR],
+        },
+      },
+      {
+        path: "/afterApproveList",
+        name: "AfterApproveList",
+        component: () => import("@/views/vendor/page/AfterApproveList.vue"),
         meta: {
           allowRoles: [USER_ROLE.VENDOR],
         },

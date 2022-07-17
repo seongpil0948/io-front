@@ -88,7 +88,10 @@ const sales = { today: 500000 };
         tab="주문 해야할 내역"
         name="reqOrderList"
       >
-        <shop-add-order-table :inStates="[ORDER_STATE.BEFORE_ORDER]" />
+        <shop-add-order-table
+          :showSizes="false"
+          :inStates="[ORDER_STATE.BEFORE_ORDER]"
+        />
       </n-tab-pane>
       <n-tab-pane
         display-directive="show:lazy"
@@ -102,6 +105,7 @@ const sales = { today: 500000 };
             ORDER_STATE.BEFORE_SHIP,
           ]"
           @clickOrder="onClickOrder"
+          :showSizes="false"
         />
       </n-tab-pane>
       <n-tab-pane tab="실시간 픽업 현황" name="pickStatus"> gg </n-tab-pane>
