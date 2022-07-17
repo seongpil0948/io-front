@@ -83,6 +83,7 @@ function onCheck(val: string) {
     close-on-esc
     size="huge"
     preset="card"
+    style="margin: 0 10%"
   >
     <n-card>
       <n-space inline justify="center">
