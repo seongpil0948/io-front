@@ -58,5 +58,11 @@ async function toShop() {
     <n-button round type="primary" @click="toShop">소매계정전환</n-button>
     <!-- <<< TEMP <<< -->
     <n-button round type="primary" @click="csChat">채팅 상담</n-button>
+    <n-button
+      round
+      type="primary"
+      @click="router.push({ name: 'OrderLinkage' })"
+      >주문연동</n-button
+    >
   </n-layout-footer>
 </template>

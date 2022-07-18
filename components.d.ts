@@ -85,6 +85,7 @@ declare module '@vue/runtime-core' {
     NText: typeof import('naive-ui')['NText']
     NTooltip: typeof import('naive-ui')['NTooltip']
     OrderComplete: typeof import('./src/views/shop/page/OrderComplete.vue')['default']
+    OrderLinkage: typeof import('./src/views/shop/page/OrderLinkage.vue')['default']
     OrderRequire: typeof import('./src/views/shop/page/OrderRequire.vue')['default']
     PartCtgrMenu: typeof import('./src/components/menu/PartCtgrMenu.vue')['default']
     PlayGround: typeof import('./src/views/common/PlayGround.vue')['default']

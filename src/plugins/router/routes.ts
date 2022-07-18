@@ -132,6 +132,14 @@ export const routes: Array<RouteRecordRaw> = [
           allowRoles: [USER_ROLE.SHOP],
         },
       },
+      {
+        path: "/orderlinkage",
+        name: "OrderLinkage",
+        component: () => import("@/views/shop/page/OrderLinkage.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP],
+        },
+      },
     ],
   },
   {
