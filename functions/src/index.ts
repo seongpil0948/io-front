@@ -1,9 +1,36 @@
-import * as functions from "firebase-functions";
+import functions = require("firebase-functions");
+import firestore = require("@google-cloud/firestore");
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+const client = new firestore.v1.FirestoreAdminClient();
+const bucket = "gs://io-archives/backups/io-box/";
+
+exports.scheduledFirestoreExport = functions.pubsub
+  .schedule("0 3 1 * 1")
+  .onRun((context) => {
+    const projectId = process.env.GCP_PROJECT || process.env.GCLOUD_PROJECT;
+    const databaseName = client.databasePath(projectId!, "(default)");
+    functions.logger.info("Hello scheduledFirestoreExport logs!", {
+      structuredData: true,
+      context,
+    });
+    const date = new Date();
+    return client
+      .exportDocuments({
+        name: databaseName,
+        outputUriPrefix: bucket + date.toISOString().split("T")[0],
+        // Leave collectionIds empty to export all collections
+        // or set to a list of collection IDs to export,
+        // collectionIds: ['users', 'posts']
+        collectionIds: [],
+      })
+      .then((responses) => {
+        const response = responses[0];
+        console.log(`Operation Name: ${response["name"]}`);
+        functions.logger.debug(`Operation Name: ${response}`);
+      })
+      .catch((err) => {
+        console.error(err);
+        functions.logger.error("scheduledFirestoreExport Fail", err);
+        throw new Error("Export operation failed");
+      });
+  });
