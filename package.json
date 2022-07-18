@@ -9,6 +9,9 @@
     "cypress:open": "cypress open",
     "lint": "vue-cli-service lint"
   },
+  "engines": {
+    "node": "16"
+  },
   "dependencies": {
     "axios": "^0.27.2",
     "bootpay-js": "^2.0.4",
