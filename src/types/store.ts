@@ -6,7 +6,8 @@ type IoCollection =
   | "MAPPER"
   | "SHOP_REQ_ORDER"
   | "SHOP_REQ_ORDER_NUMBER"
-  | "USER_LOG";
+  | "USER_LOG"
+  | "TOKENS";
 
 const IoCollection: { [key in IoCollection]: IoCollection } = Object.freeze({
   USER: "USER",
@@ -17,5 +18,6 @@ const IoCollection: { [key in IoCollection]: IoCollection } = Object.freeze({
   SHOP_REQ_ORDER: "SHOP_REQ_ORDER",
   SHOP_REQ_ORDER_NUMBER: "SHOP_REQ_ORDER_NUMBER",
   USER_LOG: "USER_LOG",
+  TOKENS: "TOKENS",
 });
 export { IoCollection };

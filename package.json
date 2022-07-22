@@ -9,10 +9,8 @@
     "cypress:open": "cypress open",
     "lint": "vue-cli-service lint"
   },
-  "engines": {
-    "node": "16"
-  },
   "dependencies": {
+    "@vuepic/vue-datepicker": "^3.3.1",
     "axios": "^0.27.2",
     "bootpay-js": "^2.0.4",
     "core-js": "^3.8.3",
