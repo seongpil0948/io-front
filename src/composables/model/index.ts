@@ -3,7 +3,7 @@ export * from "./errors";
 export * from "./user";
 export * from "./mapper";
 export * from "./vendor-product";
-export * from "./order-info";
+export * from "./order";
 export * from "./shop-product";
 export * from "./account";
 export * from "./io-pay";

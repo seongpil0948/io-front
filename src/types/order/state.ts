@@ -29,6 +29,13 @@ const ORDER_STATE: { [key in ORDER_STATE]: ORDER_STATE } = Object.freeze({
   ORDER_DONE: "ORDER_DONE",
 });
 
+// export type ORDER_OPERATE = "ADD_PENDING" | "REDUCE_PEDING" | "INIT";
+// export const ORDER_OPERATE: { [key in ORDER_OPERATE]: ORDER_OPERATE } =
+//   Object.freeze({
+//     INIT: "INIT",
+//     REDUCE_PEDING: "REDUCE_PEDING",
+//     ADD_PENDING: "ADD_PENDING",
+//   });
 interface OrderParam {
   inStates?: ORDER_STATE[];
   notStates?: ORDER_STATE[];

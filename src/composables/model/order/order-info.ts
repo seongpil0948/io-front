@@ -1,3 +1,4 @@
+import { CommonField } from "@/composables";
 import {
   dateToTimeStamp,
   getIoCollection,
@@ -17,7 +18,6 @@ import {
   setDoc,
   getDoc,
 } from "firebase/firestore";
-import { CommonField } from "./common";
 import { v4 as uuidv4 } from "uuid";
 
 class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
@@ -29,11 +29,11 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
   vendorProdId: string;
   shopId: string;
   shopProdId: string;
-  orderCnt: number;
-  activeCnt: number;
-  pendingCnt: number;
-  amount: number;
-  amountPaid: number;
+  orderCnt: number; // 총 주문 개수
+  activeCnt: number; // 배송가능 개수 (총 주문 개수 - 미송 개수)
+  pendingCnt: number; // 미송 개수
+  amount: number; // 주문 금액
+  amountPaid: number; // 결제 완료 금액
   orderState: ORDER_STATE;
   waitApprove: boolean;
 
@@ -153,7 +153,28 @@ class ShopReqOrder extends CommonField implements ShopReqOrderCRT {
         })
       : null;
   }
+
+  copyWith(d: Partial<ShopReqOrderCRT>) {
+    return new ShopReqOrder({
+      createdAt: d.createdAt ?? this.createdAt,
+      updatedAt: d.updatedAt ?? this.updatedAt,
+      dbId: d.dbId ?? this.dbId,
+      orderId: d.orderId ?? this.orderId,
+      vendorId: d.vendorId ?? this.vendorId,
+      vendorProdId: d.vendorProdId ?? this.vendorProdId,
+      shopId: d.shopId ?? this.shopId,
+      shopProdId: d.shopProdId ?? this.shopProdId,
+      orderCnt: d.orderCnt ?? this.orderCnt,
+      activeCnt: d.activeCnt ?? this.activeCnt,
+      pendingCnt: d.pendingCnt ?? this.pendingCnt,
+      amount: d.amount ?? this.amount,
+      amountPaid: d.amountPaid ?? this.amountPaid,
+      orderState: d.orderState ?? this.orderState,
+      waitApprove: d.waitApprove ?? this.waitApprove,
+    });
+  }
 }
+
 const shopReqOrderConverter = {
   toFirestore: (p: ShopReqOrder) => {
     const j = p.toJson();
