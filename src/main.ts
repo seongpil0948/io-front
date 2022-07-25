@@ -1,14 +1,14 @@
 import { createApp, markRaw } from "vue";
-import router from "./plugins/router";
-import _axios from "./plugins/axios";
-import { ioFire } from "./plugins/firebase";
+import router from "./plugin/router";
+import _axios from "./plugin/axios";
+import { ioFire } from "./plugin/firebase";
 import moment from "moment";
 import { createPinia } from "pinia";
 import App from "./App.vue";
-import { ioColors } from "./composables";
-import vueKakao from "./plugins/kakao";
+import vueKakao from "./plugin/kakao";
 import { getMessaging, onMessage } from "@firebase/messaging";
-import { logger } from "./plugins/logger";
+import { logger } from "./plugin/logger";
+import { ioColors } from "./constants";
 
 window.onerror = function (errorMsg, url, errorObj) {
   logger.error(

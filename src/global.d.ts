@@ -1,10 +1,10 @@
-import { ioColors } from "./composables/config";
 import { AxiosInstance } from "axios";
-import { ioFire } from "@/plugins/firebase";
+import { ioFire } from "@/plugin/firebase";
 import type { Router } from "vue-router";
 import "pinia";
+import "vue-router";
+import "vue";
 import type { Kakao } from "@types/kakao-js-sdk";
-import { USER_ROLE } from "./types";
 
 declare global {
   interface Window {

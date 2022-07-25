@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import { useAuthStore } from "@/stores";
-import { getCurrentInstance, onBeforeMount } from "vue";
-import { IoUser, KAKAO_CHANNEL_ID } from "@/composables";
-import shops from "../../../tests/e2e/fixtures/users/shops";
-import vendors from "../../../tests/e2e/fixtures/users/vendors";
-import { useRouter } from "vue-router";
+import { getCurrentInstance } from "vue";
+
 const inst = getCurrentInstance();
 
 function csChat() {
@@ -13,31 +9,6 @@ function csChat() {
     channelPublicId: KAKAO_CHANNEL_ID,
   });
 }
-// >>> TEMP >>>
-const auth = useAuthStore();
-const router = useRouter();
-onBeforeMount(() => {
-  if (!auth.$state.user) {
-    const user = IoUser.fromJson(shops[0]) ?? IoUser.fromJson(vendors[0]);
-    if (user) {
-      auth.login(user);
-    }
-  }
-});
-async function toVendor() {
-  const u = IoUser.fromJson(vendors[0])!;
-  // await u.update();
-  await auth.login(u);
-  router.goHome(auth.user!);
-}
-async function toShop() {
-  const u = IoUser.fromJson(shops[0])!;
-  // await u.update();
-  auth.login(u);
-  router.goHome(auth.user!);
-}
-
-// <<< TEMP <<<
 </script>
 
 <template>
