@@ -34,4 +34,17 @@ export const lightTheme: GlobalThemeOverrides = {
     color: ioColors.white,
     buttonTextColorActive: ioColors.white,
   },
+  // Tabs: {
+  //   barColor: ioColors.black,
+  //   tabColor: ioColors.primary,
+  //   tabTextColorActiveSegment: ioColors.black,
+  //   tabTextColorActiveBar: ioColors.black,
+  //   tabTextColorActiveCard: ioColors.black,
+  //   tabTextColorSegment: ioColors.black,
+  //   tabTextColorCard: ioColors.black,
+  //   tabTextColorBar: ioColors.black,
+  //   tabTextColorHoverBar: ioColors.white,
+  //   tabTextColorHoverSegment: ioColors.white,
+  //   tabTextColorHoverCard: ioColors.white,
+  // },
 };

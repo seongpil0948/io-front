@@ -5,7 +5,7 @@ const currTab = ref<string>("beforeApproveList");
 </script>
 <template>
   <n-space vertical align="center">
-    <n-card style="width: 80%">
+    <n-card>
       <n-tabs v-model:value="currTab">
         <n-tab-pane
           display-directive="show:lazy"
