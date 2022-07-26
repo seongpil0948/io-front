@@ -1,11 +1,14 @@
-import { IoUserCRT, IoUser, CRUD_DB, OrderCrt } from "@/module";
 import {
-  VendorProdCrt,
+  IoUserCRT,
+  IoUser,
+  CRUD_DB,
+  OrderCrt,
+  GARMENT_SIZE,
   GENDER,
   PART,
-  GARMENT_SIZE,
   StockCntObj,
-} from "../domain";
+  VendorProdCrt,
+} from "@/module";
 import { VendorGarment } from "./model";
 
 export interface VendorGarmentCrt extends VendorProdCrt {

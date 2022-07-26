@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { lightTheme } from "./constants";
-import MainView from "./view/MainView.vue";
 </script>
 
 <template>

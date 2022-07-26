@@ -1,9 +1,9 @@
-import { VendorGarmentCrt, GARMENT_SIZE } from "@/module";
-import { CommonField } from "@/module/common";
 // import { logger } from "@/plugin/logger";
+import { CommonField } from "@/module/common";
 import { dateToTimeStamp } from "@/util";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
-import { GENDER, PART } from "../domain";
+import type { GENDER, PART, GARMENT_SIZE } from "../domain";
+import { VendorGarmentCrt } from "./domain";
 
 export class VendorGarment extends CommonField implements VendorGarmentCrt {
   gender: GENDER;

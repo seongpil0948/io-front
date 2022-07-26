@@ -35,7 +35,7 @@ const router = useRouter();
 
 const msg = useMessage();
 const { play, stop } = useFireWork();
-let step = ref(1);
+const step = ref(1);
 onMounted(() => {
   setTimeout(() => {
     step.value = 2;
@@ -48,8 +48,8 @@ onBeforeUnmount(() => {
   stop();
 });
 
-let user = ref<IoUser | null>(null);
-let acceptTerms = ref(false);
+const user = ref<IoUser | null>(null);
+const acceptTerms = ref(false);
 
 async function onStep4() {
   if (!inst) return;

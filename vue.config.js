@@ -29,7 +29,7 @@ module.exports = defineConfig({
         extensions: ["vue"],
         resolvers: [NaiveUiResolver()],
         dts: true,
-        dirs: ["src/components", "src/views"],
+        dirs: ["src/component", "src/view"],
         include: [/\.vue$/, /\.vue\?vue/],
         deep: true,
         exclude: [

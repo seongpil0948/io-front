@@ -1,4 +1,5 @@
-import { CRUD_DB, CRUD_DB_BATCH, IoAccount, IoUser, LocateCRT } from "@/module";
+import { IoAccount, IoUser, LocateCRT } from "@/module";
+import { UserCredential } from "firebase/auth";
 
 type USER_ROLE = "SHOP" | "VENDOR" | "UNCLE" | "ADMIN" | "ANONYMOUSE";
 const USER_ROLE: { [key in USER_ROLE]: USER_ROLE } = Object.freeze({
@@ -69,12 +70,19 @@ export interface AccountInfo {
 }
 interface IoUserCRT {
   userInfo: IoUserInfo;
-  copanyInfo?: CompanyInfo;
+  companyInfo?: CompanyInfo;
   operInfo?: ShopOperInfo | VendorOperInfo;
   account?: AccountInfo;
 }
-export interface UserDB extends CRUD_DB, CRUD_DB_BATCH {
+export interface UserDB {
+  getUserById(uid: string): Promise<IoUser | null | undefined>;
+  getUserByIds(uids: string[]): Promise<IoUser[]>;
   getUsersByRole(role: USER_ROLE): Promise<IoUser[]>;
+  ioSignUpCredential(
+    uc: UserCredential,
+    name: string,
+    role: USER_ROLE
+  ): Promise<void>;
 }
 
 export {

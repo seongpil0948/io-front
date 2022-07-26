@@ -64,3 +64,4 @@ const logger = createLogger({
 });
 
 export { logger };
+export * from "./model";

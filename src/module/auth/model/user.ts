@@ -28,7 +28,7 @@ import { useRouter } from "vue-router";
 
 class IoUser extends CommonField implements IoUserCRT {
   userInfo: IoUserInfo;
-  copanyInfo?: CompanyInfo;
+  companyInfo?: CompanyInfo;
   operInfo?: ShopOperInfo | VendorOperInfo;
   account?: AccountInfo;
 
@@ -46,7 +46,7 @@ class IoUser extends CommonField implements IoUserCRT {
   constructor(c: IoUserCRT) {
     super(c.userInfo.createdAt, c.userInfo.updatedAt);
     this.userInfo = c.userInfo;
-    this.copanyInfo = c.copanyInfo;
+    this.companyInfo = c.companyInfo;
     this.operInfo = c.operInfo;
     this.account = c.account;
   }
@@ -97,7 +97,7 @@ class IoUser extends CommonField implements IoUserCRT {
     return data
       ? new IoUser({
           userInfo,
-          copanyInfo: data.copanyInfo,
+          companyInfo: data.companyInfo,
           operInfo: data.operInfo,
           account: data.account,
         })

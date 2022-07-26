@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { notAuthName } from "@/plugin/router";
 import { useCommonStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { useLoadingBar, useMessage } from "naive-ui";
