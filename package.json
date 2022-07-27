@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve --port 8090 --mode development",
     "serve-local": "vue-cli-service serve --port 8090 --mode local",
     "build": "vue-cli-service build",
+    "build-dev": "vue-cli-service build --mode development",
     "test:e2e": "vue-cli-service test:e2e",
     "cypress:open": "cypress open",
     "lint": "vue-cli-service lint"
