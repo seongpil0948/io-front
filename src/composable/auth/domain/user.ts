@@ -74,6 +74,11 @@ interface IoUserCRT {
   operInfo?: ShopOperInfo | VendorOperInfo;
   account?: AccountInfo;
 }
+export type UserFields = CompanyInfo &
+  IoUserInfo &
+  ShopOperInfo &
+  VendorOperInfo &
+  AccountInfo;
 export interface UserDB {
   getUserById(uid: string): Promise<IoUser | null | undefined>;
   getUserByIds(uids: string[]): Promise<IoUser[]>;

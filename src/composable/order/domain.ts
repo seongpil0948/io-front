@@ -60,7 +60,7 @@ export interface OrderAmount {
   shipFeeAmount: number;
   shipFeeDiscountAmount: number;
   tax: number;
-  paymentAmount: number; // 지불된 금액
+  paidAmount: number; // 지불된 금액
   paid: BOOL_M; // 지불된 금액
   pureAmount: number; // 순수 상품 금액 (로그용)
   orderAmount: number; // 주문 요청 금액

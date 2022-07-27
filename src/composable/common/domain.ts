@@ -1,23 +1,3 @@
-export type LocateType = "매장" | "창고" | "기타";
-export const LocateType: { [key: string]: LocateType } = {
-  SHOP: "매장",
-  STORAGE: "창고",
-  ETC: "기타",
-};
-export interface LocateCRT {
-  alias: string;
-  latitude?: number; // 위도
-  longitude?: number; // 경도
-  detailLocate?: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  postalCode?: string;
-  country: string;
-  city?: string;
-  loateType: LocateType;
-}
-
 export type BOOL_M = "T" | "F" | "M";
 export const BOOL_M: { [key in BOOL_M]: BOOL_M } = Object.freeze({
   T: "T",
