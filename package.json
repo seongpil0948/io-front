@@ -12,7 +12,7 @@
   "dependencies": {
     "@vuepic/vue-datepicker": "^3.3.1",
     "axios": "^0.27.2",
-    "bootpay-js": "^2.0.4",
+    "bootpay-js": "^2.0.18",
     "core-js": "^3.8.3",
     "danfojs": "^1.1.1",
     "firebase": "^9.8.2",
