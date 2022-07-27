@@ -7,7 +7,7 @@ import { useAuthStore } from "@/stores";
 import { QuestionCircleRegular } from "@vicons/fa";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
-import { IO_PAY_DB } from "@/module";
+import { IO_PAY_DB } from "@/composable";
 
 const log = useLogger();
 const APP_ID = "62b45e0fe38c3000215aec6b";

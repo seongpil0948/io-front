@@ -9,7 +9,7 @@ import {
   VendorUserGarment,
   VendorUserGarmentCombined,
   VENDOR_GARMENT_DB,
-} from "@/module";
+} from "@/composable";
 
 interface VendorStoreInterface {
   vendors: IoUser[];

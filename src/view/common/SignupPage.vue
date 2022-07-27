@@ -5,7 +5,7 @@ import {
   USER_PROVIDER,
   USER_ROLE,
   VendorOperInfo,
-} from "@/module";
+} from "@/composable";
 import { makeMsgOpt, useFireWork } from "@/util";
 import { FormInst, useMessage } from "naive-ui";
 import {

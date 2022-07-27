@@ -4,13 +4,11 @@ import { makeMsgOpt } from "@/util";
 import { useLoadingBar, useMessage } from "naive-ui";
 import { watch, watchPostEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
-import { useRouter } from "vue-router";
 
 // this view consumes Global State(common)
 const cs = useCommonStore();
 const loading = useLoadingBar();
 const msg = useMessage();
-const router = useRouter();
 const log = useLogger();
 watch(
   () => cs.isLoading,

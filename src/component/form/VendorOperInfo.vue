@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SALE_MANAGE, VendorOperInfo } from "@/module";
+import { SALE_MANAGE, VendorOperInfo } from "@/composable";
 import { deadOpt, newProdQuantityOpt, notNullRule } from "@/util";
 import { FormInst } from "naive-ui";
 import { reactive, ref } from "vue";

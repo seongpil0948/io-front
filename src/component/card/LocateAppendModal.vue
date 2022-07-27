@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Locate, LocateCRT, LocateType } from "@/module";
+import { Locate, LocateCRT, LocateType } from "@/composable";
 import { locateTypeOpt, nameLenRule } from "@/util";
 import { FormInst, useMessage } from "naive-ui";
 import { reactive, ref, toRefs, watchEffect } from "vue";

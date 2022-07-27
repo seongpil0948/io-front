@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --port 8090",
+    "serve": "vue-cli-service serve --port 8090 --mode development",
+    "serve-local": "vue-cli-service serve --port 8090 --mode local",
     "build": "vue-cli-service build",
     "test:e2e": "vue-cli-service test:e2e",
     "cypress:open": "cypress open",

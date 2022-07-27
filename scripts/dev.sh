@@ -1,1 +1,1 @@
-npm run build && firebase hosting:channel:deploy dev --expires 1d
+npm run build && firebase hosting:channel:deploy preview --expires 1d

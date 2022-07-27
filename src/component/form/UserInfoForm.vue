@@ -6,7 +6,7 @@ import {
   LocateCRT,
   USER_PROVIDER,
   USER_ROLE,
-} from "@/module";
+} from "@/composable";
 import { emailRule, nameLenRule, strLenRule } from "@/util";
 
 import { getAuth } from "@firebase/auth";

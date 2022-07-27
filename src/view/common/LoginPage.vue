@@ -7,7 +7,7 @@ import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
 import { useEventListener } from "@/util";
 import { KAKAO_CHANNEL_ID } from "@/constants";
-import { IoUser, USER_DB, USER_PROVIDER } from "@/module";
+import { IoUser, USER_DB, USER_PROVIDER } from "@/composable";
 
 const log = useLogger();
 const inst = getCurrentInstance();

@@ -1,4 +1,4 @@
-import { USER_ROLE } from "@/module";
+import { USER_ROLE } from "@/composable";
 import { ioStorage } from "@/plugin/firebase";
 import {
   getDownloadURL,

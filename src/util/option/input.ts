@@ -1,23 +1,23 @@
+import { GENDER, PART } from "./../../composable/product/domain";
 import {
   CATEGORIES,
   FreeSize,
   GarmentSize,
   GARMENT_SIZE,
-  GENDER,
   LocateType,
-  PART,
   SHIP_METHOD,
   ShoesSize,
-} from "@/module";
+} from "@/composable";
+
 import { range } from "lodash";
 import { computed } from "vue";
 
-// export const genderOpts = Object.keys(GENDER).map((x) => {
-//   return { label: x, value: x };
-// });
-// export const partOpts = Object.keys(PART).map((x) => {
-//   return { label: x, value: x };
-// });
+export const genderOpts = Object.keys(GENDER).map((x) => {
+  return { label: x, value: x };
+});
+export const partOpts = Object.keys(PART).map((x) => {
+  return { label: x, value: x };
+});
 
 export function rangeOpts(
   start: number,

@@ -1,4 +1,4 @@
-import { USER_ROLE } from "@/module";
+import { USER_ROLE } from "@/composable";
 import type { RouteRecordRaw } from "vue-router";
 
 export const routes: Array<RouteRecordRaw> = [

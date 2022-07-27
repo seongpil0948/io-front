@@ -8,7 +8,7 @@ import {
   ShopOperInfo,
   USER_ROLE,
   VendorOperInfo,
-} from "@/module";
+} from "@/composable";
 import { useAuthStore } from "@/store";
 import { deadOpt, shipMethodOpt } from "@/util";
 const authStore = useAuthStore();

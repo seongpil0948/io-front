@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { routes } from "./routes";
 import { useAuthStore, useCommonStore } from "@/store";
 import { logger } from "../logger";
-import { IoUser, USER_ROLE } from "@/module";
+import { IoUser, USER_ROLE } from "@/composable";
 export const notAuthName = ["Login", "SignUp", "PlayGround"];
 
 const router = createRouter({

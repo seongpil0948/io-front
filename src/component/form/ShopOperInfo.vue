@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SHIP_METHOD, ShopOperInfo } from "@/module";
+import { SHIP_METHOD, ShopOperInfo } from "@/composable";
 import { notNullRule, saleAvgOpt, shipMethodOpt } from "@/util";
 import { FormInst } from "naive-ui";
 import { reactive, ref } from "vue";

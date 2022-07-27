@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 import { logger } from "@/plugin/logger";
 import { onBeforeMount, ref } from "vue";
-import { CommonField } from "@/module";
+import { CommonField } from "@/composable";
 import {
   dateToTimeStamp,
   getIoCollection,
@@ -47,6 +47,10 @@ export class IoLog extends CommonField implements IoLogCRT {
       }
     });
     this.severity = data.severity;
+  }
+
+  update(): Promise<void> {
+    throw new Error("Method not implemented.");
   }
   async save() {
     if (!this.uid)

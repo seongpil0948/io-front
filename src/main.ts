@@ -17,6 +17,7 @@ window.onerror = function (errorMsg, url, errorObj) {
     errorObj
   );
 };
+logger.info(null, "in-out box front(web) has Ignited, with Env: ", process.env);
 Date.prototype.toJSON = function () {
   return moment(this).format();
 };

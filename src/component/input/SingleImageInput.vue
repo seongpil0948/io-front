@@ -2,7 +2,7 @@
 import { toRefs, ref } from "vue";
 import { useMessage } from "naive-ui";
 import { CloseCircle } from "@vicons/ionicons5";
-import { IoUser } from "@/module";
+import { IoUser } from "@/composable";
 import {
   makeMsgOpt,
   refByRoleSvc,
