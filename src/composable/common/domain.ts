@@ -22,7 +22,7 @@ export const SHIP_STATE: { [key in SHIP_STATE]: SHIP_STATE } = Object.freeze({
 
 export interface CRUD_DB {
   create(arg: any): Promise<void>;
-  update(arg: any): Promise<void>;
+  update(dbId: string): Promise<void>;
   delete(arg: any): Promise<void>;
   read(arg: any): Promise<void>;
 }

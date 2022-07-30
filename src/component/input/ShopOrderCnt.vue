@@ -3,13 +3,13 @@ import {
   getOrderCnt,
   getPendingCnt,
   makeMsgOpt,
-  ShopReqOrder,
+  GarmentOrder,
 } from "@/composables";
-import { ORDER_STATE, ShopReqOrderJoined } from "@/types";
+import { ORDER_STATE, GarmentOrderJoined } from "@/types";
 import { useMessage } from "naive-ui";
 import { toRefs, computed, ref } from "vue";
 const props = defineProps<{
-  row: ShopReqOrderJoined;
+  row: GarmentOrderJoined;
   onSubmitPost: () => void;
 }>();
 const { row } = toRefs(props);
@@ -34,7 +34,7 @@ function onUpdate(val: number | null) {
   row.value.amount = (row.value.prodPrice ?? 0) * val;
 }
 async function onSubmit() {
-  const order = ShopReqOrder.fromJson(row.value);
+  const order = GarmentOrder.fromJson(row.value);
   if (order) {
     order.update().then(() => {
       props.onSubmitPost();

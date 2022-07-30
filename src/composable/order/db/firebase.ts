@@ -1,10 +1,13 @@
-import { OrderDB } from "@/composable";
+import { OrderDB } from "../domain";
 
 export const OrderFB: OrderDB = {
+  orderGarment: function (row: any): Promise<void> {
+    throw new Error("Function not implemented.");
+  },
   create: function (arg: any): Promise<void> {
     throw new Error("Function not implemented.");
   },
-  update: function (arg: any): Promise<void> {
+  update: function (dbId: string): Promise<void> {
     throw new Error("Function not implemented.");
   },
   delete: function (arg: any): Promise<void> {

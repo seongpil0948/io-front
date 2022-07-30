@@ -1,4 +1,9 @@
-import { GARMENT_SIZE, ShopGarmentCrt } from "@/composable";
+import {
+  GARMENT_SIZE,
+  ShopGarmentCrt,
+  VendorGarmentCrt,
+  ShopGarmentQField,
+} from "@/composable";
 import { CommonField } from "@/composable/common";
 import {
   dateToTimeStamp,
@@ -8,6 +13,9 @@ import {
 } from "@/util";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 
+export function sameGarment(p: ShopGarmentCrt, g: ShopGarmentQField) {
+  return p.prodName === g.prodName && p.color === g.color && p.size === g.size;
+}
 export class ShopGarment extends CommonField implements ShopGarmentCrt {
   size: GARMENT_SIZE;
   color: string;
@@ -21,6 +29,14 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   bodyImgs: string[];
   info: string;
   description: string;
+
+  isSameWithVendor(p: VendorGarmentCrt) {
+    return (
+      this.vendorProdId === p.vendorProdId &&
+      this.color === p.color &&
+      this.size === p.size
+    );
+  }
 
   async update() {
     await insertById<ShopGarment>(
