@@ -21,6 +21,7 @@ const collapsed = ref(false);
     :width="240"
     :native-scrollbar="false"
     v-model:collapsed="collapsed"
+    style="height: 100%"
   >
     <n-space justify="center" align="center">
       <logo-image @click="router.goHome(authStore.currUser)" size="3.5rem" />
@@ -38,5 +39,6 @@ const collapsed = ref(false);
       :collapsed-icon-size="22"
       :options="menuOptions"
     />
+    <prefer-dark :text="!collapsed" />
   </n-layout-sider>
 </template>

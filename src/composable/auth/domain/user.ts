@@ -73,6 +73,7 @@ interface IoUserCRT {
   companyInfo?: CompanyInfo;
   operInfo?: ShopOperInfo | VendorOperInfo;
   account?: AccountInfo;
+  preferDark?: boolean;
 }
 export type UserFields = CompanyInfo &
   IoUserInfo &

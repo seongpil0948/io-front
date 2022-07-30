@@ -50,6 +50,7 @@ export class IoUser extends CommonField implements IoUserCRT {
     this.companyInfo = c.companyInfo;
     this.operInfo = c.operInfo;
     this.account = c.account;
+    this.preferDark = c.preferDark ?? true;
   }
 
   async update() {
@@ -102,6 +103,7 @@ export class IoUser extends CommonField implements IoUserCRT {
           companyInfo: data.companyInfo,
           operInfo: data.operInfo,
           account: data.account,
+          preferDark: data.preferDark ?? false,
         })
       : null;
   }

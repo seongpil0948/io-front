@@ -40,5 +40,6 @@ export const getMockShops = () => [
       name: "최성필",
       bankName: "농협",
     },
+    preferDark: true,
   }),
 ];

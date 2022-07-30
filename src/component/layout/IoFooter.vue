@@ -36,7 +36,6 @@ async function toShop() {
 
 <template>
   <n-layout-footer
-    class="io-background"
     bordered
     position="fixed"
     style="

@@ -41,6 +41,7 @@ export const getMockVendors = () => [
       name: "최성필",
       bankName: "신한",
     },
+    preferDark: true,
   }),
   new IoUser({
     userInfo: {
@@ -82,5 +83,6 @@ export const getMockVendors = () => [
       name: "최성필",
       bankName: "신한",
     },
+    preferDark: true,
   }),
 ];
