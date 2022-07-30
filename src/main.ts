@@ -8,7 +8,6 @@ import App from "./App.vue";
 import vueKakao from "./plugin/kakao";
 import { getMessaging, onMessage } from "@firebase/messaging";
 import { logger } from "./plugin/logger";
-import { ioColors } from "./constants";
 
 window.onerror = function (errorMsg, url, errorObj) {
   logger.error(
@@ -40,7 +39,6 @@ pinia.use(({ store }) => {
 });
 app.config.globalProperties.$http = _axios;
 app.config.globalProperties.$fire = ioFire;
-app.config.globalProperties.ioColors = ioColors;
 app.mount("#app");
 
 const messaging = getMessaging();

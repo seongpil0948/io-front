@@ -16,9 +16,6 @@ import { lightTheme } from "./constants";
 
 <style lang="scss">
 @import "./asset/variables.scss";
-.io-background {
-  background: $io-background;
-}
 
 body {
   width: 100vw;
@@ -47,7 +44,6 @@ body {
   max-width: 10rem;
 }
 .n-tabs--bar-type div.n-tabs-tab {
-  background-color: $io-primary;
   border-radius: 25px;
   margin-right: 2vw;
   padding: 0.8rem 2rem !important;
@@ -66,9 +62,9 @@ body {
   margin-bottom: 12px;
 }
 .n-tooltip,
-.n-popover {
-  border: $io-primary solid 0.3rem;
-}
+// .n-popover {
+//   border: $io-primary solid 0.3rem;
+// }
 .n-tabs .n-tab-pane {
   justify-content: center;
   display: flex;

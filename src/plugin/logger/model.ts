@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 import { logger } from "@/plugin/logger";
 import { onBeforeMount, ref } from "vue";
-import { CommonField } from "@/composable";
+import { CommonField } from "@/composable/common/model";
 import {
   dateToTimeStamp,
   getIoCollection,

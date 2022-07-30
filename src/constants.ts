@@ -1,6 +1,7 @@
 import type { GlobalThemeOverrides } from "naive-ui";
-
-export const ioColors = {
+// const auth = useAuthStore()
+// const useDark = auth.user ? auth.user.preferDark : false
+const lightColors = {
   primary: "#f0c755",
   background: "#f2f2f2",
   text: "#404040",
@@ -16,49 +17,55 @@ export const KAKAO_CHANNEL_ID = "_lwnyb";
 
 export const lightTheme: GlobalThemeOverrides = {
   common: {
-    primaryColor: ioColors.primary,
-    primaryColorHover: ioColors.white,
-    primaryColorPressed: ioColors.primary,
-    primaryColorSuppl: ioColors.primary,
-    baseColor: ioColors.primary,
-    iconColor: ioColors.text,
-    bodyColor: ioColors.background,
+    primaryColor: lightColors.primary,
+    primaryColorHover: lightColors.white,
+    primaryColorPressed: lightColors.primary,
+    primaryColorSuppl: lightColors.primary,
+    baseColor: lightColors.primary,
+    iconColor: lightColors.text,
+    bodyColor: lightColors.background,
     fontWeightStrong: "700",
     borderRadius: "10px",
-    textColorBase: ioColors.text,
-    textColor1: ioColors.text,
-    textColor2: ioColors.text,
-    successColor: ioColors.primary,
-    successColorHover: ioColors.primary,
-    successColorPressed: ioColors.primary,
+    textColorBase: lightColors.text,
+    textColor1: lightColors.text,
+    textColor2: lightColors.text,
+    successColor: lightColors.primary,
+    successColorHover: lightColors.primary,
+    successColorPressed: lightColors.primary,
   },
   Button: {
-    colorHoverPrimary: ioColors.white,
-    textColorPrimary: ioColors.text,
-    textColorSuccess: ioColors.text,
+    colorHoverPrimary: lightColors.white,
+    textColorPrimary: lightColors.text,
+    textColorSuccess: lightColors.text,
   },
   Radio: {
-    dotColorActive: ioColors.primary,
-    color: ioColors.white,
-    buttonTextColorActive: ioColors.white,
+    dotColorActive: lightColors.primary,
+    color: lightColors.white,
+    buttonTextColorActive: lightColors.white,
   },
   Checkbox: {
-    textColor: ioColors.text,
-    color: ioColors.white,
-    checkMarkColor: ioColors.text,
-    colorChecked: ioColors.white,
+    textColor: lightColors.text,
+    color: lightColors.white,
+    checkMarkColor: lightColors.text,
+    colorChecked: lightColors.white,
   },
   Dialog: {
-    textColor: ioColors.text,
-    iconColorSuccess: ioColors.text,
+    textColor: lightColors.text,
+    iconColorSuccess: lightColors.text,
   },
   Popover: {
-    dividerColor: ioColors.primary,
+    dividerColor: lightColors.primary,
   },
   Tooltip: {
-    color: ioColors.white,
-    textColor: ioColors.black,
-    boxShadow: ioColors.primary,
+    color: lightColors.white,
+    textColor: lightColors.black,
+    boxShadow: lightColors.primary,
     borderRadius: "10px",
+  },
+  Card: {
+    borderColor: lightColors.primary,
+  },
+  Tabs: {
+    barColor: lightColors.primary,
   },
 };

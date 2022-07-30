@@ -31,6 +31,7 @@ export class IoUser extends CommonField implements IoUserCRT {
   companyInfo?: CompanyInfo;
   operInfo?: ShopOperInfo | VendorOperInfo;
   account?: AccountInfo;
+  preferDark = false;
 
   get name() {
     return this.userInfo.displayName ?? this.userInfo.userName;

@@ -33,10 +33,10 @@ export function getIoCollection(p: getCollectParam): CollectionReference {
     case IoCollection.IO_PAY:
       str = "ioPay";
       break;
-    case IoCollection.SHOP_REQ_ORDER:
+    case IoCollection.ORDER_PROD:
       str = `user/${p.uid}/shopReqOrder`; // /${p.shopProdId}
       break;
-    case IoCollection.SHOP_REQ_ORDER_NUMBER:
+    case IoCollection.ORDER_PROD_NUMBER:
       str = `user/${p.uid}/orderNumber`; // orderId
       break;
     case IoCollection.USER_LOG:
@@ -53,7 +53,7 @@ export function getIoCollection(p: getCollectParam): CollectionReference {
 export function getIoCollectionGroup(c: IoCollection) {
   let str: string;
   switch (c) {
-    case IoCollection.SHOP_REQ_ORDER:
+    case IoCollection.ORDER_PROD:
       str = `shopReqOrder`;
       break;
     default:

@@ -1,10 +1,10 @@
+import { CommonField } from "@/composable/common/model";
 import {
   OrderAmount,
   OrderCrt,
   OrderParent,
   ProdOrder,
   SHIP_STATE,
-  CommonField,
   ShopGarmentCrt,
 } from "@/composable";
 import { OrderCancel, ORDER_STATE } from "../domain";
@@ -19,6 +19,7 @@ export class GarmentOrder
   extends CommonField
   implements OrderCrt<GarmentOrder>
 {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static fromProd(prod: ShopGarmentCrt, orderId: any): GarmentOrder {
     throw new Error("Method not implemented.");
   }

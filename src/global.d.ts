@@ -17,7 +17,6 @@ declare module "vue" {
   interface ComponentCustomProperties {
     $http: AxiosInstance;
     $fire: typeof ioFire;
-    ioColors: ioColors;
     $kakao: Kakao;
   }
 }

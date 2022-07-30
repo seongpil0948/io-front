@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { OrderDB } from "../domain";
 
 export const OrderFB: OrderDB = {
