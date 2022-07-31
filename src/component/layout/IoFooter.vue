@@ -53,7 +53,7 @@ async function toShop() {
         <br />
         사업자등록번호: 720-08-02296 | 문의: inoutboxofficial@gmail.com
       </n-text>
-      <n-space v-if="isTest" justify="center">
+      <n-space v-if="isTest === 'true'" justify="center">
         <n-button round type="primary" @click="toVendor">도매계정전환</n-button>
         <n-button round type="primary" @click="toShop">소매계정전환</n-button>
         <!-- <<< TEMP <<< -->
