@@ -8,6 +8,7 @@ import {
   PART,
   StockCntObj,
   VendorProdCrt,
+  CRUD_DB_BATCH,
 } from "@/composable";
 import { VendorGarment } from "./model";
 
@@ -42,6 +43,6 @@ export interface VendorUserOrderGarment<O>
     OrderCrt<O> {
   shopUser?: IoUser;
 }
-export interface VendorGarmentDB extends CRUD_DB {
-  getVendorGarment(vendorId: string | null): Promise<VendorGarment[]>;
-}
+export interface VendorGarmentDB
+  extends CRUD_DB<VendorGarment>,
+    CRUD_DB_BATCH<VendorGarment> {}

@@ -153,7 +153,9 @@ export interface OrderCrt<T> {
   ): Promise<void>; // 서브 주문 생성
   sameOrder(p: T): boolean;
 }
-export interface OrderDB extends CRUD_DB, CRUD_DB_BATCH {
+export interface OrderDB<O>
+  extends CRUD_DB<OrderCrt<O>>,
+    CRUD_DB_BATCH<OrderCrt<O>> {
   orderGarment(row: any): Promise<void>;
 }
 

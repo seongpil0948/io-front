@@ -1,3 +1,5 @@
+import { Ref } from "vue";
+
 export type BOOL_M = "T" | "F" | "M";
 export const BOOL_M: { [key in BOOL_M]: BOOL_M } = Object.freeze({
   T: "T",
@@ -20,15 +22,16 @@ export const SHIP_STATE: { [key in SHIP_STATE]: SHIP_STATE } = Object.freeze({
   PENDING: "PENDING",
 });
 
-export interface CRUD_DB {
-  create(arg: any): Promise<void>;
+export interface CRUD_DB<T> {
+  create(arg: T): Promise<T>;
   update(dbId: string): Promise<void>;
-  delete(arg: any): Promise<void>;
-  read(arg: any): Promise<void>;
+  delete(dbId: string): Promise<void>;
+  read(dbId: string): Promise<T>;
 }
-export interface CRUD_DB_BATCH {
-  batchCreate(arg: any): Promise<void>;
-  batchUpdate(arg: any): Promise<void>;
-  batchDelete(arg: any): Promise<void>;
-  batchRead(arg: any): Promise<void>;
+export interface CRUD_DB_BATCH<T> {
+  batchCreate(args: T[]): Promise<T[]>;
+  batchUpdate(args: T[]): Promise<void>;
+  batchDelete(ids: string[]): Promise<void>;
+  batchRead(args: any[]): Promise<T[]>;
+  batchReadListen(args: any[]): { items: Ref<T[]>; unsubscribe: () => void };
 }

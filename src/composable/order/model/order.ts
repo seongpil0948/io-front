@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CommonField } from "@/composable/common/model";
 import {
   OrderAmount,

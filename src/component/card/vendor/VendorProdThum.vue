@@ -5,7 +5,7 @@
     content-style="padding: 0px 10px"
   >
     <template #cover>
-      <img style="object-fit: fill; height: 100%" :src="prod.titleImgs[0]" />
+      <img style="object-fit: fill; height: 150px" :src="prod.titleImgs[0]" />
     </template>
     <n-space class="row" inline>
       <n-text class="txt">{{ prod.vendorProdName }}</n-text>
@@ -19,11 +19,11 @@
 </template>
 
 <script setup lang="ts">
-import type { VendorUserProdCombined } from "@/types";
+import { VendorUserGarmentCombined } from "@/composable";
 import { toRefs } from "vue";
 
 const props = defineProps<{
-  prod: VendorUserProdCombined;
+  prod: VendorUserGarmentCombined;
 }>();
 const emits = defineEmits(["onClickProd"]);
 const { prod } = toRefs(props);

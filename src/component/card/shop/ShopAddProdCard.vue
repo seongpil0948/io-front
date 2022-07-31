@@ -1,18 +1,23 @@
 <script setup lang="ts">
-import { makeMsgOpt, ShopProd } from "@/composables";
-import { shopProdExist } from "@/plugins/firebase";
-import { useAuthStore } from "@/stores";
-import type { PROD_SIZE, VendorUserProdCombined } from "@/types";
 import { useMessage } from "naive-ui";
 import { computed, ref, toRefs } from "vue";
 import { v4 as uuidv4 } from "uuid";
+import {
+  GARMENT_SIZE,
+  ShopGarment,
+  shopGarmentExist,
+  VendorUserGarmentCombined,
+} from "@/composable";
+import { useAuthStore } from "@/store";
+import { makeMsgOpt } from "@/util";
 
 const props = defineProps<{
   showAddModal: boolean;
-  prod: VendorUserProdCombined;
+  prod: VendorUserGarmentCombined;
 }>();
 
 const { prod, showAddModal } = toRefs(props);
+console.log("prod: ", prod.value);
 const imgUrls = computed(() => [...prod.value.titleImgs, prod.value.bodyImgs]);
 const selectedProdIds = ref<string[]>([]);
 const optById: { [id: string]: { color: string; size: string } } = {};
@@ -40,7 +45,7 @@ async function onSubmit() {
   let addCnt = selectedProdIds.value.length;
   for (let i = 0; i < selectedProdIds.value.length; i++) {
     const vendorProdId = selectedProdIds.value[i];
-    if (await shopProdExist(vendorProdId, auth.currUser.userInfo.userId)) {
+    if (await shopGarmentExist(vendorProdId, auth.currUser.userInfo.userId)) {
       msg.error(
         `컬러 ${optById[vendorProdId].color}, 사이즈: ${optById[vendorProdId].size} 상품은 이미 존재합니다.`,
         makeMsgOpt()
@@ -49,14 +54,16 @@ async function onSubmit() {
       continue;
     }
 
-    const shopProd = new ShopProd({
+    const shopProd = new ShopGarment({
       vendorId: prod.value.vendorId,
       vendorProdId,
       shopProdId: uuidv4(),
       shopId: auth.currUser.userInfo.userId,
       prodPrice: prod.value.vendorPrice,
       prodName: prod.value.vendorProdName,
-      size: optById[vendorProdId].size as PROD_SIZE,
+      info: prod.value.info,
+      description: prod.value.description,
+      size: optById[vendorProdId].size as GARMENT_SIZE,
       color: optById[vendorProdId].color,
     });
     await shopProd.update();
@@ -114,8 +121,8 @@ function onCheck(val: string) {
     </n-card>
 
     <template #header-extra>
-      <n-h3 v-if="prod.copanyInfo && prod.copanyInfo.locations.length > 0">{{
-        prod.copanyInfo?.locations[0].phone
+      <n-h3 v-if="prod.companyInfo && prod.companyInfo.locations.length > 0">{{
+        prod.companyInfo?.locations[0].phone
       }}</n-h3>
     </template>
     <template #action>

@@ -1,4 +1,5 @@
-import { useVendors, MapperFields, UserShopGarment } from "@/composable";
+import { MapperFields, UserShopGarment } from "@/composable";
+import { useVendorsStore } from "@/store";
 import { Ref, ref, watchEffect } from "vue";
 import { ShopGarment, ShopGarmentQField, useGetShopGarments } from "..";
 
@@ -27,11 +28,10 @@ export function useUserShopGarment(
   const userProd: Ref<UserShopGarment[]> = ref([]);
   const rowIdField: keyof MapperFields = "shopProdId";
   const { shopProds } = useShopGarments(userId, shopCondi);
-  const { vendorStore } = useVendors();
-
+  const vendorStore = useVendorsStore();
   watchEffect(() => {
     userProd.value = [];
-    vendorStore.vendorUserProds.forEach((vendorUnit) => {
+    vendorStore.vendorUserGarments.forEach((vendorUnit) => {
       const prod = shopProds.value.find((p) => p.isSameWithVendor(vendorUnit));
       if (!prod) return;
       else if (vendorUnit.userInfo) {

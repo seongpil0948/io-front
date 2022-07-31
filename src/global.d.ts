@@ -31,6 +31,10 @@ declare module "pinia" {
     $router: Router;
     $kakao: Kakao;
   }
+  export interface DefineStoreOptionsBase<S, Store> {
+    // allow defining a number of ms for any of the actions
+    debounce?: Partial<Record<keyof StoreActions<Store>, number>>;
+  }
 }
 
 declare module "vue-router" {

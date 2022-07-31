@@ -40,10 +40,10 @@ async function toShop() {
     position="fixed"
     style="
       height: 64px;
-      padding: 24px;
       border: none;
       font-size: smaller;
-      padding-bottom: 1vh;
+      margin-bottom: 2vh;
+      padding: 12px;
     "
   >
     <n-space vertical align="center">

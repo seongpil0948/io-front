@@ -5,46 +5,42 @@ import {
   StockCntObj,
   USER_DB,
   USER_ROLE,
-  VendorGarment,
   VendorUserGarment,
   VendorUserGarmentCombined,
   VENDOR_GARMENT_DB,
 } from "@/composable";
+import { computed, ref, onBeforeMount } from "vue";
 
-interface VendorStoreInterface {
-  vendors: IoUser[];
-  vendorProds: VendorGarment[];
-}
+export const useVendorsStore = defineStore(
+  "vendorProd",
+  () => {
+    const vendors = ref<IoUser[]>([]);
+    const obj = VENDOR_GARMENT_DB.batchReadListen([]);
+    const vendorGarments = obj.items;
 
-export const useVendorsStore = defineStore({
-  id: "vendorProd",
-  state: () =>
-    <VendorStoreInterface>{
-      vendors: [],
-      vendorProds: [],
-    },
-  getters: {
-    isInitial: (state) =>
-      state.vendors.length === 0 && state.vendorProds.length === 0,
-    vendorsById: (state) =>
-      state.vendors.reduce<{ [userId: string]: IoUser }>((acc, user) => {
+    const isInitial = computed<boolean>(
+      () => vendors.value.length === 0 && vendorGarments.value.length === 0
+    );
+
+    const vendorsById = computed<{ [userId: string]: IoUser }>(() =>
+      vendors.value.reduce((acc: any, user: any) => {
         acc[user.userInfo.userId] = user;
         return acc;
-      }, {}),
-    // vendorProdsById: (state) =>
-    //   state.vendorProds.reduce<{ [prodId: string]: VendorProd }>((acc, p) => {
-    //     acc[p.vendorProdId] = p;
-    //     return acc;
-    //   }, {}),
-    vendorUserProds(): VendorUserGarment[] {
-      return this.vendorProds.map((p) =>
-        Object.assign(p, this.vendorsById[p.vendorId])
-      );
-    },
-    vendorUserCombinedProds(): {
-      [userAndProdName: string]: VendorUserGarmentCombined;
-    } {
-      return this.vendorUserProds.reduce<{
+      }, {} as { [userId: string]: IoUser })
+    );
+
+    const vendorUserGarments = computed<VendorUserGarment[]>(() => {
+      return vendorGarments.value
+        .map((p) => {
+          return vendorsById.value[p.vendorId]
+            ? Object.assign(p, vendorsById.value[p.vendorId])
+            : null;
+        })
+        .filter((x) => x) as VendorUserGarment[];
+    });
+
+    const vendorUserCombinedGarments = computed(() => {
+      return vendorUserGarments.value.reduce<{
         [userAndProdName: string]: VendorUserGarmentCombined;
       }>((acc, curr) => {
         const combineId = curr.combineId;
@@ -72,16 +68,30 @@ export const useVendorsStore = defineStore({
         acc[combineId].allStockCnt += curr.stockCnt;
         return acc;
       }, {});
-    },
-  },
-  actions: {
-    async getVendorProducts() {
-      this.vendorProds = await VENDOR_GARMENT_DB.getVendorGarment(null);
-    },
-    async getVendors() {
-      this.vendors = await USER_DB.getUsersByRole(USER_ROLE.VENDOR);
-    },
-  },
-});
+    });
 
-// csp#4466
+    async function getVendors() {
+      vendors.value = await USER_DB.getUsersByRole(USER_ROLE.VENDOR);
+    }
+    onBeforeMount(async () => {
+      if (isInitial.value) {
+        await getVendors();
+      }
+    });
+
+    return {
+      vendors,
+      vendorsById,
+      vendorGarments,
+      vendorUserGarments,
+      isInitial,
+      vendorUserCombinedGarments,
+      getVendors,
+    };
+  },
+  {
+    debounce: {
+      getVendors: 5000,
+    },
+  }
+);

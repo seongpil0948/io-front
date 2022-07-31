@@ -4,7 +4,7 @@ import { DarkModeOutlined } from "@vicons/material";
 
 const auth = useAuthStore();
 
-const props = defineProps<{ text: boolean }>();
+defineProps<{ text: boolean }>();
 async function changeDark(val: boolean) {
   console.log(val);
   if (auth.user) {

@@ -1,13 +1,14 @@
-import { createApp, markRaw } from "vue";
+import { createApp } from "vue";
 import router from "./plugin/router";
 import _axios from "./plugin/axios";
 import { ioFire } from "./plugin/firebase";
 import moment from "moment";
-import { createPinia } from "pinia";
+
 import App from "./App.vue";
 import vueKakao from "./plugin/kakao";
 import { getMessaging, onMessage } from "@firebase/messaging";
 import { logger } from "./plugin/logger";
+import { pinia } from "./store";
 
 window.onerror = function (errorMsg, url, errorObj) {
   logger.error(
@@ -21,7 +22,6 @@ Date.prototype.toJSON = function () {
   return moment(this).format();
 };
 
-const pinia = createPinia();
 const app = createApp(App);
 app.use(pinia);
 app.use(vueKakao, {
@@ -32,11 +32,7 @@ app.use(vueKakao, {
 });
 app.use(router);
 app.use(logger);
-pinia.use(({ store }) => {
-  store.$router = markRaw(router);
-  store.$fire = ioFire;
-  store.$http = _axios;
-});
+
 app.config.globalProperties.$http = _axios;
 app.config.globalProperties.$fire = ioFire;
 app.mount("#app");

@@ -4,8 +4,6 @@ import { Ref } from "vue";
 export interface ProductCrt {
   createdAt?: Date;
   updatedAt?: Date;
-  titleImgs: string[];
-  bodyImgs: string[];
   info: string;
   description: string;
 }
@@ -15,6 +13,8 @@ export interface VendorProdCrt extends ProductCrt {
   vendorPrice: number;
   stockCnt: number;
   vendorProdName: string;
+  titleImgs: string[];
+  bodyImgs: string[];
 }
 export interface ShopProdCrt extends ProductCrt {
   vendorId: string;
@@ -36,7 +36,7 @@ export type StockCntObj = {
   };
 };
 
-export interface ShopGarmentDB extends CRUD_DB {
+export interface ShopGarmentDB extends CRUD_DB<ShopGarment> {
   shopGarmentExist(vendorProdId: string, shopUserId: string): Promise<boolean>;
   useGetGarmentProds(
     shopId: string,

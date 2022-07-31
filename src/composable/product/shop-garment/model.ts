@@ -25,8 +25,6 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   shopId: string;
   prodPrice: number;
   prodName: string;
-  titleImgs: string[];
-  bodyImgs: string[];
   info: string;
   description: string;
 
@@ -58,8 +56,6 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
     this.shopId = d.shopId;
     this.prodPrice = d.prodPrice;
     this.prodName = d.prodName;
-    this.titleImgs = d.titleImgs;
-    this.bodyImgs = d.bodyImgs;
     this.info = d.info;
     this.description = d.description;
   }
@@ -74,8 +70,6 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
         shopId: data.shopId,
         prodPrice: data.prodPrice,
         prodName: data.prodName,
-        titleImgs: data.titleImgs,
-        bodyImgs: data.bodyImgs,
         info: data.info,
         description: data.description,
       });
