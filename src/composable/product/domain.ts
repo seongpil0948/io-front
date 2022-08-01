@@ -1,6 +1,3 @@
-import { CRUD_DB, ShopGarment } from "..";
-import { Ref } from "vue";
-
 export interface ProductCrt {
   createdAt?: Date;
   updatedAt?: Date;
@@ -15,33 +12,6 @@ export interface VendorProdCrt extends ProductCrt {
   vendorProdName: string;
   titleImgs: string[];
   bodyImgs: string[];
-}
-export interface ShopProdCrt extends ProductCrt {
-  vendorId: string;
-  vendorProdId: string;
-  shopProdId: string;
-  shopId: string;
-  prodPrice: number;
-  prodName: string;
-}
-
-export interface ShopGarmentCrt extends ShopProdCrt {
-  size: GARMENT_SIZE;
-  color: string;
-}
-
-export type StockCntObj = {
-  [size in GARMENT_SIZE]: {
-    [color: string]: { stockCnt: number; prodId: string };
-  };
-};
-
-export interface ShopGarmentDB extends CRUD_DB<ShopGarment> {
-  shopGarmentExist(vendorProdId: string, shopUserId: string): Promise<boolean>;
-  useGetGarmentProds(
-    shopId: string,
-    condi: (prod: ShopGarment) => boolean
-  ): Ref<ShopGarment[]>;
 }
 
 export const GarmentSize: GARMENT_SIZE[] = [

@@ -1,6 +1,6 @@
 import {
   ShopGarmentQField,
-  useUserShopGarment,
+  useShopUserGarments,
   Mapper,
   synonymMatch,
   MapKey,
@@ -21,7 +21,7 @@ export function useParseGarmentOrder(
   onParse: (orders: GarmentOrder[]) => void
 ) {
   const conditions = ref<ShopGarmentQField[]>([]);
-  const { userProd } = useUserShopGarment(userId, conditions);
+  const { userProd } = useShopUserGarments(userId, conditions);
   const msg = useMessage();
 
   watchEffect(async () => {

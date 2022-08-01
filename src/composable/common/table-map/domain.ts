@@ -5,18 +5,20 @@ import type {
   ProdOrder,
   VendorGarmentCrt,
   ShopGarmentCrt,
+  IoUserCRT,
 } from "@/composable";
 import { TableColumnTitle } from "naive-ui/es/data-table/src/interface";
 import { VNodeChild } from "vue";
 import { Mapper } from "./model";
 
 export type MapperFields = Partial<
-  UserFields &
-    ProdOrder &
+  ProdOrder &
     OrderAmount &
     OrderCrt<any> &
     VendorGarmentCrt &
-    ShopGarmentCrt
+    ShopGarmentCrt &
+    IoUserCRT &
+    UserFields
 >;
 
 export type MapKey = keyof MapperFields;

@@ -4,13 +4,21 @@ const props = defineProps<{
   checked: boolean;
   size?: number;
 }>();
+const emits = defineEmits(["onClick"]);
 const { checked, size = 3 } = toRefs(props);
+
+function onClick() {
+  emits("onClick");
+}
 </script>
 
 <template>
   <n-tooltip placement="top-start" trigger="hover">
     <template #trigger>
-      <div :style="`width: ${size}rem; height: ${size}rem; cursor: pointer;`">
+      <div
+        @click="onClick"
+        :style="`width: ${size}rem; height: ${size}rem; cursor: pointer;`"
+      >
         <img
           :style="` width: 150%; height: 150%`"
           v-if="checked"

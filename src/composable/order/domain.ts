@@ -158,5 +158,3 @@ export interface OrderDB<O>
     CRUD_DB_BATCH<OrderCrt<O>> {
   orderGarment(row: any): Promise<void>;
 }
-
-export interface UserShopGarment extends IoUserCRT, ShopGarmentCrt {}

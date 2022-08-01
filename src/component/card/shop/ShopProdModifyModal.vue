@@ -39,14 +39,14 @@
 </template>
 
 <script setup lang="ts">
-import { nameLenRule, notNullRule, makeMsgOpt } from "@/composables";
-import { ShopProd } from "@/composables";
+import { ShopGarment, ShopUserGarment } from "@/composable";
+import { makeMsgOpt, notNullRule, nameLenRule } from "@/util";
 import { type FormInst, useMessage } from "naive-ui";
 import { ref, toRefs, watchEffect } from "vue";
-import type { ShopUserProd } from "@/types";
 const emits = defineEmits(["onClose", "update:userProd"]);
+
 const props = defineProps<{
-  userProd: ShopUserProd;
+  userProd: ShopUserGarment;
 }>();
 const { userProd } = toRefs(props);
 const formRef = ref<FormInst | null>(null);
@@ -55,7 +55,7 @@ const formModel = ref({
   prodName: "",
 });
 const msg = useMessage();
-let showModal = ref(false);
+const showModal = ref(false);
 watchEffect(() => {
   formModel.value.prodName =
     userProd && userProd.value && userProd.value.prodName
@@ -80,7 +80,7 @@ async function onSubmit(e: MouseEvent) {
     if (userProd && userProd.value) {
       userProd.value.prodName = formModel.value.prodName;
       userProd.value.prodPrice = formModel.value.prodPrice;
-      const shopProd = new ShopProd(
+      const shopProd = new ShopGarment(
         Object.assign({}, userProd.value, {
           prodName: formModel.value.prodName,
           prodPrice: formModel.value.prodPrice,

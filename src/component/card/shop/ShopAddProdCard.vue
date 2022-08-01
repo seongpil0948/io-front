@@ -112,7 +112,7 @@ function onCheck(val: string) {
             <logo-checker
               :size="2"
               :checked="selectedProdIds.includes(opt.value)"
-              @click="onCheck(opt.value)"
+              @onClick="onCheck(opt.value)"
             />
             <n-h4 style="margin-left: 20px">{{ opt.label }}</n-h4>
           </n-space>

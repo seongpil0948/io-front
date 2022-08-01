@@ -1,5 +1,6 @@
 import LogoChecker from "@/component/input/LogoChecker.vue";
 import MapperSaver from "@/component/input/MapperSaver.vue";
+import { UserFields } from "@/composable/auth";
 import { NCheckbox, NGradientText, NButton } from "naive-ui";
 import {
   TableBaseColumn,
@@ -272,6 +273,10 @@ const colKoMapper: { [key in MapKey]: string | null } = {
   sameOrder: null,
   gender: null,
   part: null,
+  userInfo: null,
+  companyInfo: null,
+  operInfo: null,
+  preferDark: null,
 };
 
 function rendorTableBtn(onClick: () => void, txt: string) {
