@@ -163,6 +163,8 @@ export interface OrderCrt {
   sameOrder(p: OrderCrt): boolean;
 }
 
+// export interface OrderFlat extends OrderCrt, ProdOrderCombined, OrderAmount {}
+
 export interface OrderDB<T> {
   orderGarment(row: any): Promise<T>;
   batchCreate(uid: string, orders: T[]): Promise<void>;

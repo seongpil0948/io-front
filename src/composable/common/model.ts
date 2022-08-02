@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export class CommonField {
   createdAt?: Date;
   updatedAt?: Date;
@@ -6,8 +8,9 @@ export class CommonField {
     this.updatedAt = updatedAt ?? new Date();
   }
   toJson(): { [x: string]: unknown } {
-    const c = this.createdAt?.toJSON();
-    const u = this.updatedAt?.toJSON();
+    console.log("this.createdAt: ", this.createdAt);
+    const c = dateToJson(this.createdAt);
+    const u = dateToJson(this.updatedAt);
     const j = JSON.parse(JSON.stringify(this));
     j.createdAt = c;
     j.updatedAt = u;
@@ -18,4 +21,15 @@ export class CommonField {
   }
   // public abstract copyWith(d: any): T;
   // public abstract fromJson(d: any): T;
+}
+
+function dateToJson(data: string | Date | undefined): string {
+  if (!data) return moment(new Date()).format();
+  else if (typeof data === "string") {
+    return data;
+  } else if (data instanceof Date) {
+    return data.toJSON();
+  } else {
+    throw new Error("not Matched condition in dateToJson of commonField  ");
+  }
 }

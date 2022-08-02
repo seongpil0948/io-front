@@ -9,6 +9,7 @@ import {
   query,
   runTransaction,
   where,
+  WithFieldValue,
   writeBatch,
 } from "@firebase/firestore";
 import { OrderDB } from "../domain";
@@ -111,9 +112,11 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           }
         }
         if (order.items.length > 0) {
-          transaction.update(
+          transaction.set<GarmentOrder | null>(
             doc(ordRef, order.dbId),
-            converterGarment.toFirestore(order)
+            converterGarment.toFirestore(
+              order
+            ) as WithFieldValue<GarmentOrder | null>
           );
         }
       }
@@ -155,26 +158,45 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     inStates?: ORDER_STATE[];
     notStates?: ORDER_STATE[];
     shopId: string;
-  }): {
-    orders: Ref<GarmentOrder[]>;
-    unsubscribe: () => void;
-  } {
-    throw new Error("Function not implemented.");
+  }) {
+    const orders = ref<GarmentOrder[]>([]);
+    const constraints = [where("shopId", "==", p.shopId)];
+
+    if (p.inStates && p.inStates.length > 0) {
+      constraints.push(where("state", "in", p.inStates));
+    }
+    if (p.notStates && p.notStates.length > 0) {
+      constraints.push(where("state", "not-in", p.notStates));
+    }
+    const q = query(
+      getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
+        GarmentOrder.fireConverter()
+      ),
+      ...constraints
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      orders.value = [];
+      snapshot.forEach((s) => {
+        const data = s.data();
+        if (data) {
+          orders.value.push(data);
+        }
+      });
+    });
+    return { unsubscribe, orders };
   },
   vendorReadListen: function (p: {
     inStates?: ORDER_STATE[];
     notStates?: ORDER_STATE[];
     vendorId: string;
-  }): {
-    orders: Ref<GarmentOrder[]>;
-    unsubscribe: () => void;
-  } {
+  }) {
     const constraints = [where("vendorId", "==", p.vendorId)];
     if (p.inStates && p.inStates.length > 0) {
-      constraints.push(where("orderState", "in", p.inStates));
+      constraints.push(where("state", "in", p.inStates));
     }
     if (p.notStates && p.notStates.length > 0) {
-      constraints.push(where("orderState", "not-in", p.notStates));
+      constraints.push(where("state", "not-in", p.notStates));
     }
 
     const orders = ref<GarmentOrder[]>([]);

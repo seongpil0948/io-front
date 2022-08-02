@@ -7,11 +7,12 @@ import {
   useReadShopOrderGInfo,
   useParseGarmentOrder,
   GarmentOrder,
-} from "@/composable/index.js";
-import { useAuthStore } from "@/store/auth.js";
-import { makeMsgOpt } from "@/util/index.js";
-import { useMessage } from "naive-ui";
-import { ref } from "vue";
+  ProdOrderCombined,
+} from "@/composable";
+import { useAuthStore } from "@/store";
+import { makeMsgOpt } from "@/util";
+import { DataTableColumns, NImage, useMessage } from "naive-ui";
+import { computed, h, ref, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 interface Props {
   inStates?: ORDER_STATE[];
@@ -25,15 +26,14 @@ const user = auth.currUser;
 const fileModel = ref<File[]>([]);
 const log = useLogger();
 // >>>>> COLUMNS >>>>>
+// 이미지, 상품정보, 도매이름, 주문수량, 예상미송수량, 판매가, 합계
 const cols = [
   "userName",
   "prodName",
   "orderCnt",
   "allowPending",
   // "stockCnt",
-  "color",
-  "size",
-  "amount",
+  "actualAmount.orderAmount",
 ].map((c) => {
   return { key: c } as IoColOpt;
 });
@@ -56,7 +56,32 @@ const { columns, mapper, checkedKeys } = useTable<GarmentOrder>({
   },
 });
 
-// FIXME: // cellRender 사용 요망
+const colResult = computed((): DataTableColumns<GarmentOrder> => {
+  return columns.value.length > 0
+    ? [
+        columns.value[0],
+        {
+          key: "titleImgs",
+          title: "이미지",
+          render: (x) =>
+            h(
+              NImage,
+              {
+                src:
+                  x.items.length > 0
+                    ? (x.items[0] as ProdOrderCombined).vendorGarment
+                        ?.titleImgs[0]
+                    : "/img/x.png",
+                width: "50",
+                height: "50",
+              },
+              {}
+            ),
+        },
+        ...columns.value.slice(1),
+      ]
+    : [];
+});
 // watchEffect(() => {
 //   columns.value.forEach((x) => {
 //     if (x.key === "orderCnt") {
@@ -162,7 +187,12 @@ function downXlsx() {
       </n-space>
     </template>
     <template #header-extra>
-      <n-space justify="start" style="margin-left: 5px" :wrap="false">
+      <n-space
+        v-if="orders && orders.length > 0"
+        justify="start"
+        style="margin-left: 5px"
+        :wrap="false"
+      >
         <n-button size="small" type="primary" @click="orderChecked">
           선택주문
         </n-button>
@@ -183,7 +213,7 @@ function downXlsx() {
       v-if="orders && orders.length > 0"
       :table-layout="'fixed'"
       :scroll-x="800"
-      :columns="columns"
+      :columns="colResult"
       :data="orders"
       :pagination="
         showSizes

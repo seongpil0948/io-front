@@ -175,7 +175,11 @@ export class GarmentOrder extends CommonField implements OrderCrt {
 
   static fireConverter(): FirestoreDataConverter<GarmentOrder | null> {
     return {
-      toFirestore: (m: GarmentOrder) => m.toJson(),
+      toFirestore: (m: GarmentOrder) => {
+        return m instanceof CommonField
+          ? m.toJson()
+          : GarmentOrder.fromJson(m)!.toJson();
+      },
       fromFirestore: (
         snapshot: DocumentSnapshot<DocumentData>,
         options: any

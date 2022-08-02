@@ -1,13 +1,12 @@
 import LogoChecker from "@/component/input/LogoChecker.vue";
 import MapperSaver from "@/component/input/MapperSaver.vue";
-import { UserFields } from "@/composable/auth";
 import { NCheckbox, NGradientText, NButton } from "naive-ui";
 import {
   TableBaseColumn,
   ColumnKey,
 } from "naive-ui/es/data-table/src/interface";
 import { onBeforeMount, ref, watchEffect, h } from "vue";
-import { IoColOpt, MapperFields, IoColOptInner, MapKey } from "./domain";
+import { IoColOpt, MapperFields, IoColOptInner } from "./domain";
 import { Mapper } from "./model";
 
 export function useMapper(uid: string) {
@@ -36,7 +35,10 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
   watchEffect(() => {
     if (!mapper.value) return;
     const innerOpts = p.colKeys.map((opt) => {
-      const inner: IoColOptInner<T> = { key: opt.key };
+      const inner: IoColOptInner<T> = {
+        key: opt.key,
+        cellRender: opt.cellRender,
+      };
 
       if (opt.titleMapping) {
         inner.colRendor = () =>
@@ -146,6 +148,7 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
 }
 
 function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
+  console.log("colKeys: ", colKeys);
   return colKeys.map((opt) => {
     if (!opt.key) throw Error("Column Key must not Null!!!!");
     const col: TableBaseColumn<T> = {
@@ -172,8 +175,13 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
           { default: () => (row.allowPending ? "가능" : "불가능") }
         );
       col.filter = (value, row: any) => row.allowPending.toString() === value;
-    } else if (col.key === "amount") {
-      col.render = (row: any) => row.amount!.toLocaleString();
+    } else if (col.key === "orderAmount") {
+      // col.render = (row: any) => row.actualAmount.amount!.toLocaleString();
+      col.title = "금액";
+      // col.render = (row: any) => {
+      //   // console.log(row);
+      //   return row.actualAmount.orderAmount;
+      // };
     }
     if ((["userName", "prodName"] as any[]).includes(col.key)) {
       col.sorter = "default";
@@ -185,7 +193,7 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
   });
 }
 
-const colKoMapper: { [key in MapKey]: string | null } = {
+const colKoMapper: { [key in string]: string | null } = {
   vendorProdName: "도매처 상품명",
   userName: "거래처명",
   prodName: "상품명",
@@ -205,6 +213,7 @@ const colKoMapper: { [key in MapKey]: string | null } = {
   paidAmount: "지불된금액",
   paid: "지불여부",
   orderAmount: "주문요청금액",
+  "actualAmount.orderAmount": "주문요청금액",
   paymentConfirm: "지불확인여부",
   paymentMethod: "지불방법",
   name: null,

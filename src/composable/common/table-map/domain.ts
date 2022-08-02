@@ -18,7 +18,8 @@ export type MapperFields = Partial<
     VendorGarmentCrt &
     ShopGarmentCrt &
     IoUserCRT &
-    UserFields
+    UserFields &
+    ProdOrder
 >;
 
 export type MapKey = keyof MapperFields;
@@ -40,6 +41,7 @@ export interface IoColOpt {
   titleMapping?: boolean;
   cellMapping?: boolean;
   imgField?: boolean;
+  cellRender?: (rowData: any, rowIndex: number) => VNodeChild;
 }
 
 export interface IoColOptInner<T> {
@@ -48,7 +50,7 @@ export interface IoColOptInner<T> {
   colRendor?: TableColumnTitle;
 }
 
-export type IoColName<T> = { [n in keyof MapperFields]: IoColOptInner<T> };
+export type IoColName<T> = { [n in MapKey]: IoColOptInner<T> };
 export interface MapperDB {
   getMapper(uid: string): Promise<Mapper | null | undefined>;
 }

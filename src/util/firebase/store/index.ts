@@ -54,7 +54,7 @@ export function getIoCollectionGroup(c: IoCollection) {
   let str: string;
   switch (c) {
     case IoCollection.ORDER_PROD:
-      str = `shopReqOrder`;
+      str = `orderProd`;
       break;
     default:
       throw Error(`IoCollection Enum Member ${c.toString()} is not Exist`);

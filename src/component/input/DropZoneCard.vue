@@ -1,7 +1,7 @@
 <template>
   <n-card
     class="base-card"
-    :style="`border-color: ${activeColor}; box-shadow: ${
+    :style="`border-color: #f0c755; box-shadow: ${
       hovered || isDragActive ? '0 0 10px -1px ' + activeColor : 'none'
     };`"
     @mouseover="hovered = true"
@@ -20,8 +20,9 @@
               <add-circle-outline />
             </n-icon>
           </div>
-          <n-p
+          <n-el
             depth="3"
+            tag="n-p"
             :style="`font-size:1.1rem; font-weight: 100; color: ${
               hovered === true ? activeColor : 'var(--n-close-color-pressed)'
             }`"
@@ -30,7 +31,7 @@
               클릭 혹은 드래그앤드롭(Drag&Drop) 으로 사입리스트를 업로드하세요!
             </div>
             <div v-else>좋아요! 내려놓으세요!</div>
-          </n-p>
+          </n-el>
         </div>
       </slot>
     </div>
@@ -45,7 +46,6 @@ import { ref, toRefs } from "vue";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { useDropzone } from "vue3-dropzone";
 import { makeMsgOpt } from "@/util";
-import { ioColors } from "@/constants";
 
 const props = defineProps({
   listenClick: {
@@ -59,7 +59,7 @@ const props = defineProps({
   activeColor: {
     type: String,
     required: false,
-    default: () => ioColors.primary,
+    default: () => "var(--primary-color)",
   },
 });
 
