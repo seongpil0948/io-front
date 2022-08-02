@@ -13,21 +13,6 @@ import {
 import { ref } from "vue";
 
 export const VendorGarmentFB: VendorGarmentDB = {
-  create: function (arg: VendorGarment): Promise<VendorGarment> {
-    throw new Error("Function not implemented.");
-  },
-  update: function (dbId: string) {
-    throw new Error("Function not implemented.");
-  },
-  delete: function (dbId: string) {
-    throw new Error("Function not implemented.");
-  },
-  read: function (dbId: string): Promise<VendorGarment> {
-    throw new Error("Function not implemented.");
-  },
-  batchCreate: function (args: VendorGarment[]): Promise<VendorGarment[]> {
-    throw new Error("Function not implemented.");
-  },
   batchUpdate: async function (args: VendorGarment[]) {
     // vendorProdsModify
     const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
@@ -39,12 +24,6 @@ export const VendorGarmentFB: VendorGarmentDB = {
       batch.update(doc(c, prod.vendorProdId), prod.toJson());
     }
     await batch.commit();
-  },
-  batchDelete: function (ids: string[]) {
-    throw new Error("Function not implemented.");
-  },
-  batchRead: function (args: any[]): Promise<VendorGarment[]> {
-    throw new Error("Function not implemented.");
   },
   batchReadListen: function (vendorIds: any[]) {
     const items = ref<VendorGarment[]>([]);

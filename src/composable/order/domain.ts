@@ -1,5 +1,11 @@
-import { IoUserCRT, ShopGarmentCrt } from "@/composable";
-import { BOOL_M, CRUD_DB, CRUD_DB_BATCH, PayMethod, SHIP_STATE } from "..";
+import { Ref } from "vue";
+import {
+  BOOL_M,
+  PayMethod,
+  SHIP_STATE,
+  ShopUserGarment,
+  VendorUserGarment,
+} from "..";
 
 export interface OrderEffect {
   prodOrderId: string;
@@ -94,13 +100,12 @@ export interface OrderAmount {
   pureAmount: number; // 순수 상품 금액 (로그용)
   orderAmount: number; // 주문 요청 금액
   paymentConfirm: boolean;
-  paymentMethod: PayMethod;
+  paymentMethod?: PayMethod;
 }
 export interface ProdOrder {
   id: string;
   vendorId: string;
   vendorProdId: string;
-  shopId: string;
   shopProdId: string;
   orderCnt: number; // 총 주문 개수
   activeCnt: number; // 배송가능 개수 (총 주문 개수 - 미송 개수)
@@ -122,20 +127,24 @@ export interface OrderExchange extends Claim {
 export interface OrderCancel extends Claim {
   canceledDate: string;
 }
-
-export interface OrderCrt<T> {
+export interface ProdOrderCombined extends ProdOrder {
+  shopGarment?: ShopUserGarment;
+  vendorGarment?: VendorUserGarment;
+}
+export interface OrderCrt {
   createdAt?: Date;
   updatedAt?: Date;
   orderDate?: Date;
   doneDate?: Date;
   dbId: string;
+  shopId: string;
   orderId: string;
   parent?: OrderParent;
   state: ORDER_STATE;
   actualAmount: OrderAmount;
   initialAmount: OrderAmount;
-  shipping_status: SHIP_STATE;
-  items: ProdOrder[];
+  shippingStatus: SHIP_STATE;
+  items: ProdOrder[] | ProdOrderCombined[];
   subOrderIds: string[]; // db ids
   cancellations: OrderCancel[];
   get cancelDone(): boolean;
@@ -151,10 +160,32 @@ export interface OrderCrt<T> {
     pendingCnt: number,
     update: boolean
   ): Promise<void>; // 서브 주문 생성
-  sameOrder(p: T): boolean;
+  sameOrder(p: OrderCrt): boolean;
 }
-export interface OrderDB<O>
-  extends CRUD_DB<OrderCrt<O>>,
-    CRUD_DB_BATCH<OrderCrt<O>> {
-  orderGarment(row: any): Promise<void>;
+
+export interface OrderDB<T> {
+  orderGarment(row: any): Promise<T>;
+  batchCreate(uid: string, orders: T[]): Promise<void>;
+  batchUpdate(arg: {
+    orderDbIdByShops: { [shopId: string]: string[] };
+    orderState?: ORDER_STATE;
+  }): Promise<void>;
+  batchDelete(ords: T[]): Promise<void>;
+  shopReadListen(p: {
+    inStates?: ORDER_STATE[];
+    notStates?: ORDER_STATE[];
+    shopId: string;
+  }): {
+    orders: Ref<T[]>;
+    unsubscribe: () => void;
+  };
+  vendorReadListen(p: {
+    inStates?: ORDER_STATE[];
+    notStates?: ORDER_STATE[];
+    vendorId: string;
+  }): {
+    orders: Ref<T[]>;
+    unsubscribe: () => void;
+  };
+  getExistOrderIds(shopId: string): Promise<Set<string>>;
 }

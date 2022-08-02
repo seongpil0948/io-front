@@ -14,7 +14,7 @@ import { Mapper } from "./model";
 export type MapperFields = Partial<
   ProdOrder &
     OrderAmount &
-    OrderCrt<any> &
+    OrderCrt &
     VendorGarmentCrt &
     ShopGarmentCrt &
     IoUserCRT &

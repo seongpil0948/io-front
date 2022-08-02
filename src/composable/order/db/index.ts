@@ -1,3 +1,3 @@
-import { OrderFB } from "./firebase";
+import { OrderGarmentFB } from "./firebase";
 
-export const ORDER_DB = OrderFB;
+export const ORDER_GARMENT_DB = OrderGarmentFB;

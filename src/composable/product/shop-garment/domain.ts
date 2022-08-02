@@ -1,5 +1,4 @@
 import { IoUserCRT } from "@/composable";
-import { CRUD_DB } from "@/composable/common";
 import { Ref } from "vue";
 import { ProductCrt, GARMENT_SIZE } from "../domain";
 import { ShopGarment } from "./model";
@@ -31,7 +30,7 @@ export type StockCntObj = {
   };
 };
 
-export interface ShopGarmentDB extends CRUD_DB<ShopGarment> {
+export interface ShopGarmentDB {
   shopGarmentExist(vendorProdId: string, shopUserId: string): Promise<boolean>;
   useGetGarmentProds(
     shopId: string,

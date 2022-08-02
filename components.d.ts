@@ -86,6 +86,7 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SampleManage: typeof import('./src/view/vendor/page/SampleManage.vue')['default']
+    ShopAddOrderTable: typeof import('./src/component/table/ShopAddOrderTable.vue')['default']
     ShopAddProdCard: typeof import('./src/component/card/shop/ShopAddProdCard.vue')['default']
     ShopHome: typeof import('./src/view/shop/ShopHome.vue')['default']
     ShopLayout: typeof import('./src/view/shop/ShopLayout.vue')['default']

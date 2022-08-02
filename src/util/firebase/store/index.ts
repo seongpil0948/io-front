@@ -34,7 +34,7 @@ export function getIoCollection(p: getCollectParam): CollectionReference {
       str = "ioPay";
       break;
     case IoCollection.ORDER_PROD:
-      str = `user/${p.uid}/shopReqOrder`; // /${p.shopProdId}
+      str = `user/${p.uid}/orderProd`; // /${p.shopProdId}
       break;
     case IoCollection.ORDER_PROD_NUMBER:
       str = `user/${p.uid}/orderNumber`; // orderId

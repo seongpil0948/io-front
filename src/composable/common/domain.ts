@@ -21,17 +21,3 @@ export const SHIP_STATE: { [key in SHIP_STATE]: SHIP_STATE } = Object.freeze({
   DONE: "DONE",
   PENDING: "PENDING",
 });
-
-export interface CRUD_DB<T> {
-  create(arg: T): Promise<T>;
-  update(dbId: string): Promise<void>;
-  delete(dbId: string): Promise<void>;
-  read(dbId: string): Promise<T>;
-}
-export interface CRUD_DB_BATCH<T> {
-  batchCreate(args: T[]): Promise<T[]>;
-  batchUpdate(args: T[]): Promise<void>;
-  batchDelete(ids: string[]): Promise<void>;
-  batchRead(args: any[]): Promise<T[]>;
-  batchReadListen(args: any[]): { items: Ref<T[]>; unsubscribe: () => void };
-}

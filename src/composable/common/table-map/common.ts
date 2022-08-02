@@ -250,7 +250,7 @@ const colKoMapper: { [key in MapKey]: string | null } = {
   parent: null,
   actualAmount: null,
   initialAmount: null,
-  shipping_status: null,
+  shippingStatus: null,
   items: null,
   orderDate: null,
   subOrderIds: null,

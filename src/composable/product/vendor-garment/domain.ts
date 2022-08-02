@@ -1,16 +1,15 @@
 import {
   IoUserCRT,
   IoUser,
-  CRUD_DB,
   OrderCrt,
   GARMENT_SIZE,
   GENDER,
   PART,
   StockCntObj,
   VendorProdCrt,
-  CRUD_DB_BATCH,
+  VendorGarment,
 } from "@/composable";
-import { VendorGarment } from "./model";
+import { Ref } from "vue";
 
 export interface VendorGarmentCrt extends VendorProdCrt {
   gender: GENDER;
@@ -37,12 +36,14 @@ export interface VendorUserGarment extends IoUserCRT, VendorGarmentCrt {}
 export interface VendorUserGarmentCombined
   extends IoUserCRT,
     VendorGarmentCombined {}
-export interface VendorOrderGarment<O> extends VendorGarmentCrt, OrderCrt<O> {}
-export interface VendorUserOrderGarment<O>
-  extends VendorGarmentCrt,
-    OrderCrt<O> {
+export interface VendorOrderGarment extends VendorGarmentCrt, OrderCrt {}
+export interface VendorUserOrderGarment extends VendorGarmentCrt, OrderCrt {
   shopUser?: IoUser;
 }
-export interface VendorGarmentDB
-  extends CRUD_DB<VendorGarment>,
-    CRUD_DB_BATCH<VendorGarment> {}
+export interface VendorGarmentDB {
+  batchReadListen(args: any[]): {
+    items: Ref<VendorGarment[]>;
+    unsubscribe: () => void;
+  };
+  batchUpdate(args: VendorGarment[]): Promise<void>;
+}

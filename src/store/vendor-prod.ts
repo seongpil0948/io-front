@@ -22,7 +22,7 @@ export const useVendorsStore = defineStore(
       () => vendors.value.length === 0 && vendorGarments.value.length === 0
     );
 
-    const vendorsById = computed<{ [userId: string]: IoUser }>(() =>
+    const vendorById = computed<{ [userId: string]: IoUser }>(() =>
       vendors.value.reduce((acc: any, user: any) => {
         acc[user.userInfo.userId] = user;
         return acc;
@@ -32,8 +32,8 @@ export const useVendorsStore = defineStore(
     const vendorUserGarments = computed<VendorUserGarment[]>(() => {
       return vendorGarments.value
         .map((p) => {
-          return vendorsById.value[p.vendorId]
-            ? Object.assign(p, vendorsById.value[p.vendorId])
+          return vendorById.value[p.vendorId]
+            ? Object.assign(p, vendorById.value[p.vendorId])
             : null;
         })
         .filter((x) => x) as VendorUserGarment[];
@@ -81,7 +81,7 @@ export const useVendorsStore = defineStore(
 
     return {
       vendors,
-      vendorsById,
+      vendorById,
       vendorGarments,
       vendorUserGarments,
       isInitial,
