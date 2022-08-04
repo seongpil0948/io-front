@@ -148,7 +148,6 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
 }
 
 function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
-  console.log("colKeys: ", colKeys);
   return colKeys.map((opt) => {
     if (!opt.key) throw Error("Column Key must not Null!!!!");
     const col: TableBaseColumn<T> = {

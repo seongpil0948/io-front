@@ -6,14 +6,15 @@ import {
   ORDER_GARMENT_DB,
   useReadShopOrderGInfo,
   useParseGarmentOrder,
-  GarmentOrder,
   ProdOrderCombined,
+  GarmentOrder,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { DataTableColumns, NImage, useMessage } from "naive-ui";
 import { computed, h, ref, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
+import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
 interface Props {
   inStates?: ORDER_STATE[];
   notStates?: ORDER_STATE[];
@@ -27,7 +28,7 @@ const fileModel = ref<File[]>([]);
 const log = useLogger();
 // >>>>> COLUMNS >>>>>
 // 이미지, 상품정보, 도매이름, 주문수량, 예상미송수량, 판매가, 합계
-const cols = [
+const colKeys = [
   "userName",
   "prodName",
   "orderCnt",
@@ -38,12 +39,12 @@ const cols = [
   return { key: c } as IoColOpt;
 });
 const tableRef = ref<any>(null);
-const keyField = "dbId";
-const { columns, mapper, checkedKeys } = useTable<GarmentOrder>({
+const keyField = "id";
+const { columns, mapper, checkedKeys } = useTable<ProdOrderCombined>({
   userId: user.userInfo.userId,
-  colKeys: cols,
+  colKeys,
   useChecker: true,
-  keyField: keyField,
+  keyField,
   onCheckAll: (to) => {
     if (tableRef.value) {
       const idxes = (tableRef.value.paginatedData as any[]).map((x) => x.index);
@@ -56,7 +57,7 @@ const { columns, mapper, checkedKeys } = useTable<GarmentOrder>({
   },
 });
 
-const colResult = computed((): DataTableColumns<GarmentOrder> => {
+const colResult = computed((): DataTableColumns<ProdOrderCombined> => {
   return columns.value.length > 0
     ? [
         columns.value[0],
@@ -67,11 +68,7 @@ const colResult = computed((): DataTableColumns<GarmentOrder> => {
             h(
               NImage,
               {
-                src:
-                  x.items.length > 0
-                    ? (x.items[0] as ProdOrderCombined).vendorGarment
-                        ?.titleImgs[0]
-                    : "/img/x.png",
+                src: x.vendorGarment?.titleImgs[0] ?? "/img/x.png",
                 width: "50",
                 height: "50",
               },
@@ -82,29 +79,56 @@ const colResult = computed((): DataTableColumns<GarmentOrder> => {
       ]
     : [];
 });
-// watchEffect(() => {
-//   columns.value.forEach((x) => {
-//     if (x.key === "orderCnt") {
-//       x.title = "주문/미송";
-//       x.render = (row: OrderShopGarmentJoined) =>
-//         h(ShopOrderCnt, {
-//           row,
-//           onSubmitPost: () => {
-//             !row.allowPending
-//               ? msg.warning(
-//                   "해당상품은 미송을 잡을 수 없는 상품입니다.",
-//                   makeMsgOpt()
-//                 )
-//               : msg.info(`주문개수가 업데이트되었습니다.`, makeMsgOpt());
-//           },
-//         });
-//     }
-//   });
-// });
+watchEffect(() => {
+  columns.value.forEach((x) => {
+    if (x.key === "orderCnt") {
+      x.title = "주문/미송";
+      x.render = (prodOrder: ProdOrderCombined) => {
+        const order = orders.value.find((x) => {
+          return x.items.some((i) => i.id === prodOrder.id);
+        });
+        return order
+          ? h(ShopOrderCnt, {
+              order,
+              prodOrder,
+              onSubmitPost: () => {
+                !prodOrder.vendorGarment.allowPending
+                  ? msg.warning(
+                      "해당상품은 미송을 잡을 수 없는 상품입니다.",
+                      makeMsgOpt()
+                    )
+                  : msg.info(`주문개수가 업데이트되었습니다.`, makeMsgOpt());
+              },
+            })
+          : "x";
+      };
+    }
+  });
+});
 async function deleteChecked() {
-  const targets = orders.value.filter((x) =>
+  const targetProds = garmentOrders.value.filter((x) =>
     checkedKeys.value.includes(x[keyField]!)
   );
+  const ids = targetProds.map((prod) => prod.id);
+  const targets: GarmentOrder[] = [];
+  for (let i = 0; i < ids.length; i++) {
+    const prodOrderId = ids[i];
+    for (let j = 0; j < orders.value.length; j++) {
+      const ord = orders.value[j];
+      for (let k = 0; k < ord.items.length; k++) {
+        const item = ord.items[k];
+        if (item.id !== prodOrderId) continue;
+        if (ord.items.length < 2) {
+          if (!targets.map((z) => z.dbId).includes(ord.dbId)) {
+            targets.push(ord);
+          }
+        } else {
+          ord.items.splice(k, 1);
+          await ord.update();
+        }
+      }
+    }
+  }
   return ORDER_GARMENT_DB.batchDelete(targets)
     .then(() => msg.success("삭제 성공.", makeMsgOpt()))
     .catch(() => msg.success("삭제 실패.", makeMsgOpt()));
@@ -115,7 +139,7 @@ async function deleteAll() {
     .catch(() => msg.success("삭제 실패.", makeMsgOpt()));
 }
 async function orderChecked() {
-  const targets = orders.value.filter((x) =>
+  const targets = garmentOrders.value.filter((x) =>
     checkedKeys.value.includes(x[keyField]!)
   );
   return Promise.all(targets.map((t: any) => ORDER_GARMENT_DB.orderGarment(t)))
@@ -145,7 +169,7 @@ async function orderAll() {
 // }
 // <<<<< COLUMNS <<<<<
 
-const { orders, existOrderIds } = useReadShopOrderGInfo(
+const { orders, existOrderIds, garmentOrders } = useReadShopOrderGInfo(
   user.userInfo.userId,
   props.inStates ?? [],
   props.notStates ?? []
@@ -214,7 +238,7 @@ function downXlsx() {
       :table-layout="'fixed'"
       :scroll-x="800"
       :columns="colResult"
-      :data="orders"
+      :data="garmentOrders"
       :pagination="
         showSizes
           ? {
@@ -233,3 +257,4 @@ function downXlsx() {
   color: red !important;
 } */
 </style>
+<!-- ProdOrderCombined -->

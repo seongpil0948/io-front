@@ -96,7 +96,7 @@ export interface OrderAmount {
   shipFeeDiscountAmount: number;
   tax: number;
   paidAmount: number; // 지불된 금액
-  paid: BOOL_M; // 지불된 금액
+  paid: BOOL_M; // 지불여부
   pureAmount: number; // 순수 상품 금액 (로그용)
   orderAmount: number; // 주문 요청 금액
   paymentConfirm: boolean;
@@ -110,6 +110,8 @@ export interface ProdOrder {
   orderCnt: number; // 총 주문 개수
   activeCnt: number; // 배송가능 개수 (총 주문 개수 - 미송 개수)
   pendingCnt: number; // 미송 개수
+  actualAmount: OrderAmount;
+  initialAmount: OrderAmount;
 }
 
 interface Claim {
@@ -128,8 +130,8 @@ export interface OrderCancel extends Claim {
   canceledDate: string;
 }
 export interface ProdOrderCombined extends ProdOrder {
-  shopGarment?: ShopUserGarment;
-  vendorGarment?: VendorUserGarment;
+  shopGarment: ShopUserGarment;
+  vendorGarment: VendorUserGarment;
 }
 export interface OrderCrt {
   createdAt?: Date;

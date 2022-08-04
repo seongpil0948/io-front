@@ -8,7 +8,6 @@ export class CommonField {
     this.updatedAt = updatedAt ?? new Date();
   }
   toJson(): { [x: string]: unknown } {
-    console.log("this.createdAt: ", this.createdAt);
     const c = dateToJson(this.createdAt);
     const u = dateToJson(this.updatedAt);
     const j = JSON.parse(JSON.stringify(this));

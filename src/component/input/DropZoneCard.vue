@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { NCard, NP, NIcon, useMessage } from "naive-ui";
+import { NCard, NIcon, useMessage } from "naive-ui";
 import { ref, toRefs } from "vue";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { useDropzone } from "vue3-dropzone";

@@ -20,20 +20,27 @@ export function useReadShopOrderGInfo(
   const { userProd: shopGarments } = useShopUserGarments(shopId, null);
   const vendorStore = useVendorsStore();
   const existOrderIds = ref<Set<string>>(new Set());
+  const garmentOrders = ref<ProdOrderCombined[]>([]);
   watchEffect(async () => {
     orders.value.forEach((order) => {
       for (let i = 0; i < order.items.length; i++) {
-        const item: ProdOrderCombined = order.items[i];
-        item.shopGarment = shopGarments.value.find(
-          (j) => j.shopProdId === item.shopProdId
+        const shopGarment = shopGarments.value.find(
+          (j) => j.shopProdId === order.items[i].shopProdId
         );
-        item.vendorGarment = vendorStore.vendorUserGarments.find(
-          (k) => k.vendorProdId === item.vendorProdId
+        if (!shopGarment) continue;
+        const vendorGarment = vendorStore.vendorUserGarments.find(
+          (k) => k.vendorProdId === order.items[i].vendorProdId
         );
+        if (!vendorGarment) continue;
+        const item: ProdOrderCombined = Object.assign(
+          { shopGarment, vendorGarment },
+          order.items[i]
+        );
+        garmentOrders.value.push(item);
       }
     });
     existOrderIds.value = await ORDER_GARMENT_DB.getExistOrderIds(shopId);
   });
   onBeforeUnmount(() => unsubscribe());
-  return { existOrderIds, orders, unsubscribe };
+  return { existOrderIds, orders, unsubscribe, garmentOrders };
 }

@@ -20,10 +20,8 @@ router.beforeEach(async (to) => {
       return { name: "Login" };
     }
     if (to.path === "/") {
-      console.log(4);
       return { name: getHomeName(authStore.currUser.userInfo.role) };
     } else if (to.meta.allowRoles && !to.meta.allowRoles.includes(role)) {
-      console.log(5);
       logger.error(
         authStore.currUser.userInfo.userId,
         "유효하지 않은 페이지 접근",
@@ -51,7 +49,6 @@ function getHomeName(role?: USER_ROLE) {
   return "Login";
 }
 export function getPathByRole() {
-  console.log("getPathByRole", useAuthStore, useAuthStore());
   const authStore = useAuthStore();
   const role = authStore.currUserRole;
   if (!role) return "/login";

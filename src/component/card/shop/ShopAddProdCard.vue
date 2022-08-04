@@ -17,7 +17,6 @@ const props = defineProps<{
 }>();
 
 const { prod, showAddModal } = toRefs(props);
-console.log("prod: ", prod.value);
 const imgUrls = computed(() => [...prod.value.titleImgs, prod.value.bodyImgs]);
 const selectedProdIds = ref<string[]>([]);
 const optById: { [id: string]: { color: string; size: string } } = {};

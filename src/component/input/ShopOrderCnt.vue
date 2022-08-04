@@ -1,40 +1,47 @@
-<!-- <script setup lang="ts">
-import {
-  getOrderCnt,
-  getPendingCnt,
-  makeMsgOpt,
-  GarmentOrder,
-} from "@/composables";
-import { ORDER_STATE, GarmentOrderJoined } from "@/types";
+<script setup lang="ts">
+import { GarmentOrder, ORDER_STATE, ProdOrderCombined } from "@/composable";
+import { makeMsgOpt } from "@/util";
 import { useMessage } from "naive-ui";
-import { toRefs, computed, ref } from "vue";
+import { toRefs, ref, computed, onBeforeMount } from "vue";
+
 const props = defineProps<{
-  row: GarmentOrderJoined;
+  order: GarmentOrder;
+  prodOrder: ProdOrderCombined;
   onSubmitPost: () => void;
 }>();
-const { row } = toRefs(props);
-let edit = ref(false);
+const { prodOrder, order } = toRefs(props);
+onBeforeMount(() => {
+  if (!order.value.items.map((x) => x.id).includes(prodOrder.value.id)) {
+    throw new Error("prodOrder not belong to order");
+  }
+});
+
+const edit = ref(false);
 const msg = useMessage();
-const stockCnt = computed(() => row.value.stockCnt!);
+const stockCnt = computed(() => prodOrder.value.vendorGarment.stockCnt);
 const pendingCnt = computed(() =>
-  row.value.allowPending ? getPendingCnt(stockCnt.value, row.value.orderCnt) : 0
+  GarmentOrder.getPendingCnt(
+    stockCnt.value,
+    prodOrder.value.orderCnt,
+    prodOrder.value.vendorGarment.allowPending
+  )
 );
-const orderAvailCnt = computed(() =>
-  getOrderCnt(row.value.stockCnt!, row.value.orderCnt, pendingCnt.value)
-);
+const activeCnt = computed(() => prodOrder.value.activeCnt);
 
 function onUpdate(val: number | null) {
   if (!val) return;
   else if (val < 1) {
     msg.warning("주문개수는 0이상이어야 합니다.");
-    val = row.value.orderCnt;
+    val = prodOrder.value.orderCnt;
     return;
   }
-  row.value.orderCnt = val;
-  row.value.amount = (row.value.prodPrice ?? 0) * val;
+  const prod = order.value.items.find((x) => x.id === prodOrder.value.id);
+  if (!prod) throw new Error("not matched prod order");
+
+  order.value.setOrderCnt(prod.id, val);
 }
 async function onSubmit() {
-  const order = GarmentOrder.fromJson(row.value);
+  const order = GarmentOrder.fromJson(prodOrder.value);
   if (order) {
     order.update().then(() => {
       props.onSubmitPost();
@@ -46,7 +53,7 @@ async function onSubmit() {
 }
 
 function setEditMode() {
-  if (row.value.orderState === ORDER_STATE.BEFORE_ORDER) {
+  if (order.value.state === ORDER_STATE.BEFORE_ORDER) {
     edit.value = true;
   }
 }
@@ -54,15 +61,16 @@ function setEditMode() {
 <template>
   <n-input-number
     v-if="edit"
-    :value="row.orderCnt"
+    :value="prodOrder.orderCnt"
     @update:value="onUpdate"
     @blur.stop="onSubmit"
     @keyup.enter.stop="onSubmit"
   />
   <n-text v-else style="color: inherit" @click="setEditMode">
     <n-tooltip trigger="hover">
-      <template #trigger> {{ orderAvailCnt }} / {{ pendingCnt }} </template>
-      주문시도 개수: {{ row.orderCnt }}, 재고 개수: {{ row.stockCnt }}
+      <template #trigger> {{ activeCnt }} / {{ pendingCnt }} </template>
+      주문시도 개수: {{ prodOrder.orderCnt }}, 재고 개수:
+      {{ prodOrder.vendorGarment.stockCnt }}
     </n-tooltip>
   </n-text>
-</template> -->
+</template>

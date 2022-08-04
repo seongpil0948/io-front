@@ -6,7 +6,6 @@ const auth = useAuthStore();
 
 defineProps<{ text: boolean }>();
 async function changeDark(val: boolean) {
-  console.log(val);
   if (auth.user) {
     auth.user.preferDark = val;
     await auth.user.update();

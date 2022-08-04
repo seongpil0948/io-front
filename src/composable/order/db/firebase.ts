@@ -16,7 +16,7 @@ import { OrderDB } from "../domain";
 import { useVendorsStore } from "@/store";
 import { VendorOperInfo } from "@/composable/auth";
 import { logger } from "@/plugin/logger";
-import { ref, Ref } from "vue";
+import { ref } from "vue";
 
 export const OrderGarmentFB: OrderDB<GarmentOrder> = {
   orderGarment: async function (row: GarmentOrder) {
@@ -129,7 +129,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     orderDbIdByShops: { [shopId: string]: string[] };
     orderState?: ORDER_STATE;
   }) {
-    console.log("updateOrderBatch: ", p);
     if (!p.orderState) return;
     const { batch, getOrdRef } = getSrc();
     for (let i = 0; i < Object.keys(p.orderDbIdByShops).length; i++) {
