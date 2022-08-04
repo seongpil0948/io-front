@@ -22,6 +22,7 @@ export function useReadShopOrderGInfo(
   const existOrderIds = ref<Set<string>>(new Set());
   const garmentOrders = ref<ProdOrderCombined[]>([]);
   watchEffect(async () => {
+    garmentOrders.value = [];
     orders.value.forEach((order) => {
       for (let i = 0; i < order.items.length; i++) {
         const shopGarment = shopGarments.value.find(

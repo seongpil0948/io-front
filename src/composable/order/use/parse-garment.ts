@@ -8,6 +8,7 @@ import {
   sameGarment,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
+import { useVendorsStore } from "@/store";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { useMessage } from "naive-ui";
@@ -21,6 +22,7 @@ export function useParseGarmentOrder(
   onParse: (orders: GarmentOrder[]) => void
 ) {
   const conditions = ref<ShopGarmentQField[]>([]);
+  const vendorStore = useVendorsStore();
   const { userProd } = useShopUserGarments(userId, conditions);
   const msg = useMessage();
 
@@ -42,9 +44,39 @@ export function useParseGarmentOrder(
       const d = conditions.value[j];
       const prod = userProd.value.find((x) => sameGarment(x, d))!;
       if (!prod) continue;
-      const order = GarmentOrder.fromProd(prod, d.orderId);
-      orderInfo.push(order);
+      let existOrder: GarmentOrder | null = null;
+      let existProdOrderId: string | null = null;
+      for (let k = 0; k < orderInfo.length; k++) {
+        const o = orderInfo[k];
+        const prodOrder = o.getProdOrder(undefined, prod.shopProdId);
+        if (prodOrder) {
+          existOrder = o;
+          existProdOrderId = prodOrder.id;
+          break;
+        }
+      }
+      if (existOrder && existProdOrderId) {
+        existOrder.setOrderCnt(
+          existProdOrderId,
+          existOrder.getProdOrder(undefined, prod.shopProdId)!.orderCnt + 1
+        );
+      } else {
+        const vendorProd = vendorStore.vendorUserGarments.find(
+          (g) =>
+            g.vendorProdId === prod.vendorProdId && g.vendorId === prod.vendorId
+        );
+        if (vendorProd) {
+          const order = GarmentOrder.fromProd(prod, d.orderId, 1, vendorProd);
+          orderInfo.push(order);
+        } else {
+          msg.error(
+            `${prod.prodName}의 도매처 상품이 존재하지 않습니다.`,
+            makeMsgOpt()
+          );
+        }
+      }
     }
+    orderInfo.forEach((x) => (x.initialAmount = x.actualAmount));
     onParse(orderInfo);
   });
 

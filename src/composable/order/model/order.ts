@@ -1,3 +1,5 @@
+import { VendorUserGarment } from "./../../product/vendor-garment/domain";
+import { VendorGarment } from "@/composable";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CommonField } from "@/composable/common/model";
 import {
@@ -17,6 +19,7 @@ import {
 } from "@firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { cloneDeep } from "lodash";
+import { constants } from "fs";
 
 export class GarmentOrder extends CommonField implements OrderCrt {
   orderDate?: Date;
@@ -80,6 +83,21 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   }
 
   // getters
+  getProdOrder(
+    prodOrderId?: string,
+    shopProdId?: string,
+    vendorProdId?: string
+  ) {
+    if (prodOrderId) return this.items.find((x) => x.id === prodOrderId);
+    else if (shopProdId)
+      return this.items.find((x) => x.shopProdId === shopProdId);
+    else if (vendorProdId)
+      return this.items.find((x) => x.vendorProdId === vendorProdId);
+    else {
+      throw new Error("no param in getProdOrder");
+    }
+  }
+
   sameOrder(p: OrderCrt): boolean {
     return this.dbId === p.dbId;
   }
@@ -141,7 +159,12 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     }
   }
 
-  static fromProd(p: ShopUserGarment, orderId: string, orderCnt = 1) {
+  static fromProd(
+    p: ShopUserGarment,
+    orderId: string,
+    orderCnt = 1,
+    v: VendorUserGarment
+  ) {
     const pureAmount = GarmentOrder.getPureAmount(orderCnt, p.prodPrice);
     const shipFeeAmount = 0;
     const shipFeeDiscountAmount = 0;
@@ -163,18 +186,20 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       ),
       paymentConfirm: false,
     };
-    const prodOrder: ProdOrder = {
+    const prodOrder: ProdOrderCombined = {
       id: uuidv4(),
       vendorId: p.vendorId,
       vendorProdId: p.vendorProdId,
       shopProdId: p.shopProdId,
       orderCnt,
-      activeCnt: 1,
+      activeCnt: orderCnt,
       pendingCnt: 0,
       initialAmount: amount,
       actualAmount: amount,
+      shopGarment: p,
+      vendorGarment: v,
     };
-    return new GarmentOrder({
+    const order = new GarmentOrder({
       orderDate: new Date(),
       doneDate: new Date(),
       dbId: uuidv4(),
@@ -186,6 +211,8 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       shippingStatus: SHIP_STATE.BEFORE_READY,
       items: [prodOrder],
     });
+    order.setOrderCnt(prodOrder.id, orderCnt);
+    return order;
   }
 
   static fromJson(d: { [x: string]: any }): GarmentOrder | null {
@@ -226,11 +253,11 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   // >>> Prod Order >>>
   setOrderCnt(prodOrderId: string, orderCnt: number, paid = BOOL_M.F) {
     // 0. find prod order
-    let itemTarget: ProdOrderCombined | undefined = (
-      this.items as ProdOrderCombined[]
-    ).find((x) => x.id === prodOrderId);
-    if (!itemTarget) throw new Error("prodOrder not belong to order");
-    const item = cloneDeep(itemTarget);
+    const targetIdx = this.items.findIndex((x) => x.id === prodOrderId);
+    if (targetIdx < 0) throw new Error("prodOrder not belong to order");
+    const item: ProdOrderCombined = cloneDeep(
+      (this.items as ProdOrderCombined[])[targetIdx]
+    );
     const v = item.vendorGarment;
     // 1. set Order Cnt
     item.orderCnt = orderCnt;
@@ -244,7 +271,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     item.activeCnt = GarmentOrder.getActiveCnt(orderCnt, item.pendingCnt);
     // 4. set prod order amount
     const pureAmount = GarmentOrder.getPureAmount(orderCnt, v.vendorPrice);
-    const newAmount = Object.assign(item.actualAmount, {
+    item.actualAmount = Object.assign({}, item.actualAmount, {
       paid,
       pureAmount,
       orderAmount: GarmentOrder.getOrderAmount(
@@ -255,9 +282,10 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       ),
     });
     if (!GarmentOrder.validProdOrder(item)) {
-      throw new Error(`Invalid Prod Order: ${JSON.stringify(item)}`);
+      throw new Error(`Invalid Prod Order: ${item.id} orderId: ${this.dbId}`);
     }
-    itemTarget = item;
+    this.items[targetIdx] = item;
+    console.log("setOrderCnt result: ", this);
     // 5. set order amount
     this.setTotalAmount();
     if (!this.isValid) throw new Error("invalid setTotalAmount in setOrderCnt");
@@ -293,10 +321,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   static validProdOrder(o: ProdOrder): boolean {
     const cntValid = o.pendingCnt + o.activeCnt === o.orderCnt;
     const a = o.actualAmount;
-    const amountValid =
-      Object.values(a)
-        .map((x) => (typeof x === "number" ? x > 0 : true))
-        .every((y) => y === true) && a.orderAmount > a.pureAmount;
+    const amountValid = a.orderAmount > 0 && a.orderAmount >= a.pureAmount;
     return cntValid && amountValid;
   }
 }

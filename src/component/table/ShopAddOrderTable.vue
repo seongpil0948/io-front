@@ -29,8 +29,8 @@ const log = useLogger();
 // >>>>> COLUMNS >>>>>
 // 이미지, 상품정보, 도매이름, 주문수량, 예상미송수량, 판매가, 합계
 const colKeys = [
-  "userName",
-  "prodName",
+  "vendorGarment.userInfo.displayName",
+  "shopGarment.prodName",
   "orderCnt",
   "allowPending",
   // "stockCnt",
@@ -49,7 +49,7 @@ const { columns, mapper, checkedKeys } = useTable<ProdOrderCombined>({
     if (tableRef.value) {
       const idxes = (tableRef.value.paginatedData as any[]).map((x) => x.index);
       checkedKeys.value = to
-        ? orders.value
+        ? garmentOrders.value
             .filter((o: any, idx: any) => idxes.includes(idx))
             .map((p: { [x: string]: any }) => p[keyField])
         : [];
@@ -85,7 +85,7 @@ watchEffect(() => {
       x.title = "주문/미송";
       x.render = (prodOrder: ProdOrderCombined) => {
         const order = orders.value.find((x) => {
-          return x.items.some((i) => i.id === prodOrder.id);
+          return x.getProdOrder(prodOrder.id);
         });
         return order
           ? h(ShopOrderCnt, {
