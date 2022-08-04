@@ -1,11 +1,5 @@
 import { COIN_PAY_RATIO, COIN_FEE } from "@/constants";
-import {
-  loadDate,
-  insertById,
-  getIoCollection,
-  IoCollection,
-  dateToTimeStamp,
-} from "@/util";
+import { loadDate, insertById, getIoCollection, IoCollection } from "@/util";
 import { DocumentData, DocumentSnapshot } from "firebase/firestore";
 import { CommonField } from "../common";
 import { IO_BANKS, AccountCRT, IoPayCRT, PayHistoryCRT } from "./domain";
@@ -35,6 +29,9 @@ export class IoPay extends CommonField implements IoPayCRT {
     this.history = data.history;
   }
 
+  get availBudget() {
+    return this.budget - this.pendingBudget;
+  }
   static toMoneyString(coin: number) {
     return IoPay.coinToMoney(coin).toLocaleString() + "원";
   }
@@ -69,10 +66,9 @@ export class IoPay extends CommonField implements IoPayCRT {
   static fireConverter() {
     return {
       toFirestore: (u: IoPay) => {
-        const j = u.toJson();
-        j.createdAt = dateToTimeStamp(u.createdAt);
-        j.updatedAt = dateToTimeStamp(u.updatedAt);
-        return j;
+        return u instanceof CommonField
+          ? u.toJson()
+          : IoPay.fromJson(u)!.toJson();
       },
       fromFirestore: (
         snapshot: DocumentSnapshot<DocumentData>,

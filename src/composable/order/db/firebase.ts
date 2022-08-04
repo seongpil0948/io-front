@@ -17,12 +17,18 @@ import { useVendorsStore } from "@/store";
 import { VendorOperInfo } from "@/composable/auth";
 import { logger } from "@/plugin/logger";
 import { ref } from "vue";
+import { IoPay, IO_PAY_DB } from "@/composable";
+import { IO_COSTS } from "@/constants";
 
 export const OrderGarmentFB: OrderDB<GarmentOrder> = {
   orderGarment: async function (row: GarmentOrder) {
     const vendorStore = useVendorsStore();
+    console.log("in orderGarment: row:", row);
     try {
       const { getOrdRef, converterGarment } = getSrc();
+      const userPay = await IO_PAY_DB.getIoPayByUser(row.shopId);
+      if (userPay.availBudget < IO_COSTS.REQ_ORDER)
+        throw new Error("보유 코인이 부족합니다.");
 
       const ordRef = getOrdRef(row.shopId);
       const ordDocRef = doc(ordRef, row.dbId).withConverter(converterGarment);
@@ -58,6 +64,11 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           }
         });
         transaction.update(ordDocRef, converterGarment.toFirestore(ord));
+        userPay.budget - IO_COSTS.REQ_ORDER;
+        transaction.update(
+          doc(getIoCollection({ c: IoCollection.IO_PAY }), row.shopId),
+          IoPay.fireConverter().toFirestore(userPay)
+        );
         return ord;
       });
       return newOrder;

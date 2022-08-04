@@ -7,7 +7,7 @@ export class CommonField {
     this.createdAt = createdAt ?? new Date();
     this.updatedAt = updatedAt ?? new Date();
   }
-  toJson(): { [x: string]: unknown } {
+  toJson(): { [x: string]: Partial<unknown> } {
     const c = dateToJson(this.createdAt);
     const u = dateToJson(this.updatedAt);
     const j = JSON.parse(JSON.stringify(this));

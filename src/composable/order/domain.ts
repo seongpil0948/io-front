@@ -1,6 +1,7 @@
 import { Ref } from "vue";
 import {
   BOOL_M,
+  GarmentOrder,
   PayMethod,
   SHIP_STATE,
   ShopUserGarment,
@@ -168,7 +169,7 @@ export interface OrderCrt {
 // export interface OrderFlat extends OrderCrt, ProdOrderCombined, OrderAmount {}
 
 export interface OrderDB<T> {
-  orderGarment(row: any): Promise<T>;
+  orderGarment(row: GarmentOrder): Promise<T>;
   batchCreate(uid: string, orders: T[]): Promise<void>;
   batchUpdate(arg: {
     orderDbIdByShops: { [shopId: string]: string[] };

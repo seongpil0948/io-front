@@ -30,7 +30,8 @@ export interface AccountCRT {
 }
 
 export interface PaymentDB {
-  getIoPayByUser(uid: string): Ref<IoPay | null>;
+  getIoPayByUser(uid: string): Promise<IoPay>;
+  getIoPayByUserListen(uid: string): Ref<IoPay | null>;
 }
 
 export interface IoPayCRT {

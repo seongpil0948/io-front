@@ -1,5 +1,4 @@
 import { VendorUserGarment } from "./../../product/vendor-garment/domain";
-import { VendorGarment } from "@/composable";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CommonField } from "@/composable/common/model";
 import {

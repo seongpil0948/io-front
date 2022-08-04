@@ -7,7 +7,7 @@ import {
   useReadShopOrderGInfo,
   useParseGarmentOrder,
   ProdOrderCombined,
-  GarmentOrder,
+  useOrderBasic,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
@@ -15,19 +15,25 @@ import { DataTableColumns, NImage, useMessage } from "naive-ui";
 import { computed, h, ref, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
+import { IO_COSTS } from "@/constants";
 interface Props {
   inStates?: ORDER_STATE[];
   notStates?: ORDER_STATE[];
   showSizes: boolean;
 }
+
 const msg = useMessage();
 const props = defineProps<Props>();
 const auth = useAuthStore();
 const user = auth.currUser;
 const fileModel = ref<File[]>([]);
 const log = useLogger();
-// >>>>> COLUMNS >>>>>
-// 이미지, 상품정보, 도매이름, 주문수량, 예상미송수량, 판매가, 합계
+
+const { orders, existOrderIds, garmentOrders } = useReadShopOrderGInfo(
+  user.userInfo.userId,
+  props.inStates ?? [],
+  props.notStates ?? []
+);
 const colKeys = [
   "vendorGarment.userInfo.displayName",
   "shopGarment.prodName",
@@ -56,7 +62,31 @@ const { columns, mapper, checkedKeys } = useTable<ProdOrderCombined>({
     }
   },
 });
-
+const {
+  orderAll,
+  orderChecked,
+  deleteAll,
+  expectedReduceCoin,
+  showReqOrderModal,
+  userPay,
+  updateReqOrderShow,
+  onReqOrderConfirm,
+  deleteChecked,
+} = useOrderBasic(user, garmentOrders, orders, checkedKeys);
+useParseGarmentOrder(
+  mapper,
+  user.userInfo.userId,
+  fileModel,
+  existOrderIds,
+  async (newOrders) => {
+    log.debug("newOrders: ", newOrders);
+    ORDER_GARMENT_DB.batchCreate(user.userInfo.userId, newOrders).then(() => {
+      newOrders.forEach((ord) => {
+        existOrderIds.value.add(ord.orderId);
+      });
+    });
+  }
+);
 const colResult = computed((): DataTableColumns<ProdOrderCombined> => {
   return columns.value.length > 0
     ? [
@@ -105,89 +135,9 @@ watchEffect(() => {
     }
   });
 });
-async function deleteChecked() {
-  const targetProds = garmentOrders.value.filter((x) =>
-    checkedKeys.value.includes(x[keyField]!)
-  );
-  const ids = targetProds.map((prod) => prod.id);
-  const targets: GarmentOrder[] = [];
-  for (let i = 0; i < ids.length; i++) {
-    const prodOrderId = ids[i];
-    for (let j = 0; j < orders.value.length; j++) {
-      const ord = orders.value[j];
-      for (let k = 0; k < ord.items.length; k++) {
-        const item = ord.items[k];
-        if (item.id !== prodOrderId) continue;
-        if (ord.items.length < 2) {
-          if (!targets.map((z) => z.dbId).includes(ord.dbId)) {
-            targets.push(ord);
-          }
-        } else {
-          ord.items.splice(k, 1);
-          await ord.update();
-        }
-      }
-    }
-  }
-  return ORDER_GARMENT_DB.batchDelete(targets)
-    .then(() => msg.success("삭제 성공.", makeMsgOpt()))
-    .catch(() => msg.success("삭제 실패.", makeMsgOpt()));
-}
-async function deleteAll() {
-  return ORDER_GARMENT_DB.batchDelete(orders.value)
-    .then(() => msg.success("삭제 성공.", makeMsgOpt()))
-    .catch(() => msg.success("삭제 실패.", makeMsgOpt()));
-}
-async function orderChecked() {
-  const targets = garmentOrders.value.filter((x) =>
-    checkedKeys.value.includes(x[keyField]!)
-  );
-  return Promise.all(targets.map((t: any) => ORDER_GARMENT_DB.orderGarment(t)))
-    .then(() => msg.success("주문 성공.", makeMsgOpt()))
-    .catch((err) => {
-      msg.success(`주문 실패. ${err}`, makeMsgOpt());
-      log.error(user.userInfo.userId, `주문 실패. ${err}`);
-    });
-}
-async function orderAll() {
-  return Promise.all(
-    orders.value.map((t: any) => ORDER_GARMENT_DB.orderGarment(t))
-  )
-    .then(() => msg.success("주문 성공.", makeMsgOpt()))
-    .catch((err) => {
-      msg.success(`주문 실패. ${err}`, makeMsgOpt());
-      log.error(user.userInfo.userId, `주문 실패. ${err}`);
-    });
-}
-// function rowClassName(row: OrderShopGarmentJoined) {
-//   const pendingCnt = row.allowPending
-//     ? getPendingCnt(row.stockCnt!, row.orderCnt!)
-//     : 0;
-//   const orderAvailCnt = getOrderCnt(row.stockCnt!, row.orderCnt!, pendingCnt);
-//   const orderNotAvailable = orderAvailCnt < row.orderCnt!;
-//   return orderNotAvailable || pendingCnt > 0 ? "not-avail-order" : "";
-// }
+
 // <<<<< COLUMNS <<<<<
 
-const { orders, existOrderIds, garmentOrders } = useReadShopOrderGInfo(
-  user.userInfo.userId,
-  props.inStates ?? [],
-  props.notStates ?? []
-);
-useParseGarmentOrder(
-  mapper,
-  user.userInfo.userId,
-  fileModel,
-  existOrderIds,
-  async (newOrders) => {
-    log.debug("newOrders: ", newOrders);
-    ORDER_GARMENT_DB.batchCreate(user.userInfo.userId, newOrders).then(() => {
-      newOrders.forEach((ord) => {
-        existOrderIds.value.add(ord.orderId);
-      });
-    });
-  }
-);
 function downXlsx() {
   const a = document.createElement("a");
   // a.href = url
@@ -249,12 +199,21 @@ function downXlsx() {
       "
       :bordered="false"
     />
+    <coin-reduce-confirm-modal
+      :showModal="showReqOrderModal"
+      @update:showModal="updateReqOrderShow"
+      @onConfirm="onReqOrderConfirm"
+      :userId="user.userInfo.userId"
+      :expectedReduceCoin="expectedReduceCoin"
+      :userPay="userPay"
+    >
+      <template #title>주문을 전송 하시겠습니까? </template>
+      <template #default>
+        도매처에 주문 데이터를 전송 후
+        <br />
+        도매처에서 [<n-text class="under-bar"> 승인 </n-text>]할 경우 도매처당
+        {{ IO_COSTS.REQ_ORDER }} 코인이 소모 됩니다.
+      </template>
+    </coin-reduce-confirm-modal>
   </drop-zone-card>
 </template>
-
-<style scoped>
-/* :deep(.not-avail-order td) {
-  color: red !important;
-} */
-</style>
-<!-- ProdOrderCombined -->
