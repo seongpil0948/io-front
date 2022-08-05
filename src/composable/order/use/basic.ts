@@ -33,7 +33,7 @@ export function useOrderBasic(
     return Promise.all(
       orders.value
         .filter((y) => y.items.some((item) => ids.includes(item.id)))
-        .map((t) => ORDER_GARMENT_DB.orderGarment(t))
+        .map((t) => ORDER_GARMENT_DB.orderGarment(t, expectedReduceCoin.value))
     )
       .then(() => msg.success("주문 성공.", makeMsgOpt()))
       .catch((err) => {

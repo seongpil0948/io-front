@@ -82,7 +82,7 @@ useParseGarmentOrder(
     log.debug("newOrders: ", newOrders);
     ORDER_GARMENT_DB.batchCreate(user.userInfo.userId, newOrders).then(() => {
       newOrders.forEach((ord) => {
-        existOrderIds.value.add(ord.orderId);
+        ord.orderIds.forEach((id) => existOrderIds.value.add(id));
       });
     });
   }
@@ -200,6 +200,7 @@ function downXlsx() {
       :bordered="false"
     />
     <coin-reduce-confirm-modal
+      v-if="orders && orders.length > 0"
       :showModal="showReqOrderModal"
       @update:showModal="updateReqOrderShow"
       @onConfirm="onReqOrderConfirm"

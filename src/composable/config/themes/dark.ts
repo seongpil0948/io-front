@@ -15,7 +15,7 @@ export const darkThemeOver: GlobalThemeOverrides = {
     textColor2: darkColors.primary,
     textColor3: darkColors.primary,
     primaryColor: darkColors.primary,
-    hoverColor: darkColors.primary,
+    // hoverColor: darkColors.primary,
   },
   Switch: {
     railColorActive: darkColors.primary,

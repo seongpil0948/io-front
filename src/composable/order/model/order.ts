@@ -18,13 +18,12 @@ import {
 } from "@firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { cloneDeep } from "lodash";
-import { constants } from "fs";
 
 export class GarmentOrder extends CommonField implements OrderCrt {
   orderDate?: Date;
   doneDate?: Date;
   dbId: string;
-  orderId: string;
+  orderIds: string[];
   parent?: OrderParent;
   state: ORDER_STATE;
   actualAmount: OrderAmount;
@@ -38,7 +37,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   constructor(d: Partial<OrderCrt>) {
     super(d.createdAt, d.updatedAt);
     this.dbId = d.dbId!;
-    this.orderId = d.orderId!;
+    this.orderIds = d.orderIds!;
     this.parent = d.parent!;
     this.shopId = d.shopId!;
     this.actualAmount = d.actualAmount!;
@@ -160,7 +159,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
 
   static fromProd(
     p: ShopUserGarment,
-    orderId: string,
+    orderIds: string[],
     orderCnt = 1,
     v: VendorUserGarment
   ) {
@@ -203,7 +202,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       doneDate: new Date(),
       dbId: uuidv4(),
       shopId: p.shopId,
-      orderId: orderId,
+      orderIds: orderIds,
       state: "BEFORE_ORDER",
       actualAmount: amount,
       initialAmount: amount,
@@ -219,7 +218,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       createdAt: d.createdAt,
       updatedAt: d.updatedAt,
       dbId: d.dbId,
-      orderId: d.orderId,
+      orderIds: d.orderIds,
       parent: d.parent,
       shopId: d.shopId,
       actualAmount: d.actualAmount,
@@ -251,6 +250,13 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   }
   // >>> Prod Order >>>
   setOrderCnt(prodOrderId: string, orderCnt: number, paid = BOOL_M.F) {
+    console.log("BEFORE setOrderCnt", orderCnt, this);
+    // FIXME: amount 에 집계가 업데이트 안됌
+    // FIXME: userPAy 가 줄어들지 않음 - 코인이 도매 쪽에서 승인했을때 차감되어야함
+    // FIXME: 행당 1코인씩 소모되는게 맞는지 확인
+    // FIXME: 도매 상품 등록시 setDoc, toFirestore 에서 에러남 invalid data 이러던데
+    // FIXME: 그외 지라 이슈 수정
+
     // 0. find prod order
     const targetIdx = this.items.findIndex((x) => x.id === prodOrderId);
     if (targetIdx < 0) throw new Error("prodOrder not belong to order");
@@ -266,22 +272,21 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       orderCnt,
       v.allowPending
     );
-    // 3. set activecnt
+    // 3. set active cnt
     item.activeCnt = GarmentOrder.getActiveCnt(orderCnt, item.pendingCnt);
     // 4. set prod order amount
     const pureAmount = GarmentOrder.getPureAmount(orderCnt, v.vendorPrice);
-    item.actualAmount = Object.assign({}, item.actualAmount, {
-      paid,
+    item.actualAmount.paid = paid;
+    item.actualAmount.pureAmount = pureAmount;
+    item.actualAmount.orderAmount = GarmentOrder.getOrderAmount(
       pureAmount,
-      orderAmount: GarmentOrder.getOrderAmount(
-        pureAmount,
-        item.actualAmount.shipFeeAmount,
-        item.actualAmount.shipFeeDiscountAmount,
-        item.actualAmount.tax
-      ),
-    });
+      item.actualAmount.shipFeeAmount,
+      item.actualAmount.shipFeeDiscountAmount,
+      item.actualAmount.tax
+    );
+
     if (!GarmentOrder.validProdOrder(item)) {
-      throw new Error(`Invalid Prod Order: ${item.id} orderId: ${this.dbId}`);
+      throw new Error(`Invalid Prod Order: ${item.id} orderIds: ${this.dbId}`);
     }
     this.items[targetIdx] = item;
     console.log("setOrderCnt result: ", this);
@@ -289,6 +294,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     this.setTotalAmount();
     if (!this.isValid) throw new Error("invalid setTotalAmount in setOrderCnt");
   }
+
   static getActiveCnt(orderCnt: number, pendingCnt: number) {
     if (orderCnt < 0 || pendingCnt < 0)
       throw new Error("cnt must bigger than zero ");

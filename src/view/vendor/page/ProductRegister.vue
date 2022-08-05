@@ -186,7 +186,7 @@ function onRegister() {
         <n-form-item-gi label="도매가" path="vendorPrice">
           <n-input-number
             :min="1000"
-            :step="1000"
+            :step="10"
             v-model:value="prodModel.vendorPrice"
           >
             <template #prefix> ₩ </template>

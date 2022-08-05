@@ -21,13 +21,13 @@ import { IoPay, IO_PAY_DB } from "@/composable";
 import { IO_COSTS } from "@/constants";
 
 export const OrderGarmentFB: OrderDB<GarmentOrder> = {
-  orderGarment: async function (row: GarmentOrder) {
+  orderGarment: async function (row: GarmentOrder, expectedReduceCoin: number) {
     const vendorStore = useVendorsStore();
     console.log("in orderGarment: row:", row);
     try {
       const { getOrdRef, converterGarment } = getSrc();
       const userPay = await IO_PAY_DB.getIoPayByUser(row.shopId);
-      if (userPay.availBudget < IO_COSTS.REQ_ORDER)
+      if (userPay.availBudget < expectedReduceCoin)
         throw new Error("보유 코인이 부족합니다.");
 
       const ordRef = getOrdRef(row.shopId);
@@ -118,7 +118,9 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
                 doc(ordRef, exist.dbId),
                 converterGarment.toFirestore(exist)
               );
-              transaction.set(doc(ordNumRef, exist.orderId), { done: false });
+              exist.orderIds.forEach((oid) =>
+                transaction.set(doc(ordNumRef, oid), { done: false })
+              );
             }
           }
         }
@@ -160,7 +162,9 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     for (let i = 0; i < ords.length; i++) {
       const ord = ords[i];
       batch.delete(doc(getOrdRef(ord.shopId), ord.dbId));
-      batch.delete(doc(getOrderNumberRef(ord.shopId), ord.orderId.toString()));
+      ord.orderIds.forEach((orderId) =>
+        batch.delete(doc(getOrderNumberRef(ord.shopId), orderId.toString()))
+      );
     }
     await batch.commit();
   },

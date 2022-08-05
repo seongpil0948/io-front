@@ -1,3 +1,4 @@
+import { CommonField } from "@/composable/common/model";
 import { logger as log } from "@/plugin/logger";
 import { insertById, getIoCollection, IoCollection, uniqueArr } from "@/util";
 import type {
@@ -130,7 +131,8 @@ class Mapper implements MapperCRT {
   }
   static fireConverter(): FirestoreDataConverter<Mapper | null> {
     return {
-      toFirestore: (m: Mapper) => m.toJson(),
+      toFirestore: (u: Mapper) =>
+        u instanceof CommonField ? u.toJson() : Mapper.fromJson(u)!.toJson(),
       fromFirestore: (
         snapshot: DocumentSnapshot<DocumentData>,
         options: any

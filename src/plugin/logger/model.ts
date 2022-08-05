@@ -15,12 +15,7 @@ import {
 import { logger } from "@/plugin/logger";
 import { onBeforeMount, ref } from "vue";
 import { CommonField } from "@/composable/common/model";
-import {
-  dateToTimeStamp,
-  getIoCollection,
-  IoCollection,
-  loadDate,
-} from "@/util";
+import { getIoCollection, IoCollection, loadDate } from "@/util";
 import { iostore } from "../firebase";
 export interface IoLogCRT {
   createdAt?: Date;
@@ -48,7 +43,15 @@ export class IoLog extends CommonField implements IoLogCRT {
     });
     this.severity = data.severity;
   }
-
+  toJson(): { [x: string]: Partial<unknown> } {
+    for (let i = 0; i < this.txts.length; i++) {
+      const txt = this.txts[i];
+      if (Array.isArray(txt)) {
+        this.txts[i] = JSON.stringify(txt);
+      }
+    }
+    return super.toJson();
+  }
   update(): Promise<void> {
     throw new Error("Method not implemented.");
   }
@@ -80,12 +83,8 @@ export class IoLog extends CommonField implements IoLogCRT {
 }
 
 export const ioLogConverter = {
-  toFirestore: (p: IoLog) => {
-    const j = p.toJson();
-    j.createdAt = dateToTimeStamp(p.createdAt);
-    j.updatedAt = dateToTimeStamp(p.updatedAt);
-    return j;
-  },
+  toFirestore: (u: IoLog) =>
+    u instanceof CommonField ? u.toJson() : IoLog.fromJson(u)!.toJson(),
   fromFirestore: (snapshot: DocumentSnapshot<DocumentData>): IoLog | null => {
     const data = snapshot.data();
     if (data) {

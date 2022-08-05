@@ -10,13 +10,7 @@ import {
 } from "@/composable";
 import { CommonField } from "../../common/model";
 import { useAuthStore } from "@/store";
-import {
-  insertById,
-  getIoCollection,
-  IoCollection,
-  loadDate,
-  dateToTimeStamp,
-} from "@/util";
+import { insertById, getIoCollection, IoCollection, loadDate } from "@/util";
 import { UserCredential } from "@firebase/auth";
 import { getMessaging, getToken } from "@firebase/messaging";
 import {
@@ -110,10 +104,9 @@ export class IoUser extends CommonField implements IoUserCRT {
   static fireConverter(): FirestoreDataConverter<IoUser | null> {
     return {
       toFirestore: (u: IoUser) => {
-        const j = u.toJson();
-        j.createdAt = dateToTimeStamp(u.createdAt);
-        j.updatedAt = dateToTimeStamp(u.updatedAt);
-        return j;
+        return u instanceof CommonField
+          ? u.toJson()
+          : IoUser.fromJson(u)!.toJson();
       },
       fromFirestore: (
         snapshot: DocumentSnapshot<DocumentData>,

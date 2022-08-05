@@ -6,6 +6,8 @@ import {
   MapKey,
   GarmentOrder,
   sameGarment,
+  ShopUserGarment,
+  VendorUserGarment,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { useVendorsStore } from "@/store";
@@ -39,45 +41,75 @@ export function useParseGarmentOrder(
       }
       conditions.value.push(...parseDf(inputDf, mapper.value, existIds.value));
     }
-    const orderInfo: GarmentOrder[] = [];
+    const infos: {
+      [k: string]: {
+        prod: ShopUserGarment;
+        vendorProd: VendorUserGarment;
+        orderIds: string[];
+        orderCnt: number;
+      };
+    } = {};
     for (let j = 0; j < conditions.value.length; j++) {
       const d = conditions.value[j];
       const prod = userProd.value.find((x) => sameGarment(x, d))!;
       if (!prod) continue;
-      let existOrder: GarmentOrder | null = null;
-      let existProdOrderId: string | null = null;
-      for (let k = 0; k < orderInfo.length; k++) {
-        const o = orderInfo[k];
-        const prodOrder = o.getProdOrder(undefined, prod.shopProdId);
-        if (prodOrder) {
-          existOrder = o;
-          existProdOrderId = prodOrder.id;
-          break;
-        }
-      }
-      if (existOrder && existProdOrderId) {
-        existOrder.setOrderCnt(
-          existProdOrderId,
-          existOrder.getProdOrder(undefined, prod.shopProdId)!.orderCnt + 1
-        );
-      } else {
+      else if (!infos[prod.shopProdId]) {
         const vendorProd = vendorStore.vendorUserGarments.find(
           (g) =>
             g.vendorProdId === prod.vendorProdId && g.vendorId === prod.vendorId
         );
         if (vendorProd) {
-          const order = GarmentOrder.fromProd(prod, d.orderId, 1, vendorProd);
-          orderInfo.push(order);
-        } else {
-          msg.error(
-            `${prod.prodName}의 도매처 상품이 존재하지 않습니다.`,
-            makeMsgOpt()
-          );
+          infos[prod.shopProdId] = {
+            prod,
+            vendorProd,
+            orderIds: [d.orderId],
+            orderCnt: 1,
+          };
         }
+      } else {
+        infos[prod.shopProdId].orderCnt += 1;
+        infos[prod.shopProdId].orderIds.push(d.orderId);
       }
+      // let exist = false;
+      // for (let k = 0; k < orderInfo.length; k++) {
+      //   const o = orderInfo[k];
+      //   const prodOrder = o.getProdOrder(undefined, prod.shopProdId);
+      //   if (prodOrder) {
+      //     exist = true;
+      //     o.setOrderCnt(prodOrder.id, prodOrder.orderCnt + 1);
+      //     console.log("O: ", o);
+      //     console.log("orderInfo[k] ", orderInfo[k]);
+      //     break;
+      //   }
+      // }
+      // if (!exist) {
+      // const vendorProd = vendorStore.vendorUserGarments.find(
+      //   (g) =>
+      //     g.vendorProdId === prod.vendorProdId && g.vendorId === prod.vendorId
+      // );
+      //   if (vendorProd) {
+      //     const order = GarmentOrder.fromProd(prod, d.orderId, 1, vendorProd);
+      //     orderInfo.push(order);
+      //   } else {
+      //     msg.error(
+      //       `${prod.prodName}의 도매처 상품이 존재하지 않습니다.`,
+      //       makeMsgOpt()
+      //     );
+      //   }
+      // }
     }
-    orderInfo.forEach((x) => (x.initialAmount = x.actualAmount));
-    onParse(orderInfo);
+    onParse(
+      Object.values(infos).reduce((acc, info) => {
+        const order = GarmentOrder.fromProd(
+          info.prod,
+          info.orderIds,
+          info.orderCnt,
+          info.vendorProd
+        );
+        acc.push(order);
+        return acc;
+      }, [] as GarmentOrder[])
+    );
   });
 
   function parseDf(

@@ -141,7 +141,7 @@ export interface OrderCrt {
   doneDate?: Date;
   dbId: string;
   shopId: string;
-  orderId: string;
+  orderIds: string[];
   parent?: OrderParent;
   state: ORDER_STATE;
   actualAmount: OrderAmount;
@@ -169,7 +169,7 @@ export interface OrderCrt {
 // export interface OrderFlat extends OrderCrt, ProdOrderCombined, OrderAmount {}
 
 export interface OrderDB<T> {
-  orderGarment(row: GarmentOrder): Promise<T>;
+  orderGarment(row: GarmentOrder, expectedReduceCoin: number): Promise<T>;
   batchCreate(uid: string, orders: T[]): Promise<void>;
   batchUpdate(arg: {
     orderDbIdByShops: { [shopId: string]: string[] };

@@ -11,6 +11,9 @@ import { TableColumnTitle } from "naive-ui/es/data-table/src/interface";
 import { VNodeChild } from "vue";
 import { Mapper } from "./model";
 
+interface AdditionalMap {
+  orderId: string;
+}
 export type MapperFields = Partial<
   ProdOrder &
     OrderAmount &
@@ -19,7 +22,8 @@ export type MapperFields = Partial<
     ShopGarmentCrt &
     IoUserCRT &
     UserFields &
-    ProdOrder
+    ProdOrder &
+    AdditionalMap
 >;
 
 export type MapKey = keyof MapperFields;

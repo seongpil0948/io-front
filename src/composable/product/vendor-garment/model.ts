@@ -87,12 +87,10 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   }
   static fireConverter() {
     return {
-      toFirestore: (u: VendorGarment) => {
-        const j = u.toJson();
-        j.createdAt = dateToTimeStamp(u.createdAt);
-        j.updatedAt = dateToTimeStamp(u.updatedAt);
-        return j;
-      },
+      toFirestore: (u: VendorGarment) =>
+        u instanceof CommonField
+          ? u.toJson()
+          : VendorGarment.fromJson(u)!.toJson(),
       fromFirestore: (
         snapshot: DocumentSnapshot<DocumentData>,
         options: any

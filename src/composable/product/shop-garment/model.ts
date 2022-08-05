@@ -5,12 +5,7 @@ import {
   ShopGarmentQField,
 } from "@/composable";
 import { CommonField } from "@/composable/common";
-import {
-  dateToTimeStamp,
-  getIoCollection,
-  insertById,
-  IoCollection,
-} from "@/util";
+import { getIoCollection, insertById, IoCollection } from "@/util";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 
 export function sameGarment(p: ShopGarmentCrt, g: ShopGarmentQField) {
@@ -80,12 +75,10 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   }
   static fireConverter() {
     return {
-      toFirestore: (u: ShopGarment) => {
-        const j = u.toJson();
-        j.createdAt = dateToTimeStamp(u.createdAt);
-        j.updatedAt = dateToTimeStamp(u.updatedAt);
-        return j;
-      },
+      toFirestore: (u: ShopGarment) =>
+        u instanceof CommonField
+          ? u.toJson()
+          : ShopGarment.fromJson(u)!.toJson(),
       fromFirestore: (
         snapshot: DocumentSnapshot<DocumentData>,
         options: any
