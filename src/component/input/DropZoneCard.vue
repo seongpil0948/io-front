@@ -1,8 +1,8 @@
 <template>
   <n-card
     class="base-card"
-    :style="`border-color: #f0c755; box-shadow: ${
-      hovered || isDragActive ? '0 0 10px -1px ' + activeColor : 'none'
+    :style="`border-color: grey; box-shadow: ${
+      isDragActive ? '0 0 10px -1px ' + '#f0c755' : 'none'
     };`"
     @mouseover="hovered = true"
     @mouseleave="hovered = false"
@@ -27,10 +27,10 @@
               hovered === true ? activeColor : 'var(--n-close-color-pressed)'
             }`"
           >
-            <div v-if="!isDragActive">
+            <n-text type="primary" v-if="!isDragActive">
               클릭 혹은 드래그앤드롭(Drag&Drop) 으로 사입리스트를 업로드하세요!
-            </div>
-            <div v-else>좋아요! 내려놓으세요!</div>
+            </n-text>
+            <n-text type="primary" v-else>좋아요! 내려놓으세요!</n-text>
           </n-el>
         </div>
       </slot>

@@ -6,6 +6,7 @@ import {
 import { useVendorsStore } from "@/store";
 import { onBeforeUnmount, ref, watchEffect } from "vue";
 import { ORDER_GARMENT_DB } from "./../db/index";
+import debounce from "lodash.debounce";
 
 export function useReadShopOrderGInfo(
   shopId: string,
@@ -21,7 +22,10 @@ export function useReadShopOrderGInfo(
   const vendorStore = useVendorsStore();
   const existOrderIds = ref<Set<string>>(new Set());
   const garmentOrders = ref<ProdOrderCombined[]>([]);
-  watchEffect(async () => {
+  const setExistOrderIds = debounce(async () => {
+    existOrderIds.value = await ORDER_GARMENT_DB.getExistOrderIds(shopId);
+  }, 1000);
+  watchEffect(() => {
     garmentOrders.value = [];
     orders.value.forEach((order) => {
       for (let i = 0; i < order.items.length; i++) {
@@ -40,7 +44,7 @@ export function useReadShopOrderGInfo(
         garmentOrders.value.push(item);
       }
     });
-    existOrderIds.value = await ORDER_GARMENT_DB.getExistOrderIds(shopId);
+    setExistOrderIds();
   });
   onBeforeUnmount(() => unsubscribe());
   return { existOrderIds, orders, unsubscribe, garmentOrders };

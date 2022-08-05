@@ -250,13 +250,6 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   }
   // >>> Prod Order >>>
   setOrderCnt(prodOrderId: string, orderCnt: number, paid = BOOL_M.F) {
-    console.log("BEFORE setOrderCnt", orderCnt, this);
-    // FIXME: amount 에 집계가 업데이트 안됌
-    // FIXME: userPAy 가 줄어들지 않음 - 코인이 도매 쪽에서 승인했을때 차감되어야함
-    // FIXME: 행당 1코인씩 소모되는게 맞는지 확인
-    // FIXME: 도매 상품 등록시 setDoc, toFirestore 에서 에러남 invalid data 이러던데
-    // FIXME: 그외 지라 이슈 수정
-
     // 0. find prod order
     const targetIdx = this.items.findIndex((x) => x.id === prodOrderId);
     if (targetIdx < 0) throw new Error("prodOrder not belong to order");
@@ -289,7 +282,6 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       throw new Error(`Invalid Prod Order: ${item.id} orderIds: ${this.dbId}`);
     }
     this.items[targetIdx] = item;
-    console.log("setOrderCnt result: ", this);
     // 5. set order amount
     this.setTotalAmount();
     if (!this.isValid) throw new Error("invalid setTotalAmount in setOrderCnt");

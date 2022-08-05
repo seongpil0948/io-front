@@ -182,7 +182,16 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
       //   return row.actualAmount.orderAmount;
       // };
     }
-    if ((["userName", "prodName"] as any[]).includes(col.key)) {
+    if (
+      (
+        [
+          "vendorGarment.userInfo.displayName",
+          "userName",
+          "shopGarment.prodName",
+          "prodName",
+        ] as any[]
+      ).includes(col.key)
+    ) {
       col.sorter = "default";
     }
     if (opt.cellRender) {
@@ -200,7 +209,9 @@ const colKoMapper: { [key in string]: string | null } = {
   vendorPrice: "도매가",
   prodPrice: "판매가",
   color: "컬러",
+  "shopGarment.color": "컬러",
   size: "사이즈",
+  "shopGarment.size": "사이즈",
   stockCnt: "재고",
   orderCnt: "주문개수",
   orderId: "주문번호",

@@ -41,6 +41,8 @@ const colKeys = [
   "allowPending",
   // "stockCnt",
   "actualAmount.orderAmount",
+  "shopGarment.size",
+  "shopGarment.color",
 ].map((c) => {
   return { key: c } as IoColOpt;
 });
@@ -73,6 +75,7 @@ const {
   onReqOrderConfirm,
   deleteChecked,
 } = useOrderBasic(user, garmentOrders, orders, checkedKeys);
+
 useParseGarmentOrder(
   mapper,
   user.userInfo.userId,

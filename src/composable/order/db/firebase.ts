@@ -86,7 +86,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       const existQ = query(
         ordRef,
         where("shopId", "==", uid),
-        where("orderState", "==", ORDER_STATE.BEFORE_ORDER)
+        where("state", "==", "BEFORE_ORDER")
       );
       const docs = await getDocs(existQ);
       docs.forEach((doc) => {
@@ -95,33 +95,32 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           existOrders.push(data);
         }
       });
+      console.log("newOrders: ", orders);
+      console.log("existOrders: ", existOrders);
 
       for (let i = 0; i < orders.length; i++) {
         const order = orders[i];
         for (let j = 0; j < order.items.length; j++) {
           const item = order.items[j];
+          let exist: typeof order | null = null;
           for (let k = 0; k < existOrders.length; k++) {
-            const exist = existOrders[k];
-            let updated = false;
-            for (let z = 0; z < exist.items.length; z++) {
-              const existItem = exist.items[z];
+            const o = existOrders[k];
+            if (exist) break;
+            for (let z = 0; z < o.items.length; z++) {
+              const existItem = o.items[z];
               if (item.shopProdId === existItem.shopProdId) {
-                existItem.orderCnt += item.orderCnt;
-                existItem.activeCnt += item.activeCnt;
-                existItem.pendingCnt += item.pendingCnt;
-                updated = true;
+                exist = o;
+                exist.setOrderCnt(existItem.id, item.orderCnt);
                 order.items.splice(j, 1);
+                break;
               }
             }
-            if (updated) {
-              transaction.update(
-                doc(ordRef, exist.dbId),
-                converterGarment.toFirestore(exist)
-              );
-              exist.orderIds.forEach((oid) =>
-                transaction.set(doc(ordNumRef, oid), { done: false })
-              );
-            }
+          }
+          if (exist) {
+            transaction.update(
+              doc(ordRef, exist.dbId),
+              converterGarment.toFirestore(exist)
+            );
           }
         }
         if (order.items.length > 0) {
@@ -132,6 +131,9 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
             ) as WithFieldValue<GarmentOrder | null>
           );
         }
+        order.orderIds.forEach((oid) =>
+          transaction.set(doc(ordNumRef, oid), { done: false })
+        );
       }
 
       // transaction.set(doc(ordNumRef, orderId.toString()), { done: false })
@@ -233,6 +235,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     return { orders, unsubscribe };
   },
   getExistOrderIds: async function (shopId: string) {
+    console.log("shopId in getExistOrderIds", shopId);
     const ioc = getIoCollection({
       c: IoCollection.ORDER_PROD_NUMBER,
       uid: shopId,
@@ -240,6 +243,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     const orderIds: Set<string> = new Set();
     const snapShot = await getDocs(ioc);
     snapShot.forEach((doc) => orderIds.add(doc.id));
+    console.log("shopId in getExistOrderIds", shopId);
     return orderIds;
   },
 };
