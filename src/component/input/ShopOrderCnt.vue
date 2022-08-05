@@ -39,6 +39,9 @@ function onUpdate(val: number | null) {
   if (!prod) throw new Error("not matched prod order");
 
   order.value.setOrderCnt(prod.id, val);
+  order.value.update().then(() => {
+    msg.error(`주문개수가 업데이트에 성공하였습니다.`, makeMsgOpt());
+  });
 }
 async function onSubmit() {
   const order = GarmentOrder.fromJson(prodOrder.value);
@@ -53,7 +56,7 @@ async function onSubmit() {
 }
 
 function setEditMode() {
-  if (order.value.state === ORDER_STATE.BEFORE_ORDER) {
+  if (order.value.state === "BEFORE_ORDER") {
     edit.value = true;
   }
 }

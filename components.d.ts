@@ -17,6 +17,7 @@ declare module '@vue/runtime-core' {
     DropZoneCard: typeof import('./src/component/input/DropZoneCard.vue')['default']
     ExpandCard: typeof import('./src/component/card/ExpandCard.vue')['default']
     FloatActionButton: typeof import('./src/component/layout/FloatActionButton.vue')['default']
+    InfoCell: typeof import('./src/component/table/InfoCell.vue')['default']
     IoFooter: typeof import('./src/component/layout/IoFooter.vue')['default']
     IoSider: typeof import('./src/component/layout/IoSider.vue')['default']
     LayoutHeader: typeof import('./src/component/layout/LayoutHeader.vue')['default']

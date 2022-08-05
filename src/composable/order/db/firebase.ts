@@ -95,8 +95,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           existOrders.push(data);
         }
       });
-      console.log("newOrders: ", orders);
-      console.log("existOrders: ", existOrders);
 
       for (let i = 0; i < orders.length; i++) {
         const order = orders[i];
