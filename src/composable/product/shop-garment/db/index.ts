@@ -1,6 +1,13 @@
-import { Mapper, ShopGarment } from "@/composable";
+import {
+  IoUser,
+  Mapper,
+  ShopGarment,
+  ShopUserGarment,
+  USER_DB,
+} from "@/composable";
 import { getIoStore } from "@/plugin/firebase";
-import { getIoCollection, IoCollection } from "@/util";
+import { logger } from "@/plugin/logger";
+import { batchInQuery, getIoCollection, IoCollection } from "@/util";
 import {
   query,
   where,
@@ -9,8 +16,15 @@ import {
   deleteDoc,
   doc,
   writeBatch,
+  QuerySnapshot,
 } from "@firebase/firestore";
+import { c } from "naive-ui";
 import { ref } from "vue";
+// FIXME: 얘네 아직 dependency injection 적용안됌...
+// FIXME: 얘네 아직 dependency injection 적용안됌...
+// FIXME: 얘네 아직 dependency injection 적용안됌...
+// FIXME: 얘네 아직 dependency injection 적용안됌...
+// FIXME: 얘네 아직 dependency injection 적용안됌...
 
 export async function shopGarmentExist(
   vendorProdId: string,
@@ -64,4 +78,40 @@ export async function deleteShopGarments(userId: string, prodIds: string[]) {
     await batch.commit();
   }
   await Mapper.deleteProdId(userId, prodIds);
+}
+
+export async function getBatchShopProds(shopIds: string[]) {
+  const users = await USER_DB.getUserByIds(shopIds);
+  const c = getIoCollection({ c: IoCollection.SHOP_PROD }).withConverter(
+    ShopGarment.fireConverter()
+  );
+  const snapshots = await batchInQuery<ShopGarment | null>(
+    shopIds,
+    c,
+    "userId"
+  );
+  const garments = snapshots.flatMap(_prodFromSnap);
+  return garments.reduce((acc, curr) => {
+    const shop = users.find((u) => curr.shopId === u.userInfo.userId);
+    if (!shop) {
+      logger.error(
+        `garment: ${curr.shopProdId} is not exist user, userid: ${curr.shopId}`
+      );
+      return acc;
+    }
+    acc.push(Object.assign({}, shop, curr));
+    return acc;
+  }, [] as ShopUserGarment[]);
+}
+
+function _prodFromSnap(snap: QuerySnapshot<ShopGarment | null>): ShopGarment[] {
+  const garments: ShopGarment[] = [];
+
+  snap.docs.forEach((d) => {
+    const data = d.data();
+    if (data) {
+      garments.push(data);
+    }
+  });
+  return garments;
 }

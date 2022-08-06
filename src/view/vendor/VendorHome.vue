@@ -1,7 +1,29 @@
 <script setup lang="ts">
+import { ProdOrderCombined, useReadVendorOrderGInfo } from "@/composable";
+import { useAuthStore } from "@/store";
+import { DataTableColumns } from "naive-ui";
 import { ref } from "vue";
 
 const currTab = ref<string>("beforeApproveList");
+const auth = useAuthStore();
+// const { orders, garmentOrders, garmentOrdersByShop } = useReadVendorOrderGInfo(
+//   auth.currUser.userInfo.userId,
+//   [],
+//   []
+// );
+const columns: DataTableColumns<ProdOrderCombined> = [
+  {
+    type: "selection",
+  },
+  {
+    title: "거래처명",
+    key: "shopName",
+  },
+  {
+    title: "index",
+    key: "index",
+  },
+];
 </script>
 <template>
   <n-space vertical align="center">
@@ -12,9 +34,12 @@ const currTab = ref<string>("beforeApproveList");
           tab="거래처 주문 요청"
           name="beforeApproveList"
         >
-          <!-- <vendor-order-table
-            :showSizes="false"
-            :inStates="[ORDER_STATE.BEFORE_APPROVE]"
+          <!-- <n-data-table
+            :columns="columns"
+            :data="garmentOrdersByShop"
+            row-key="id"
+            children-key="items"
+            default-expand-all
           /> -->
         </n-tab-pane>
         <n-tab-pane
@@ -22,11 +47,6 @@ const currTab = ref<string>("beforeApproveList");
           tab="승인 완료된 주문"
           name="afterApproveList"
         >
-          <!-- <vendor-order-table
-            showState
-            :notStates="[ORDER_STATE.BEFORE_APPROVE, ORDER_STATE.BEFORE_ORDER]"
-            :showSizes="false"
-          /> -->
         </n-tab-pane>
       </n-tabs>
     </n-card>

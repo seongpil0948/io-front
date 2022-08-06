@@ -8,6 +8,8 @@ import {
   StockCntObj,
   VendorProdCrt,
   VendorGarment,
+  OrderAmount,
+  ProdOrder,
 } from "@/composable";
 import { Ref } from "vue";
 
@@ -37,7 +39,10 @@ export interface VendorUserGarmentCombined
   extends IoUserCRT,
     VendorGarmentCombined {}
 export interface VendorOrderGarment extends VendorGarmentCrt, OrderCrt {}
-export interface VendorUserOrderGarment extends VendorGarmentCrt, OrderCrt {
+export interface VendorUserOrderGarment
+  extends VendorUserGarment,
+    OrderAmount,
+    ProdOrder {
   shopUser?: IoUser;
 }
 export interface VendorGarmentDB {

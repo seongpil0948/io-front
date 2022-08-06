@@ -134,7 +134,7 @@ const {
         <n-h2> 주문 해야할 상품 </n-h2>
       </n-space>
     </template>
-    <v-space vertical>
+    <n-space vertical>
       <n-space justify="end" style="margin-left: 5px" :wrap="false">
         <n-button size="small" type="primary" @click="orderChecked">
           선택주문
@@ -179,6 +179,6 @@ const {
           {{ IO_COSTS.REQ_ORDER }} 코인이 소모 됩니다.
         </template>
       </coin-reduce-confirm-modal>
-    </v-space>
+    </n-space>
   </n-card>
 </template>

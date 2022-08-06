@@ -10,7 +10,7 @@ const { first, second, third } = toRefs(props);
 </script>
 
 <template>
-  <v-space vertical>
+  <n-space vertical>
     <n-text style="font-size: x-large" v-if="first" type="primary" depth="1">{{
       first
     }}</n-text>
@@ -20,5 +20,5 @@ const { first, second, third } = toRefs(props);
     <n-text style="font-size: x-large" v-if="third" type="primary" depth="2">{{
       third
     }}</n-text>
-  </v-space>
+  </n-space>
 </template>
