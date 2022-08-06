@@ -96,6 +96,7 @@ const cols = computed((): DataTableColumns<ProdOrderCombined> => {
         {
           key: "info",
           title: "상품정보",
+          width: 400,
           render: (x) =>
             h(
               InfoCell,
