@@ -21,7 +21,9 @@ export function useParseGarmentOrder(
   userId: string,
   fs: Ref<File[]>,
   existIds: Ref<Set<string>>,
-  onParse: (orders: GarmentOrder[]) => void
+  onParse: (orders: GarmentOrder[]) => void,
+  sheetIdx: Ref<number>,
+  startRow: Ref<number>
 ) {
   const conditions = ref<ShopGarmentQField[]>([]);
   const vendorStore = useVendorsStore();
@@ -32,14 +34,28 @@ export function useParseGarmentOrder(
     if (!mapper.value) return;
     conditions.value = [];
     for (let i = 0; i < fs.value.length; i++) {
-      const inputDf = (await readExcel(fs.value[i])) as DataFrame;
+      const inputDf = (await readExcel(fs.value[i], {
+        sheet: sheetIdx.value,
+      })) as DataFrame;
       if (!inputDf) {
         const message = `파일: ${fs.value[i].name}에 대한 처리에 실패 하였습니다.`;
         msg.error(message, makeMsgOpt());
         logger.error(userId, message);
         continue;
       }
-      conditions.value.push(...parseDf(inputDf, mapper.value, existIds.value));
+      if (startRow.value > 0) {
+        console.log("readExcel: ", inputDf);
+        const newDf = inputDf.iloc({ rows: [`${startRow.value}:`] });
+        newDf.$setColumnNames(
+          inputDf.iloc({ rows: [`${startRow.value - 1}:${startRow.value}`] })
+            .values[0] as string[]
+        );
+        conditions.value.push(...parseDf(newDf, mapper.value, existIds.value));
+      } else {
+        conditions.value.push(
+          ...parseDf(inputDf, mapper.value, existIds.value)
+        );
+      }
     }
     const infos: {
       [k: string]: {
@@ -70,33 +86,6 @@ export function useParseGarmentOrder(
         infos[prod.shopProdId].orderCnt += 1;
         infos[prod.shopProdId].orderIds.push(d.orderId);
       }
-      // let exist = false;
-      // for (let k = 0; k < orderInfo.length; k++) {
-      //   const o = orderInfo[k];
-      //   const prodOrder = o.getProdOrder(undefined, prod.shopProdId);
-      //   if (prodOrder) {
-      //     exist = true;
-      //     o.setOrderCnt(prodOrder.id, prodOrder.orderCnt + 1);
-      //     console.log("O: ", o);
-      //     console.log("orderInfo[k] ", orderInfo[k]);
-      //     break;
-      //   }
-      // }
-      // if (!exist) {
-      // const vendorProd = vendorStore.vendorUserGarments.find(
-      //   (g) =>
-      //     g.vendorProdId === prod.vendorProdId && g.vendorId === prod.vendorId
-      // );
-      //   if (vendorProd) {
-      //     const order = GarmentOrder.fromProd(prod, d.orderId, 1, vendorProd);
-      //     orderInfo.push(order);
-      //   } else {
-      //     msg.error(
-      //       `${prod.prodName}의 도매처 상품이 존재하지 않습니다.`,
-      //       makeMsgOpt()
-      //     );
-      //   }
-      // }
     }
     onParse(
       Object.values(infos).reduce((acc, info) => {
@@ -118,13 +107,18 @@ export function useParseGarmentOrder(
     existIds: Set<string>
   ): ShopGarmentQField[] {
     inputDf = inputDf.applyMap((x: any) =>
-      typeof x === "string" ? x.toLowerCase() : x
+      typeof x === "string" ? x.toLowerCase().trim() : x
     );
+    console.log("input df: ", inputDf);
+
     const targetCols = ["prodName", "size", "color", "orderId"];
     const colMapper = getColMapper(inputDf, targetCols as MapKey[], mapper);
     const targetDf = inputDf.loc({
       columns: uniqueArr(Object.values(colMapper)),
     });
+    console.log("targetDf: ", targetDf);
+    console.log("colMapper: ", colMapper);
+    console.log("Object.values(colMapper): ", Object.values(colMapper));
     const prodMapper = mapper.getProdMapper();
     if (Object.keys(prodMapper).length === 0) {
       const message = "주문취합을 위해 상품매핑정보를 등록 해주십시오";
@@ -135,8 +129,10 @@ export function useParseGarmentOrder(
     const idx = getColIdx(targetDf, colMapper);
     const data: ShopGarmentQField[] = [];
     const reporter: { [k: string]: string } = {};
+
     targetDf.apply(
       (row: Series) => {
+        console.log(row, idx.orderIdIdx);
         const orderId = row[idx.orderIdIdx].toString();
         const matchedNameSynoIds = Object.keys(prodMapper).filter(
           (nameSynoId) => {
@@ -172,10 +168,10 @@ export function useParseGarmentOrder(
           }
         }
         if (!synoColor || !synoSize) {
-          console.log("prodMapper: ", prodMapper);
-          console.log("matchedNameSynoId: ", matchedNameSynoId);
-          console.log("synoColor: ", synoColor);
-          console.log("synoSize: ", synoSize);
+          logger.debug(null, "prodMapper: ", prodMapper);
+          logger.debug(null, "matchedNameSynoId: ", matchedNameSynoId);
+          logger.debug(null, "synoColor: ", synoColor);
+          logger.debug(null, "synoSize: ", synoSize);
           let msg = `${row[idx.prodNameIdx]} 상품의 매핑에 실패 하였습니다.`;
           if (!synoColor) {
             msg += ` 컬러 매핑실패정보,${row[idx.colorIdx]} `;
@@ -202,23 +198,27 @@ export function useParseGarmentOrder(
       msg.error(err, makeMsgOpt({ duration: 20000 }));
       logger.error(userId, err);
     });
-    logger.debug("reporter: ", reporter);
-    logger.debug("input DF", inputDf.shape, inputDf);
-    logger.debug("target DF", targetDf.shape, targetDf);
-    logger.debug("prod Mapper", prodMapper);
-    logger.debug("Parse Result: ", data);
+    logger.debug(null, "reporter: ", reporter);
+    logger.debug(null, "input DF", inputDf.shape, inputDf);
+    logger.debug(null, "target DF", targetDf.shape, targetDf);
+    logger.debug(null, "prod Mapper", prodMapper);
+    logger.debug(null, "Parse Result: ", data);
 
     return errors.length > 0 ? [] : data;
   }
 
   function getColMapper(df: DataFrame, ioColNames: MapKey[], mapper: Mapper) {
+    // console.log("df.columns: ", df.columns);
     return ioColNames.reduce((curr, colName) => {
-      const synonyms = mapper.getSyno(colName);
-      const col = df.columns.find((inputCol) => synonyms.includes(inputCol));
+      const synonyms = mapper.getSyno(colName, false);
+      const col = df.columns.find((inputCol) =>
+        synonyms.includes(inputCol.toLowerCase())
+      );
       if (!col) {
         const message = `컬럼매핑 실패: 실패 엑셀파일에서 ${colName} 컬럼을 찾을 수 없습니다. \n ${synonyms}`;
         msg.error(message);
         logger.error(userId, message);
+        console.error(colName, synonyms);
       } else {
         curr[colName] = col;
       }

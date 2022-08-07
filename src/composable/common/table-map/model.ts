@@ -53,8 +53,8 @@ class Mapper implements MapperCRT {
     });
     await m.update();
   }
-  getSyno(key: MapKey): string[] {
-    if (!this.colSynonyms[key]) {
+  getSyno(key: MapKey, upsert = true): string[] {
+    if (!this.colSynonyms[key] && upsert) {
       this.colSynonyms[key] = [];
     }
     return this.colSynonyms[key];

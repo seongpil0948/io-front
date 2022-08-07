@@ -76,6 +76,8 @@ const {
   deleteChecked,
 } = useOrderBasic(user, garmentOrders, orders, checkedKeys);
 
+const sheetIdx = ref(0);
+const startRow = ref(0);
 useParseGarmentOrder(
   mapper,
   user.userInfo.userId,
@@ -88,7 +90,9 @@ useParseGarmentOrder(
         ord.orderIds.forEach((id) => existOrderIds.value.add(id));
       });
     });
-  }
+  },
+  sheetIdx,
+  startRow
 );
 const colResult = computed((): DataTableColumns<ProdOrderCombined> => {
   return columns.value.length > 0
@@ -164,6 +168,12 @@ function downXlsx() {
         <n-button size="small" type="primary" @click="downXlsx">
           주문취합 엑셀양식 다운
         </n-button>
+        <n-input-number placeholder="시트번호입력" v-model:value="sheetIdx">
+          <template #prefix> 시트번호 </template>
+        </n-input-number>
+        <n-input-number placeholder="시작행번호입력" v-model:value="startRow">
+          <template #prefix> 시작행번호 </template>
+        </n-input-number>
       </n-space>
     </template>
     <template #header-extra>
