@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { getAuth, signOut } from "firebase/auth";
-import { getMockShops } from "../../tests/e2e/fixtures/users";
+import { getMockShops, getMockVendors } from "../../tests/e2e/fixtures/users";
 import { IoUser } from "@/composable/auth/model/user";
 import { USER_ROLE } from "@/composable/auth/domain";
 interface AuthStoreInterface {
@@ -12,7 +12,8 @@ export const useAuthStore = defineStore({
   state: () =>
     <AuthStoreInterface>{
       user: process.env.VUE_APP_IS_TEST
-        ? IoUser.fromJson(getMockShops()[0])
+        ? // ? IoUser.fromJson(getMockShops()[0])
+          IoUser.fromJson(getMockVendors()[0])
         : localStorage.getItem(userKey)
         ? IoUser.fromJson(JSON.parse(localStorage.getItem(userKey)!))
         : null,

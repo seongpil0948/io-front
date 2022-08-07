@@ -205,7 +205,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     notStates?: ORDER_STATE[];
     vendorId: string;
   }) {
-    const constraints = [where("vendorId", "==", p.vendorId)];
+    const constraints = [where("vendorIds", "array-contains", p.vendorId)];
     if (p.inStates && p.inStates.length > 0) {
       constraints.push(where("state", "in", p.inStates));
     }

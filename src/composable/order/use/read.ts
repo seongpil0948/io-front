@@ -6,11 +6,13 @@ import {
   ShopUserGarment,
   useShopUserGarments,
   getBatchShopProds,
+  ProdOrderByShop,
 } from "@/composable";
 import { useVendorsStore } from "@/store";
 import { computed, onBeforeUnmount, ref, watch, watchEffect } from "vue";
 import { ORDER_GARMENT_DB } from "./../db/index";
 import debounce from "lodash.debounce";
+import { uniqueArr } from "@/util";
 
 export function useReadShopOrderGInfo(
   shopId: string,
@@ -40,11 +42,7 @@ export function useReadShopOrderGInfo(
   onBeforeUnmount(() => unsubscribe());
   return { existOrderIds, orders, unsubscribe, garmentOrders };
 }
-interface ProdOrderByShop {
-  shopId: string;
-  shopName: string;
-  items: ProdOrderCombined[];
-}
+
 export function useReadVendorOrderGInfo(
   vendorId: string,
   inStates: ORDER_STATE[],
@@ -69,7 +67,7 @@ export function useReadVendorOrderGInfo(
     () => orders.value,
     async (ords) => {
       shopGarments.value = [];
-      const shopIds = ords.map((x) => x.shopId);
+      const shopIds = uniqueArr(ords.map((x) => x.shopId));
       shopGarments.value = await getBatchShopProds(shopIds);
       garmentOrders.value = extractGarmentOrd(
         ords,

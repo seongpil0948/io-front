@@ -92,6 +92,7 @@ export async function batchInQuery<T>(
 
   const batches: Promise<QuerySnapshot<T>>[] = [];
   while (ids.length) {
+    // caution will removed of ids elements
     const batch = ids.splice(0, 10); // batch size 10
     // add the batch request to to a queue
     batches.push(getDocs(query(c, where(field, "in", [...batch]))));

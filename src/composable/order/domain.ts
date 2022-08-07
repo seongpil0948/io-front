@@ -141,6 +141,7 @@ export interface OrderCrt {
   doneDate?: Date;
   dbId: string;
   shopId: string;
+  vendorIds: string[];
   orderIds: string[];
   parent?: OrderParent;
   state: ORDER_STATE;
@@ -150,22 +151,13 @@ export interface OrderCrt {
   items: ProdOrder[] | ProdOrderCombined[];
   subOrderIds: string[]; // db ids
   cancellations: OrderCancel[];
-  get cancelDone(): boolean;
-  get cancelInProcessing(): boolean;
-
-  reqCancel(arg: OrderCancel): Promise<void>; // 취소 요청
-  doneCancel(arg: any): Promise<void>; // 취소 요청
-  reqOrder(arg: any): Promise<void>; // 주문 요청
-  doneOrder(arg: any): Promise<void>; // 주문 요청
-  dividePartial(
-    prodOrderId: string,
-    orderCnt: number,
-    pendingCnt: number,
-    update: boolean
-  ): Promise<void>; // 서브 주문 생성
-  sameOrder(p: OrderCrt): boolean;
 }
 
+export interface ProdOrderByShop {
+  shopId: string;
+  shopName: string;
+  items: ProdOrderCombined[];
+}
 // export interface OrderFlat extends OrderCrt, ProdOrderCombined, OrderAmount {}
 
 export interface OrderDB<T> {

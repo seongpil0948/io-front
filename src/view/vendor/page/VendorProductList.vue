@@ -21,7 +21,7 @@ const msg = useMessage();
 //   inStates: [],
 //   notStates: [ORDER_STATE.BEFORE_ORDER, ORDER_STATE.BEFORE_APPROVE],
 // });
-const { orders, garmentOrders, garmentOrdersByShop } = useReadVendorOrderGInfo(
+const { garmentOrders } = useReadVendorOrderGInfo(
   auth.currUser.userInfo.userId,
   [],
   []
@@ -82,29 +82,29 @@ watchEffect(() => {
             },
           }),
       },
-      {
-        title: () =>
-          h(
-            NButton,
-            {
-              round: true,
-              onClick: () => {
-                log.debug("Clicked 변경사항 수정 Title");
-              },
-            },
-            { default: () => "변경사항 수정" }
-          ),
-        key: "edit",
-        render: (row: VendorUserOrderGarment) =>
-          h(
-            NButton,
-            {
-              round: true,
-              onClick: () => onShowProdEdit(VendorGarment.fromJson(row)),
-            },
-            { default: () => "상품수정" }
-          ),
-      },
+      // {
+      //   title: () =>
+      //     h(
+      //       NButton,
+      //       {
+      //         round: true,
+      //         onClick: () => {
+      //           log.debug("Clicked 변경사항 수정 Title");
+      //         },
+      //       },
+      //       { default: () => "변경사항 수정" }
+      //     ),
+      //   key: "edit",
+      //   render: (row: VendorUserOrderGarment) =>
+      //     h(
+      //       NButton,
+      //       {
+      //         round: true,
+      //         onClick: () => onShowProdEdit(VendorGarment.fromJson(row)),
+      //       },
+      //       { default: () => "상품수정" }
+      //     ),
+      // },
     ]
   );
 });

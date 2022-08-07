@@ -33,8 +33,9 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   subOrderIds: string[]; // db ids
   cancellations: OrderCancel[];
   shopId: string;
+  vendorIds: string[];
 
-  constructor(d: Partial<OrderCrt>) {
+  constructor(d: OrderCrt) {
     super(d.createdAt, d.updatedAt);
     this.dbId = d.dbId!;
     this.orderIds = d.orderIds!;
@@ -48,11 +49,17 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     this.subOrderIds = d.subOrderIds ?? [];
     this.state = d.state!;
     this.cancellations = d.cancellations ?? [];
+    this.vendorIds = d.vendorIds ?? [];
   }
 
   setTotalAmount() {
     this.actualAmount = this.items
-      .map((x) => x.actualAmount)
+      .map((x) => {
+        if (!this.vendorIds.includes(x.vendorId)) {
+          this.vendorIds.push(x.vendorId);
+        }
+        return x.actualAmount;
+      })
       .reduce((prev, acc, idx) => {
         if (idx === 0) {
           acc.shipFeeAmount = prev.shipFeeAmount;
@@ -116,12 +123,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
         .every((k) => k === true)
     );
   }
-  get cancelDone(): boolean {
-    throw new Error("Method not implemented.");
-  }
-  get cancelInProcessing(): boolean {
-    throw new Error("Method not implemented.");
-  }
+
   async reqCancel(arg: OrderCancel) {
     this.cancellations.push(arg);
     await this.update();
@@ -208,6 +210,9 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       initialAmount: amount,
       shippingStatus: SHIP_STATE.BEFORE_READY,
       items: [prodOrder],
+      vendorIds: [prodOrder.vendorId],
+      subOrderIds: [],
+      cancellations: [],
     });
     order.setOrderCnt(prodOrder.id, orderCnt);
     return order;
@@ -229,6 +234,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       subOrderIds: d.subOrderIds,
       state: d.state,
       cancellations: d.cancellations,
+      vendorIds: d.vendorIds,
     });
   }
 

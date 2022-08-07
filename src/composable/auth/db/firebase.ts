@@ -32,7 +32,11 @@ export const UserFB: UserDB = {
     const c = getIoCollection({ c: IoCollection.USER }).withConverter(
       IoUser.fireConverter()
     );
-    const snapshots = await batchInQuery<IoUser | null>(uids, c, "userId");
+    const snapshots = await batchInQuery<IoUser | null>(
+      uids,
+      c,
+      "userInfo.userId"
+    );
     return snapshots.flatMap(_usersFromSnap);
   },
   ioSignUpCredential: async function (

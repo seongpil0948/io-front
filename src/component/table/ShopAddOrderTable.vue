@@ -138,7 +138,10 @@ watchEffect(() => {
     }
   });
 });
-
+async function orderDelAll() {
+  await deleteAll();
+  existOrderIds.value.clear();
+}
 // <<<<< COLUMNS <<<<<
 
 function downXlsx() {
@@ -179,7 +182,7 @@ function downXlsx() {
         <n-button size="small" type="primary" @click="deleteChecked">
           선택삭제
         </n-button>
-        <n-button size="small" type="primary" @click="deleteAll">
+        <n-button size="small" type="primary" @click="orderDelAll">
           전체삭제
         </n-button>
       </n-space>

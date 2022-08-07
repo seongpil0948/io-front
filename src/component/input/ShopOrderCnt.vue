@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { GarmentOrder, ORDER_STATE, ProdOrderCombined } from "@/composable";
+import { GarmentOrder, ProdOrderCombined } from "@/composable";
 import { makeMsgOpt } from "@/util";
 import { useMessage } from "naive-ui";
 import { toRefs, ref, computed, onBeforeMount } from "vue";
