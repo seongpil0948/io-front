@@ -8,8 +8,8 @@ import {
 } from "@/composable/";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { useMessage, NButton } from "naive-ui";
-import { computed, watchEffect, h, ref } from "vue";
+import { useMessage } from "naive-ui";
+import { watchEffect, h, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import LogoChecker from "@/component/input/LogoChecker.vue";
 
@@ -21,39 +21,28 @@ const msg = useMessage();
 //   inStates: [],
 //   notStates: [ORDER_STATE.BEFORE_ORDER, ORDER_STATE.BEFORE_APPROVE],
 // });
-const { garmentOrders } = useReadVendorOrderGInfo(
+const { vendorOrderGarments } = useReadVendorOrderGInfo(
   auth.currUser.userInfo.userId,
   [],
   []
 );
-const tableData = computed(() =>
-  garmentOrders.value.reduce((acc, p) => {
-    const exist = acc.find((x) => x.vendorProdId === p.vendorProdId);
-    if (exist) {
-      exist.orderAmount += p.actualAmount.orderAmount;
-      exist.orderCnt += p.orderCnt;
-      exist.activeCnt += p.activeCnt;
-      exist.pendingCnt += p.pendingCnt;
-    } else {
-      acc.push(Object.assign(p, p.actualAmount, p.vendorGarment));
-    }
-    return acc;
-  }, [] as VendorUserOrderGarment[])
-);
+
+const colKeys = [
+  "vendorProdName",
+  "size",
+  "color",
+  "orderCnt",
+  "pendingCnt",
+  "stockCnt",
+  "vendorPrice",
+  "amount",
+].map((x) => {
+  return { key: x } as IoColOpt;
+});
+colKeys.unshift({ imgField: true, key: "titleImgs" });
 const { columns } = useTable<Omit<VendorUserOrderGarment, "account">>({
   userId: auth.currUser.userInfo.userId,
-  colKeys: [
-    "vendorProdName",
-    "size",
-    "color",
-    "orderCnt",
-    "pendingCnt",
-    "stockCnt",
-    "vendorPrice",
-    "amount",
-  ].map((x) => {
-    return { key: x } as IoColOpt;
-  }),
+  colKeys,
 });
 watchEffect(() => {
   columns.value.push(
@@ -126,7 +115,7 @@ function onShowProdEdit(row: VendorGarment | null) {
     <n-data-table
       :scroll-x="1200"
       :columns="columns"
-      :data="tableData"
+      :data="vendorOrderGarments"
       :pagination="{
         'show-size-picker': true,
         'page-sizes': [5, 10, 25, 50, 100],

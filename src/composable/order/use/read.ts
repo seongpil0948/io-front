@@ -7,6 +7,10 @@ import {
   useShopUserGarments,
   getBatchShopProds,
   ProdOrderByShop,
+  VendorUserOrderGarment,
+  emptyProdOrder,
+  emptyAmount,
+  mergeProdOrder,
 } from "@/composable";
 import { useVendorsStore } from "@/store";
 import { computed, onBeforeUnmount, ref, watch, watchEffect } from "vue";
@@ -49,13 +53,27 @@ export function useReadVendorOrderGInfo(
   notStates: ORDER_STATE[]
 ) {
   const vendorStore = useVendorsStore();
-  const vendorGarments = ref<VendorUserGarment[]>([]);
+  const vendorGarments = computed(() =>
+    vendorStore.vendorUserGarments.filter((x) => x.vendorId === vendorId)
+  );
   const garmentOrders = ref<ProdOrderCombined[]>([]);
-  watchEffect(() => {
-    vendorGarments.value = vendorStore.vendorUserGarments.filter(
-      (x) => x.vendorId === vendorId
-    );
-  });
+  const vendorOrderGarments = computed(() =>
+    vendorGarments.value.map((x) => {
+      const garment: VendorUserOrderGarment = Object.assign(
+        x,
+        emptyProdOrder(),
+        emptyAmount()
+      );
+      orders.value.forEach((o) => {
+        o.items.forEach((item) => {
+          if (item.vendorProdId === garment.vendorProdId) {
+            mergeProdOrder(item, garment);
+          }
+        });
+      });
+      return garment;
+    })
+  );
 
   const { orders, unsubscribe } = ORDER_GARMENT_DB.vendorReadListen({
     vendorId,
@@ -100,6 +118,7 @@ export function useReadVendorOrderGInfo(
     vendorGarments,
     unsubscribe,
     garmentOrdersByShop,
+    vendorOrderGarments,
   };
 }
 

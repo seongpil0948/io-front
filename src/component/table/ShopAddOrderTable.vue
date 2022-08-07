@@ -118,7 +118,7 @@ watchEffect(() => {
       x.title = "주문/미송";
       x.render = (prodOrder: ProdOrderCombined) => {
         const order = orders.value.find((x) => {
-          return x.getProdOrder(prodOrder.id);
+          return x.getProdOrders(prodOrder.id)![0];
         });
         return order
           ? h(ShopOrderCnt, {

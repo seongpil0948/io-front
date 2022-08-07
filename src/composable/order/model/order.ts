@@ -88,18 +88,23 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   }
 
   // getters
-  getProdOrder(
+  getProdOrders(
     prodOrderId?: string,
     shopProdId?: string,
     vendorProdId?: string
   ) {
-    if (prodOrderId) return this.items.find((x) => x.id === prodOrderId);
-    else if (shopProdId)
-      return this.items.find((x) => x.shopProdId === shopProdId);
-    else if (vendorProdId)
-      return this.items.find((x) => x.vendorProdId === vendorProdId);
-    else {
-      throw new Error("no param in getProdOrder");
+    const orders: ProdOrder[] = [];
+    for (let i = 0; i < this.items.length; i++) {
+      const item = this.items[i];
+      if (prodOrderId && prodOrderId === item.id) {
+        orders.push(item);
+        return orders;
+      } else if (shopProdId && item.shopProdId === shopProdId) {
+        orders.push(item);
+      } else if (vendorProdId && item.vendorProdId === vendorProdId) {
+        orders.push(item);
+      }
+      return orders;
     }
   }
 
@@ -122,6 +127,21 @@ export class GarmentOrder extends CommonField implements OrderCrt {
         .map((y) => GarmentOrder.validProdOrder(y))
         .every((k) => k === true)
     );
+  }
+  static empty(): GarmentOrder {
+    return new GarmentOrder({
+      dbId: "",
+      shopId: "",
+      vendorIds: [],
+      orderIds: [],
+      state: "BEFORE_APPROVE",
+      actualAmount: emptyAmount(),
+      initialAmount: emptyAmount(),
+      shippingStatus: "BEFORE_READY",
+      items: [],
+      subOrderIds: [],
+      cancellations: [],
+    });
   }
 
   async reqCancel(arg: OrderCancel) {
@@ -327,4 +347,49 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     const amountValid = a.orderAmount > 0 && a.orderAmount >= a.pureAmount;
     return cntValid && amountValid;
   }
+}
+export function mergeProdOrder(origin: ProdOrder, y: ProdOrder) {
+  origin.orderCnt += y.orderCnt;
+  origin.activeCnt += y.activeCnt;
+  origin.pendingCnt += y.pendingCnt;
+  mergeOrderAmount(origin.actualAmount, y.actualAmount);
+  mergeOrderAmount(origin.initialAmount, y.initialAmount);
+}
+
+export function mergeOrderAmount(origin: OrderAmount, y: OrderAmount) {
+  origin.shipFeeAmount += y.shipFeeAmount;
+  origin.shipFeeDiscountAmount += y.shipFeeDiscountAmount;
+  origin.tax += y.tax;
+  origin.paidAmount += y.paidAmount;
+  origin.paid = y.paid;
+  (origin.pureAmount += y.pureAmount), (origin.orderAmount += y.orderAmount);
+  origin.paymentConfirm = y.paymentConfirm;
+  origin.paymentMethod = y.paymentMethod;
+}
+
+export function emptyAmount(): OrderAmount {
+  return {
+    shipFeeAmount: 0,
+    shipFeeDiscountAmount: 0,
+    tax: 0,
+    paidAmount: 0,
+    paid: "F",
+    pureAmount: 0,
+    orderAmount: 0,
+    paymentConfirm: false,
+  };
+}
+
+export function emptyProdOrder(): ProdOrder {
+  return {
+    id: "",
+    vendorId: "",
+    vendorProdId: "",
+    shopProdId: "",
+    orderCnt: 0,
+    activeCnt: 0,
+    pendingCnt: 0,
+    actualAmount: emptyAmount(),
+    initialAmount: emptyAmount(),
+  };
 }
