@@ -143,9 +143,7 @@ export function useParseGarmentOrder(
         const matchedNameSynoIds = Object.keys(prodMapper).filter(
           (nameSynoId) => {
             const nameSyno = nameSynoId.split(" iobox ")[0].trim();
-            return (
-              row[idx.prodNameIdx] && row[idx.prodNameIdx].includes(nameSyno)
-            );
+            return row[idx.prodNameIdx] && row[idx.prodNameIdx] === nameSyno;
           }
         );
         if (matchedNameSynoIds.length < 1) {
