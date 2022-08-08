@@ -18,8 +18,10 @@ import {
 } from "@firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { cloneDeep } from "lodash";
+import { count } from "console";
 
 export class GarmentOrder extends CommonField implements OrderCrt {
+  // items 에 여러 벤더가 들어가선 안됩니다..
   orderDate?: Date;
   doneDate?: Date;
   dbId: string;
@@ -124,7 +126,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
         .map((k) => amountFieldValid(k as keyof OrderAmount))
         .every((z) => z === true) &&
       this.items
-        .map((y) => GarmentOrder.validProdOrder(y))
+        .map((y) => GarmentOrder.validProdOrder(y as ProdOrderCombined))
         .every((k) => k === true)
     );
   }
@@ -337,11 +339,19 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   ) {
     return pureAmount - (shipFeeAmount - shipFeeDiscountAmount) + tax;
   }
-  static validProdOrder(o: ProdOrder): boolean {
-    const cntValid = o.pendingCnt + o.activeCnt === o.orderCnt;
+  static validProdOrder(o: ProdOrderCombined, throwError = false): boolean {
     const a = o.actualAmount;
-    const amountValid = a.orderAmount > 0 && a.orderAmount >= a.pureAmount;
-    return cntValid && amountValid;
+    if (!(o.pendingCnt + o.activeCnt === o.orderCnt)) {
+      if (throwError) throw new Error("invalid count");
+      else return false;
+    } else if (!(a.orderAmount > 0 && a.orderAmount >= a.pureAmount)) {
+      if (throwError) throw new Error("invalid amount");
+      else return false;
+    } else if (o.pendingCnt > 0 && !o.vendorGarment.allowPending) {
+      if (throwError) throw new Error("invalid allowPending");
+      else return false;
+    }
+    return true;
   }
 }
 export function mergeProdOrder(origin: ProdOrder, y: ProdOrder) {

@@ -8,15 +8,16 @@ const props = defineProps<{
 }>();
 const { garmentOrder: o, checked } = toRefs(props);
 const emits = defineEmits<{
-  (e: "update:checked", value: string): void;
+  (e: "onClick", value: string): void;
 }>();
 function onClickChecker() {
-  emits("update:checked", o.value.id);
+  emits("onClick", o.value.id);
 }
 </script>
 <template>
   <n-space inline>
-    <logo-checker :size="1" :checked="checked" @onClick="onClickChecker" />
+    <logo-checker :size="1" :checked="checked" @click="onClickChecker" />
+    <div style="width: 1vw"></div>
     <n-text :type="o.pendingCnt > 0 ? 'error' : 'primary'">
       {{ o.vendorGarment.vendorProdName }} / {{ o.vendorGarment.color }} /
       {{ o.vendorGarment.size }}
@@ -24,8 +25,6 @@ function onClickChecker() {
     <n-text v-if="o.pendingCnt > 0" :type="'error'">
       {{ o.orderCnt }} ({{ o.pendingCnt }})
     </n-text>
-    <n-text v-else :type="'primary'">
-      {{ o.orderCnt }}
-    </n-text>
+    <n-text v-else :type="'primary'"> / {{ o.orderCnt }} </n-text>
   </n-space>
 </template>

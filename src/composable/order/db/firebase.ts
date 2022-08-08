@@ -17,8 +17,7 @@ import { useVendorsStore } from "@/store";
 import { VendorOperInfo } from "@/composable/auth";
 import { logger } from "@/plugin/logger";
 import { ref } from "vue";
-import { IoPay, IO_PAY_DB } from "@/composable";
-import { IO_COSTS } from "@/constants";
+import { IO_PAY_DB } from "@/composable";
 
 export const OrderGarmentFB: OrderDB<GarmentOrder> = {
   orderGarment: async function (row: GarmentOrder, expectedReduceCoin: number) {
@@ -29,14 +28,17 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       const userPay = await IO_PAY_DB.getIoPayByUser(row.shopId);
       if (userPay.availBudget < expectedReduceCoin)
         throw new Error("보유 코인이 부족합니다.");
-
+      else if (!row.isValid) throw new Error("invalid order.");
       const ordRef = getOrdRef(row.shopId);
       const ordDocRef = doc(ordRef, row.dbId).withConverter(converterGarment);
 
       const newOrder = await runTransaction(iostore, async (transaction) => {
         const ordDoc = await transaction.get(ordDocRef);
-        if (!ordDoc.exists()) throw "order doc does not exist!";
+        if (!ordDoc.exists()) throw new Error("order doc does not exist!");
+
         const ord = ordDoc.data()!;
+        if (ord.items.length < 1)
+          throw new Error("request order items not exist");
 
         row.items.forEach(async (item) => {
           const vendor = vendorStore.vendorById[item.vendorId];
@@ -44,19 +46,12 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
             (g) => g.vendorProdId === item.vendorProdId
           );
           if (!prod)
-            throw `vendor garment does not exist!: ${item.vendorProdId}`;
+            throw new Error(
+              `vendor garment does not exist!: ${item.vendorProdId}`
+            );
           else if (!vendor)
-            throw `vendor user does not exist!: ${item.vendorId}`;
-
-          item.pendingCnt = GarmentOrder.getPendingCnt(
-            prod.stockCnt,
-            item.orderCnt,
-            prod.allowPending
-          );
-          item.activeCnt = GarmentOrder.getActiveCnt(
-            item.orderCnt,
-            item.pendingCnt
-          );
+            throw new Error(`vendor user does not exist!: ${item.vendorId}`);
+          // items 에 여러 벤더가 들어가서는 안되는 이유.
           if ((vendor.operInfo as VendorOperInfo).autoOrderApprove) {
             ord.state = "BEFORE_PAYMENT";
           } else {
@@ -64,11 +59,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           }
         });
         transaction.update(ordDocRef, converterGarment.toFirestore(ord));
-        userPay.budget - IO_COSTS.REQ_ORDER;
-        transaction.update(
-          doc(getIoCollection({ c: IoCollection.IO_PAY }), row.shopId),
-          IoPay.fireConverter().toFirestore(userPay)
-        );
         return ord;
       });
       return newOrder;

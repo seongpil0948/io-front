@@ -11,7 +11,7 @@ const currTab = ref<string>("beforeApproveList");
           tab="거래처 주문 요청"
           name="beforeApproveList"
         >
-          <order-by-shop-expand-table />
+          <order-by-shop-expand-table :inStates="['BEFORE_APPROVE']" />
         </n-tab-pane>
         <n-tab-pane
           display-directive="show:lazy"

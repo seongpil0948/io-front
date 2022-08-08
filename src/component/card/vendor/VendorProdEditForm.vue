@@ -1,25 +1,24 @@
 <script setup lang="ts">
+import { VendorGarment } from "@/composable";
+import { useAuthStore } from "@/store";
 import {
-  arrLenRule,
-  biggerThanNRule,
-  makeMsgOpt,
   nameLenRule,
+  biggerThanNRule,
+  arrLenRule,
   notNullRule,
-  VendorProd,
-} from "@/composables";
-import { useAuthStore } from "@/stores";
-import { AddCircleOutline } from "@vicons/ionicons5";
-import cloneDeep from "lodash.clonedeep";
+  makeMsgOpt,
+} from "@/util";
+import { cloneDeep } from "lodash";
 import { useMessage, FormInst } from "naive-ui";
 import { ref, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const props = defineProps<{
-  prod?: VendorProd;
+  prod?: VendorGarment;
 }>();
 const emits = defineEmits(["onSubmitProd"]);
 const log = useLogger();
-const prod = ref<VendorProd | null>(null);
+const prod = ref<VendorGarment | null>(null);
 watchEffect(() => {
   if (props.prod) {
     prod.value = cloneDeep(props.prod);

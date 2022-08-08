@@ -128,14 +128,6 @@ watchEffect(() => {
           ? h(ShopOrderCnt, {
               order,
               prodOrder,
-              onSubmitPost: () => {
-                !prodOrder.vendorGarment.allowPending
-                  ? msg.warning(
-                      "해당상품은 미송을 잡을 수 없는 상품입니다.",
-                      makeMsgOpt()
-                    )
-                  : msg.info(`주문개수가 업데이트되었습니다.`, makeMsgOpt());
-              },
             })
           : "x";
       };

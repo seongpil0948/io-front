@@ -11,20 +11,47 @@ import {
 import GarmentOrderRow from "@/component/table/vendor/GarmentOrderRow.vue";
 import {
   GarmentOrder,
+  ORDER_STATE,
   ProdOrderByShop,
   ProdOrderCombined,
   useReadVendorOrderGInfo,
 } from "@/composable";
 import { useAuthStore } from "@/store";
+
+const props = defineProps<{
+  inStates?: ORDER_STATE[];
+  notStates?: ORDER_STATE[];
+}>();
+
 const auth = useAuthStore();
 const { orders, garmentOrders, garmentOrdersByShop } = useReadVendorOrderGInfo(
   auth.currUser.userInfo.userId,
-  [],
-  []
+  props.inStates ?? [],
+  props.notStates ?? []
 );
 
 const checkedOrders = ref<string[]>([]); // garment order id
 const checkedShops = ref<DataTableRowKey[]>([]); // shop id
+
+const message = useMessage();
+function getRowKey(row: ProdOrderByShop) {
+  return row.shopId;
+}
+function onClickShop(keys: DataTableRowKey[]) {
+  checkedShops.value = keys;
+}
+function approvePartial() {
+  console.log("approvePartial, checkedOrders: ", checkedOrders.value);
+}
+function approveSelected() {
+  console.log("approveSelected, checkedShops: ", checkedShops.value);
+}
+function rejectSelected() {
+  console.log("rejectSelected, checkedOrders: ", checkedOrders.value);
+}
+function approveAll() {
+  console.log("approveAll, checkedShops: ", checkedShops.value);
+}
 
 const columns = computed(() => {
   const cols = [
@@ -42,7 +69,7 @@ const columns = computed(() => {
             h(GarmentOrderRow, {
               garmentOrder: item as ProdOrderCombined,
               checked: checkedOrders.value.includes(item.id),
-              "update:checked": () => {
+              onClick: () => {
                 const cs = checkedOrders.value;
                 if (cs.includes(item.id)) {
                   cs.splice(
@@ -56,7 +83,11 @@ const columns = computed(() => {
             })
           );
         }
-        return h(NSpace, { vertical: true }, { default: () => children });
+        return h(
+          NSpace,
+          { vertical: true, style: { "margin-left": "4%" } },
+          { default: () => children }
+        );
       },
     },
     {
@@ -69,10 +100,12 @@ const columns = computed(() => {
     {
       title: "거래처명",
       key: "name",
+      render: (row) => row.shopName,
     },
     {
       title: "품목수량",
       key: "age",
+      render: (row) => row.items.length,
     },
     {
       title: "주문수량",
@@ -101,31 +134,11 @@ const columns = computed(() => {
     return x;
   });
 });
-
-const message = useMessage();
-function getRowKey(row: ProdOrderByShop) {
-  return row.shopId;
-}
-function onClickShop(keys: DataTableRowKey[]) {
-  checkedShops.value = keys;
-}
-function approvePartial() {
-  console.log("approvePartial, checkedOrders: ", checkedOrders.value);
-}
-function approveSelected() {
-  console.log("approveSelected, checkedShops: ", checkedShops.value);
-}
-function rejectSelected() {
-  console.log("rejectSelected, checkedOrders: ", checkedOrders.value);
-}
-function approveAll() {
-  console.log("approveAll, checkedShops: ", checkedShops.value);
-}
 </script>
 
 <template>
-  <n-card>
-    <template #header> </template>
+  <n-card :bordered="false">
+    <template #header> <div></div> </template>
     <template #header-extra>
       <n-space>
         <n-button size="small" type="primary" @click="approvePartial">
@@ -142,15 +155,16 @@ function approveAll() {
         </n-button>
       </n-space>
     </template>
+    <n-data-table
+      :bordered="false"
+      :columns="columns"
+      :data="garmentOrdersByShop"
+      :rowKey="getRowKey"
+      :handleCheck="onClickShop"
+      default-expand-all
+    />
   </n-card>
-  <n-data-table
-    :bordered="false"
-    :columns="columns"
-    :data="garmentOrdersByShop"
-    :rowKey="getRowKey"
-    :handleCheck="onClickShop"
-    default-expand-all
-  />
+
   <!-- <n-data-table
             :columns="columns"
             :data="garmentOrdersByShop"

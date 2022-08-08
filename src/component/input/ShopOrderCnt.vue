@@ -7,7 +7,6 @@ import { toRefs, ref, computed, onBeforeMount } from "vue";
 const props = defineProps<{
   order: GarmentOrder;
   prodOrder: ProdOrderCombined;
-  onSubmitPost: () => void;
 }>();
 const { prodOrder, order } = toRefs(props);
 onBeforeMount(() => {
@@ -39,20 +38,12 @@ function onUpdate(val: number | null) {
   if (!prod) throw new Error("not matched prod order");
 
   order.value.setOrderCnt(prod.id, val, false);
-  order.value.update().then(() => {
-    msg.error(`주문개수가 업데이트에 성공하였습니다.`, makeMsgOpt());
-  });
-}
-async function onSubmit() {
-  const order = GarmentOrder.fromJson(prodOrder.value);
-  if (order) {
-    order.update().then(() => {
-      props.onSubmitPost();
-    });
-  } else {
-    msg.error(`주문개수가 업데이트에 실패하였습니다..`, makeMsgOpt());
-  }
-  edit.value = false;
+  order.value
+    .update()
+    .then(() => {
+      msg.error(`주문개수가 업데이트에 성공하였습니다.`, makeMsgOpt());
+    })
+    .finally(() => (edit.value = false));
 }
 
 function setEditMode() {
@@ -65,9 +56,8 @@ function setEditMode() {
   <n-input-number
     v-if="edit"
     :value="prodOrder.orderCnt"
-    @update:value="onUpdate"
-    @blur.stop="onSubmit"
-    @keyup.enter.stop="onSubmit"
+    @blur.stop="onUpdate"
+    @keyup.enter.stop="onUpdate"
   />
   <n-text v-else style="color: inherit" @click="setEditMode">
     <n-tooltip trigger="hover">
