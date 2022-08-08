@@ -18,7 +18,6 @@ import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
 import { IO_COSTS } from "@/constants";
 interface Props {
   inStates?: ORDER_STATE[];
-  notStates?: ORDER_STATE[];
   showSizes: boolean;
 }
 
@@ -31,8 +30,7 @@ const log = useLogger();
 
 const { orders, existOrderIds, garmentOrders } = useReadShopOrderGInfo(
   user.userInfo.userId,
-  props.inStates ?? [],
-  props.notStates ?? []
+  props.inStates ?? []
 );
 const colKeys = [
   "vendorGarment.userInfo.displayName",

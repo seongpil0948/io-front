@@ -8,7 +8,7 @@ import {
 } from "@/composable/";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { useMessage } from "naive-ui";
+import { NButton, useMessage } from "naive-ui";
 import { watchEffect, h, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import LogoChecker from "@/component/input/LogoChecker.vue";
@@ -16,14 +16,9 @@ import LogoChecker from "@/component/input/LogoChecker.vue";
 const log = useLogger();
 const auth = useAuthStore();
 const msg = useMessage();
-// const { orderProds } = useReadVendorOrderInfo({
-//   vendorId: auth.currUser.userInfo.userId,
-//   inStates: [],
-//   notStates: [ORDER_STATE.BEFORE_ORDER, ORDER_STATE.BEFORE_APPROVE],
-// });
+
 const { vendorOrderGarments } = useReadVendorOrderGInfo(
   auth.currUser.userInfo.userId,
-  [],
   []
 );
 
@@ -71,29 +66,29 @@ watchEffect(() => {
             },
           }),
       },
-      // {
-      //   title: () =>
-      //     h(
-      //       NButton,
-      //       {
-      //         round: true,
-      //         onClick: () => {
-      //           log.debug("Clicked 변경사항 수정 Title");
-      //         },
-      //       },
-      //       { default: () => "변경사항 수정" }
-      //     ),
-      //   key: "edit",
-      //   render: (row: VendorUserOrderGarment) =>
-      //     h(
-      //       NButton,
-      //       {
-      //         round: true,
-      //         onClick: () => onShowProdEdit(VendorGarment.fromJson(row)),
-      //       },
-      //       { default: () => "상품수정" }
-      //     ),
-      // },
+      {
+        title: () =>
+          h(
+            NButton,
+            {
+              round: true,
+              onClick: () => {
+                log.debug("Clicked 변경사항 수정 Title");
+              },
+            },
+            { default: () => "변경사항 수정" }
+          ),
+        key: "edit",
+        render: (row: VendorUserOrderGarment) =>
+          h(
+            NButton,
+            {
+              round: true,
+              onClick: () => onShowProdEdit(VendorGarment.fromJson(row)),
+            },
+            { default: () => "상품수정" }
+          ),
+      },
     ]
   );
 });
@@ -129,10 +124,10 @@ function onShowProdEdit(row: VendorGarment | null) {
     style="width: 70%"
     title="상품 정보 수정"
   >
-    <!-- <vendor-prod-edit-form
+    <vendor-prod-edit-form
       v-if="showProdEdit && prodEditTarget"
       :prod="prodEditTarget"
       @onSubmitProd="onShowProdEdit(null)"
-    /> -->
+    />
   </n-modal>
 </template>

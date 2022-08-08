@@ -18,15 +18,10 @@ import { ORDER_GARMENT_DB } from "./../db/index";
 import debounce from "lodash.debounce";
 import { uniqueArr } from "@/util";
 
-export function useReadShopOrderGInfo(
-  shopId: string,
-  inStates: ORDER_STATE[],
-  notStates: ORDER_STATE[]
-) {
+export function useReadShopOrderGInfo(shopId: string, inStates: ORDER_STATE[]) {
   const { orders, unsubscribe } = ORDER_GARMENT_DB.shopReadListen({
     shopId,
     inStates,
-    notStates,
   });
   const { userProd: shopGarments } = useShopUserGarments(shopId, null);
   const vendorStore = useVendorsStore();
@@ -40,7 +35,7 @@ export function useReadShopOrderGInfo(
       orders.value,
       shopGarments.value,
       vendorStore.vendorUserGarments
-    );
+    ).filter((x) => inStates.includes(x.state));
     setExistOrderIds();
   });
   onBeforeUnmount(() => unsubscribe());
@@ -49,8 +44,7 @@ export function useReadShopOrderGInfo(
 
 export function useReadVendorOrderGInfo(
   vendorId: string,
-  inStates: ORDER_STATE[],
-  notStates: ORDER_STATE[]
+  inStates: ORDER_STATE[]
 ) {
   const vendorStore = useVendorsStore();
   const vendorGarments = computed(() =>
@@ -78,7 +72,6 @@ export function useReadVendorOrderGInfo(
   const { orders, unsubscribe } = ORDER_GARMENT_DB.vendorReadListen({
     vendorId,
     inStates,
-    notStates,
   });
   const shopGarments = ref<ShopUserGarment[]>([]);
   watch(
@@ -91,7 +84,7 @@ export function useReadVendorOrderGInfo(
         ords,
         shopGarments.value,
         vendorGarments.value
-      );
+      ).filter((x) => inStates.includes(x.state));
     }
   );
   const garmentOrdersByShop = computed(() =>

@@ -51,11 +51,10 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
             );
           else if (!vendor)
             throw new Error(`vendor user does not exist!: ${item.vendorId}`);
-          // items 에 여러 벤더가 들어가서는 안되는 이유.
           if ((vendor.operInfo as VendorOperInfo).autoOrderApprove) {
-            ord.state = "BEFORE_PAYMENT";
+            item.state = "BEFORE_PAYMENT";
           } else {
-            ord.state = "BEFORE_APPROVE";
+            item.state = "BEFORE_APPROVE";
           }
         });
         transaction.update(ordDocRef, converterGarment.toFirestore(ord));
@@ -76,7 +75,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       const existQ = query(
         ordRef,
         where("shopId", "==", uid),
-        where("state", "==", "BEFORE_ORDER")
+        where("states", "array-contains", "BEFORE_ORDER")
       );
       const docs = await getDocs(existQ);
       docs.forEach((doc) => {
@@ -96,7 +95,8 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
             if (exist) break;
             for (let z = 0; z < o.items.length; z++) {
               const existItem = o.items[z];
-              if (item.shopProdId === existItem.shopProdId) {
+              if (existItem.state !== "BEFORE_ORDER") continue;
+              else if (item.shopProdId === existItem.shopProdId) {
                 exist = o;
                 exist.setOrderCnt(existItem.id, item.orderCnt);
                 order.items.splice(j, 1);
@@ -136,6 +136,8 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     orderDbIdByShops: { [shopId: string]: string[] };
     orderState?: ORDER_STATE;
   }) {
+    throw new Error("batchUpdate is not implemented");
+
     if (!p.orderState) return;
     const { batch, getOrdRef } = getSrc();
     for (let i = 0; i < Object.keys(p.orderDbIdByShops).length; i++) {
@@ -143,9 +145,9 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       const reqRef = getOrdRef(shopId);
       for (let j = 0; j < p.orderDbIdByShops[shopId].length; j++) {
         const dbId = p.orderDbIdByShops[shopId][j];
-        batch.update(doc(reqRef, dbId), {
-          state: p.orderState,
-        });
+        // batch.update(doc(reqRef, dbId), {
+        //   state: p.orderState,
+        // });
       }
     }
 
@@ -162,19 +164,12 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     }
     await batch.commit();
   },
-  shopReadListen: function (p: {
-    inStates?: ORDER_STATE[];
-    notStates?: ORDER_STATE[];
-    shopId: string;
-  }) {
+  shopReadListen: function (p: { inStates?: ORDER_STATE[]; shopId: string }) {
     const orders = ref<GarmentOrder[]>([]);
     const constraints = [where("shopId", "==", p.shopId)];
 
     if (p.inStates && p.inStates.length > 0) {
-      constraints.push(where("state", "in", p.inStates));
-    }
-    if (p.notStates && p.notStates.length > 0) {
-      constraints.push(where("state", "not-in", p.notStates));
+      constraints.push(where("states", "array-contains-any", p.inStates));
     }
     const q = query(
       getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
@@ -196,15 +191,11 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
   },
   vendorReadListen: function (p: {
     inStates?: ORDER_STATE[];
-    notStates?: ORDER_STATE[];
     vendorId: string;
   }) {
     const constraints = [where("vendorIds", "array-contains", p.vendorId)];
     if (p.inStates && p.inStates.length > 0) {
-      constraints.push(where("state", "in", p.inStates));
-    }
-    if (p.notStates && p.notStates.length > 0) {
-      constraints.push(where("state", "not-in", p.notStates));
+      constraints.push(where("state", "array-contains-any", p.inStates));
     }
 
     const orders = ref<GarmentOrder[]>([]);

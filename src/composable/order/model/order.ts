@@ -21,13 +21,12 @@ import { cloneDeep } from "lodash";
 import { count } from "console";
 
 export class GarmentOrder extends CommonField implements OrderCrt {
-  // items 에 여러 벤더가 들어가선 안됩니다..
   orderDate?: Date;
   doneDate?: Date;
   dbId: string;
   orderIds: string[];
   parent?: OrderParent;
-  state: ORDER_STATE;
+  states: ORDER_STATE[];
   actualAmount: OrderAmount;
   initialAmount: OrderAmount;
   shippingStatus: SHIP_STATE;
@@ -49,7 +48,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     this.items = d.items!;
     this.orderDate = d.orderDate;
     this.subOrderIds = d.subOrderIds ?? [];
-    this.state = d.state!;
+    this.states = d.states ?? [];
     this.cancellations = d.cancellations ?? [];
     this.vendorIds = d.vendorIds ?? [];
   }
@@ -136,7 +135,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       shopId: "",
       vendorIds: [],
       orderIds: [],
-      state: "BEFORE_APPROVE",
+      states: ["BEFORE_APPROVE"],
       actualAmount: emptyAmount(),
       initialAmount: emptyAmount(),
       shippingStatus: "BEFORE_READY",
@@ -208,6 +207,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       actualAmount: amount,
       shopGarment: p,
       vendorGarment: v,
+      state: "BEFORE_ORDER",
     };
     const order = new GarmentOrder({
       orderDate: new Date(),
@@ -215,7 +215,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       dbId: uuidv4(),
       shopId: p.shopId,
       orderIds: orderIds,
-      state: "BEFORE_ORDER",
+      states: [prodOrder.state],
       actualAmount: amount,
       initialAmount: amount,
       shippingStatus: SHIP_STATE.BEFORE_READY,
@@ -242,7 +242,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       items: d.items,
       orderDate: d.orderDate,
       subOrderIds: d.subOrderIds,
-      state: d.state,
+      states: d.states,
       cancellations: d.cancellations,
       vendorIds: d.vendorIds,
     });
@@ -397,5 +397,6 @@ export function emptyProdOrder(): ProdOrder {
     pendingCnt: 0,
     actualAmount: emptyAmount(),
     initialAmount: emptyAmount(),
+    state: "BEFORE_ORDER",
   };
 }

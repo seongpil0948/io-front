@@ -20,20 +20,19 @@ import { useAuthStore } from "@/store";
 
 const props = defineProps<{
   inStates?: ORDER_STATE[];
-  notStates?: ORDER_STATE[];
 }>();
 
 const auth = useAuthStore();
 const { orders, garmentOrders, garmentOrdersByShop } = useReadVendorOrderGInfo(
   auth.currUser.userInfo.userId,
-  props.inStates ?? [],
-  props.notStates ?? []
+  props.inStates ?? []
 );
 
 const checkedOrders = ref<string[]>([]); // garment order id
 const checkedShops = ref<DataTableRowKey[]>([]); // shop id
-
-const message = useMessage();
+const showPartialModal = ref(false);
+const msg = useMessage();
+const numOfAllow = ref(0);
 function getRowKey(row: ProdOrderByShop) {
   return row.shopId;
 }
@@ -41,7 +40,7 @@ function onClickShop(keys: DataTableRowKey[]) {
   checkedShops.value = keys;
 }
 function approvePartial() {
-  console.log("approvePartial, checkedOrders: ", checkedOrders.value);
+  const t = garmentOrders.value.find((x) => x.id === checkedOrders.value[0]);
 }
 function approveSelected() {
   console.log("approveSelected, checkedShops: ", checkedShops.value);
@@ -51,6 +50,18 @@ function rejectSelected() {
 }
 function approveAll() {
   console.log("approveAll, checkedShops: ", checkedShops.value);
+}
+function showPartial() {
+  const ts = checkedOrders.value;
+  if (ts.length !== 1) {
+    return msg.error("부분승인은 1행씩 선택 가능합니다.");
+  }
+  showPartialModal.value = true;
+}
+function onCloseModal() {
+  console.log("approveAll, checkedShops: ", checkedShops.value);
+  numOfAllow.value = 0;
+  showPartialModal.value = false;
 }
 
 const columns = computed(() => {
@@ -141,7 +152,7 @@ const columns = computed(() => {
     <template #header> <div></div> </template>
     <template #header-extra>
       <n-space>
-        <n-button size="small" type="primary" @click="approvePartial">
+        <n-button size="small" type="primary" @click="showPartial">
           부분승인(미송)
         </n-button>
         <n-button size="small" type="primary" @click="approveSelected">
@@ -165,11 +176,27 @@ const columns = computed(() => {
     />
   </n-card>
 
-  <!-- <n-data-table
-            :columns="columns"
-            :data="garmentOrdersByShop"
-            row-key="id"
-            children-key="items"
-            default-expand-all
-          /> -->
+  <n-modal v-model:show="showPartialModal">
+    <n-card
+      style="width: 40vw"
+      title="[ 부분승인 ]"
+      :bordered="false"
+      size="huge"
+      role="dialog"
+      aria-modal="true"
+    >
+      <n-space vertical align="center">
+        <n-text>몇장만 승인 할까요?</n-text>
+        <n-text depth="3">나머지 개수는 미송 주문건으로 이동됩니다.</n-text>
+        <n-input-number v-model:value="numOfAllow"></n-input-number>
+      </n-space>
+
+      <template #footer>
+        <n-space justify="end">
+          <n-button @click="approvePartial">저장</n-button>
+          <n-button @click="onCloseModal">닫기</n-button>
+        </n-space>
+      </template>
+    </n-card>
+  </n-modal>
 </template>

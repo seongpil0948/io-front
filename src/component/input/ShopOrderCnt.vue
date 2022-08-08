@@ -47,7 +47,7 @@ function onUpdate(val: number | null) {
 }
 
 function setEditMode() {
-  if (order.value.state === "BEFORE_ORDER") {
+  if (prodOrder.value.state === "BEFORE_ORDER") {
     edit.value = true;
   }
 }
