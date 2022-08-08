@@ -146,8 +146,15 @@ class Mapper implements MapperCRT {
 
 const synonymMatch = (subMapper: { [key: string]: any }, inVal: string) =>
   Object.keys(subMapper).find((syno) => inVal.includes(syno));
-const synonymFilter = (subMapper: { [key: string]: any }, inVal: string) =>
-  Object.keys(subMapper).filter((syno) => inVal.includes(syno));
+
+const synonymFilter = (
+  subMapper: { [key: string]: any },
+  inVal: string
+): string | undefined =>
+  Object.keys(subMapper)
+    .filter((syno) => inVal.includes(syno))
+    .sort((a, b) => b.length - a.length)[0];
+
 const mapTxt = (s: string) => s.toLowerCase().trim();
 
 export { Mapper, synonymMatch, synonymFilter, mapTxt };

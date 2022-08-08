@@ -2,19 +2,19 @@ import {
   ShopGarmentQField,
   useShopUserGarments,
   Mapper,
-  synonymMatch,
   MapKey,
   GarmentOrder,
   sameGarment,
   ShopUserGarment,
   VendorUserGarment,
+  synonymFilter,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { useVendorsStore } from "@/store";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { useMessage } from "naive-ui";
-import { Ref, ref, watchEffect } from "vue";
+import { Ref, ref, watchEffect, watch } from "vue";
 
 export function useParseGarmentOrder(
   mapper: Ref<Mapper | null>,
@@ -30,76 +30,83 @@ export function useParseGarmentOrder(
   const { userProd } = useShopUserGarments(userId, conditions);
   const msg = useMessage();
 
-  watchEffect(async () => {
-    if (!mapper.value) return;
-    conditions.value = [];
-    for (let i = 0; i < fs.value.length; i++) {
-      const inputDf = (await readExcel(fs.value[i], {
-        sheet: sheetIdx.value,
-      })) as DataFrame;
-      if (!inputDf) {
-        const message = `파일: ${fs.value[i].name}에 대한 처리에 실패 하였습니다.`;
-        msg.error(message, makeMsgOpt());
-        logger.error(userId, message);
-        continue;
-      }
-      if (startRow.value > 0) {
-        console.log("readExcel: ", inputDf);
-        const newDf = inputDf.iloc({ rows: [`${startRow.value}:`] });
-        newDf.$setColumnNames(
-          inputDf.iloc({ rows: [`${startRow.value - 1}:${startRow.value}`] })
-            .values[0] as string[]
-        );
-        conditions.value.push(...parseDf(newDf, mapper.value, existIds.value));
-      } else {
-        conditions.value.push(
-          ...parseDf(inputDf, mapper.value, existIds.value)
-        );
-      }
-    }
-    const infos: {
-      [k: string]: {
-        prod: ShopUserGarment;
-        vendorProd: VendorUserGarment;
-        orderIds: string[];
-        orderCnt: number;
-      };
-    } = {};
-    for (let j = 0; j < conditions.value.length; j++) {
-      const d = conditions.value[j];
-      const prod = userProd.value.find((x) => sameGarment(x, d))!;
-      if (!prod) continue;
-      else if (!infos[prod.shopProdId]) {
-        const vendorProd = vendorStore.vendorUserGarments.find(
-          (g) =>
-            g.vendorProdId === prod.vendorProdId && g.vendorId === prod.vendorId
-        );
-        if (vendorProd) {
-          infos[prod.shopProdId] = {
-            prod,
-            vendorProd,
-            orderIds: [d.orderId],
-            orderCnt: 1,
-          };
+  watch(
+    () => fs.value,
+    async (files) => {
+      if (!mapper.value) return;
+      conditions.value = [];
+      for (let i = 0; i < files.length; i++) {
+        const inputDf = (await readExcel(files[i], {
+          sheet: sheetIdx.value,
+        })) as DataFrame;
+        if (!inputDf) {
+          const message = `파일: ${files[i].name}에 대한 처리에 실패 하였습니다.`;
+          msg.error(message, makeMsgOpt());
+          logger.error(userId, message);
+          continue;
         }
-      } else {
-        infos[prod.shopProdId].orderCnt += 1;
-        infos[prod.shopProdId].orderIds.push(d.orderId);
+        if (startRow.value > 0) {
+          // console.log("readExcel: ", inputDf);
+          const newDf = inputDf.iloc({ rows: [`${startRow.value}:`] });
+          newDf.$setColumnNames(
+            inputDf.iloc({ rows: [`${startRow.value - 1}:${startRow.value}`] })
+              .values[0] as string[]
+          );
+          conditions.value.push(
+            ...parseDf(newDf, mapper.value, existIds.value)
+          );
+        } else {
+          conditions.value.push(
+            ...parseDf(inputDf, mapper.value, existIds.value)
+          );
+        }
+        files = [];
       }
+      const infos: {
+        [k: string]: {
+          prod: ShopUserGarment;
+          vendorProd: VendorUserGarment;
+          orderIds: string[];
+          orderCnt: number;
+        };
+      } = {};
+      for (let j = 0; j < conditions.value.length; j++) {
+        const d = conditions.value[j];
+        const prod = userProd.value.find((x) => sameGarment(x, d))!;
+        if (!prod) continue;
+        else if (!infos[prod.shopProdId]) {
+          const vendorProd = vendorStore.vendorUserGarments.find(
+            (g) =>
+              g.vendorProdId === prod.vendorProdId &&
+              g.vendorId === prod.vendorId
+          );
+          if (vendorProd) {
+            infos[prod.shopProdId] = {
+              prod,
+              vendorProd,
+              orderIds: [d.orderId],
+              orderCnt: 1,
+            };
+          }
+        } else {
+          infos[prod.shopProdId].orderCnt += 1;
+          infos[prod.shopProdId].orderIds.push(d.orderId);
+        }
+      }
+      onParse(
+        Object.values(infos).reduce((acc, info) => {
+          const order = GarmentOrder.fromProd(
+            info.prod,
+            info.orderIds,
+            info.orderCnt,
+            info.vendorProd
+          );
+          acc.push(order);
+          return acc;
+        }, [] as GarmentOrder[])
+      );
     }
-    onParse(
-      Object.values(infos).reduce((acc, info) => {
-        const order = GarmentOrder.fromProd(
-          info.prod,
-          info.orderIds,
-          info.orderCnt,
-          info.vendorProd
-        );
-        acc.push(order);
-        return acc;
-      }, [] as GarmentOrder[])
-    );
-  });
+  );
 
   function parseDf(
     inputDf: DataFrame,
@@ -116,7 +123,7 @@ export function useParseGarmentOrder(
     const targetDf = inputDf.loc({
       columns: uniqueArr(Object.values(colMapper)),
     });
-    console.log("targetDf: ", targetDf);
+    // console.log("targetDf: ", targetDf);
     console.log("colMapper: ", colMapper);
     console.log("Object.values(colMapper): ", Object.values(colMapper));
     const prodMapper = mapper.getProdMapper();
@@ -132,7 +139,6 @@ export function useParseGarmentOrder(
 
     targetDf.apply(
       (row: Series) => {
-        console.log(row, idx.orderIdIdx);
         const orderId = row[idx.orderIdIdx].toString();
         const matchedNameSynoIds = Object.keys(prodMapper).filter(
           (nameSynoId) => {
@@ -154,11 +160,11 @@ export function useParseGarmentOrder(
         let matchedNameSynoId = undefined;
         for (let i = 0; i < matchedNameSynoIds.length; i++) {
           const matchedId = matchedNameSynoIds[i];
-          synoColor = synonymMatch(
+          synoColor = synonymFilter(
             prodMapper[matchedId].colorMapper,
             row[idx.colorIdx]
           );
-          synoSize = synonymMatch(
+          synoSize = synonymFilter(
             prodMapper[matchedId].sizeMapper,
             row[idx.sizeIdx]
           );

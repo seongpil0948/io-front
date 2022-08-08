@@ -110,6 +110,10 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
                 exist = o;
                 exist.setOrderCnt(existItem.id, item.orderCnt);
                 order.items.splice(j, 1);
+                if (order.items.length < 1) {
+                  exist.orderIds.push(...order.orderIds);
+                }
+
                 break;
               }
             }
@@ -161,10 +165,10 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     const { batch, getOrdRef, getOrderNumberRef } = getSrc();
     for (let i = 0; i < ords.length; i++) {
       const ord = ords[i];
-      batch.delete(doc(getOrdRef(ord.shopId), ord.dbId));
       ord.orderIds.forEach((orderId) =>
         batch.delete(doc(getOrderNumberRef(ord.shopId), orderId.toString()))
       );
+      batch.delete(doc(getOrdRef(ord.shopId), ord.dbId));
     }
     await batch.commit();
   },

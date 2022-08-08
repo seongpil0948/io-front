@@ -186,26 +186,14 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     v: VendorUserGarment
   ) {
     const pureAmount = GarmentOrder.getPureAmount(orderCnt, p.prodPrice);
-    const shipFeeAmount = 0;
-    const shipFeeDiscountAmount = 0;
-    const tax = 0;
-    const paidAmount = 0;
-
-    const amount: OrderAmount = {
-      shipFeeAmount,
-      shipFeeDiscountAmount,
-      tax,
-      paidAmount,
-      paid: BOOL_M.F,
+    const amount = emptyAmount();
+    amount.orderAmount = GarmentOrder.getOrderAmount(
       pureAmount,
-      orderAmount: GarmentOrder.getOrderAmount(
-        pureAmount,
-        shipFeeAmount,
-        shipFeeDiscountAmount,
-        tax
-      ),
-      paymentConfirm: false,
-    };
+      amount.shipFeeAmount,
+      amount.shipFeeDiscountAmount,
+      amount.tax
+    );
+
     const prodOrder: ProdOrderCombined = {
       id: uuidv4(),
       vendorId: p.vendorId,
@@ -234,7 +222,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       subOrderIds: [],
       cancellations: [],
     });
-    order.setOrderCnt(prodOrder.id, orderCnt);
+    order.setOrderCnt(prodOrder.id, orderCnt, false);
     return order;
   }
 
@@ -275,13 +263,21 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     };
   }
   // >>> Prod Order >>>
-  setOrderCnt(prodOrderId: string, orderCnt: number, paid = BOOL_M.F) {
+  setOrderCnt(
+    prodOrderId: string,
+    orderCnt: number,
+    add = true,
+    paid = BOOL_M.F
+  ) {
     // 0. find prod order
     const targetIdx = this.items.findIndex((x) => x.id === prodOrderId);
     if (targetIdx < 0) throw new Error("prodOrder not belong to order");
     const item: ProdOrderCombined = cloneDeep(
       (this.items as ProdOrderCombined[])[targetIdx]
     );
+    if (add) {
+      orderCnt += item.orderCnt;
+    }
     const v = item.vendorGarment;
     // 1. set Order Cnt
     item.orderCnt = orderCnt;
@@ -373,7 +369,7 @@ export function emptyAmount(): OrderAmount {
     shipFeeDiscountAmount: 0,
     tax: 0,
     paidAmount: 0,
-    paid: "F",
+    paid: BOOL_M.F,
     pureAmount: 0,
     orderAmount: 0,
     paymentConfirm: false,

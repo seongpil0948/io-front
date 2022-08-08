@@ -38,7 +38,7 @@ function onUpdate(val: number | null) {
   const prod = order.value.items.find((x) => x.id === prodOrder.value.id);
   if (!prod) throw new Error("not matched prod order");
 
-  order.value.setOrderCnt(prod.id, val);
+  order.value.setOrderCnt(prod.id, val, false);
   order.value.update().then(() => {
     msg.error(`주문개수가 업데이트에 성공하였습니다.`, makeMsgOpt());
   });
