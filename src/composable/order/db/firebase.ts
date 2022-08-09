@@ -111,7 +111,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         if (ord.items.length < 1)
           throw new Error("request order items not exist");
 
-        row.items.forEach(async (item) => {
+        ord.items.forEach(async (item) => {
           const vendor = vendorStore.vendorById[item.vendorId];
           const prod = vendorStore.vendorGarments.find(
             (g) => g.vendorProdId === item.vendorProdId
@@ -125,7 +125,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           // if ((vendor.operInfo as VendorOperInfo).autoOrderApprove) {
           //   item.state = "BEFORE_PAYMENT";
           // } else {
-          item.state = "BEFORE_APPROVE";
+          ord.setState(item.id, "BEFORE_APPROVE");
           // }
         });
         transaction.update(ordDocRef, converterGarment.toFirestore(ord));
@@ -270,19 +270,19 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     inStates?: ORDER_STATE[];
     vendorId: string;
   }) {
-    const constraints = [where("vendorIds", "array-contains", p.vendorId)];
-
     const orders = ref<GarmentOrder[]>([]);
     const orderQ = query(
       getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
         GarmentOrder.fireConverter()
       ),
-      ...constraints
+      where("vendorIds", "array-contains", p.vendorId)
     );
     const unsubscribe = onSnapshot(orderQ, (snapshot) => {
       orders.value = [];
       snapshot.forEach((doc) => {
         const data = doc.data();
+        console.log("p.inStates:", p.inStates);
+        console.log("data.states:", data.states);
         if (p.inStates) {
           if (data && data.states.some((x) => p.inStates!.includes(x))) {
             orders.value.push(data);
