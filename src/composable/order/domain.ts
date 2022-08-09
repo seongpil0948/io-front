@@ -143,6 +143,7 @@ export interface OrderCrt {
   shopId: string;
   vendorIds: string[];
   orderIds: string[];
+  itemIds: string[];
   parent?: OrderParent;
   states: ORDER_STATE[];
   actualAmount: OrderAmount;
@@ -177,4 +178,9 @@ export interface OrderDB<T> {
     unsubscribe: () => void;
   };
   getExistOrderIds(shopId: string): Promise<Set<string>>;
+  orderApprove(
+    vendorId: string,
+    orderIds: string[],
+    prodOrderIds: string[]
+  ): Promise<void>;
 }

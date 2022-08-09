@@ -14,15 +14,86 @@ import {
 } from "@firebase/firestore";
 import { OrderDB } from "../domain";
 import { useVendorsStore } from "@/store";
-import { VendorOperInfo } from "@/composable/auth";
 import { logger } from "@/plugin/logger";
 import { ref } from "vue";
 import { IO_PAY_DB } from "@/composable";
+import { IO_COSTS } from "@/constants";
 
 export const OrderGarmentFB: OrderDB<GarmentOrder> = {
+  orderApprove: async function (
+    vendorId: string,
+    orderIds: string[],
+    prodOrderIds: string[]
+  ) {
+    const orders: GarmentOrder[] = [];
+    const constraints = [where("orderIds", "array-contains-any", orderIds)];
+    const docs = await getDocs(
+      query(
+        getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
+          GarmentOrder.fireConverter()
+        ),
+        ...constraints
+      )
+    );
+    docs.forEach((doc) => {
+      const data = doc.data();
+      if (data) {
+        orders.push(data);
+      }
+    });
+    const shopIds = orders.map((x) => x.shopId);
+    const processedShops = new Set<string>();
+    await runTransaction(iostore, async (transaction) => {
+      const { getOrdRef, converterGarment } = getSrc();
+      // 1. vendor pay
+      const vendorPay = await IO_PAY_DB.getIoPayByUser(vendorId);
+      const vReduceCoin = shopIds.length * IO_COSTS.REQ_ORDER;
+      if (vendorPay.availBudget < vReduceCoin) {
+        throw new Error("vendorPay.availBudget < vReduceCoin");
+      }
+      vendorPay.budget -= vReduceCoin;
+      transaction.update(
+        doc(getIoCollection({ c: IoCollection.IO_PAY }), vendorId),
+        {
+          budget: vendorPay.budget,
+        }
+      );
+      // 2. update order state, reduce shop coin
+      for (let i = 0; i < orders.length; i++) {
+        const o = orders[i];
+        for (let j = 0; j < o.items.length; j++) {
+          const item = o.items[j];
+          if (
+            prodOrderIds.includes(item.id) &&
+            item.state === "BEFORE_APPROVE"
+          ) {
+            o.setState(item.id, "BEFORE_PAYMENT");
+            transaction.update(
+              doc(getOrdRef(o.shopId), o.dbId),
+              converterGarment.toFirestore(o)
+            );
+            processedShops.add(o.shopId);
+          }
+        }
+      }
+      processedShops.forEach(async (shopId) => {
+        const shopPay = await IO_PAY_DB.getIoPayByUser(shopId);
+        if (shopPay.availBudget < IO_COSTS.REQ_ORDER) {
+          throw new Error("shopPay.availBudget < IO_COSTS.REQ_ORDER");
+        }
+        transaction.update(
+          doc(getIoCollection({ c: IoCollection.IO_PAY }), shopId),
+          {
+            budget: shopPay.budget - IO_COSTS.REQ_ORDER,
+          }
+        );
+      });
+    });
+  },
   orderGarment: async function (row: GarmentOrder, expectedReduceCoin: number) {
     const vendorStore = useVendorsStore();
     console.log("in orderGarment: row:", row);
+    // userPay  pending amount 업데이트 해놓아야함
     try {
       const { getOrdRef, converterGarment } = getSrc();
       const userPay = await IO_PAY_DB.getIoPayByUser(row.shopId);
@@ -51,11 +122,11 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
             );
           else if (!vendor)
             throw new Error(`vendor user does not exist!: ${item.vendorId}`);
-          if ((vendor.operInfo as VendorOperInfo).autoOrderApprove) {
-            item.state = "BEFORE_PAYMENT";
-          } else {
-            item.state = "BEFORE_APPROVE";
-          }
+          // if ((vendor.operInfo as VendorOperInfo).autoOrderApprove) {
+          //   item.state = "BEFORE_PAYMENT";
+          // } else {
+          item.state = "BEFORE_APPROVE";
+          // }
         });
         transaction.update(ordDocRef, converterGarment.toFirestore(ord));
         return ord;
@@ -96,12 +167,18 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
             for (let z = 0; z < o.items.length; z++) {
               const existItem = o.items[z];
               if (existItem.state !== "BEFORE_ORDER") continue;
-              else if (item.shopProdId === existItem.shopProdId) {
+              else if (item.vendorProdId === existItem.vendorProdId) {
                 exist = o;
-                exist.setOrderCnt(existItem.id, item.orderCnt);
+                exist.setOrderCnt(existItem.id, item.orderCnt, true);
                 order.items.splice(j, 1);
                 if (order.items.length < 1) {
                   exist.orderIds.push(...order.orderIds);
+                  for (let x = 0; x < order.itemIds.length; x++) {
+                    const itemId = order.itemIds[x];
+                    if (!exist.itemIds.includes(itemId)) {
+                      exist.itemIds.push(itemId);
+                    }
+                  }
                 }
 
                 break;
@@ -194,9 +271,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     vendorId: string;
   }) {
     const constraints = [where("vendorIds", "array-contains", p.vendorId)];
-    if (p.inStates && p.inStates.length > 0) {
-      constraints.push(where("state", "array-contains-any", p.inStates));
-    }
 
     const orders = ref<GarmentOrder[]>([]);
     const orderQ = query(
@@ -209,8 +283,14 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       orders.value = [];
       snapshot.forEach((doc) => {
         const data = doc.data();
-        if (data) {
-          orders.value.push(data);
+        if (p.inStates) {
+          if (data && data.states.some((x) => p.inStates!.includes(x))) {
+            orders.value.push(data);
+          }
+        } else {
+          if (data) {
+            orders.value.push(data);
+          }
         }
       });
     });

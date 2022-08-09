@@ -18,13 +18,15 @@ import {
 } from "@firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { cloneDeep } from "lodash";
-import { count } from "console";
+import { insertById, getIoCollection, IoCollection } from "@/util";
+import { logger } from "@/plugin/logger";
 
 export class GarmentOrder extends CommonField implements OrderCrt {
   orderDate?: Date;
   doneDate?: Date;
   dbId: string;
   orderIds: string[];
+  itemIds: string[];
   parent?: OrderParent;
   states: ORDER_STATE[];
   actualAmount: OrderAmount;
@@ -40,6 +42,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     super(d.createdAt, d.updatedAt);
     this.dbId = d.dbId!;
     this.orderIds = d.orderIds!;
+    this.itemIds = d.itemIds!;
     this.parent = d.parent!;
     this.shopId = d.shopId!;
     this.actualAmount = d.actualAmount!;
@@ -53,15 +56,15 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     this.vendorIds = d.vendorIds ?? [];
   }
 
-  setTotalAmount() {
-    this.actualAmount = this.items
+  setTotalAmount(refreshInitial = true) {
+    this.actualAmount = cloneDeep(this.items)
       .map((x) => {
         if (!this.vendorIds.includes(x.vendorId)) {
           this.vendorIds.push(x.vendorId);
         }
         return x.actualAmount;
       })
-      .reduce((prev, acc, idx) => {
+      .reduce((acc, prev, idx) => {
         if (idx === 0) {
           acc.shipFeeAmount = prev.shipFeeAmount;
           acc.shipFeeDiscountAmount = prev.shipFeeDiscountAmount;
@@ -85,9 +88,22 @@ export class GarmentOrder extends CommonField implements OrderCrt {
           acc.paymentMethod = prev.paymentMethod;
           return acc;
         }
-      }, this.actualAmount);
+      }, cloneDeep(this.actualAmount));
+    if (refreshInitial) {
+      this.initialAmount = cloneDeep(this.actualAmount);
+    }
   }
-
+  setState(prodOrderId: string, state: ORDER_STATE) {
+    const ts = this.getProdOrders(prodOrderId);
+    if (ts && ts.length > 0) {
+      this.states.splice(
+        this.states.findIndex((x) => ts[0].state),
+        1
+      );
+      ts[0].state = state;
+      this.states.push(state);
+    }
+  }
   // getters
   getProdOrders(
     prodOrderId?: string,
@@ -135,6 +151,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       shopId: "",
       vendorIds: [],
       orderIds: [],
+      itemIds: [],
       states: ["BEFORE_APPROVE"],
       actualAmount: emptyAmount(),
       initialAmount: emptyAmount(),
@@ -144,7 +161,15 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       cancellations: [],
     });
   }
-
+  async update() {
+    await insertById<GarmentOrder>(
+      this,
+      getIoCollection({ c: IoCollection.ORDER_PROD }),
+      this.dbId,
+      true,
+      GarmentOrder.fireConverter()
+    );
+  }
   async reqCancel(arg: OrderCancel) {
     this.cancellations.push(arg);
     await this.update();
@@ -215,6 +240,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       dbId: uuidv4(),
       shopId: p.shopId,
       orderIds: orderIds,
+      itemIds: [prodOrder.id],
       states: [prodOrder.state],
       actualAmount: amount,
       initialAmount: amount,
@@ -234,6 +260,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       updatedAt: d.updatedAt,
       dbId: d.dbId,
       orderIds: d.orderIds,
+      itemIds: d.itemIds,
       parent: d.parent,
       shopId: d.shopId,
       actualAmount: d.actualAmount,
@@ -248,7 +275,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     });
   }
 
-  static fireConverter(): FirestoreDataConverter<GarmentOrder | null> {
+  static fireConverter(): FirestoreDataConverter<GarmentOrder> {
     return {
       toFirestore: (m: GarmentOrder) => {
         return m instanceof CommonField
@@ -258,9 +285,9 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       fromFirestore: (
         snapshot: DocumentSnapshot<DocumentData>,
         options: any
-      ): GarmentOrder | null => {
+      ): GarmentOrder => {
         const data = snapshot.data(options);
-        return data ? GarmentOrder.fromJson(data) : null;
+        return GarmentOrder.fromJson(data!)!;
       },
     };
   }
@@ -269,14 +296,16 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     prodOrderId: string,
     orderCnt: number,
     add = true,
-    paid = BOOL_M.F
+    paid = BOOL_M.F,
+    refreshInitial = true
   ) {
     // 0. find prod order
     const targetIdx = this.items.findIndex((x) => x.id === prodOrderId);
     if (targetIdx < 0) throw new Error("prodOrder not belong to order");
-    const item: ProdOrderCombined = cloneDeep(
-      (this.items as ProdOrderCombined[])[targetIdx]
-    );
+    const item: ProdOrderCombined = (this.items as ProdOrderCombined[])[
+      targetIdx
+    ];
+
     if (add) {
       orderCnt += item.orderCnt;
     }
@@ -305,10 +334,15 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     if (!GarmentOrder.validProdOrder(item)) {
       throw new Error(`Invalid Prod Order: ${item.id} orderIds: ${this.dbId}`);
     }
-    this.items[targetIdx] = item;
+    if (refreshInitial) {
+      item.initialAmount = cloneDeep(item.actualAmount);
+    }
     // 5. set order amount
     this.setTotalAmount();
-    if (!this.isValid) throw new Error("invalid setTotalAmount in setOrderCnt");
+    if (!this.isValid) {
+      logger.error(null, this);
+      throw new Error("invalid setTotalAmount in setOrderCnt");
+    }
   }
 
   static getActiveCnt(orderCnt: number, pendingCnt: number) {

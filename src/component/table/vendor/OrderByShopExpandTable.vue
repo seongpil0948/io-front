@@ -11,18 +11,23 @@ import {
 import GarmentOrderRow from "@/component/table/vendor/GarmentOrderRow.vue";
 import {
   GarmentOrder,
+  ORDER_GARMENT_DB,
   ORDER_STATE,
+  ProdOrder,
   ProdOrderByShop,
   ProdOrderCombined,
   useReadVendorOrderGInfo,
 } from "@/composable";
 import { useAuthStore } from "@/store";
+import { makeMsgOpt } from "@/util";
+import { logger } from "@/plugin/logger";
 
 const props = defineProps<{
   inStates?: ORDER_STATE[];
 }>();
 
 const auth = useAuthStore();
+const u = auth.currUser;
 const { orders, garmentOrders, garmentOrdersByShop } = useReadVendorOrderGInfo(
   auth.currUser.userInfo.userId,
   props.inStates ?? []
@@ -39,17 +44,93 @@ function getRowKey(row: ProdOrderByShop) {
 function onClickShop(keys: DataTableRowKey[]) {
   checkedShops.value = keys;
 }
-function approvePartial() {
-  const t = garmentOrders.value.find((x) => x.id === checkedOrders.value[0]);
+async function approvePartial() {
+  for (let i = 0; i < orders.value.length; i++) {
+    const o = orders.value[i];
+
+    const prodOrders = o.getProdOrders(checkedOrders.value[0]);
+    if (prodOrders && prodOrders.length > 0) {
+      prodOrders[0].activeCnt = numOfAllow.value;
+      prodOrders[0].pendingCnt = prodOrders[0].orderCnt - numOfAllow.value;
+      o.setState(prodOrders[0].id, "BEFORE_PAYMENT");
+      o.update()
+        .then(() => {
+          msg.success("주문승인 완료", makeMsgOpt());
+        })
+        .catch((err) => {
+          msg.success("주문승인 실패", makeMsgOpt());
+          logger.error(u.userInfo.userId, "error in approvePartial", err);
+        });
+    }
+  }
 }
-function approveSelected() {
-  console.log("approveSelected, checkedShops: ", checkedShops.value);
+const targetIds = computed(() => {
+  const itemIds = new Set<string>();
+  for (let i = 0; i < orders.value.length; i++) {
+    const o = orders.value[i];
+    if (checkedShops.value.includes(o.shopId)) {
+      o.items.forEach((x) => itemIds.add(x.id));
+    }
+    for (let j = 0; j < o.items.length; j++) {
+      const item = o.items[j];
+      if (checkedOrders.value.includes(item.id) && !itemIds.has(item.id)) {
+        itemIds.add(item.id);
+      }
+    }
+  }
+  // return garmentOrders.value.filter((z) => itemIds.has(z.id));
+  return itemIds;
+});
+async function approveSelected() {
+  const orderIds = new Set<string>();
+  for (let i = 0; i < orders.value.length; i++) {
+    const o = orders.value[i];
+
+    for (let j = 0; j < o.items.length; j++) {
+      const item = o.items[j];
+      if (targetIds.value.has(item.id)) {
+        o.setState(item.id, "BEFORE_PAYMENT");
+        await o.update(); // 유저 금액도 차감해야함
+        orderIds.add(o.dbId);
+      }
+    }
+  }
+  ORDER_GARMENT_DB.orderApprove(
+    u.userInfo.userId,
+    [...orderIds],
+    [...targetIds.value]
+  )
+    .then(() => msg.success("주문승인에 성공 하셨습니다."))
+    .catch((err) => {
+      msg.error(`주문승인에 실패 하였습니다. ${err}`);
+    });
 }
-function rejectSelected() {
-  console.log("rejectSelected, checkedOrders: ", checkedOrders.value);
+async function rejectSelected() {
+  for (let i = 0; i < orders.value.length; i++) {
+    const o = orders.value[i];
+
+    for (let j = 0; j < o.items.length; j++) {
+      const item = o.items[j];
+      if (targetIds.value.has(item.id)) {
+        o.setState(item.id, "BEFORE_ORDER");
+        await o.update();
+      }
+    }
+  }
 }
-function approveAll() {
-  console.log("approveAll, checkedShops: ", checkedShops.value);
+async function approveAll() {
+  for (let i = 0; i < orders.value.length; i++) {
+    const o = orders.value[i];
+    ORDER_GARMENT_DB.orderApprove(
+      u.userInfo.userId,
+      orders.value.map((x) => x.dbId),
+      garmentOrders.value.map((y) => y.id)
+    )
+      .then(() => msg.success("주문승인에 성공 하셨습니다."))
+      .catch((err) => {
+        msg.error(`주문승인에 실패 하였습니다. ${err}`);
+      });
+  }
 }
 function showPartial() {
   const ts = checkedOrders.value;
