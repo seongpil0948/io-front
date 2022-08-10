@@ -7,6 +7,7 @@ import {
   getDocs,
   onSnapshot,
   query,
+  QueryConstraint,
   runTransaction,
   where,
   WithFieldValue,
@@ -19,35 +20,89 @@ import { ref } from "vue";
 import { IO_PAY_DB } from "@/composable";
 import { IO_COSTS } from "@/constants";
 
+async function getOrders(constraints: QueryConstraint[]) {
+  const orders: GarmentOrder[] = [];
+  const docs = await getDocs(
+    query(
+      getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
+        GarmentOrder.fireConverter()
+      ),
+      ...constraints
+    )
+  );
+  docs.forEach((doc) => {
+    const data = doc.data();
+    if (data) {
+      orders.push(data);
+    }
+  });
+  return orders;
+}
+
 export const OrderGarmentFB: OrderDB<GarmentOrder> = {
-  orderApprove: async function (
-    vendorId: string,
-    orderIds: string[],
-    prodOrderIds: string[]
-  ) {
-    const orders: GarmentOrder[] = [];
-    const constraints = [where("orderIds", "array-contains-any", orderIds)];
-    const docs = await getDocs(
-      query(
-        getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
-          GarmentOrder.fireConverter()
-        ),
-        ...constraints
-      )
-    );
-    docs.forEach((doc) => {
-      const data = doc.data();
-      if (data) {
-        orders.push(data);
+  orderReject: async function (orderDbIds: string[], prodOrderIds: string[]) {
+    const constraints = [where("dbId", "in", orderDbIds)];
+    const orders = await getOrders(constraints);
+    console.log("result orders: ", orders);
+    const shopIds = orders.map((x) => x.shopId);
+    const processedShops = shopIds.reduce((acc, curr) => {
+      acc[curr] = 0;
+      return acc;
+    }, {} as { [shopId: string]: number });
+    return await runTransaction(iostore, async (transaction) => {
+      const { getOrdRef, converterGarment } = getSrc();
+
+      // 2. update order state, reduce shop coin
+      for (let i = 0; i < orders.length; i++) {
+        const o = orders[i];
+        for (let j = 0; j < o.items.length; j++) {
+          const item = o.items[j];
+          console.log(item.state);
+          if (
+            prodOrderIds.includes(item.id) &&
+            (item.state === "BEFORE_APPROVE" || item.state === "BEFORE_PAYMENT")
+          ) {
+            o.setState(item.id, "BEFORE_ORDER");
+            transaction.update(
+              doc(getOrdRef(o.shopId), o.dbId),
+              converterGarment.toFirestore(o)
+            );
+            processedShops[o.shopId] += 1;
+          }
+        }
+      }
+      const entries = Object.entries(processedShops);
+      for (let k = 0; k < entries.length; k++) {
+        const [shopId, cnt] = entries[k];
+        const shopPay = await IO_PAY_DB.getIoPayByUser(shopId);
+        const cost = IO_COSTS.REQ_ORDER * cnt;
+        transaction.update(
+          doc(getIoCollection({ c: IoCollection.IO_PAY }), shopId),
+          {
+            pendingBudget: shopPay.pendingBudget - cost,
+            budget: shopPay.budget + cost,
+          }
+        );
       }
     });
+  },
+  orderApprove: async function (
+    vendorId: string,
+    orderDbIds: string[],
+    prodOrderIds: string[]
+  ) {
+    const constraints = [where("dbId", "in", orderDbIds)];
+    const orders = await getOrders(constraints);
     const shopIds = orders.map((x) => x.shopId);
-    const processedShops = new Set<string>();
-    await runTransaction(iostore, async (transaction) => {
+    const processedShops = shopIds.reduce((acc, curr) => {
+      acc[curr] = 0;
+      return acc;
+    }, {} as { [shopId: string]: number });
+    return await runTransaction(iostore, async (transaction) => {
       const { getOrdRef, converterGarment } = getSrc();
       // 1. vendor pay
       const vendorPay = await IO_PAY_DB.getIoPayByUser(vendorId);
-      const vReduceCoin = shopIds.length * IO_COSTS.REQ_ORDER;
+      const vReduceCoin = shopIds.length * IO_COSTS.APPROVE_ORDER;
       if (vendorPay.availBudget < vReduceCoin) {
         throw new Error("vendorPay.availBudget < vReduceCoin");
       }
@@ -72,22 +127,26 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
               doc(getOrdRef(o.shopId), o.dbId),
               converterGarment.toFirestore(o)
             );
-            processedShops.add(o.shopId);
+            processedShops[o.shopId] += 1;
           }
         }
       }
-      processedShops.forEach(async (shopId) => {
+      const entries = Object.entries(processedShops);
+      for (let k = 0; k < entries.length; k++) {
+        const [shopId, cnt] = entries[k];
         const shopPay = await IO_PAY_DB.getIoPayByUser(shopId);
-        if (shopPay.availBudget < IO_COSTS.REQ_ORDER) {
-          throw new Error("shopPay.availBudget < IO_COSTS.REQ_ORDER");
-        }
+        const cost = IO_COSTS.REQ_ORDER * cnt;
+        if (shopPay.pendingBudget < cost)
+          throw new Error(
+            `shop(${shopId}) not enough pendingBuget(${cost}) for request order`
+          );
         transaction.update(
           doc(getIoCollection({ c: IoCollection.IO_PAY }), shopId),
           {
-            budget: shopPay.budget - IO_COSTS.REQ_ORDER,
+            pendingBudget: shopPay.pendingBudget - cost,
           }
         );
-      });
+      }
     });
   },
   orderGarment: async function (row: GarmentOrder, expectedReduceCoin: number) {
@@ -129,6 +188,13 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           // }
         });
         transaction.update(ordDocRef, converterGarment.toFirestore(ord));
+        transaction.update(
+          doc(getIoCollection({ c: IoCollection.IO_PAY }), userPay.userId),
+          {
+            pendingBudget: userPay.pendingBudget + expectedReduceCoin,
+            budget: userPay.budget - expectedReduceCoin,
+          }
+        );
         return ord;
       });
       return newOrder;
@@ -138,7 +204,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     }
   },
   batchCreate: async function (uid: string, orders: GarmentOrder[]) {
-    await runTransaction(iostore, async (transaction) => {
+    return await runTransaction(iostore, async (transaction) => {
       const { getOrdRef, getOrderNumberRef, converterGarment } = getSrc();
       const ordRef = getOrdRef(uid);
       const ordNumRef = getOrderNumberRef(uid);
@@ -281,8 +347,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       orders.value = [];
       snapshot.forEach((doc) => {
         const data = doc.data();
-        console.log("p.inStates:", p.inStates);
-        console.log("data.states:", data.states);
         if (p.inStates) {
           if (data && data.states.some((x) => p.inStates!.includes(x))) {
             orders.value.push(data);

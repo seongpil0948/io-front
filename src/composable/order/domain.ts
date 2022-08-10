@@ -180,7 +180,8 @@ export interface OrderDB<T> {
   getExistOrderIds(shopId: string): Promise<Set<string>>;
   orderApprove(
     vendorId: string,
-    orderIds: string[],
+    orderDbIds: string[],
     prodOrderIds: string[]
   ): Promise<void>;
+  orderReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
 }

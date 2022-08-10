@@ -5,8 +5,8 @@ export default {
 };
 </script>
 <script setup lang="ts">
-import { IoPay } from "@/composable";
-import { toRefs } from "vue";
+import { IoPay, IO_PAY_DB } from "@/composable";
+import { toRefs, watch } from "vue";
 
 const props = defineProps<{
   showModal: boolean;
@@ -14,8 +14,18 @@ const props = defineProps<{
   expectedReduceCoin: number;
   userPay: IoPay | null;
 }>();
-const { showModal } = toRefs(props);
+const { showModal, userPay } = toRefs(props);
 const emits = defineEmits(["update:showModal", "onConfirm"]);
+
+watch(
+  () => userPay.value,
+  async (val) => {
+    if (val === null) {
+      val = await IO_PAY_DB.getIoPayByUser(props.userId);
+    }
+  }
+);
+
 function onConfirmClick() {
   emits("onConfirm");
 }
