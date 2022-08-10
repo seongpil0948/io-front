@@ -73,12 +73,11 @@ const handleUserLogClose = () => (userLogShow.value = false);
 .menu {
   position: relative;
 
-  background: $io-background;
+  background: $io-primary;
   padding: 30px;
   border-radius: 100%;
   cursor: pointer;
-  box-shadow: 7px 7px 15px rgba(55, 84, 170, 0.15),
-    -7px -7px 20px rgba(255, 255, 255, 1),
+  box-shadow: 7px 7px 15px rgba(55, 84, 170, 0.15), -1px -3px 12px $io-primary,
     inset 0px 0px 4px rgba(255, 255, 255, 0.2),
     inset 7px 7px 15px rgba(55, 84, 170, 0),
     inset -7px -7px 20px rgba(255, 255, 255, 0),
@@ -86,7 +85,7 @@ const handleUserLogClose = () => (userLogShow.value = false);
   &::before,
   &::after {
     content: "";
-    background: $io-grey2;
+    background: rgb(72, 72, 78);
     border-radius: 5px;
     width: 30px;
     height: 5px;
@@ -134,7 +133,7 @@ const handleUserLogClose = () => (userLogShow.value = false);
   padding: 15px;
   border-radius: 50%;
   cursor: pointer;
-  background: #e8e8f3;
+  background: $io-primary;
   position: absolute;
   bottom: 0;
   right: 0;
