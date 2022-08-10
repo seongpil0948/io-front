@@ -132,6 +132,20 @@ export function useApproveOrder(p: ApproveParam) {
     // return garmentOrders.value.filter((z) => itemIds.has(z.id));
     return itemIds;
   });
+  const targetOrderIds = computed(() => {
+    const orderIds = new Set<string>();
+    for (let i = 0; i < p.orders.value.length; i++) {
+      const o = p.orders.value[i];
+
+      for (let j = 0; j < o.items.length; j++) {
+        const item = o.items[j];
+        if (targetIds.value.has(item.id)) {
+          orderIds.add(o.dbId);
+        }
+      }
+    }
+    return orderIds;
+  });
   function approveSelected() {
     orderTargets.value = p.garmentOrders.value.filter((x) =>
       targetIds.value.has(x.id)
@@ -145,18 +159,10 @@ export function useApproveOrder(p: ApproveParam) {
   }
 
   async function rejectSelected() {
-    const orderIds = new Set<string>();
-    for (let i = 0; i < p.orders.value.length; i++) {
-      const o = p.orders.value[i];
-
-      for (let j = 0; j < o.items.length; j++) {
-        const item = o.items[j];
-        if (targetIds.value.has(item.id)) {
-          orderIds.add(o.dbId);
-        }
-      }
-    }
-    ORDER_GARMENT_DB.orderReject([...orderIds], [...targetIds.value])
+    ORDER_GARMENT_DB.orderReject(
+      [...targetOrderIds.value],
+      [...targetIds.value]
+    )
       .then(() => {
         msg.success("주문거절 완료", makeMsgOpt());
       })
@@ -167,6 +173,19 @@ export function useApproveOrder(p: ApproveParam) {
       .finally(() => {
         orderTargets.value = [];
         updateOrderModal(false);
+      });
+  }
+  function completePay() {
+    ORDER_GARMENT_DB.completePay(
+      [...targetOrderIds.value],
+      [...targetIds.value]
+    )
+      .then(() => {
+        msg.success("결제승인 완료", makeMsgOpt());
+      })
+      .catch((err) => {
+        msg.success("결제승인 실패", makeMsgOpt());
+        logger.error(p.vendorId, "error in complete payment", err);
       });
   }
   // <<< Order <<<
@@ -268,5 +287,6 @@ export function useApproveOrder(p: ApproveParam) {
     orderTargets,
     showPartialModal,
     numOfAllow,
+    completePay,
   };
 }

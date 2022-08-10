@@ -184,4 +184,5 @@ export interface OrderDB<T> {
     prodOrderIds: string[]
   ): Promise<void>;
   orderReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  completePay(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
 }

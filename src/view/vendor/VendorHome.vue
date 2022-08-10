@@ -18,7 +18,14 @@ const currTab = ref<string>("beforeApproveList");
           tab="승인 완료된 주문"
           name="BEFORE_PAYMENT"
         >
-          <order-by-shop-expand-table :inStates="['BEFORE_PAYMENT']" />
+          <order-by-shop-expand-table
+            :inStates="[
+              'BEFORE_PAYMENT',
+              'BEFORE_SHIP',
+              'SHIPPING',
+              'SHIPPING_COMPLETE',
+            ]"
+          />
         </n-tab-pane>
       </n-tabs>
     </n-card>

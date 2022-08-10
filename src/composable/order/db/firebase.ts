@@ -9,6 +9,7 @@ import {
   query,
   QueryConstraint,
   runTransaction,
+  setDoc,
   where,
   WithFieldValue,
   writeBatch,
@@ -40,10 +41,27 @@ async function getOrders(constraints: QueryConstraint[]) {
 }
 
 export const OrderGarmentFB: OrderDB<GarmentOrder> = {
+  completePay: async function (orderDbIds: string[], prodOrderIds: string[]) {
+    const constraints = [where("dbId", "in", orderDbIds)];
+    const orders = await getOrders(constraints);
+    const { getOrdRef } = getSrc();
+    console.log("result orders: ", orders);
+    for (let i = 0; i < orders.length; i++) {
+      const o = orders[i];
+      for (let j = 0; j < o.items.length; j++) {
+        const item = o.items[j];
+        if (prodOrderIds.includes(item.id) && item.state === "BEFORE_PAYMENT") {
+          o.setState(item.id, "BEFORE_SHIP");
+          await setDoc(doc(getOrdRef(o.shopId), o.dbId), o, {
+            merge: false,
+          });
+        }
+      }
+    }
+  },
   orderReject: async function (orderDbIds: string[], prodOrderIds: string[]) {
     const constraints = [where("dbId", "in", orderDbIds)];
     const orders = await getOrders(constraints);
-    console.log("result orders: ", orders);
     const shopIds = orders.map((x) => x.shopId);
     const processedShops = shopIds.reduce((acc, curr) => {
       acc[curr] = 0;

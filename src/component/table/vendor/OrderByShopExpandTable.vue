@@ -34,6 +34,7 @@ const {
   orderTargets,
   showPartialModal,
   numOfAllow,
+  completePay,
 } = useApproveOrder({
   garmentOrders,
   orders,
@@ -41,11 +42,6 @@ const {
 });
 function getRowKey(row: ProdOrderByShop) {
   return row.shopId;
-}
-// >>> Mock
-function completePay() {
-  console.log("결제완료 처리");
-  alert("Not Implemented");
 }
 </script>
 
