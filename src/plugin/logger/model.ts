@@ -132,9 +132,7 @@ export function useReadLogger(param: ReadLogParam) {
     });
     const len = userLogs.value.length;
     lastLog.value = len > 0 ? userLogs.value[len - 1] : null;
-    noMore.value =
-      lastLog.value === null ||
-      userLogs.value[-1].createdAt === lastLog.value!.createdAt;
+    noMore.value = lastLog.value === null;
   });
   async function next() {
     if (noMore.value) return;
@@ -148,9 +146,7 @@ export function useReadLogger(param: ReadLogParam) {
       }
     });
     lastLog.value = len > 0 ? userLogs.value[len - 1] : null;
-    noMore.value =
-      lastLog.value === null ||
-      userLogs.value[-1].createdAt === lastLog.value!.createdAt;
+    noMore.value = lastLog.value === null;
   }
   async function init() {
     lastLog.value = null;

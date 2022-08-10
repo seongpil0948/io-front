@@ -42,13 +42,18 @@ const {
 function getRowKey(row: ProdOrderByShop) {
   return row.shopId;
 }
+// >>> Mock
+function completePay() {
+  console.log("결제완료 처리");
+  alert("Not Implemented");
+}
 </script>
 
 <template>
   <n-card :bordered="false">
     <template #header> <div></div> </template>
     <template #header-extra>
-      <n-space>
+      <n-space v-if="inStates?.includes('BEFORE_APPROVE')">
         <n-button size="small" type="primary" @click="showPartial">
           부분승인(미송)
         </n-button>
@@ -62,6 +67,11 @@ function getRowKey(row: ProdOrderByShop) {
           전체승인
         </n-button>
       </n-space>
+      <n-space v-if="inStates?.includes('BEFORE_PAYMENT')">
+        <n-button size="small" type="primary" @click="completePay">
+          결제완료
+        </n-button>
+      </n-space>
     </template>
     <n-data-table
       :bordered="false"
@@ -73,6 +83,7 @@ function getRowKey(row: ProdOrderByShop) {
     />
   </n-card>
   <coin-reduce-confirm-modal
+    v-if="inStates?.includes('BEFORE_APPROVE')"
     :showModal="showPartialModal"
     @update:showModal="onCloseModal"
     @onConfirm="approvePartial"
@@ -83,7 +94,7 @@ function getRowKey(row: ProdOrderByShop) {
     <template #title>[ 부분승인 ] </template>
     <template #default>
       몇장만 승인 할까요?
-      <n-input-number v-model:value="numOfAllow" />
+      <n-input-number :min="0" v-model:value="numOfAllow" />
       <br />
       나머지 개수는 미송 주문건으로 이동됩니다.
       <br />
@@ -91,6 +102,7 @@ function getRowKey(row: ProdOrderByShop) {
     </template>
   </coin-reduce-confirm-modal>
   <coin-reduce-confirm-modal
+    v-if="inStates?.includes('BEFORE_APPROVE')"
     :showModal="showOrderModal"
     @update:showModal="updateOrderModal"
     @onConfirm="approveGarments"

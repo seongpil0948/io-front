@@ -1,22 +1,22 @@
 <script setup>
-import { IoPay, ioColors } from "@/composables";
 import BootPay from "bootpay-js";
-import { computed, ref, getCurrentInstance } from "vue";
+import { computed, ref, getCurrentInstance, watchEffect } from "vue";
 import { v4 as uuidv4 } from "uuid";
-import { useAuthStore } from "@/stores";
+import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
-import { IO_PAY_DB } from "@/composable";
-
+import { IO_PAY_DB, IoPay } from "@/composable";
 const log = useLogger();
 const APP_ID = "62b45e0fe38c3000215aec6b";
 const inst = getCurrentInstance();
 const authStore = useAuthStore();
 const msg = useMessage();
 const user = authStore.currUser;
-const { userPay } = IO_PAY_DB.getIoPayByUser(user.userInfo.userId);
-
+const userPay = ref(null);
+watchEffect(async () => {
+  userPay.value = await IO_PAY_DB.getIoPayByUser(user.userInfo.userId);
+});
 async function reqPay() {
   const date = new Date();
   const price = IoPay.coinToMoney(chargeCoin.value).toString();
@@ -46,7 +46,7 @@ async function reqPay() {
       .join("-"), // 가상계좌 입금기간 제한 ( yyyy-mm-dd 포멧으로 입력해주세요. 가상계좌만 적용됩니다. )
     extra: {
       theme: "custom", // [ red, purple(기본), custom ]
-      custom_background: ioColors.primary,
+      custom_background: "#d8b786",
     },
   })
     .error(function (data) {
@@ -163,19 +163,13 @@ const chargeValidator = (x) => x % 10 === 0;
         :step="10"
         :validator="chargeValidator"
       />
-      <!-- <n-input-number
-        v-model:value="chargeCoin"
-        :min="minCharge"
-        :step="10"
-        :validator="chargeValidator"
-      /> -->
     </n-space>
     <n-space justify="end"
       ><n-text depth="3"> 10코인 단위로 입력 </n-text></n-space
     >
     <n-space justify="space-between">
       <n-button
-        v-for="m in [100, 1000, 5000, 10000]"
+        v-for="m in [100, 1000, 2000, 5000, 10000, 10000]"
         :key="m"
         @click="chargeCoin += m"
       >
@@ -184,7 +178,7 @@ const chargeValidator = (x) => x % 10 === 0;
     </n-space>
     <n-space justify="space-between" style="line-height: 2rem">
       <div>
-        <n-text strong>금액 : </n-text>
+        <n-text strong>결제금액 : </n-text>
         <n-text>{{ chargeString }} </n-text>
       </div>
 

@@ -1,15 +1,18 @@
 <script setup lang="ts">
+import { notAuthName } from "@/plugin/router";
 import { useCommonStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { useLoadingBar, useMessage } from "naive-ui";
 import { watch, watchPostEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
+import { useRouter } from "vue-router";
 
 // this view consumes Global State(common)
 const cs = useCommonStore();
 const loading = useLoadingBar();
 const msg = useMessage();
 const log = useLogger();
+const router = useRouter();
 watch(
   () => cs.isLoading,
   (newVal) => {
@@ -34,9 +37,9 @@ watchPostEffect(() => {
   <n-spin size="large" :show="cs.showSpin">
     <router-view></router-view>
   </n-spin>
-  <!-- <float-action-button
+  <float-action-button
     v-if="
       !notAuthName.includes(router.currentRoute.value.name?.toString() ?? '')
     "
-  /> -->
+  />
 </template>

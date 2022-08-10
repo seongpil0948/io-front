@@ -9,15 +9,16 @@ const currTab = ref<string>("beforeApproveList");
         <n-tab-pane
           display-directive="show:lazy"
           tab="거래처 주문 요청"
-          name="beforeApproveList"
+          name="BEFORE_APPROVE"
         >
           <order-by-shop-expand-table :inStates="['BEFORE_APPROVE']" />
         </n-tab-pane>
         <n-tab-pane
           display-directive="show:lazy"
           tab="승인 완료된 주문"
-          name="afterApproveList"
+          name="BEFORE_PAYMENT"
         >
+          <order-by-shop-expand-table :inStates="['BEFORE_PAYMENT']" />
         </n-tab-pane>
       </n-tabs>
     </n-card>

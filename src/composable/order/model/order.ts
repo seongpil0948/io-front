@@ -110,6 +110,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     shopProdId?: string,
     vendorProdId?: string
   ) {
+    // deep copy
     const orders: ProdOrder[] = [];
     for (let i = 0; i < this.items.length; i++) {
       const item = this.items[i];

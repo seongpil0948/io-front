@@ -26,5 +26,6 @@ function onClickChecker() {
       {{ o.orderCnt }} ({{ o.pendingCnt }})
     </n-text>
     <n-text v-else :type="'primary'"> / {{ o.orderCnt }} </n-text>
+    <n-text :type="'primary'"> {{ o.state }} </n-text>
   </n-space>
 </template>

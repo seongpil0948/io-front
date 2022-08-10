@@ -43,30 +43,33 @@ export function useApproveOrder(p: ApproveParam) {
   }
 
   async function approvePartial() {
+    if (numOfAllow.value < 0) {
+      return msg.error("부분승인은 개수는 0이상 이어야 합니다.");
+    }
     const targetProdOrderId = checkedOrders.value[0];
     for (let i = 0; i < p.orders.value.length; i++) {
       const o = p.orders.value[i];
-      const prodOrders = o.getProdOrders(targetProdOrderId);
-      if (prodOrders && prodOrders.length > 0) {
-        const targetItem = prodOrders[0];
-        if (targetItem.orderCnt < numOfAllow.value) {
-          return msg.error("허용개수가 주문 개수보다 많습니다.", makeMsgOpt());
-        }
-        targetItem.activeCnt = numOfAllow.value;
-        targetItem.pendingCnt = prodOrders[0].orderCnt - numOfAllow.value;
-
-        ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [targetItem.id])
-          .then(() => {
-            msg.success("부분승인 완료", makeMsgOpt());
-          })
-          .catch((err) => {
-            msg.error("부분승인 실패", makeMsgOpt());
-            logger.error(p.vendorId, "error in approvePartial", err);
-          })
-          .finally(() => {
-            onCloseModal(false);
+      for (let j = 0; j < o.items.length; j++) {
+        const item = o.items[j];
+        if (item.id === targetProdOrderId) {
+          item.activeCnt = numOfAllow.value;
+          item.pendingCnt = item.orderCnt - numOfAllow.value;
+          o.update().then(() => {
+            ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [item.id])
+              .then(() => {
+                msg.success("부분승인 완료", makeMsgOpt());
+              })
+              .catch((err) => {
+                msg.error("부분승인 실패", makeMsgOpt());
+                logger.error(p.vendorId, "error in approvePartial", err);
+              })
+              .finally(() => {
+                onCloseModal(false);
+              });
           });
-        break;
+
+          break;
+        }
       }
     }
   }

@@ -9,12 +9,22 @@ const personalShow = ref(false);
 const handlePersonalClose = () => (personalShow.value = false);
 const userLogShow = ref(false);
 const handleUserLogClose = () => (userLogShow.value = false);
+// import { NPopover } from "naive-ui"; handleClickOutside 함수의  doUpdateShow 주석여부 확인
+// if (props.trigger === 'click') {
+//     clearShowTimer();
+//     clearHideTimer();
+//     // doUpdateShow(false);
+// }
 </script>
 
 <template>
   <div style="position: fixed; bottom: 10%; right: 100px">
     <div class="menu" onclick="this.classList.toggle('open')">
-      <n-popover v-model:show="walletShow" trigger="click">
+      <n-popover
+        display-directive="show"
+        v-model:show="walletShow"
+        trigger="click"
+      >
         <template #trigger>
           <n-icon class="button" size="25">
             <WalletOutline />
@@ -25,25 +35,33 @@ const handleUserLogClose = () => (userLogShow.value = false);
         </expand-card>
       </n-popover>
 
-      <n-popover v-model:show="personalShow" trigger="click">
-        <template #trigger>
-          <n-icon class="button" size="25">
-            <CloudLogging />
-          </n-icon>
-        </template>
-        <expand-card @clickClose="handlePersonalClose">
-          <user-log-list />
-        </expand-card>
-      </n-popover>
-
-      <n-popover v-model:show="userLogShow" trigger="click">
+      <n-popover
+        display-directive="show"
+        v-model:show="personalShow"
+        trigger="click"
+      >
         <template #trigger>
           <n-icon class="button" size="25">
             <PersonCircleOutline />
           </n-icon>
         </template>
-        <expand-card @clickClose="handleUserLogClose">
+        <expand-card @clickClose="handlePersonalClose">
           <user-info-collapse />
+        </expand-card>
+      </n-popover>
+
+      <n-popover
+        display-directive="show"
+        v-model:show="userLogShow"
+        trigger="click"
+      >
+        <template #trigger>
+          <n-icon class="button" size="25">
+            <CloudLogging />
+          </n-icon>
+        </template>
+        <expand-card @clickClose="handleUserLogClose">
+          <user-log-list />
         </expand-card>
       </n-popover>
     </div>
