@@ -27,12 +27,12 @@ async function reqPay() {
     show_agree_window: 1, // 부트페이 정보 동의 창 보이기 여부
     user_info: {
       // TODO
-      username: "사용자 이름",
-      email: "seongpil0948@gmail.com",
-      addr: "사용자 주소",
-      phone: "010-1234-4567",
+      username: user.userInfo.userName,
+      email: user.userInfo.email,
+      addr: null,
+      phone: null,
     },
-    order_id: "charge" + uuidv4(), //고유 주문번호로, 생성하신 값을 보내주셔야 합니다.
+    order_id: "charge_" + uuidv4(), //고유 주문번호로, 생성하신 값을 보내주셔야 합니다.
     params: {
       callback1: "그대로 콜백받을 변수 1",
       customvar1234: "변수명도 마음대로",
@@ -124,7 +124,7 @@ async function reqPay() {
     });
   log.debug(user.userInfo.userId, "REsponse data: ", response);
 }
-const minCharge = 50;
+const minCharge = IoPay.moneyToCoin(5000);
 const chargeCoin = ref(minCharge);
 const chargeString = computed(() => IoPay.toMoneyString(chargeCoin.value));
 const chargeValidator = (x) => x % 10 === 0;
@@ -169,7 +169,9 @@ const chargeValidator = (x) => x % 10 === 0;
     >
     <n-space justify="space-between">
       <n-button
-        v-for="m in [100, 1000, 2000, 5000, 10000, 10000]"
+        v-for="m in [100, 1000, 2000, 5000, 10000, 10000].map((x) =>
+          IoPay.moneyToCoin(x)
+        )"
         :key="m"
         @click="chargeCoin += m"
       >
