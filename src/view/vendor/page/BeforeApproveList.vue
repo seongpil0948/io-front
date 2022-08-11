@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NButton, useMessage, DataTableColumns } from "naive-ui";
+import { NButton, DataTableColumns } from "naive-ui";
 // const auth = useAuthStore();
 // const { orders, garmentOrders, garmentOrdersByShop } = useReadVendorOrderGInfo(
 //   auth.currUser.userInfo.userId,
@@ -12,11 +12,7 @@ type Song = {
   length: string;
 };
 
-const createColumns = ({
-  play,
-}: {
-  play: (row: Song) => void;
-}): DataTableColumns<Song> => {
+const createColumns = (): DataTableColumns<Song> => {
   return [
     {
       title: "No",
@@ -39,12 +35,7 @@ const data: Song[] = [
   { no: 12, title: "Champagne Supernova", length: "7:27" },
 ];
 
-const message = useMessage();
-const columns = createColumns({
-  play(row: Song) {
-    message.info(`Play ${row.title}`);
-  },
-});
+const columns = createColumns();
 const pagination = false;
 </script>
 <template>

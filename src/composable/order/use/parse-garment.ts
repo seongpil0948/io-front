@@ -14,7 +14,7 @@ import { useVendorsStore } from "@/store";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { useMessage } from "naive-ui";
-import { Ref, ref, watchEffect, watch } from "vue";
+import { Ref, ref, watch } from "vue";
 
 export function useParseGarmentOrder(
   mapper: Ref<Mapper | null>,

@@ -291,26 +291,12 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       // return ord;
     });
   },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   batchUpdate: async function (p: {
     orderDbIdByShops: { [shopId: string]: string[] };
     orderState?: ORDER_STATE;
   }) {
     throw new Error("batchUpdate is not implemented");
-
-    if (!p.orderState) return;
-    const { batch, getOrdRef } = getSrc();
-    for (let i = 0; i < Object.keys(p.orderDbIdByShops).length; i++) {
-      const shopId = Object.keys(p.orderDbIdByShops)[i];
-      const reqRef = getOrdRef(shopId);
-      for (let j = 0; j < p.orderDbIdByShops[shopId].length; j++) {
-        const dbId = p.orderDbIdByShops[shopId][j];
-        // batch.update(doc(reqRef, dbId), {
-        //   state: p.orderState,
-        // });
-      }
-    }
-
-    await batch.commit();
   },
   batchDelete: async function (ords: GarmentOrder[]) {
     const { batch, getOrdRef, getOrderNumberRef } = getSrc();

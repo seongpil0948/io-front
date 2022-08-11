@@ -10,8 +10,7 @@ import {
   useOrderBasic,
 } from "@/composable";
 import { useAuthStore } from "@/store";
-import { makeMsgOpt } from "@/util";
-import { DataTableColumns, NImage, useMessage } from "naive-ui";
+import { DataTableColumns, NImage } from "naive-ui";
 import { computed, h, ref, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
@@ -21,7 +20,6 @@ interface Props {
   showSizes: boolean;
 }
 
-const msg = useMessage();
 const props = defineProps<Props>();
 const auth = useAuthStore();
 const user = auth.currUser;

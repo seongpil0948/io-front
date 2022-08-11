@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ProdOrderCombined } from "@/composable";
+import { ORDER_STATE, ProdOrderCombined } from "@/composable";
 import { toRefs } from "vue";
 
 const props = defineProps<{
@@ -26,6 +26,6 @@ function onClickChecker() {
       {{ o.orderCnt }} ({{ o.pendingCnt }})
     </n-text>
     <n-text v-else :type="'primary'"> / {{ o.orderCnt }} </n-text>
-    <n-text :type="'primary'"> {{ o.state }} </n-text>
+    <n-text :type="'primary'"> {{ ORDER_STATE[o.state] }} </n-text>
   </n-space>
 </template>
