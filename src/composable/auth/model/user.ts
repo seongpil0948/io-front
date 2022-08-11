@@ -104,6 +104,7 @@ export class IoUser extends CommonField implements IoUserCRT {
   static fireConverter(): FirestoreDataConverter<IoUser | null> {
     return {
       toFirestore: (u: IoUser) => {
+        u.updatedAt = new Date();
         return u instanceof CommonField
           ? u.toJson()
           : IoUser.fromJson(u)!.toJson();

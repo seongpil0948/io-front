@@ -169,8 +169,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
   },
   orderGarment: async function (row: GarmentOrder, expectedReduceCoin: number) {
     const vendorStore = useVendorsStore();
-    console.log("in orderGarment: row:", row);
-    // userPay  pending amount 업데이트 해놓아야함
     try {
       const { getOrdRef, converterGarment } = getSrc();
       const userPay = await IO_PAY_DB.getIoPayByUser(row.shopId);

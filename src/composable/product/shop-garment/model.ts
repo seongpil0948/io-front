@@ -75,10 +75,12 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   }
   static fireConverter() {
     return {
-      toFirestore: (u: ShopGarment) =>
-        u instanceof CommonField
+      toFirestore: (u: ShopGarment) => {
+        u.updatedAt = new Date();
+        return u instanceof CommonField
           ? u.toJson()
-          : ShopGarment.fromJson(u)!.toJson(),
+          : ShopGarment.fromJson(u)!.toJson();
+      },
       fromFirestore: (
         snapshot: DocumentSnapshot<DocumentData>,
         options: any

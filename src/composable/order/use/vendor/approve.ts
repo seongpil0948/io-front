@@ -46,15 +46,21 @@ export function useApproveOrder(p: ApproveParam) {
     if (numOfAllow.value < 0) {
       return msg.error("부분승인은 개수는 0이상 이어야 합니다.");
     }
+
     const targetProdOrderId = checkedOrders.value[0];
     for (let i = 0; i < p.orders.value.length; i++) {
       const o = p.orders.value[i];
       for (let j = 0; j < o.items.length; j++) {
         const item = o.items[j];
         if (item.id === targetProdOrderId) {
+          if (numOfAllow.value > item.orderCnt) {
+            return msg.error(
+              "부분승인은 개수는 주문개수 이하로 설정 되어야합니다."
+            );
+          }
           item.activeCnt = numOfAllow.value;
           item.pendingCnt = item.orderCnt - numOfAllow.value;
-          o.update().then(() => {
+          o.update().then(() =>
             ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [item.id])
               .then(() => {
                 msg.success("부분승인 완료", makeMsgOpt());
@@ -65,8 +71,8 @@ export function useApproveOrder(p: ApproveParam) {
               })
               .finally(() => {
                 onCloseModal(false);
-              });
-          });
+              })
+          );
 
           break;
         }

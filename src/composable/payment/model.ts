@@ -66,6 +66,7 @@ export class IoPay extends CommonField implements IoPayCRT {
   static fireConverter() {
     return {
       toFirestore: (u: IoPay) => {
+        u.updatedAt = new Date();
         return u instanceof CommonField
           ? u.toJson()
           : IoPay.fromJson(u)!.toJson();

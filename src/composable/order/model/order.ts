@@ -137,14 +137,12 @@ export class GarmentOrder extends CommonField implements OrderCrt {
         ? amounts.reduce((prev, acc) => prev + (acc[n] as number), 0) ===
           this.actualAmount[n]
         : true;
-    return (
-      Object.keys(this.actualAmount)
-        .map((k) => amountFieldValid(k as keyof OrderAmount))
-        .every((z) => z === true) &&
-      this.items
-        .map((y) => GarmentOrder.validProdOrder(y as ProdOrderCombined))
-        .every((k) => k === true)
+    this.items.forEach((y) =>
+      GarmentOrder.validProdOrder(y as ProdOrderCombined)
     );
+    return Object.keys(this.actualAmount)
+      .map((k) => amountFieldValid(k as keyof OrderAmount))
+      .every((z) => z === true);
   }
   static empty(): GarmentOrder {
     return new GarmentOrder({
@@ -163,9 +161,9 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     });
   }
   async update() {
-    await insertById<GarmentOrder>(
+    return insertById<GarmentOrder>(
       this,
-      getIoCollection({ c: IoCollection.ORDER_PROD }),
+      getIoCollection({ c: IoCollection.ORDER_PROD, uid: this.shopId }),
       this.dbId,
       true,
       GarmentOrder.fireConverter()
@@ -279,6 +277,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   static fireConverter(): FirestoreDataConverter<GarmentOrder> {
     return {
       toFirestore: (m: GarmentOrder) => {
+        m.updatedAt = new Date();
         return m instanceof CommonField
           ? m.toJson()
           : GarmentOrder.fromJson(m)!.toJson();
@@ -331,10 +330,14 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       item.actualAmount.shipFeeDiscountAmount,
       item.actualAmount.tax
     );
-
-    if (!GarmentOrder.validProdOrder(item)) {
-      throw new Error(`Invalid Prod Order: ${item.id} orderIds: ${this.dbId}`);
+    try {
+      GarmentOrder.validProdOrder(item);
+    } catch (e) {
+      throw new Error(
+        `Invalid Prod Order: ${item.id} orderIds: ${this.dbId}, error: ${e}`
+      );
     }
+
     if (refreshInitial) {
       item.initialAmount = cloneDeep(item.actualAmount);
     }
@@ -374,19 +377,17 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   ) {
     return pureAmount - (shipFeeAmount - shipFeeDiscountAmount) + tax;
   }
-  static validProdOrder(o: ProdOrderCombined, throwError = false): boolean {
+  static validProdOrder(o: ProdOrderCombined): void {
     const a = o.actualAmount;
     if (!(o.pendingCnt + o.activeCnt === o.orderCnt)) {
-      if (throwError) throw new Error("invalid count");
-      else return false;
+      throw new Error("invalid count");
     } else if (!(a.orderAmount > 0 && a.orderAmount >= a.pureAmount)) {
-      if (throwError) throw new Error("invalid amount");
-      else return false;
+      throw new Error("invalid amount");
     } else if (o.pendingCnt > 0 && !o.vendorGarment.allowPending) {
-      if (throwError) throw new Error("invalid allowPending");
-      else return false;
+      throw new Error("invalid allowPending");
+    } else if (o.vendorGarment.stockCnt < o.orderCnt) {
+      throw new Error("invalid stock count");
     }
-    return true;
   }
 }
 export function mergeProdOrder(origin: ProdOrder, y: ProdOrder) {
