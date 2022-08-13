@@ -385,8 +385,6 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       throw new Error("invalid amount");
     } else if (o.pendingCnt > 0 && !o.vendorGarment.allowPending) {
       throw new Error("invalid allowPending");
-    } else if (o.vendorGarment.stockCnt < o.orderCnt) {
-      throw new Error("invalid stock count");
     }
   }
 }

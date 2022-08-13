@@ -60,8 +60,8 @@ export function useParseGarmentOrder(
             ...parseDf(inputDf, mapper.value, existIds.value)
           );
         }
-        files = [];
       }
+      files = [];
       const infos: {
         [k: string]: {
           prod: ShopUserGarment;
