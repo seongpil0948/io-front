@@ -16,3 +16,4 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_IO_BOX }}'
           projectId: io-box
           expires: 7d
+          target: io-box
