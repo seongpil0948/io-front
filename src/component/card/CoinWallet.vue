@@ -68,17 +68,18 @@ async function reqPay() {
       // 예) 현대 앱카드 인증 후 최종 결제 눌렀을때 실행됌
       // https://docs.bootpay.co.kr/rest/verify
       log.debug(user.userInfo.userId, "On Payment Confirm", data);
-      const http = inst?.appContext.config.globalProperties.$http;
-      const resp = await http.get(
-        `/payment/verifyReceipt?price=${data.params.mey}&receiptId=${data.receipt_id}`
-      );
-      log.debug("/payment/verifyReceipt Response: ", resp);
-      const enable = resp.data === "sp"; // 재고 수량 관리 로직 혹은 다른 처리
-      if (enable) {
-        BootPay.transactionConfirm(data); // 조건이 맞으면 승인 처리를 한다.
-      } else {
-        BootPay.removePaymentWindow(); // 조건이 맞지 않으면 결제 창을 닫고 결제를 승인하지 않는다.
-      }
+      // const http = inst?.appContext.config.globalProperties.$http;
+      // const resp = await http.get(
+      //   `/payment/verifyReceipt?price=${data.params.mey}&receiptId=${data.receipt_id}`
+      // );
+      // log.debug("/payment/verifyReceipt Response: ", resp);
+      // const enable = resp.data === "sp"; // 재고 수량 관리 로직 혹은 다른 처리
+      // if (enable) {
+      //   BootPay.transactionConfirm(data); // 조건이 맞으면 승인 처리를 한다.
+      // } else {
+      //   BootPay.removePaymentWindow(); // 조건이 맞지 않으면 결제 창을 닫고 결제를 승인하지 않는다.
+      // }
+      BootPay.transactionConfirm(data);
     })
     .close(function (data) {
       // 결제창이 닫힐때 수행됩니다. (성공,실패,취소에 상관없이 모두 수행됨)
@@ -121,6 +122,7 @@ async function reqPay() {
       const coin = IoPay.moneyToCoin(data.price);
       userPay.value.budget += coin;
       await userPay.value.update();
+      userPay.value = await IO_PAY_DB.getIoPayByUser(user.userInfo.userId);
     });
   log.debug(user.userInfo.userId, "REsponse data: ", response);
 }

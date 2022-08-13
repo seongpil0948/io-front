@@ -21,7 +21,7 @@ const handleUserLogClose = () => (userLogShow.value = false);
   <div style="position: fixed; bottom: 10%; right: 100px">
     <div class="menu" onclick="this.classList.toggle('open')">
       <n-popover
-        display-directive="show"
+        display-directive="if"
         v-model:show="walletShow"
         trigger="click"
       >
@@ -36,7 +36,7 @@ const handleUserLogClose = () => (userLogShow.value = false);
       </n-popover>
 
       <n-popover
-        display-directive="show"
+        display-directive="if"
         v-model:show="personalShow"
         trigger="click"
       >
@@ -51,7 +51,7 @@ const handleUserLogClose = () => (userLogShow.value = false);
       </n-popover>
 
       <n-popover
-        display-directive="show"
+        display-directive="if"
         v-model:show="userLogShow"
         trigger="click"
       >
