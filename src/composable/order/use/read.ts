@@ -35,7 +35,12 @@ export function useReadShopOrderGInfo(shopId: string, inStates: ORDER_STATE[]) {
       orders.value,
       shopGarments.value,
       vendorStore.vendorUserGarments
-    ).filter((x) => inStates.includes(x.state));
+    );
+    if (inStates.length > 0) {
+      garmentOrders.value = garmentOrders.value.filter((x) =>
+        inStates.includes(x.state)
+      );
+    }
     setExistOrderIds();
   });
   onBeforeUnmount(() => unsubscribe());

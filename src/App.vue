@@ -57,4 +57,11 @@ body {
 .n-card-header {
   overflow: scroll;
 }
+.button-card {
+  cursor: pointer;
+  transition: 0.5s;
+}
+.button-card:hover {
+  transform: scale(1.05);
+}
 </style>

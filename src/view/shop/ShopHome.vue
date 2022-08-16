@@ -1,6 +1,39 @@
 <script setup lang="ts">
+import { ORDER_STATE, useReadShopOrderGInfo } from "@/composable";
+import { useAuthStore } from "@/store";
 import { commonTime } from "@/util";
+import { computed } from "vue";
 const { currDate } = commonTime();
+const auth = useAuthStore();
+const user = auth.currUser;
+const { orders, existOrderIds, garmentOrders } = useReadShopOrderGInfo(
+  user.userInfo.userId,
+  []
+);
+const numOfApprove = computed(
+  () =>
+    garmentOrders.value.filter(
+      (x) => !["BEFORE_ORDER", "BEFORE_APPROVE"].includes(x.state)
+    ).length
+);
+const numOfNotApprove = computed(
+  () =>
+    garmentOrders.value.filter((x) =>
+      ["BEFORE_ORDER", "BEFORE_APPROVE"].includes(x.state)
+    ).length
+);
+const amountNotPaid = computed(() => {
+  return garmentOrders.value
+    .map((x) => x.actualAmount)
+    .reduce((acc, curr) => {
+      const notPaidAmount = curr.orderAmount - curr.paidAmount;
+      return acc + notPaidAmount;
+    }, 0)
+    .toLocaleString();
+});
+const numOfShipping = computed(
+  () => garmentOrders.value.filter((x) => ["SHIPPING"].includes(x.state)).length
+);
 </script>
 <template>
   <n-space vertical align="center">
@@ -17,38 +50,38 @@ const { currDate } = commonTime();
       responsive="screen"
     >
       <n-grid-item>
-        <n-card>
+        <n-card class="button-card">
           <template #header>
             <n-text>승인주문수</n-text>
           </template>
           <template #header-extra>
             <n-text>{{ currDate }}</n-text>
           </template>
-          0건
+          {{ numOfApprove }}건
         </n-card>
       </n-grid-item>
       <n-grid-item>
-        <n-card style="border-color: var(--primary-color)">
+        <n-card class="button-card" style="border-color: var(--primary-color)">
           <template #header>
-            <n-text>거절주문수</n-text>
+            <n-text>미승인주문수</n-text>
           </template>
-          0건
+          {{ numOfNotApprove }}건
         </n-card>
       </n-grid-item>
       <n-grid-item>
-        <n-card style="border-color: #70c0e8">
+        <n-card class="button-card" style="border-color: #70c0e8">
           <template #header>
             <n-text style="font-color: #70c0e8">미결제금액</n-text>
           </template>
-          0원
+          {{ amountNotPaid }} 원
         </n-card>
       </n-grid-item>
       <n-grid-item>
-        <n-card style="border-color: #e88080">
+        <n-card class="button-card" style="border-color: #e88080">
           <template #header>
             <n-text style="font-color: #e88080">픽업중인수량</n-text>
           </template>
-          0건
+          {{ numOfShipping }}건
         </n-card>
       </n-grid-item>
     </n-grid>
