@@ -15,10 +15,11 @@ const USER_PROVIDER: { [key in string]: USER_PROVIDER } = Object.freeze({
   EMAIL: "EMAIL",
   KAKAO: "KAKAO",
 });
-type SHIP_METHOD = "UNCLE" | "SHIP";
+type SHIP_METHOD = "UNCLE" | "SHIP" | "NO_SHIP";
 const SHIP_METHOD: { [key in SHIP_METHOD]: string } = Object.freeze({
   UNCLE: "엉클",
   SHIP: "택배",
+  NO_SHIP: "미배송상품",
 });
 type SALE_MANAGE = "HAND_WRITE" | "ONLINE";
 const SALE_MANAGE: { [key in SALE_MANAGE]: string } = Object.freeze({
