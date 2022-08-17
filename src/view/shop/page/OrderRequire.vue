@@ -21,8 +21,7 @@ const msg = useMessage();
 
 const { orders, garmentOrders } = useReadShopOrderGInfo(
   auth.currUser.userInfo.userId,
-  ["BEFORE_ORDER"],
-  []
+  ["BEFORE_ORDER"]
 );
 
 const colKeys = [

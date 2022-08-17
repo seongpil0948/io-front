@@ -133,6 +133,14 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
+        path: "/PendingOrderList",
+        name: "PendingOrderList",
+        component: () => import("@/view/shop/page/PendingOrderList.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP],
+        },
+      },
+      {
         path: "/orderlinkage",
         name: "OrderLinkage",
         component: () => import("@/view/shop/page/OrderLinkage.vue"),

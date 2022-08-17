@@ -37,8 +37,12 @@ const menuOptions: MenuOption[] = [
         key: "OrderRequire",
       },
       {
-        label: () => renderRoute("주문 완료된 상품", "OrderComplete"),
+        label: () => renderRoute("승인 완료된 상품", "OrderComplete"),
         key: "OrderComplete",
+      },
+      {
+        label: () => renderRoute("미송 주문 조회", "PendingOrderList"),
+        key: "PendingOrderList",
       },
     ],
   },

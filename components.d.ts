@@ -87,6 +87,7 @@ declare module '@vue/runtime-core' {
     OrderComplete: typeof import('./src/view/shop/page/OrderComplete.vue')['default']
     OrderLinkage: typeof import('./src/view/shop/page/OrderLinkage.vue')['default']
     OrderRequire: typeof import('./src/view/shop/page/OrderRequire.vue')['default']
+    PendingOrderList: typeof import('./src/view/shop/page/PendingOrderList.vue')['default']
     PlayGround: typeof import('./src/view/common/PlayGround.vue')['default']
     PreferDark: typeof import('./src/component/common/PreferDark.vue')['default']
     ProductAdd: typeof import('./src/view/shop/page/ProductAdd.vue')['default']
