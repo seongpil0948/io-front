@@ -27,8 +27,9 @@ useEventListener(
 );
 async function onKakaoLogin() {
   const kakao = inst?.appContext.config.globalProperties.$kakao;
-  kakao.Auth.login({
-    // kakao.Auth.loginForm({ // with auto login
+  // kakao.Auth.login({
+  kakao.Auth.loginForm({
+    // with auto login
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     success: (obj: any) => {
       kakao.API.request({
