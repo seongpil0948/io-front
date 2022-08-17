@@ -25,8 +25,8 @@ import { logger } from "@/plugin/logger";
 
 export interface PickupCrt {
   shipmentIds: string[];
-  userId: string; // 엉클근로자 아이디로, 토스시 변경가능
   managerId: string; // 엉클관리자 아이디
+  uncleId: string; // 엉클근로자 아이디, 토스시 변경가능
   shipFee: number;
 }
 export interface ShipmentCrt {

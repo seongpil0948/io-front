@@ -7,8 +7,10 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    AccidentManage: typeof import('./src/view/uncle/page/AccidentManage.vue')['default']
     AfterApproveList: typeof import('./src/view/vendor/page/AfterApproveList.vue')['default']
     BeforeApproveList: typeof import('./src/view/vendor/page/BeforeApproveList.vue')['default']
+    BillingManage: typeof import('./src/view/uncle/page/BillingManage.vue')['default']
     CarouselImgCard: typeof import('./src/component/card/CarouselImgCard.vue')['default']
     CoinImage: typeof import('./src/component/common/CoinImage.vue')['default']
     CoinReduceConfirmModal: typeof import('./src/component/card/CoinReduceConfirmModal.vue')['default']
@@ -30,6 +32,7 @@ declare module '@vue/runtime-core' {
     MapperSaver: typeof import('./src/component/input/MapperSaver.vue')['default']
     MappingManage: typeof import('./src/view/shop/page/MappingManage.vue')['default']
     NA: typeof import('naive-ui')['NA']
+    NAvatar: typeof import('naive-ui')['NAvatar']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
     NCarousel: typeof import('naive-ui')['NCarousel']
@@ -88,6 +91,7 @@ declare module '@vue/runtime-core' {
     OrderLinkage: typeof import('./src/view/shop/page/OrderLinkage.vue')['default']
     OrderRequire: typeof import('./src/view/shop/page/OrderRequire.vue')['default']
     PendingOrderList: typeof import('./src/view/shop/page/PendingOrderList.vue')['default']
+    PickupTotalList: typeof import('./src/view/uncle/page/PickupTotalList.vue')['default']
     PlayGround: typeof import('./src/view/common/PlayGround.vue')['default']
     PreferDark: typeof import('./src/component/common/PreferDark.vue')['default']
     ProductAdd: typeof import('./src/view/shop/page/ProductAdd.vue')['default']
@@ -105,13 +109,17 @@ declare module '@vue/runtime-core' {
     ShopProdModifyModal: typeof import('./src/component/card/shop/ShopProdModifyModal.vue')['default']
     SignupPage: typeof import('./src/view/common/SignupPage.vue')['default']
     SingleImageInput: typeof import('./src/component/input/SingleImageInput.vue')['default']
-    UncleHome: typeof import('./src/view/uncle/UncleHome.vue')['default']
+    TeamUncleSider: typeof import('./src/component/layout/TeamUncleSider.vue')['default']
     UncleLayout: typeof import('./src/view/uncle/UncleLayout.vue')['default']
     UncleManage: typeof import('./src/view/vendor/page/UncleManage.vue')['default']
+    UncleStatusCount: typeof import('./src/component/common/UncleStatusCount.vue')['default']
+    UncleStatusIcon: typeof import('./src/component/common/UncleStatusIcon.vue')['default']
+    UncleStatusRow: typeof import('./src/component/common/UncleStatusRow.vue')['default']
     UnknownPage: typeof import('./src/view/common/UnknownPage.vue')['default']
     UserInfoCollapse: typeof import('./src/component/card/UserInfoCollapse.vue')['default']
     UserInfoForm: typeof import('./src/component/form/UserInfoForm.vue')['default']
     UserLogList: typeof import('./src/component/card/UserLogList.vue')['default']
+    VehicleManage: typeof import('./src/view/uncle/page/VehicleManage.vue')['default']
     VendorHome: typeof import('./src/view/vendor/VendorHome.vue')['default']
     VendorLayout: typeof import('./src/view/vendor/VendorLayout.vue')['default']
     VendorOperInfo: typeof import('./src/component/form/VendorOperInfo.vue')['default']
@@ -119,6 +127,7 @@ declare module '@vue/runtime-core' {
     VendorProdEditForm: typeof import('./src/component/card/vendor/VendorProdEditForm.vue')['default']
     VendorProdThum: typeof import('./src/component/card/vendor/VendorProdThum.vue')['default']
     VendorProductList: typeof import('./src/view/vendor/page/VendorProductList.vue')['default']
+    WorkerRegister: typeof import('./src/view/uncle/page/WorkerRegister.vue')['default']
     YesOrNoRadio: typeof import('./src/component/input/YesOrNoRadio.vue')['default']
   }
 }

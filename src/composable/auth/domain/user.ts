@@ -1,13 +1,20 @@
 import { IoAccount, IoUser, LocateCRT } from "@/composable";
 import { UserCredential } from "firebase/auth";
 
-type USER_ROLE = "SHOP" | "VENDOR" | "UNCLE" | "ADMIN" | "ANONYMOUSE";
+type USER_ROLE =
+  | "SHOP"
+  | "VENDOR"
+  | "UNCLE"
+  | "UNCLE_WORKER"
+  | "ADMIN"
+  | "ANONYMOUSE";
 const USER_ROLE: { [key in USER_ROLE]: USER_ROLE } = Object.freeze({
   SHOP: "SHOP",
   VENDOR: "VENDOR",
   UNCLE: "UNCLE",
   ADMIN: "ADMIN",
   ANONYMOUSE: "ANONYMOUSE",
+  UNCLE_WORKER: "UNCLE_WORKER",
 });
 
 type USER_PROVIDER = "EMAIL" | "KAKAO";
@@ -49,6 +56,7 @@ interface IoUserInfo {
   role: USER_ROLE;
   fcmTokens: string[];
   passed: boolean; // 관리자(주네)에게 허가받은 사용자 인지
+  phone?: string;
 }
 interface CompanyInfo {
   companyName: string; // 상호명

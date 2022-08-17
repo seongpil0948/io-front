@@ -93,7 +93,14 @@ function onStep6() {
       const companyInfo = companyInfoForm.companyInfo;
       user.value!.companyInfo = companyInfo;
       log.debug("companyInfo: ", companyInfo);
-      step.value = 6;
+      if (user.value!.userInfo.role === USER_ROLE.UNCLE) {
+        step.value = 7;
+        setTimeout(() => {
+          step.value = 8;
+        }, 3000);
+      } else {
+        step.value = 6;
+      }
     }
   });
 }
@@ -171,7 +178,9 @@ async function onSignUp() {
           <n-button @click="selectRole(USER_ROLE.VENDOR)" class="role-btn" round
             >도매처</n-button
           >
-          <n-button class="role-btn" round>엉클</n-button>
+          <n-button @click="selectRole(USER_ROLE.UNCLE)" class="role-btn" round
+            >엉클</n-button
+          >
         </n-space>
       </n-space>
     </Transition>

@@ -18,7 +18,7 @@ export const routes: Array<RouteRecordRaw> = [
     name: "VendorLayout",
     component: () => import("@/view/vendor/VendorLayout.vue"),
     meta: {
-      allowRoles: [USER_ROLE.VENDOR],
+      allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
     },
     children: [
       {
@@ -26,7 +26,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "VendorHome",
         component: () => import("@/view/vendor/VendorHome.vue"),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR],
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
         },
       },
       {
@@ -34,7 +34,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "VendorProductList",
         component: () => import("@/view/vendor/page/VendorProductList.vue"),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR],
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
         },
       },
       {
@@ -42,7 +42,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "ProductRegister",
         component: () => import("@/view/vendor/page/ProductRegister.vue"),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR],
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
         },
       },
       {
@@ -50,7 +50,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "SampleManage",
         component: () => import("@/view/vendor/page/SampleManage.vue"),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR],
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
         },
       },
       {
@@ -58,7 +58,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "UncleManage",
         component: () => import("@/view/vendor/page/UncleManage.vue"),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR],
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
         },
       },
       {
@@ -66,7 +66,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "BeforeApproveList",
         component: () => import("@/view/vendor/page/BeforeApproveList.vue"),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR],
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
         },
       },
       {
@@ -74,7 +74,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "AfterApproveList",
         component: () => import("@/view/vendor/page/AfterApproveList.vue"),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR],
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
         },
       },
     ],
@@ -89,7 +89,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "ShopHome",
         component: () => import("@/view/shop/ShopHome.vue"),
         meta: {
-          allowRoles: [USER_ROLE.SHOP],
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
         },
       },
       {
@@ -97,7 +97,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "ProductAdd",
         component: () => import("@/view/shop/page/ProductAdd.vue"),
         meta: {
-          allowRoles: [USER_ROLE.SHOP],
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
         },
       },
       {
@@ -105,7 +105,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "ProductManage",
         component: () => import("@/view/shop/page/ProductManage.vue"),
         meta: {
-          allowRoles: [USER_ROLE.SHOP],
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
         },
       },
       {
@@ -113,7 +113,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "MappingManage",
         component: () => import("@/view/shop/page/MappingManage.vue"),
         meta: {
-          allowRoles: [USER_ROLE.SHOP],
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
         },
       },
       {
@@ -121,7 +121,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "OrderRequire",
         component: () => import("@/view/shop/page/OrderRequire.vue"),
         meta: {
-          allowRoles: [USER_ROLE.SHOP],
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
         },
       },
       {
@@ -129,7 +129,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "OrderComplete",
         component: () => import("@/view/shop/page/OrderComplete.vue"),
         meta: {
-          allowRoles: [USER_ROLE.SHOP],
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
         },
       },
       {
@@ -137,7 +137,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "PendingOrderList",
         component: () => import("@/view/shop/page/PendingOrderList.vue"),
         meta: {
-          allowRoles: [USER_ROLE.SHOP],
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
         },
       },
       {
@@ -145,7 +145,7 @@ export const routes: Array<RouteRecordRaw> = [
         name: "OrderLinkage",
         component: () => import("@/view/shop/page/OrderLinkage.vue"),
         meta: {
-          allowRoles: [USER_ROLE.SHOP],
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
         },
       },
     ],
@@ -157,10 +157,42 @@ export const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: "",
-        name: "UncleHome",
-        component: () => import("@/view/uncle/UncleHome.vue"),
+        name: "PickupTotalList",
+        component: () => import("@/view/uncle/page/PickupTotalList.vue"),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE],
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "AccidentManage",
+        name: "AccidentManage",
+        component: () => import("@/view/uncle/page/AccidentManage.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "BillingManage",
+        name: "BillingManage",
+        component: () => import("@/view/uncle/page/BillingManage.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "VehicleManage",
+        name: "VehicleManage",
+        component: () => import("@/view/uncle/page/VehicleManage.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "WorkerRegister",
+        name: "WorkerRegister",
+        component: () => import("@/view/uncle/page/WorkerRegister.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
         },
       },
     ],
