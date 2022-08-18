@@ -1,19 +1,15 @@
 <script lang="ts" setup>
 import {
   ORDER_STATE,
-  IoColOpt,
-  useTable,
   ORDER_GARMENT_DB,
   useReadShopOrderGInfo,
   useParseGarmentOrder,
-  ProdOrderCombined,
   useOrderBasic,
+  useOrderTable,
 } from "@/composable";
 import { useAuthStore } from "@/store";
-import { DataTableColumns, NImage } from "naive-ui";
-import { computed, h, ref, watchEffect } from "vue";
+import { ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
-import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
 import { IO_COSTS } from "@/constants";
 interface Props {
   inStates?: ORDER_STATE[];
@@ -30,35 +26,11 @@ const { orders, existOrderIds, garmentOrders } = useReadShopOrderGInfo(
   user.userInfo.userId,
   props.inStates ?? []
 );
-const colKeys = [
-  "vendorGarment.userInfo.displayName",
-  "shopGarment.prodName",
-  "orderCnt",
-  "allowPending",
-  // "stockCnt",
-  "actualAmount.orderAmount",
-  "shopGarment.size",
-  "shopGarment.color",
-].map((c) => {
-  return { key: c } as IoColOpt;
-});
-const tableRef = ref<any>(null);
-const keyField = "id";
-const { columns, mapper, checkedKeys } = useTable<ProdOrderCombined>({
-  userId: user.userInfo.userId,
-  colKeys,
-  useChecker: true,
-  keyField,
-  onCheckAll: (to) => {
-    if (tableRef.value) {
-      const idxes = (tableRef.value.paginatedData as any[]).map((x) => x.index);
-      checkedKeys.value = to
-        ? garmentOrders.value
-            .filter((o: any, idx: any) => idxes.includes(idx))
-            .map((p: { [x: string]: any }) => p[keyField])
-        : [];
-    }
-  },
+
+const { checkedKeys, tableCol, tableRef, mapper } = useOrderTable({
+  garmentOrders,
+  orders,
+  updateOrderCnt: true,
 });
 const {
   orderAll,
@@ -90,46 +62,7 @@ useParseGarmentOrder(
   sheetIdx,
   startRow
 );
-const colResult = computed((): DataTableColumns<ProdOrderCombined> => {
-  return columns.value.length > 0
-    ? [
-        columns.value[0],
-        {
-          key: "titleImgs",
-          title: "이미지",
-          render: (x) =>
-            h(
-              NImage,
-              {
-                src: x.vendorGarment?.titleImgs[0] ?? "/img/x.png",
-                width: "50",
-                height: "50",
-              },
-              {}
-            ),
-        },
-        ...columns.value.slice(1),
-      ]
-    : [];
-});
-watchEffect(() => {
-  columns.value.forEach((x) => {
-    if (x.key === "orderCnt") {
-      x.title = "주문/미송";
-      x.render = (prodOrder: ProdOrderCombined) => {
-        const order = orders.value.find((x) => {
-          return x.getProdOrders(prodOrder.id)![0];
-        });
-        return order
-          ? h(ShopOrderCnt, {
-              order,
-              prodOrder,
-            })
-          : "x";
-      };
-    }
-  });
-});
+
 async function orderDelAll() {
   await deleteAll();
   existOrderIds.value.clear();
@@ -191,7 +124,7 @@ function downXlsx() {
       v-if="orders && orders.length > 0"
       :table-layout="'fixed'"
       :scroll-x="800"
-      :columns="colResult"
+      :columns="tableCol"
       :data="garmentOrders"
       :pagination="
         showSizes

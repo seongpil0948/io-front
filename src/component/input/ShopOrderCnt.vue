@@ -27,17 +27,24 @@ const pendingCnt = computed(() =>
 );
 const activeCnt = computed(() => prodOrder.value.activeCnt);
 
-function onUpdate(val: number | null) {
-  if (!val) return;
-  else if (val < 1) {
+const editVal = ref(0);
+onBeforeMount(() => {
+  editVal.value = prodOrder.value.activeCnt;
+});
+function onBlur() {
+  edit.value = false;
+  if (!editVal.value || typeof editVal.value !== "number") {
+    editVal.value = prodOrder.value.orderCnt;
+    return;
+  } else if (editVal.value < 1) {
     msg.warning("주문개수는 0이상이어야 합니다.");
-    val = prodOrder.value.orderCnt;
+    editVal.value = prodOrder.value.orderCnt;
     return;
   }
   const prod = order.value.items.find((x) => x.id === prodOrder.value.id);
   if (!prod) throw new Error("not matched prod order");
 
-  order.value.setOrderCnt(prod.id, val, false);
+  order.value.setOrderCnt(prod.id, editVal.value, false);
   order.value
     .update()
     .then(() => {
@@ -55,9 +62,12 @@ function setEditMode() {
 <template>
   <n-input-number
     v-if="edit"
-    :value="prodOrder.orderCnt"
-    @blur.stop="onUpdate"
-    @keyup.enter.stop="onUpdate"
+    v-model:value="editVal"
+    :show-button="false"
+    style="min-width: 100px"
+    :min="1"
+    @blur="onBlur"
+    @keyup.enter="onBlur"
   />
   <n-text v-else style="color: inherit" @click="setEditMode">
     <n-tooltip trigger="hover">

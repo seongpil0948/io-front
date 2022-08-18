@@ -29,7 +29,7 @@ export function useOrderTable(d: orderTableParam) {
 
   const tableRef = ref<any>(null);
   const keyField = "id";
-  const { columns, checkedKeys } = useTable<ProdOrderCombined>({
+  const { columns, checkedKeys, mapper } = useTable<ProdOrderCombined>({
     userId: auth.currUser.userInfo.userId,
     colKeys,
     useChecker: true,
@@ -52,6 +52,8 @@ export function useOrderTable(d: orderTableParam) {
       columns.value.forEach((x) => {
         if (x.key === "orderCnt") {
           x.title = "주문/미송";
+          x.minWidth = "120";
+          x.width = "120";
           x.render = (prodOrder: ProdOrderCombined) => {
             const order = d.orders.value.find((x) => {
               return x.getProdOrders(prodOrder.id)![0];
@@ -115,5 +117,5 @@ export function useOrderTable(d: orderTableParam) {
       : [];
   });
 
-  return { tableRef, columns, checkedKeys, tableCol };
+  return { tableRef, columns, checkedKeys, tableCol, mapper };
 }
