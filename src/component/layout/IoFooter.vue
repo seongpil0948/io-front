@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store";
 import {
   getMockShops,
   getMockVendors,
+  getMockUncles,
 } from "../../../tests/e2e/fixtures/users";
 
 import { getCurrentInstance } from "vue";
@@ -28,6 +29,12 @@ async function toVendor() {
 }
 async function toShop() {
   const u = IoUser.fromJson(getMockShops()[0])!;
+  // await u.update();
+  auth.login(u);
+  router.goHome(auth.user!);
+}
+async function toUncle() {
+  const u = IoUser.fromJson(getMockUncles()[0])!;
   // await u.update();
   auth.login(u);
   router.goHome(auth.user!);
@@ -56,6 +63,7 @@ async function toShop() {
       <n-space v-if="isTest === 'true'" justify="center">
         <n-button round type="primary" @click="toVendor">도매계정전환</n-button>
         <n-button round type="primary" @click="toShop">소매계정전환</n-button>
+        <n-button round type="primary" @click="toUncle">엉클계정전환</n-button>
         <!-- <<< TEMP <<< -->
         <n-button round type="primary" @click="csChat">채팅 상담</n-button>
         <n-button

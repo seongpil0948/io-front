@@ -1,6 +1,6 @@
 <script setup>
 import BootPay from "bootpay-js";
-import { computed, ref, getCurrentInstance, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { v4 as uuidv4 } from "uuid";
 import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
@@ -9,7 +9,6 @@ import { useLogger } from "vue-logger-plugin";
 import { IO_PAY_DB, IoPay } from "@/composable";
 const log = useLogger();
 const APP_ID = "62b45e0fe38c3000215aec6b";
-const inst = getCurrentInstance();
 const authStore = useAuthStore();
 const msg = useMessage();
 const user = authStore.currUser;

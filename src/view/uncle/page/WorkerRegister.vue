@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import {
-  IoUser,
-  IoUserInfo,
-  USER_DB,
-  USER_PROVIDER,
-  USER_ROLE,
-} from "@/composable";
+import { IoUser, USER_DB, USER_PROVIDER, USER_ROLE } from "@/composable";
 import { makeMsgOpt } from "@/util";
 import { useMessage } from "naive-ui";
 import { getCurrentInstance, ref } from "vue";

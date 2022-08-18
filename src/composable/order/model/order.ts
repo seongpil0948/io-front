@@ -23,31 +23,6 @@ import { cloneDeep } from "lodash";
 import { insertById, getIoCollection, IoCollection } from "@/util";
 import { logger } from "@/plugin/logger";
 
-export interface PickupCrt {
-  shipmentIds: string[];
-  managerId: string; // 엉클관리자 아이디
-  uncleId: string; // 엉클근로자 아이디, 토스시 변경가능
-  shipFee: number;
-}
-export interface ShipmentCrt {
-  shippingCode: string;
-  orderId: string;
-  prodOrderId: string;
-  trackingNo: string; //송장번호
-  trackingNoUpdatedAt: Date;
-  shipMethod: SHIP_METHOD;
-  status: SHIP_STATE;
-  additionalInfo: string;
-  shipFee: number;
-  prepaid: boolean;
-  paid: boolean;
-  weightG: number;
-  returnAddress: Locate;
-  startAddress: Locate;
-  receiveAddress: Locate;
-  wishedDeliveryTime: Date;
-}
-
 export class GarmentOrder extends CommonField implements OrderCrt {
   orderDate?: Date;
   doneDate?: Date;

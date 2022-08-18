@@ -16,7 +16,6 @@ import {
 } from "@firebase/firestore";
 import { OrderDB } from "../domain";
 import { useVendorsStore } from "@/store";
-import { logger } from "@/plugin/logger";
 import { ref } from "vue";
 import { IO_PAY_DB } from "@/composable";
 import { IO_COSTS } from "@/constants";

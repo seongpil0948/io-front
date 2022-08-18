@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { ORDER_STATE, useReadShopOrderGInfo } from "@/composable";
+import { useReadShopOrderGInfo } from "@/composable";
 import { useAuthStore } from "@/store";
 import { commonTime } from "@/util";
 import { computed } from "vue";
 const { currDate } = commonTime();
 const auth = useAuthStore();
 const user = auth.currUser;
-const { orders, existOrderIds, garmentOrders } = useReadShopOrderGInfo(
-  user.userInfo.userId,
-  []
-);
+const { garmentOrders } = useReadShopOrderGInfo(user.userInfo.userId, []);
 const numOfApprove = computed(
   () =>
     garmentOrders.value.filter(
