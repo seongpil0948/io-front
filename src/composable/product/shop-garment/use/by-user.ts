@@ -9,7 +9,7 @@ export function useShopUserGarments(
 ) {
   const userProd: Ref<ShopUserGarment[]> = ref([]);
   const rowIdField: MapKey = "shopProdId";
-  const { shopProds } = useShopGarments(userId, shopCondi);
+  const { shopProds, unsubscribe } = useShopGarments(userId, shopCondi);
   const vendorStore = useVendorsStore();
   watchEffect(() => {
     userProd.value = [];
@@ -29,7 +29,7 @@ export function useShopUserGarments(
       }
     });
   });
-  return { rowIdField, userProd };
+  return { rowIdField, userProd, unsubscribe };
 }
 
 export function useShopGarments(
@@ -45,7 +45,7 @@ export function useShopGarments(
             x.prodName === p.prodName
         )
       : true;
-  const { shopProds } = useGetShopGarments(userId, matching);
+  const { shopProds, unsubscribe } = useGetShopGarments(userId, matching);
 
-  return { shopProds };
+  return { shopProds, unsubscribe };
 }

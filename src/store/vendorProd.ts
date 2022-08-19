@@ -14,6 +14,7 @@ import { computed, ref, onBeforeMount } from "vue";
 export const useVendorsStore = defineStore(
   "vendorProd",
   () => {
+    console.log("===initiate useVendorStore===");
     const vendors = ref<IoUser[]>([]);
     const obj = VENDOR_GARMENT_DB.batchReadListen([]);
     const vendorGarments = obj.items;

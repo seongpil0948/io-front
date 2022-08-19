@@ -9,7 +9,6 @@ import {
   query,
   QueryConstraint,
   runTransaction,
-  setDoc,
   where,
   WithFieldValue,
   writeBatch,
@@ -161,7 +160,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         const cost = IO_COSTS.REQ_ORDER * cnt;
         if (shopPay.pendingBudget < cost)
           throw new Error(
-            `shop(${shopId}) not enough pendingBuget(${cost}) for request order`
+            `shop(${shopId}) not enough pendingBudget(${cost}) for request order`
           );
         transaction.update(
           doc(getIoCollection({ c: IoCollection.IO_PAY }), shopId),
@@ -378,7 +377,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     const orderIds: Set<string> = new Set();
     const snapShot = await getDocs(ioc);
     snapShot.forEach((doc) => orderIds.add(doc.id));
-    console.log("shopId in getExistOrderIds", shopId);
     return orderIds;
   },
 };

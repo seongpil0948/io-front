@@ -33,15 +33,20 @@ export const useAuthStore = defineStore({
   },
   actions: {
     async login(u: IoUser) {
+      if (this.user) {
+        if (this.user.userInfo.userId === u.userInfo.userId) return;
+        else await this.logout(false);
+      }
+
       this.user = u;
       localStorage.setItem(userKey, JSON.stringify(this.user));
     },
-    async logout() {
+    async logout(replace = true) {
       localStorage.clear();
       this.user = null;
       const auth = getAuth();
       await signOut(auth);
-      this.$router.replace({ name: "Login" }); //   this.$http.get("https://www.naver.com");
+      if (replace) this.$router.replace({ name: "Login" }); //   this.$http.get("https://www.naver.com");
     },
   },
 });

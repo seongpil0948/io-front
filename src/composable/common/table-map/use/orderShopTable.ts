@@ -2,7 +2,7 @@ import { GarmentOrder, IoColOpt, ProdOrderCombined } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { DataTableColumns, NImage, useMessage } from "naive-ui";
-import { computed, h, ref, Ref } from "vue";
+import { computed, h, Ref, ref } from "vue";
 import { useTable } from "./table";
 import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
 import InfoCell from "@/component/table/InfoCell.vue";
@@ -27,6 +27,8 @@ interface orderTableParam {
   updateOrderCnt: boolean;
 }
 export function useOrderTable(d: orderTableParam) {
+  console.log("garmentOrders.value useOrderTable: ", d.garmentOrders.value);
+  console.log("orders.value useOrderTable: ", d.orders.value);
   const auth = useAuthStore();
   const msg = useMessage();
 

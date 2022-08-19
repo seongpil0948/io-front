@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ProdOrderCombined, useReadShopOrderGInfo } from "@/composable";
-import { useAuthStore, useVendorsStore } from "@/store";
+import { ProdOrderCombined } from "@/composable";
+import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
 import { DataTableColumns, NImage, NText } from "naive-ui";
 import InfoCell from "@/component/table/InfoCell.vue";
-import { computed, h } from "vue";
+import { computed, h, onBeforeMount } from "vue";
 import { FilterOption } from "naive-ui/es/data-table/src/interface";
 const auth = useAuthStore();
 const vendorStore = useVendorsStore();
 
-const { orders, garmentOrders } = useReadShopOrderGInfo(
-  auth.currUser.userInfo.userId,
-  []
-);
+const shopOrderStore = useShopOrderStore();
+onBeforeMount(() => shopOrderStore.init(auth.currUser.userInfo.userId));
+const filteredOrders = shopOrderStore.getFilteredOrder([]);
+const orders = shopOrderStore.getOrders([]);
 const columns = computed(
   () =>
     [
@@ -104,7 +104,7 @@ const filterOpts = computed<FilterOption[]>(() => {
 </script>
 <template>
   <n-card>
-    <n-space vetical align="center">
+    <n-space vertical align="center">
       <n-h2>미송 주문 조회</n-h2>
       <n-data-table
         ref="tableRef"
@@ -112,7 +112,7 @@ const filterOpts = computed<FilterOption[]>(() => {
         :table-layout="'fixed'"
         :scroll-x="800"
         :columns="columns"
-        :data="garmentOrders"
+        :data="filteredOrders"
         :pagination="{
           'show-size-picker': true,
           'page-sizes': [5, 10, 25, 50, 100],

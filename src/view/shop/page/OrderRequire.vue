@@ -1,21 +1,18 @@
 <script setup lang="ts">
-import {
-  useReadShopOrderGInfo,
-  useOrderBasic,
-  useOrderTable,
-} from "@/composable";
-import { useAuthStore } from "@/store";
+import { ORDER_STATE, useOrderBasic, useOrderTable } from "@/composable";
+import { useAuthStore, useShopOrderStore } from "@/store";
 import { IO_COSTS } from "@/constants";
+import { onBeforeMount } from "vue";
 
 const auth = useAuthStore();
-
-const { orders, garmentOrders } = useReadShopOrderGInfo(
-  auth.currUser.userInfo.userId,
-  ["BEFORE_ORDER"]
-);
+const inStates: ORDER_STATE[] = ["BEFORE_ORDER"];
+const shopOrderStore = useShopOrderStore();
+onBeforeMount(() => shopOrderStore.init(auth.currUser.userInfo.userId));
+const orders = shopOrderStore.getOrders(inStates);
+const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 
 const { checkedKeys, tableCol, tableRef } = useOrderTable({
-  garmentOrders,
+  garmentOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
 });
@@ -30,7 +27,7 @@ const {
   updateReqOrderShow,
   onReqOrderConfirm,
   deleteChecked,
-} = useOrderBasic(auth.currUser, garmentOrders, orders, checkedKeys);
+} = useOrderBasic(auth.currUser, filteredOrders, orders, checkedKeys);
 </script>
 <template>
   <n-card
@@ -64,7 +61,7 @@ const {
         :table-layout="'fixed'"
         :scroll-x="800"
         :columns="tableCol"
-        :data="garmentOrders"
+        :data="filteredOrders"
         :pagination="{
           'show-size-picker': true,
           'page-sizes': [5, 10, 25, 50, 100],

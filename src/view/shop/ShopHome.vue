@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { useReadShopOrderGInfo } from "@/composable";
-import { useAuthStore } from "@/store";
+import { storeToRefs } from "pinia";
+import { useAuthStore, useShopOrderStore } from "@/store";
 import { commonTime } from "@/util";
-import { computed } from "vue";
+import { computed, onBeforeMount } from "vue";
 const { currDate } = commonTime();
 const auth = useAuthStore();
 const user = auth.currUser;
-const { garmentOrders } = useReadShopOrderGInfo(user.userInfo.userId, []);
+
+const shopOrderStore = useShopOrderStore();
+onBeforeMount(() => shopOrderStore.init(user.userInfo.userId));
+const { garmentOrders } = storeToRefs(shopOrderStore);
+
 const numOfApprove = computed(
   () =>
     garmentOrders.value.filter(

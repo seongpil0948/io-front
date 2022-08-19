@@ -2,15 +2,15 @@
 import {
   ORDER_STATE,
   ORDER_GARMENT_DB,
-  useReadShopOrderGInfo,
   useParseGarmentOrder,
   useOrderBasic,
   useOrderTable,
 } from "@/composable";
-import { useAuthStore } from "@/store";
+import { useAuthStore, useShopOrderStore } from "@/store";
 import { ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { IO_COSTS } from "@/constants";
+import { storeToRefs } from "pinia";
 interface Props {
   inStates?: ORDER_STATE[];
   showSizes: boolean;
@@ -22,13 +22,12 @@ const user = auth.currUser;
 const fileModel = ref<File[]>([]);
 const log = useLogger();
 
-const { orders, existOrderIds, garmentOrders } = useReadShopOrderGInfo(
-  user.userInfo.userId,
-  props.inStates ?? []
-);
-
+const shopOrderStore = useShopOrderStore();
+const { existOrderIds } = storeToRefs(shopOrderStore);
+const filteredOrders = shopOrderStore.getFilteredOrder(props.inStates ?? []);
+const orders = shopOrderStore.getOrders(props.inStates ?? []);
 const { checkedKeys, tableCol, tableRef, mapper } = useOrderTable({
-  garmentOrders,
+  garmentOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
 });
@@ -42,7 +41,7 @@ const {
   updateReqOrderShow,
   onReqOrderConfirm,
   deleteChecked,
-} = useOrderBasic(user, garmentOrders, orders, checkedKeys);
+} = useOrderBasic(user, filteredOrders, orders, checkedKeys);
 
 const sheetIdx = ref(0);
 const startRow = ref(0);
@@ -118,14 +117,13 @@ function downXlsx() {
         </n-button>
       </n-space>
     </template>
-
     <n-data-table
       ref="tableRef"
-      v-if="orders && orders.length > 0"
+      v-if="filteredOrders"
       :table-layout="'fixed'"
       :scroll-x="800"
       :columns="tableCol"
-      :data="garmentOrders"
+      :data="filteredOrders"
       :pagination="
         showSizes
           ? {

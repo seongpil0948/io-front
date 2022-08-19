@@ -1,7 +1,8 @@
 export * from "./auth";
-export * from "./vendor-prod";
+export * from "./vendorProd";
 export * from "./common";
 export * from "./shop";
+export * from "./shopOrder";
 
 import { createPinia } from "pinia";
 import _axios from "@/plugin/axios";

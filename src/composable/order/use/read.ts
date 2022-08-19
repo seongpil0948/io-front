@@ -4,77 +4,17 @@ import {
   ORDER_STATE,
   ProdOrderCombined,
   ShopUserGarment,
-  useShopUserGarments,
   getBatchShopProds,
   ProdOrderByShop,
   VendorUserOrderGarment,
   emptyProdOrder,
   emptyAmount,
   mergeProdOrder,
-  ProdOrderByVendor,
 } from "@/composable";
 import { useVendorsStore } from "@/store";
-import { computed, onBeforeUnmount, ref, watch, watchEffect } from "vue";
+import { computed, ref, watch } from "vue";
 import { ORDER_GARMENT_DB } from "./../db/index";
-import debounce from "lodash.debounce";
 import { uniqueArr } from "@/util";
-
-export function useReadShopOrderGInfo(shopId: string, inStates: ORDER_STATE[]) {
-  const { orders, unsubscribe } = ORDER_GARMENT_DB.shopReadListen({
-    shopId,
-    inStates,
-  });
-  const { userProd: shopGarments } = useShopUserGarments(shopId, null);
-  const vendorStore = useVendorsStore();
-  const existOrderIds = ref<Set<string>>(new Set());
-  const garmentOrders = ref<ProdOrderCombined[]>([]);
-  const setExistOrderIds = debounce(async () => {
-    existOrderIds.value = await ORDER_GARMENT_DB.getExistOrderIds(shopId);
-  }, 1000);
-  watchEffect(() => {
-    garmentOrders.value = extractGarmentOrd(
-      orders.value,
-      shopGarments.value,
-      vendorStore.vendorUserGarments
-    );
-    if (inStates.length > 0) {
-      garmentOrders.value = garmentOrders.value.filter((x) =>
-        inStates.includes(x.state)
-      );
-    }
-    setExistOrderIds();
-  });
-  const garmentOrdersByVendor = computed(() =>
-    garmentOrders.value.reduce((acc, curr) => {
-      const exist = acc.find((x) => x.vendorId === curr.vendorId);
-      if (!exist) {
-        acc.push({
-          vendorId: curr.vendorId,
-          vendorName:
-            curr.vendorGarment.userInfo.displayName ??
-            curr.vendorGarment.userInfo.userName,
-          orderCnt: curr.orderCnt,
-          pendingCnt: curr.pendingCnt,
-          items: [curr],
-        });
-        return acc;
-      }
-      exist.orderCnt += curr.orderCnt;
-      exist.pendingCnt += curr.pendingCnt;
-      exist.items.push(curr);
-      return acc;
-    }, [] as ProdOrderByVendor[])
-  );
-
-  onBeforeUnmount(() => unsubscribe());
-  return {
-    existOrderIds,
-    orders,
-    unsubscribe,
-    garmentOrders,
-    garmentOrdersByVendor,
-  };
-}
 
 export function useReadVendorOrderGInfo(
   vendorId: string,

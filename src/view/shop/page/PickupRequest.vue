@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { useReadShopOrderGInfo, useOrderTable } from "@/composable";
-import { useAuthStore } from "@/store";
+import { useOrderTable, ORDER_STATE } from "@/composable";
+import { useAuthStore, useShopOrderStore } from "@/store";
+import { onBeforeMount } from "vue";
 
 const auth = useAuthStore();
-
-const { orders, garmentOrders, garmentOrdersByVendor } = useReadShopOrderGInfo(
-  auth.currUser.userInfo.userId,
-  ["BEFORE_PICKUP"]
-);
+const inStates: ORDER_STATE[] = ["BEFORE_PICKUP"];
+const shopOrderStore = useShopOrderStore();
+onBeforeMount(() => shopOrderStore.init(auth.currUser.userInfo.userId));
+const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
+const orders = shopOrderStore.getOrders(inStates);
+const garmentOrdersByVendor =
+  shopOrderStore.getGarmentOrdersByVendor(filteredOrders);
 const { tableRef, byVendorCol } = useOrderTable({
-  garmentOrders,
+  garmentOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
 });
