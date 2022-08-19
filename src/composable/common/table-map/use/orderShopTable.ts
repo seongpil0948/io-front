@@ -17,6 +17,9 @@ const colKeys = [
 ].map((c) => {
   return { key: c } as IoColOpt;
 });
+const byVendorColKeys = ["vendorName", "orderCnt", "pendingCnt"].map((c) => {
+  return { key: c } as IoColOpt;
+});
 
 interface orderTableParam {
   garmentOrders: Ref<ProdOrderCombined[]>;
@@ -29,6 +32,12 @@ export function useOrderTable(d: orderTableParam) {
 
   const tableRef = ref<any>(null);
   const keyField = "id";
+
+  const { columns: byVendorCol } = useTable<ProdOrderCombined>({
+    userId: auth.currUser.userInfo.userId,
+    colKeys: byVendorColKeys,
+  });
+
   const { columns, checkedKeys, mapper } = useTable<ProdOrderCombined>({
     userId: auth.currUser.userInfo.userId,
     colKeys,
@@ -117,5 +126,5 @@ export function useOrderTable(d: orderTableParam) {
       : [];
   });
 
-  return { tableRef, columns, checkedKeys, tableCol, mapper };
+  return { tableRef, columns, checkedKeys, tableCol, mapper, byVendorCol };
 }

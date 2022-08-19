@@ -11,6 +11,7 @@ import {
   emptyProdOrder,
   emptyAmount,
   mergeProdOrder,
+  ProdOrderByVendor,
 } from "@/composable";
 import { useVendorsStore } from "@/store";
 import { computed, onBeforeUnmount, ref, watch, watchEffect } from "vue";
@@ -43,8 +44,36 @@ export function useReadShopOrderGInfo(shopId: string, inStates: ORDER_STATE[]) {
     }
     setExistOrderIds();
   });
+  const garmentOrdersByVendor = computed(() =>
+    garmentOrders.value.reduce((acc, curr) => {
+      const exist = acc.find((x) => x.vendorId === curr.vendorId);
+      if (!exist) {
+        acc.push({
+          vendorId: curr.vendorId,
+          vendorName:
+            curr.vendorGarment.userInfo.displayName ??
+            curr.vendorGarment.userInfo.userName,
+          orderCnt: curr.orderCnt,
+          pendingCnt: curr.pendingCnt,
+          items: [curr],
+        });
+        return acc;
+      }
+      exist.orderCnt += curr.orderCnt;
+      exist.pendingCnt += curr.pendingCnt;
+      exist.items.push(curr);
+      return acc;
+    }, [] as ProdOrderByVendor[])
+  );
+
   onBeforeUnmount(() => unsubscribe());
-  return { existOrderIds, orders, unsubscribe, garmentOrders };
+  return {
+    existOrderIds,
+    orders,
+    unsubscribe,
+    garmentOrders,
+    garmentOrdersByVendor,
+  };
 }
 
 export function useReadVendorOrderGInfo(

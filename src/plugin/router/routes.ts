@@ -133,6 +133,14 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
+        path: "/pickuprequest",
+        name: "PickupRequest",
+        component: () => import("@/view/shop/page/PickupRequest.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+        },
+      },
+      {
         path: "/PendingOrderList",
         name: "PendingOrderList",
         component: () => import("@/view/shop/page/PendingOrderList.vue"),

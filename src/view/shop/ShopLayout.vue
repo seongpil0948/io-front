@@ -44,6 +44,10 @@ const menuOptions: MenuOption[] = [
         label: () => renderRoute("미송 주문 조회", "PendingOrderList"),
         key: "PendingOrderList",
       },
+      {
+        label: () => renderRoute("픽업 요청", "PickupRequest"),
+        key: "PickupRequest",
+      },
     ],
   },
 ];

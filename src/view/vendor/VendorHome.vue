@@ -23,6 +23,7 @@ const { currDate } = commonTime();
           <order-by-shop-expand-table
             :inStates="[
               'BEFORE_PAYMENT',
+              'BEFORE_PICKUP',
               'BEFORE_SHIP',
               'SHIPPING',
               'SHIPPING_COMPLETE',

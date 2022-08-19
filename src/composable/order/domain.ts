@@ -22,6 +22,7 @@ export type ORDER_STATE =
   | "BEFORE_ORDER"
   | "BEFORE_APPROVE"
   | "BEFORE_PAYMENT"
+  | "BEFORE_PICKUP"
   | "BEFORE_SHIP"
   | "SHIPPING"
   | "SHIPPING_COMPLETE"
@@ -39,6 +40,7 @@ export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   BEFORE_ORDER: "주문전",
   BEFORE_APPROVE: "승인전",
   BEFORE_PAYMENT: "결제전",
+  BEFORE_PICKUP: "픽업전",
   BEFORE_SHIP: "배송전",
   SHIPPING: "배송중",
   SHIPPING_COMPLETE: "배송완료",
@@ -157,6 +159,13 @@ export interface OrderCrt {
 export interface ProdOrderByShop {
   shopId: string;
   shopName: string;
+  items: ProdOrderCombined[];
+}
+export interface ProdOrderByVendor {
+  vendorId: string;
+  vendorName: string;
+  orderCnt: number;
+  pendingCnt: number;
   items: ProdOrderCombined[];
 }
 // export interface OrderFlat extends OrderCrt, ProdOrderCombined, OrderAmount {}

@@ -190,7 +190,7 @@ export function useApproveOrder(p: ApproveParam) {
         msg.success("결제승인 완료", makeMsgOpt());
       })
       .catch((err) => {
-        msg.success("결제승인 실패", makeMsgOpt());
+        msg.error(`결제승인 실패 ${JSON.stringify(err)}`, makeMsgOpt());
         logger.error(p.vendorId, "error in complete payment", err);
       });
   }
