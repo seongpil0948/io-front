@@ -7,6 +7,7 @@ import {
 } from "../../tests/e2e/fixtures/users";
 import { IoUser } from "@/composable/auth/model/user";
 import { USER_ROLE } from "@/composable/auth/domain";
+import router from "@/plugin/router";
 interface AuthStoreInterface {
   user: IoUser | null;
 }
@@ -37,9 +38,9 @@ export const useAuthStore = defineStore({
         if (this.user.userInfo.userId === u.userInfo.userId) return;
         else await this.logout(false);
       }
-
       this.user = u;
       localStorage.setItem(userKey, JSON.stringify(this.user));
+      router.goHome(u);
     },
     async logout(replace = true) {
       localStorage.clear();
