@@ -178,12 +178,18 @@ export interface OrderDB<T> {
     orderState?: ORDER_STATE;
   }): Promise<void>;
   batchDelete(ords: T[]): Promise<void>;
-  shopReadListen(p: { inStates?: ORDER_STATE[]; shopId: string }): {
+  shopReadListen(p: {
+    inStates?: ORDER_STATE[];
+    shopId: string;
     orders: Ref<T[]>;
+  }): {
     unsubscribe: () => void;
   };
-  vendorReadListen(p: { inStates?: ORDER_STATE[]; vendorId: string }): {
+  vendorReadListen(p: {
+    inStates?: ORDER_STATE[];
+    vendorId: string;
     orders: Ref<T[]>;
+  }): {
     unsubscribe: () => void;
   };
   getExistOrderIds(shopId: string): Promise<Set<string>>;

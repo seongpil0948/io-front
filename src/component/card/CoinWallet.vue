@@ -7,12 +7,14 @@ import { QuestionCircleRegular } from "@vicons/fa";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
 import { IO_PAY_DB, IoPay } from "@/composable";
+
 const log = useLogger();
 const APP_ID = "62b45e0fe38c3000215aec6b";
 const authStore = useAuthStore();
 const msg = useMessage();
 const user = authStore.currUser;
 const userPay = ref(null);
+
 watchEffect(async () => {
   userPay.value = await IO_PAY_DB.getIoPayByUser(user.userInfo.userId);
 });

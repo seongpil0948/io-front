@@ -3,7 +3,6 @@ import {
   useTable,
   IoColOpt,
   VendorUserOrderGarment,
-  useReadVendorOrderGInfo,
   VendorGarment,
 } from "@/composable/";
 import { useAuthStore } from "@/store";
@@ -12,15 +11,15 @@ import { NButton, useMessage } from "naive-ui";
 import { watchEffect, h, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import LogoChecker from "@/component/input/LogoChecker.vue";
+import { useVendorOrderStore } from "@/store/vendorOrder";
 
 const log = useLogger();
 const auth = useAuthStore();
 const msg = useMessage();
 
-const { vendorOrderGarments } = useReadVendorOrderGInfo(
-  auth.currUser.userInfo.userId,
-  []
-);
+const store = useVendorOrderStore();
+const orders = store.getOrders([]);
+const vendorOrderGarments = store.getVendorOrderGarments(orders);
 
 const colKeys = [
   "vendorProdName",

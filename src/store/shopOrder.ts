@@ -21,7 +21,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   const authStore = useAuthStore();
   const inStates = ref<ORDER_STATE[]>([]);
   const shopId = ref<string | null>(null);
-  let _orders = ref<GarmentOrder[]>([]);
+  const _orders = ref<GarmentOrder[]>([]);
   let orderUnSub: null | Unsubscribe = null;
   let shopGarments = ref<ShopUserGarment[]>([]);
   let shopGarmentUnSub: null | Unsubscribe = null;
@@ -116,16 +116,16 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     if (!initial || !shopUserId || shopUserId === shopId.value) return;
     console.log(`shopUserId: ${shopUserId} shopOrderStore initiated`);
     shopId.value = shopUserId;
-    const { orders: shopOrders } = ORDER_GARMENT_DB.shopReadListen({
+    const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.shopReadListen({
       shopId: shopId.value,
       inStates: [],
+      orders: _orders,
     });
-    _orders = shopOrders;
+    orderUnSub = orderUnsubscribe;
     initial = false;
     const { userProd, unsubscribe } = useShopUserGarments(shopId.value, null);
     shopGarments = userProd;
     shopGarmentUnSub = unsubscribe;
-    console.log(">>> _orders: ", _orders);
   }
 
   function discard() {

@@ -1,23 +1,19 @@
 <script setup lang="ts">
 import { NButton, NSpace } from "naive-ui";
-import {
-  ORDER_STATE,
-  ProdOrderByShop,
-  useApproveOrder,
-  useReadVendorOrderGInfo,
-} from "@/composable";
+import { ORDER_STATE, ProdOrderByShop, useApproveOrder } from "@/composable";
 import { useAuthStore } from "@/store";
 import { IO_COSTS } from "@/constants";
+import { useVendorOrderStore } from "@/store/vendorOrder";
 const props = defineProps<{
   inStates?: ORDER_STATE[];
 }>();
 
 const auth = useAuthStore();
 const u = auth.currUser;
-const { orders, garmentOrders, garmentOrdersByShop } = useReadVendorOrderGInfo(
-  auth.currUser.userInfo.userId,
-  props.inStates ?? []
-);
+const store = useVendorOrderStore();
+const orders = store.getOrders(props.inStates ?? []);
+const garmentOrders = store.getFilteredOrder(props.inStates ?? []);
+const garmentOrdersByShop = store.getGarmentOrdersByShop(garmentOrders);
 const {
   showPartial,
   onCloseModal,

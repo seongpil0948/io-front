@@ -15,7 +15,7 @@ import {
 } from "@firebase/firestore";
 import { OrderDB } from "../domain";
 import { useVendorsStore } from "@/store";
-import { ref } from "vue";
+import { Ref } from "vue";
 import { IO_PAY_DB } from "@/composable";
 import { IO_COSTS } from "@/constants";
 
@@ -314,8 +314,11 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     }
     await batch.commit();
   },
-  shopReadListen: function (p: { inStates?: ORDER_STATE[]; shopId: string }) {
-    const orders = ref<GarmentOrder[]>([]);
+  shopReadListen: function (p: {
+    inStates?: ORDER_STATE[];
+    shopId: string;
+    orders: Ref<GarmentOrder[]>;
+  }) {
     const constraints = [where("shopId", "==", p.shopId)];
 
     if (p.inStates && p.inStates.length > 0) {
@@ -329,21 +332,21 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      orders.value = [];
+      p.orders.value = [];
       snapshot.forEach((s) => {
         const data = s.data();
         if (data) {
-          orders.value.push(data);
+          p.orders.value.push(data);
         }
       });
     });
-    return { unsubscribe, orders };
+    return { unsubscribe };
   },
   vendorReadListen: function (p: {
     inStates?: ORDER_STATE[];
     vendorId: string;
+    orders: Ref<GarmentOrder[]>;
   }) {
-    const orders = ref<GarmentOrder[]>([]);
     const orderQ = query(
       getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
         GarmentOrder.fireConverter()
@@ -351,22 +354,22 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       where("vendorIds", "array-contains", p.vendorId)
     );
     const unsubscribe = onSnapshot(orderQ, (snapshot) => {
-      orders.value = [];
+      p.orders.value = [];
       snapshot.forEach((doc) => {
         const data = doc.data();
         if (p.inStates) {
           if (data && data.states.some((x) => p.inStates!.includes(x))) {
-            orders.value.push(data);
+            p.orders.value.push(data);
           }
         } else {
           if (data) {
-            orders.value.push(data);
+            p.orders.value.push(data);
           }
         }
       });
     });
 
-    return { orders, unsubscribe };
+    return { unsubscribe };
   },
   getExistOrderIds: async function (shopId: string) {
     console.log("shopId in getExistOrderIds", shopId);
