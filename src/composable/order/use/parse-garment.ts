@@ -116,7 +116,7 @@ export function useParseGarmentOrder(
     inputDf = inputDf.applyMap((x: any) =>
       typeof x === "string" ? x.toLowerCase().trim() : x
     );
-    console.log("input df: ", inputDf);
+    // console.log("input df: ", inputDf);
 
     const targetCols = ["prodName", "size", "color", "orderId"];
     const colMapper = getColMapper(inputDf, targetCols as MapKey[], mapper);
@@ -124,8 +124,7 @@ export function useParseGarmentOrder(
       columns: uniqueArr(Object.values(colMapper)),
     });
     // console.log("targetDf: ", targetDf);
-    console.log("colMapper: ", colMapper);
-    console.log("Object.values(colMapper): ", Object.values(colMapper));
+    // console.log("colMapper: ", colMapper);
     const prodMapper = mapper.getProdMapper();
     if (Object.keys(prodMapper).length === 0) {
       const message = "주문취합을 위해 상품매핑정보를 등록 해주십시오";
@@ -202,11 +201,11 @@ export function useParseGarmentOrder(
       msg.error(err, makeMsgOpt({ duration: 20000 }));
       logger.error(userId, err);
     });
-    logger.debug(null, "reporter: ", reporter);
-    logger.debug(null, "input DF", inputDf.shape, inputDf);
-    logger.debug(null, "target DF", targetDf.shape, targetDf);
-    logger.debug(null, "prod Mapper", prodMapper);
-    logger.debug(null, "Parse Result: ", data);
+    // logger.debug(null, "reporter: ", reporter);
+    // logger.debug(null, "input DF", inputDf.shape, inputDf);
+    // logger.debug(null, "target DF", targetDf.shape, targetDf);
+    // logger.debug(null, "prod Mapper", prodMapper);
+    // logger.debug(null, "Parse Result: ", data);
 
     return errors.length > 0 ? [] : data;
   }

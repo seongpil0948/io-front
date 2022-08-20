@@ -120,7 +120,6 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     true
   );
   watchPostEffect(async () => {
-    console.log(orders.value);
     if (orders.value.length > 1) {
       shopGarments.value = [];
       const shopIds = uniqueArr(orders.value.map((x) => x.shopId));

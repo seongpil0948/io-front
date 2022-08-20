@@ -43,7 +43,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     const constraints = [where("dbId", "in", orderDbIds)];
     const orders = await getOrders(constraints);
     const { getOrdRef, converterGarment } = getSrc();
-    console.log("result orders: ", orders);
     return await runTransaction(iostore, async (transaction) => {
       for (let i = 0; i < orders.length; i++) {
         const o = orders[i];
@@ -79,7 +78,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         const o = orders[i];
         for (let j = 0; j < o.items.length; j++) {
           const item = o.items[j];
-          console.log(item.state);
           if (
             prodOrderIds.includes(item.id) &&
             (item.state === "BEFORE_APPROVE" || item.state === "BEFORE_PAYMENT")
@@ -372,7 +370,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     return { unsubscribe };
   },
   getExistOrderIds: async function (shopId: string) {
-    console.log("shopId in getExistOrderIds", shopId);
     const ioc = getIoCollection({
       c: IoCollection.ORDER_PROD_NUMBER,
       uid: shopId,

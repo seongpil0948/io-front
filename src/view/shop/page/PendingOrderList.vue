@@ -66,7 +66,6 @@ const columns = computed(
           const vendor = vendorStore.vendors.find(
             (y) => y.userInfo.userId === row.vendorId
           );
-          console.log(value);
           return (vendor?.userInfo.displayName ?? "") == (value as string);
         },
       },

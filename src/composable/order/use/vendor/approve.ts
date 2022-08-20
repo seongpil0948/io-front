@@ -95,7 +95,6 @@ export function useApproveOrder(p: ApproveParam) {
   }
 
   async function approveGarments() {
-    console.log("orderTargets.value: ", orderTargets.value);
     const prodIds = orderTargets.value.map((x) => x.id);
     const orderDBIds: string[] = [];
     for (let i = 0; i < p.orders.value.length; i++) {

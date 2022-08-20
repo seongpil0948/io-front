@@ -27,8 +27,6 @@ interface orderTableParam {
   updateOrderCnt: boolean;
 }
 export function useOrderTable(d: orderTableParam) {
-  console.log("garmentOrders.value useOrderTable: ", d.garmentOrders.value);
-  console.log("orders.value useOrderTable: ", d.orders.value);
   const auth = useAuthStore();
   const msg = useMessage();
 
