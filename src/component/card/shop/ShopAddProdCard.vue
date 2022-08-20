@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import {
   GARMENT_SIZE,
   ShopGarment,
-  shopGarmentExist,
+  SHOP_GARMENT_DB,
   VendorUserGarmentCombined,
 } from "@/composable";
 import { useAuthStore } from "@/store";
@@ -44,7 +44,12 @@ async function onSubmit() {
   let addCnt = selectedProdIds.value.length;
   for (let i = 0; i < selectedProdIds.value.length; i++) {
     const vendorProdId = selectedProdIds.value[i];
-    if (await shopGarmentExist(vendorProdId, auth.currUser.userInfo.userId)) {
+    if (
+      await SHOP_GARMENT_DB.shopGarmentExist(
+        vendorProdId,
+        auth.currUser.userInfo.userId
+      )
+    ) {
       msg.error(
         `컬러 ${optById[vendorProdId].color}, 사이즈: ${optById[vendorProdId].size} 상품은 이미 존재합니다.`,
         makeMsgOpt()

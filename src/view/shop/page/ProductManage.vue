@@ -3,7 +3,7 @@ import {
   ShopUserGarment,
   useTable,
   useShopUserGarments,
-  deleteShopGarments,
+  SHOP_GARMENT_DB,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt, isMobile } from "@/util";
@@ -73,9 +73,10 @@ const selectedRow = ref<ShopUserGarment | null>(null);
 const popVal = ref("");
 watchEffect(async () => {
   if (popVal.value === "Delete" && selectedRow.value) {
-    await deleteShopGarments(authStore.currUser.userInfo.userId, [
-      selectedRow.value.shopProdId,
-    ])
+    await SHOP_GARMENT_DB.deleteShopGarments(
+      authStore.currUser.userInfo.userId,
+      [selectedRow.value.shopProdId]
+    )
       .then(() => msg.success("삭제 완료", makeMsgOpt()))
       .catch(() => msg.error("삭제 실패", makeMsgOpt()));
   }
@@ -126,7 +127,7 @@ const cols = computed((): DataTableColumns<ShopUserGarment> => {
   ];
 });
 async function onCheckedDelete() {
-  await deleteShopGarments(
+  await SHOP_GARMENT_DB.deleteShopGarments(
     authStore.currUser.userInfo.userId,
     checkedKeys.value
   );

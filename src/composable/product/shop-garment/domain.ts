@@ -1,3 +1,4 @@
+import { Unsubscribe } from "@firebase/firestore";
 import { IoUserCRT } from "@/composable";
 import { Ref } from "vue";
 import { ProductCrt, GARMENT_SIZE } from "../domain";
@@ -32,10 +33,12 @@ export type StockCntObj = {
 
 export interface ShopGarmentDB {
   shopGarmentExist(vendorProdId: string, shopUserId: string): Promise<boolean>;
-  useGetGarmentProds(
+  useGetShopGarments(
     shopId: string,
     condi: (prod: ShopGarment) => boolean
-  ): Ref<ShopGarment[]>;
+  ): { shopProds: Ref<ShopGarment[]>; unsubscribe: Unsubscribe };
+  deleteShopGarments(userId: string, prodIds: string[]): Promise<void>;
+  getBatchShopProds(shopIds: string[]): Promise<ShopUserGarment[]>;
 }
 
 export interface ShopUserGarment extends IoUserCRT, ShopGarmentCrt {}

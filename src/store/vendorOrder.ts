@@ -2,7 +2,7 @@ import {
   emptyAmount,
   emptyProdOrder,
   GarmentOrder,
-  getBatchShopProds,
+  SHOP_GARMENT_DB,
   mergeProdOrder,
   ORDER_GARMENT_DB,
   ORDER_STATE,
@@ -124,7 +124,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     if (orders.value.length > 1) {
       shopGarments.value = [];
       const shopIds = uniqueArr(orders.value.map((x) => x.shopId));
-      shopGarments.value = await getBatchShopProds(shopIds);
+      shopGarments.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
       _garmentOrders.value = extractGarmentOrd(
         orders.value,
         shopGarments.value,

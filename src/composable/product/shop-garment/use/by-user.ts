@@ -1,7 +1,7 @@
 import { MapKey, ShopUserGarment } from "@/composable";
 import { useVendorsStore } from "@/store";
 import { Ref, ref, watchEffect } from "vue";
-import { ShopGarment, ShopGarmentQField, useGetShopGarments } from "..";
+import { ShopGarment, ShopGarmentQField, SHOP_GARMENT_DB } from "..";
 
 export function useShopUserGarments(
   userId: string,
@@ -45,7 +45,10 @@ export function useShopGarments(
             x.prodName === p.prodName
         )
       : true;
-  const { shopProds, unsubscribe } = useGetShopGarments(userId, matching);
+  const { shopProds, unsubscribe } = SHOP_GARMENT_DB.useGetShopGarments(
+    userId,
+    matching
+  );
 
   return { shopProds, unsubscribe };
 }
