@@ -1,3 +1,5 @@
+export * from "./area";
+
 export type LocateType = "매장" | "창고" | "기타";
 export const LocateType: { [key: string]: LocateType } = {
   SHOP: "매장",

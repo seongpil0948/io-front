@@ -1,4 +1,4 @@
-import type { GlobalThemeOverrides } from "naive-ui";
+import type { GlobalThemeOverrides, darkTheme } from "naive-ui";
 // const auth = useAuthStore()
 // const useDark = auth.user ? auth.user.preferDark : false
 const darkColors = {
@@ -16,8 +16,16 @@ export const darkThemeOver: GlobalThemeOverrides = {
     textColor3: darkColors.primary,
     primaryColor: darkColors.primary,
     // hoverColor: darkColors.primary,
+    // borderColor: darkColors.primary,
   },
   Switch: {
     railColorActive: darkColors.primary,
+  },
+  Select: {
+    peers: {
+      InternalSelection: {
+        textColor: darkColors.primary,
+      },
+    },
   },
 };

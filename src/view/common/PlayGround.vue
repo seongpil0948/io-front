@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
-
+import { darkTheme } from "naive-ui";
+console.log("darkThemeOver: ", darkTheme);
+// >>> log >>>
 const log = useLogger();
 const testObject = {
   name: "test",
@@ -20,12 +22,24 @@ function userActLog() {
   log.warn("2285273867", "Test warn Message", testObject);
   log.error("2285273867", "Test error Message", testObject);
 }
-onMounted(() => {
-  log.debug("HIHIHIHI");
+// <<< log <<<
+// >>> area >>>
+
+const selectedArea = ref({
+  city: null,
+  county: null,
+  town: null,
 });
+
+// <<< area <<<
 </script>
 <template>
   <n-h1>Play Ground</n-h1>
-  <n-button @click="logging">Log Click</n-button>
-  <n-button @click="userActLog">User Log Click</n-button>
+  <n-card style="color: gray; background-color: gray">
+    <n-space justify="space-around">
+      <n-button @click="logging">Log Click</n-button>
+      <n-button @click="userActLog">User Log Click</n-button>
+    </n-space>
+    <area-selector v-model:area="selectedArea" />
+  </n-card>
 </template>

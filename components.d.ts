@@ -9,6 +9,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AccidentManage: typeof import('./src/view/uncle/page/AccidentManage.vue')['default']
     AfterApproveList: typeof import('./src/view/vendor/page/AfterApproveList.vue')['default']
+    AreaSelector: typeof import('./src/component/input/AreaSelector.vue')['default']
     BeforeApproveList: typeof import('./src/view/vendor/page/BeforeApproveList.vue')['default']
     BillingManage: typeof import('./src/view/uncle/page/BillingManage.vue')['default']
     CarouselImgCard: typeof import('./src/component/card/CarouselImgCard.vue')['default']
