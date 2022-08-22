@@ -3,7 +3,6 @@ import {
   BOOL_M,
   GarmentOrder,
   PayMethod,
-  SHIP_STATE,
   ShopUserGarment,
   VendorUserGarment,
 } from "..";
@@ -43,6 +42,8 @@ export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   BEFORE_PICKUP: "픽업전",
   BEFORE_SHIP: "배송전",
   SHIPPING: "배송중",
+  SHIPPING_PENDING: "배송대기",
+  SHIPPING_WAIT: "배송보류",
   SHIPPING_COMPLETE: "배송완료",
   TAKE_BACK: "반품중",
   TAKE_BACK_DONE: "반품완료",
@@ -150,7 +151,6 @@ export interface OrderCrt {
   states: ORDER_STATE[];
   actualAmount: OrderAmount;
   initialAmount: OrderAmount;
-  shippingStatus: SHIP_STATE;
   items: ProdOrder[] | ProdOrderCombined[];
   subOrderIds: string[]; // db ids
   cancellations: OrderCancel[];

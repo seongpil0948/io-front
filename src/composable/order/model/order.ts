@@ -7,7 +7,6 @@ import {
   OrderCrt,
   OrderParent,
   ProdOrder,
-  SHIP_STATE,
   ShopUserGarment,
   SHIP_METHOD,
   Locate,
@@ -33,7 +32,6 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   states: ORDER_STATE[];
   actualAmount: OrderAmount;
   initialAmount: OrderAmount;
-  shippingStatus: SHIP_STATE;
   items: ProdOrder[] | ProdOrderCombined[];
   subOrderIds: string[]; // db ids
   cancellations: OrderCancel[];
@@ -49,7 +47,6 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     this.shopId = d.shopId!;
     this.actualAmount = d.actualAmount!;
     this.initialAmount = d.initialAmount!;
-    this.shippingStatus = d.shippingStatus!;
     this.items = d.items!;
     this.orderDate = d.orderDate;
     this.subOrderIds = d.subOrderIds ?? [];
@@ -156,7 +153,6 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       states: ["BEFORE_APPROVE"],
       actualAmount: emptyAmount(),
       initialAmount: emptyAmount(),
-      shippingStatus: "BEFORE_READY",
       items: [],
       subOrderIds: [],
       cancellations: [],
@@ -245,7 +241,6 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       states: [prodOrder.state],
       actualAmount: amount,
       initialAmount: amount,
-      shippingStatus: SHIP_STATE.BEFORE_READY,
       items: [prodOrder],
       vendorIds: [prodOrder.vendorId],
       subOrderIds: [],
@@ -266,7 +261,6 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       shopId: d.shopId,
       actualAmount: d.actualAmount,
       initialAmount: d.initialAmount,
-      shippingStatus: d.shippingStatus,
       items: d.items,
       orderDate: d.orderDate,
       subOrderIds: d.subOrderIds,

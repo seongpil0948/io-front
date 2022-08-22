@@ -17,7 +17,9 @@ export interface LocateCRT {
   postalCode?: string;
   country: string;
   city?: string;
-  loateType: LocateType;
+  county?: string;
+  town?: string;
+  locateType: LocateType;
 }
 export class Locate implements LocateCRT {
   alias: string;
@@ -30,7 +32,9 @@ export class Locate implements LocateCRT {
   postalCode?: string;
   country: string;
   city?: string;
-  loateType: LocateType;
+  county?: string;
+  town?: string;
+  locateType: LocateType;
   constructor(p: LocateCRT) {
     if (!((p.postalCode && p.detailLocate) || (p.latitude && p.longitude))) {
       throw Error("위도,경도 혹은 우편코드,상세주소가 있어야 합니다.");
@@ -45,7 +49,9 @@ export class Locate implements LocateCRT {
     this.postalCode = p.postalCode;
     this.country = p.country;
     this.city = p.city;
-    this.loateType = p.loateType;
+    this.county = p.county;
+    this.town = p.town;
+    this.locateType = p.locateType;
   }
 }
 

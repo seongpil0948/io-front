@@ -4,7 +4,6 @@ import {
   Locate,
   // ProdOrderCombined,
   SHIP_METHOD,
-  SHIP_STATE,
 } from "@/composable";
 // import {
 // FirestoreDataConverter,
@@ -15,30 +14,63 @@ import {
 
 export interface PickupCrt {
   pickupId: string;
-  shipmentIds: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  shipments: IoShipment[];
   managerId: string; // 엉클관리자 아이디
   shipFee: number;
+  shipDiscountPer: number; // 0 ~ 99 %
   uncleIds: string[]; // 엉클근로자 아이디, 토스시 변경가능
 }
+export class IoPickup extends CommonField implements PickupCrt {
+  pickupId: string;
+  shipments: IoShipment[];
+  managerId: string; // 엉클관리자 아이디
+  shipFee: number;
+  shipDiscountPer: number; // 0 ~ 99 %
+  uncleIds: string[]; // 엉클근로자 아이디, 토스시 변경가능
+
+  constructor(d: PickupCrt) {
+    super(d.createdAt, d.updatedAt);
+    this.pickupId = d.pickupId;
+    this.shipments = d.shipments;
+    this.managerId = d.managerId;
+    this.shipFee = d.shipFee;
+    this.shipDiscountPer = d.shipDiscountPer;
+    this.uncleIds = d.uncleIds;
+  }
+  get pickupAmount() {
+    const shipAmount = this.shipments.reduce(
+      (acc, curr) => acc + curr.shipAmount,
+      0
+    );
+    return shipAmount + this.shipFee * this.shipDiscountPer;
+  }
+}
+
 export interface ShipmentCrt {
   createdAt?: Date;
   updatedAt?: Date;
-  shippingId: string;
-  orderDbId: string;
-  prodOrderId: string;
+  shippingId: string; // shipment db id
+  orderDbId: string; // order db id
+  prodOrderId: string; // prod order db id
   trackingNo?: string; //송장번호
   uncleId: string; // 엉클근로자 아이디, 토스시 변경가능
-  trackingNoUpdatedAt?: Date;
   shipMethod: SHIP_METHOD;
-  status: SHIP_STATE;
   additionalInfo: string;
   shipFee: number;
   prepaid: boolean;
   paid: boolean;
   pickupFee: number;
-  weightG?: number; // TODO: 중량  상품 에 추가가 되든, 부피 항목이 추가되든 할 수 있음
-  returnAddress: Locate;
-  startAddress: Locate;
+  weightUnit: string;
+  weight: number;
+  sizeUnit: string;
+  size: number;
+  amountBySize: number;
+  amountByWeight: number;
+  amountBasic: number;
+  returnAddress: Locate; // 출발지
+  startAddress: Locate; // 도착지
   receiveAddress: Locate;
   wishedDeliveryTime: Date;
 }
@@ -48,15 +80,19 @@ export class IoShipment extends CommonField implements ShipmentCrt {
   uncleId: string; // 엉클근로자 아이디, 토스시 변경가능
   prodOrderId: string;
   trackingNo?: string; //송장번호
-  trackingNoUpdatedAt?: Date;
   shipMethod: SHIP_METHOD;
-  status: SHIP_STATE;
   additionalInfo: string;
   shipFee: number;
   pickupFee: number;
   prepaid: boolean;
   paid: boolean;
-  weightG?: number;
+  weightUnit: string;
+  weight: number;
+  sizeUnit: string;
+  size: number;
+  amountBySize: number;
+  amountByWeight: number;
+  amountBasic: number;
   returnAddress: Locate;
   startAddress: Locate;
   receiveAddress: Locate;
@@ -68,19 +104,30 @@ export class IoShipment extends CommonField implements ShipmentCrt {
     this.prodOrderId = d.prodOrderId;
     this.uncleId = d.uncleId;
     this.trackingNo = d.trackingNo;
-    this.trackingNoUpdatedAt = d.trackingNoUpdatedAt;
     this.shipMethod = d.shipMethod;
-    this.status = d.status;
     this.additionalInfo = d.additionalInfo;
     this.shipFee = d.shipFee;
     this.prepaid = d.prepaid;
     this.paid = d.paid;
     this.pickupFee = d.pickupFee;
-    this.weightG = d.weightG;
+    this.weightUnit = d.weightUnit;
+    this.weight = d.weight;
+    this.sizeUnit = d.sizeUnit;
+    this.size = d.size;
+    this.amountBySize = d.amountBySize;
+    this.amountByWeight = d.amountByWeight;
+    this.amountBasic = d.amountBasic;
     this.returnAddress = d.returnAddress;
     this.startAddress = d.startAddress;
     this.receiveAddress = d.receiveAddress;
     this.wishedDeliveryTime = d.wishedDeliveryTime;
+  }
+  get shipAmount() {
+    return (
+      this.amountBasic +
+      this.size * this.amountBySize +
+      this.weight * this.amountByWeight
+    );
   }
   // static fromGarmentOrder(
   //   d: ProdOrderCombined,
@@ -97,7 +144,6 @@ export class IoShipment extends CommonField implements ShipmentCrt {
   //     orderDbId,
   //     prodOrderId: d.id,
   //     shipMethod,
-  //     status: SHIP_STATE.BEFORE_READY,
   //     additionalInfo: "",
   //     shipFee,
   //     prepaid: false,

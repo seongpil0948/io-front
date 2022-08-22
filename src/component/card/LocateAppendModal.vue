@@ -22,9 +22,11 @@ watchEffect(() => {
 const msg = useMessage();
 const formRef = ref<FormInst | null>(null);
 const formModel = reactive<{ [k in keyof LocateCRT]: LocateCRT[k] }>({
-  loateType: locateTypeOpt.value[0].value as LocateType,
+  locateType: locateTypeOpt.value[0].value as LocateType,
   alias: "",
   city: undefined,
+  county: undefined,
+  town: undefined,
   postalCode: undefined,
   detailLocate: undefined,
   firstName: undefined,
@@ -43,7 +45,9 @@ const rule = {
   postalCode: nameLenRule,
   country: nameLenRule,
   city: nameLenRule,
-  loateType: nameLenRule,
+  county: nameLenRule,
+  town: nameLenRule,
+  locateType: nameLenRule,
 };
 function submitLocate() {
   if (!formRef.value) return;
@@ -79,9 +83,9 @@ function submitLocate() {
       size="medium"
     >
       <n-grid cols="1">
-        <n-form-item-gi label="주소 타입" path="loateType">
+        <n-form-item-gi label="주소 타입" path="locateType">
           <n-select
-            v-model:value="formModel.loateType"
+            v-model:value="formModel.locateType"
             :options="locateTypeOpt"
           />
         </n-form-item-gi>
@@ -91,6 +95,12 @@ function submitLocate() {
         </n-form-item-gi>
         <n-form-item-gi label="도시" path="city">
           <n-input v-model:value="formModel.city" placeholder="도시 입력" />
+        </n-form-item-gi>
+        <n-form-item-gi label="구" path="county">
+          <n-input v-model:value="formModel.county" placeholder="구 입력" />
+        </n-form-item-gi>
+        <n-form-item-gi label="동" path="town">
+          <n-input v-model:value="formModel.town" placeholder="동 입력" />
         </n-form-item-gi>
         <n-form-item-gi label="우편번호" path="postalCode">
           <n-input
