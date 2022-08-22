@@ -97,4 +97,5 @@ export const colKoMapper: { [key in string]: string | null } = {
   companyInfo: null,
   operInfo: null,
   preferDark: null,
+  detail: "상세보기",
 };

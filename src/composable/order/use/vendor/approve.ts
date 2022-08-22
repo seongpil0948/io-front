@@ -193,6 +193,22 @@ export function useApproveOrder(p: ApproveParam) {
         logger.error(p.vendorId, "error in complete payment", err);
       });
   }
+  function onProdReady() {
+    ORDER_GARMENT_DB.orderToReady(
+      [...targetOrderIds.value],
+      [...targetIds.value]
+    )
+      .then(() => {
+        msg.success("출고리스트 업로드 완료", makeMsgOpt());
+      })
+      .catch((err) => {
+        msg.error(
+          `출고리스트 업로드 실패 ${JSON.stringify(err)}`,
+          makeMsgOpt()
+        );
+        logger.error(p.vendorId, "error in onProdReady", err);
+      });
+  }
   // <<< Order <<<
   const expandColumns = computed(() => {
     const cols = [
@@ -293,5 +309,6 @@ export function useApproveOrder(p: ApproveParam) {
     showPartialModal,
     numOfAllow,
     completePay,
+    onProdReady,
   };
 }

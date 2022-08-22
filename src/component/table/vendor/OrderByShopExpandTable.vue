@@ -31,6 +31,7 @@ const {
   showPartialModal,
   numOfAllow,
   completePay,
+  onProdReady,
 } = useApproveOrder({
   garmentOrders,
   orders,
@@ -59,9 +60,14 @@ function getRowKey(row: ProdOrderByShop) {
           전체승인
         </n-button>
       </n-space>
-      <n-space v-if="inStates?.includes('BEFORE_PAYMENT')">
+      <n-space v-else-if="inStates?.includes('BEFORE_PAYMENT')">
         <n-button size="small" type="primary" @click="completePay">
           결제완료
+        </n-button>
+      </n-space>
+      <n-space v-else-if="inStates?.includes('BEFORE_READY')">
+        <n-button size="small" type="primary" @click="onProdReady">
+          출고리스트에 올리기
         </n-button>
       </n-space>
     </template>

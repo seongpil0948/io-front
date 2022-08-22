@@ -21,8 +21,9 @@ export type ORDER_STATE =
   | "BEFORE_ORDER"
   | "BEFORE_APPROVE"
   | "BEFORE_PAYMENT"
-  | "BEFORE_PICKUP"
-  | "BEFORE_SHIP"
+  | "BEFORE_READY" // 결제완료후 출고리스트 전
+  | "BEFORE_PICKUP" // 픽업 승인전
+  | "BEFORE_SHIP" // 담당자 배정 후 배송전
   | "SHIPPING"
   | "SHIPPING_COMPLETE"
   | "TAKE_BACK"
@@ -39,6 +40,7 @@ export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   BEFORE_ORDER: "주문전",
   BEFORE_APPROVE: "승인전",
   BEFORE_PAYMENT: "결제전",
+  BEFORE_READY: "출고전",
   BEFORE_PICKUP: "픽업전",
   BEFORE_SHIP: "배송전",
   SHIPPING: "배송중",
@@ -200,4 +202,5 @@ export interface OrderDB<T> {
   ): Promise<void>;
   orderReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
   completePay(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  orderToReady(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
 }

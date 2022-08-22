@@ -37,8 +37,13 @@ export function useOrderBasic(
     )
       .then(() => msg.success("주문 성공.", makeMsgOpt()))
       .catch((err) => {
-        msg.error(`주문 실패. ${err}`, makeMsgOpt());
-        log.error(user.userInfo.userId, `주문 실패. ${err}`);
+        if (typeof err.toString && err.toString().includes("out of stock")) {
+          msg.error(`주문개수가 재고 수량보다 많습니다.`, makeMsgOpt());
+        } else {
+          console.log("error", err);
+          msg.error(`주문 실패. ${err}`, makeMsgOpt());
+          log.error(user.userInfo.userId, `주문 실패. ${err}`);
+        }
       })
       .finally(() => {
         orderTargets.value = [];

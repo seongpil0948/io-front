@@ -1,7 +1,12 @@
-import { GarmentOrder, IoColOpt, ProdOrderCombined } from "@/composable";
+import {
+  GarmentOrder,
+  IoColOpt,
+  ProdOrderByVendor,
+  ProdOrderCombined,
+} from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { DataTableColumns, NImage, useMessage } from "naive-ui";
+import { DataTableColumns, NButton, NImage, useMessage } from "naive-ui";
 import { computed, h, Ref, ref } from "vue";
 import { useTable } from "./table";
 import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
@@ -20,7 +25,20 @@ const colKeys = [
 const byVendorColKeys = ["vendorName", "orderCnt", "pendingCnt"].map((c) => {
   return { key: c } as IoColOpt;
 });
-
+byVendorColKeys.push({
+  key: "id",
+  cellRender: (row: ProdOrderByVendor) =>
+    h(
+      NButton,
+      {
+        text: true,
+        onClick: () => {
+          console.log("onClick", row);
+        },
+      },
+      { default: () => "상세보기" }
+    ),
+});
 interface orderTableParam {
   garmentOrders: Ref<ProdOrderCombined[]>;
   orders: Ref<GarmentOrder[]>;
@@ -33,10 +51,13 @@ export function useOrderTable(d: orderTableParam) {
   const tableRef = ref<any>(null);
   const keyField = "id";
 
-  const { columns: byVendorCol } = useTable<ProdOrderCombined>({
-    userId: auth.currUser.userInfo.userId,
-    colKeys: byVendorColKeys,
-  });
+  const { columns: byVendorCol, checkedKeys: byVendorKeys } =
+    useTable<ProdOrderByVendor>({
+      userId: auth.currUser.userInfo.userId,
+      colKeys: byVendorColKeys,
+      useChecker: true,
+      keyField: "vendorId",
+    });
 
   const { columns, checkedKeys, mapper } = useTable<ProdOrderCombined>({
     userId: auth.currUser.userInfo.userId,
@@ -126,5 +147,13 @@ export function useOrderTable(d: orderTableParam) {
       : [];
   });
 
-  return { tableRef, columns, checkedKeys, tableCol, mapper, byVendorCol };
+  return {
+    tableRef,
+    columns,
+    checkedKeys,
+    tableCol,
+    mapper,
+    byVendorCol,
+    byVendorKeys,
+  };
 }

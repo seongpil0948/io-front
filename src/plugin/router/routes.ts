@@ -101,6 +101,17 @@ export const routes: Array<RouteRecordRaw> = [
           allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
         },
       },
+      {
+        path: "/paidOrder",
+        name: "PaidOrder",
+        component: () =>
+          import(
+            /* webpackChunkName: "vendor" */ "@/view/vendor/page/PaidOrder.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+        },
+      },
     ],
   },
   {

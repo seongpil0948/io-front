@@ -33,11 +33,15 @@ const menuOptions: MenuOption[] = [
     children: [
       {
         label: () => renderRoute("거래처 주문 요청", "BeforeApproveList"),
-        key: "OrderList",
+        key: "BeforeApproveList",
       },
       {
         label: () => renderRoute("승인 완료된 주문", "AfterApproveList"),
-        key: "OrderSubmit",
+        key: "AfterApproveList",
+      },
+      {
+        label: () => renderRoute("결제 완료된 주문", "PaidOrder"),
+        key: "PaidOrder",
       },
     ],
   },

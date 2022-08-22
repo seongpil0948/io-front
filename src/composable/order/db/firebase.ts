@@ -40,27 +40,20 @@ async function getOrders(constraints: QueryConstraint[]) {
 
 export const OrderGarmentFB: OrderDB<GarmentOrder> = {
   completePay: async function (orderDbIds: string[], prodOrderIds: string[]) {
-    const constraints = [where("dbId", "in", orderDbIds)];
-    const orders = await getOrders(constraints);
-    const { getOrdRef, converterGarment } = getSrc();
-    return await runTransaction(iostore, async (transaction) => {
-      for (let i = 0; i < orders.length; i++) {
-        const o = orders[i];
-        for (let j = 0; j < o.items.length; j++) {
-          const item = o.items[j];
-          if (
-            prodOrderIds.includes(item.id) &&
-            item.state === "BEFORE_PAYMENT"
-          ) {
-            o.setState(item.id, "BEFORE_PICKUP");
-            transaction.update(
-              doc(getOrdRef(o.shopId), o.dbId),
-              converterGarment.toFirestore(o)
-            );
-          }
-        }
-      }
-    });
+    await stateModify(
+      orderDbIds,
+      prodOrderIds,
+      "BEFORE_PAYMENT",
+      "BEFORE_READY"
+    );
+  },
+  orderToReady: async function (orderDbIds: string[], prodOrderIds: string[]) {
+    await stateModify(
+      orderDbIds,
+      prodOrderIds,
+      "BEFORE_READY",
+      "BEFORE_PICKUP"
+    );
   },
   orderReject: async function (orderDbIds: string[], prodOrderIds: string[]) {
     const constraints = [where("dbId", "in", orderDbIds)];
@@ -395,4 +388,30 @@ export function getSrc() {
       uid: shopId,
     });
   return { batch, getOrdRef, getOrderNumberRef, converterGarment };
+}
+
+async function stateModify(
+  orderDbIds: string[],
+  prodOrderIds: string[],
+  beforeState: ORDER_STATE,
+  afterState: ORDER_STATE
+) {
+  const constraints = [where("dbId", "in", orderDbIds)];
+  const orders = await getOrders(constraints);
+  const { getOrdRef, converterGarment } = getSrc();
+  return await runTransaction(iostore, async (transaction) => {
+    for (let i = 0; i < orders.length; i++) {
+      const o = orders[i];
+      for (let j = 0; j < o.items.length; j++) {
+        const item = o.items[j];
+        if (prodOrderIds.includes(item.id) && item.state === beforeState) {
+          o.setState(item.id, afterState);
+          transaction.update(
+            doc(getOrdRef(o.shopId), o.dbId),
+            converterGarment.toFirestore(o)
+          );
+        }
+      }
+    }
+  });
 }

@@ -36,7 +36,6 @@ const data: Song[] = [
 ];
 
 const columns = createColumns();
-const pagination = false;
 </script>
 <template>
   <n-space vertical align="center" justify="center">
@@ -54,7 +53,10 @@ const pagination = false;
       <n-data-table
         :columns="columns"
         :data="data"
-        :pagination="pagination"
+        :pagination="{
+          'show-size-picker': true,
+          'page-sizes': [5, 10, 25, 50, 100],
+        }"
         :bordered="false"
       />
     </n-card>
@@ -70,7 +72,10 @@ const pagination = false;
       <n-data-table
         :columns="columns"
         :data="data"
-        :pagination="pagination"
+        :pagination="{
+          'show-size-picker': true,
+          'page-sizes': [5, 10, 25, 50, 100],
+        }"
         :bordered="false"
       />
     </n-card>
