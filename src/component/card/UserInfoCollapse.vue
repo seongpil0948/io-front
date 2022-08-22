@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { onBeforeMount, ref, watch } from "vue";
+import { onBeforeMount, ref } from "vue";
 import clone from "lodash.clonedeep";
 import {
   IoUser,
-  locateStr,
   SALE_MANAGE,
   ShopOperInfo,
   USER_ROLE,
@@ -16,16 +15,20 @@ const authModel = ref<IoUser | null>(null);
 onBeforeMount(() => {
   authModel.value = clone(authStore.currUser);
 });
-watch(
-  () => authModel.value,
-  async (val, oldVal) => {
-    if (!oldVal) return;
-    else if (val) {
-      await val.update();
-    }
-  },
-  { immediate: false, deep: true }
-);
+// watch(
+//   () => authModel.value,
+//   async (val, oldVal) => {
+//     if (!oldVal) return;
+//     else if (val) {
+//       await val.update();
+//     }
+//   },
+//   { immediate: false, deep: true }
+// );
+async function updateUser() {
+  console.log("update");
+  await authModel.value?.update();
+}
 </script>
 
 <template>
@@ -55,20 +58,11 @@ watch(
         </div>
         <div class="io-row">
           <n-text strong>주소지</n-text>
-          <n-space justify="space-around">
-            <n-tooltip
-              trigger="hover"
-              v-for="(i, idx) in authModel.companyInfo!.locations"
-              :key="idx"
-            >
-              <template #trigger>
-                <n-tag style="width: fit-content" :bordered="false" type="info">
-                  {{ i.alias }}</n-tag
-                >
-              </template>
-              {{ locateStr(i) }}
-            </n-tooltip>
-          </n-space>
+          <locate-list
+            v-if="authModel.companyInfo"
+            v-model:info="authModel.companyInfo"
+            @update:info="updateUser"
+          />
         </div>
         <n-a
           target="_blank"
@@ -113,6 +107,7 @@ watch(
           <n-text strong>현재사입방식</n-text>
           <n-select
             v-model:value="(authModel.operInfo as ShopOperInfo).purchaseMethod"
+            @update:value="updateUser"
             :options="shipMethodOpt"
           />
         </div>
@@ -126,6 +121,7 @@ watch(
           <n-text strong>주문 자동 승인</n-text>
           <yes-or-no-radio
             v-model:value="(authModel.operInfo as VendorOperInfo).autoOrderApprove"
+            @update:value="updateUser"
             :yesVal="true"
             :noVal="false"
           />
@@ -134,6 +130,7 @@ watch(
           <n-text strong>장기 종류</n-text>
           <yes-or-no-radio
             v-model:value="(authModel.operInfo as VendorOperInfo).saleManageType"
+            @update:value="updateUser"
             :yesVal="SALE_MANAGE.HAND_WRITE"
             yesLabel="수기"
             :noVal="SALE_MANAGE.ONLINE"
@@ -144,6 +141,7 @@ watch(
           <n-text strong>월 세금계산서 마감일</n-text>
           <n-select
             v-model:value="(authModel.operInfo as VendorOperInfo).taxDeadlineDay"
+            @update:value="updateUser"
             :options="deadOpt"
           />
         </div>

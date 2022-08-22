@@ -66,7 +66,7 @@ function submitLocate() {
     v-model:show="showModal"
     preset="card"
     style="width: 50%"
-    title="상품 정보 수정"
+    title="주소정보추가"
   >
     <n-form
       ref="formRef"

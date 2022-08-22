@@ -63,6 +63,7 @@ interface CompanyInfo {
   companyNo: string; // 사업자등록번호
   companyCertificate: string[]; // 사업자 등록증 사진
   locations: LocateCRT[];
+  shipLocate?: LocateCRT;
   emailTax: string; // 세금 계산서 이메일 주소
   companyPhone: string; // 사업장 연락처
   currentAccount?: IoAccount; // 입출금 계좌

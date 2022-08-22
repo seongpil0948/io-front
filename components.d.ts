@@ -26,6 +26,7 @@ declare module '@vue/runtime-core' {
     IoSider: typeof import('./src/component/layout/IoSider.vue')['default']
     LayoutHeader: typeof import('./src/component/layout/LayoutHeader.vue')['default']
     LocateAppendModal: typeof import('./src/component/card/LocateAppendModal.vue')['default']
+    LocateList: typeof import('./src/component/card/LocateList.vue')['default']
     LoginPage: typeof import('./src/view/common/LoginPage.vue')['default']
     LogoChecker: typeof import('./src/component/input/LogoChecker.vue')['default']
     LogoImage: typeof import('./src/component/common/LogoImage.vue')['default']

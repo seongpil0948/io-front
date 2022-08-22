@@ -3,7 +3,7 @@ import { reactive, ref } from "vue";
 import { FormInst } from "naive-ui";
 import { Certificate } from "@vicons/carbon";
 import { arrLenRule, emailRule, nameLenRule } from "@/util";
-import { CompanyInfo, Locate, locateStr } from "@/composable";
+import { CompanyInfo } from "@/composable";
 
 const props = defineProps<{
   userId: string;
@@ -36,16 +36,6 @@ const rule = {
   managerName: nameLenRule,
   managerPhone: nameLenRule,
 };
-const showAppendModal = ref(false);
-function onLocateClose(l: Locate) {
-  formModel.locations.splice(
-    formModel.locations.findIndex((x) => x.alias === l.alias),
-    1
-  );
-}
-function onAppendLocate(l: Locate) {
-  formModel.locations.push(l);
-}
 
 defineExpose({ companyInfo: formModel });
 </script>
@@ -95,7 +85,8 @@ defineExpose({ companyInfo: formModel });
         />
       </n-form-item-gi>
       <n-form-item-gi span="2" label="주소목록" path="locations">
-        <n-space justify="space-around">
+        <locate-list v-model:info="formModel" />
+        <!-- <n-space justify="space-around">
           <n-tooltip
             trigger="hover"
             v-for="(i, idx) in formModel.locations"
@@ -114,7 +105,7 @@ defineExpose({ companyInfo: formModel });
         <locate-append-modal
           @appendLocate="onAppendLocate"
           v-model:showAppendModal="showAppendModal"
-        />
+        /> -->
       </n-form-item-gi>
       <n-form-item-gi label="사업장 연락처" path="companyPhone">
         <n-input

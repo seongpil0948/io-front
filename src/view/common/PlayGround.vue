@@ -2,6 +2,8 @@
 import { ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { darkTheme } from "naive-ui";
+
+import { useAuthStore } from "@/store";
 console.log("darkThemeOver: ", darkTheme);
 // >>> log >>>
 const log = useLogger();
@@ -9,7 +11,13 @@ const testObject = {
   name: "test",
   value: "this is a test object",
 };
+const auth = useAuthStore();
+const authModel = auth.currUser;
 
+async function updateUser() {
+  console.log("update");
+  await authModel.update();
+}
 function logging() {
   log.debug(null, "Test debug Message", testObject);
   log.info(null, "Test info Message", testObject);
@@ -24,14 +32,11 @@ function userActLog() {
 }
 // <<< log <<<
 // >>> area >>>
-
 const selectedArea = ref({
   city: null,
   county: null,
   town: null,
 });
-
-// <<< area <<<
 </script>
 <template>
   <n-h1>Play Ground</n-h1>
@@ -41,5 +46,10 @@ const selectedArea = ref({
       <n-button @click="userActLog">User Log Click</n-button>
     </n-space>
     <area-selector v-model:area="selectedArea" />
+    <locate-list
+      v-if="authModel && authModel.companyInfo"
+      v-model:info="authModel.companyInfo"
+      @update:info="updateUser"
+    />
   </n-card>
 </template>
