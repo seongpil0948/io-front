@@ -35,6 +35,16 @@ export class IoUser extends CommonField implements IoUserCRT {
   get showId() {
     return this.userInfo.email?.split("@")[0] ?? this.name;
   }
+  get availUncleAdvertise() {
+    const i = this.uncleInfo;
+    return (
+      i &&
+      i.pickupLocates.length > 0 &&
+      i.shipLocates.length > 0 &&
+      Object.keys(i.amountBySize).length > 0 &&
+      Object.keys(i.amountByWeight).length > 0
+    );
+  }
 
   isMe(other: IoUser) {
     return this.userInfo.userId === other.userInfo.userId;

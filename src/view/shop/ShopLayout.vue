@@ -4,6 +4,7 @@ import { ProductHunt, ShoppingCart } from "@vicons/fa";
 import { useAuthStore } from "@/store";
 import { useRouter } from "vue-router";
 import { renderIcon, renderRoute, getScreenSize, ScreenSize } from "@/util";
+import { LocalShippingRound } from "@vicons/material";
 const minHeight = "100vh";
 const router = useRouter();
 const authStore = useAuthStore();
@@ -46,6 +47,21 @@ const menuOptions: MenuOption[] = [
       },
       {
         label: () => renderRoute("픽업 요청", "PickupRequest"),
+        key: "PickupRequest",
+      },
+    ],
+  },
+  {
+    label: "배송/엉클",
+    key: "ShipUncle",
+    icon: renderIcon(LocalShippingRound),
+    children: [
+      {
+        label: () => renderRoute("엉클 관리(계약)", "ShopUncleManage"),
+        key: "ShopUncleManage",
+      },
+      {
+        label: () => renderRoute("픽업 현황 목록", "PickupRequest"),
         key: "PickupRequest",
       },
     ],

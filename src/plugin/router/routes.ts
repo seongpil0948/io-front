@@ -70,10 +70,10 @@ export const routes: Array<RouteRecordRaw> = [
       },
       {
         path: "/unclemanage",
-        name: "UncleManage",
+        name: "VendorUncleManage",
         component: () =>
           import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/UncleManage.vue"
+            /* webpackChunkName: "vendor" */ "@/view/vendor/page/VendorUncleManage.vue"
           ),
         meta: {
           allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
@@ -217,6 +217,28 @@ export const routes: Array<RouteRecordRaw> = [
           allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
         },
       },
+      {
+        path: "/uncleManage",
+        name: "ShopUncleManage",
+        component: () =>
+          import(
+            /* webpackChunkName: "shop" */ "@/view/shop/page/ShopUncleManage.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/uncleStatus",
+        name: "UncleStatus",
+        component: () =>
+          import(
+            /* webpackChunkName: "shop" */ "@/view/shop/page/UncleStatus.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+        },
+      },
     ],
   },
   {
@@ -227,6 +249,15 @@ export const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: "",
+        name: "UncleHome",
+        component: () =>
+          import(/* webpackChunkName: "uncle" */ "@/view/uncle/UncleHome.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "pickupTotalList",
         name: "PickupTotalList",
         component: () =>
           import(

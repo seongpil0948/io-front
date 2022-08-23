@@ -46,8 +46,8 @@ const menuOptions: MenuOption[] = [
     ],
   },
   {
-    label: () => renderRoute("엉클관리", "UncleManage"),
-    key: "UncleManage",
+    label: () => renderRoute("엉클관리", "VendorUncleManage"),
+    key: "VendorUncleManage",
     icon: renderIcon(PersonIcon),
   },
 ];

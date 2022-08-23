@@ -47,7 +47,7 @@ const menuOptions: MenuOption[] = [
   },
   {
     label: "엉클관리",
-    key: "UncleManage",
+    key: "UncleWorkerManage",
     icon: renderIcon(UserAvatarFilled),
     children: [
       {

@@ -59,6 +59,7 @@ interface IoUserInfo {
   phone?: string;
   managerId?: string; // 관리자 ID 근로자일경우 not null
   workerIds?: string[]; // 근로자 ID목록 관리자일경우 not null
+  uncleId?: string; // 엉클이 아닌 유저의 계약 엉클 아이디
 }
 interface CompanyInfo {
   companyName: string; // 상호명
