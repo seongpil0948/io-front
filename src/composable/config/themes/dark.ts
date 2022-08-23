@@ -1,4 +1,4 @@
-import type { GlobalThemeOverrides, darkTheme } from "naive-ui";
+import type { GlobalThemeOverrides } from "naive-ui";
 // const auth = useAuthStore()
 // const useDark = auth.user ? auth.user.preferDark : false
 const darkColors = {

@@ -47,6 +47,15 @@ const townOpt = computed(() => {
   }
 });
 watchEffect(() => emits("update:area", area.value));
+function onUpdateCity() {
+  area.value.county = null;
+  area.value.town = null;
+  emits("update:area", area.value);
+}
+function onUpdateCounty() {
+  area.value.town = null;
+  emits("update:area", area.value);
+}
 </script>
 <template>
   <n-space justify="space-around">
@@ -54,6 +63,7 @@ watchEffect(() => emits("update:area", area.value));
       style="color: yellow"
       filterable
       placeholder="시선택"
+      @update:value="onUpdateCity"
       v-model:value="area.city"
       :options="cityOpt"
     />
@@ -61,6 +71,7 @@ watchEffect(() => emits("update:area", area.value));
       filterable
       placeholder="구선택"
       v-model:value="area.county"
+      @update:value="onUpdateCounty"
       :options="countyOpt"
     />
     <n-select

@@ -18,16 +18,16 @@ export interface PickupCrt {
   updatedAt?: Date;
   shipments: IoShipment[];
   managerId: string; // 엉클관리자 아이디
-  shipFee: number;
-  shipDiscountPer: number; // 0 ~ 99 %
+  pickupFee: number;
+  pickDiscountPer: number; // 0 ~ 99 %
   uncleIds: string[]; // 엉클근로자 아이디, 토스시 변경가능
 }
 export class IoPickup extends CommonField implements PickupCrt {
   pickupId: string;
   shipments: IoShipment[];
   managerId: string; // 엉클관리자 아이디
-  shipFee: number;
-  shipDiscountPer: number; // 0 ~ 99 %
+  pickupFee: number; // 지역별 픽업 비용
+  pickDiscountPer: number; // 0 ~ 99 % 프로모션 적용퍼센트
   uncleIds: string[]; // 엉클근로자 아이디, 토스시 변경가능
 
   constructor(d: PickupCrt) {
@@ -35,8 +35,8 @@ export class IoPickup extends CommonField implements PickupCrt {
     this.pickupId = d.pickupId;
     this.shipments = d.shipments;
     this.managerId = d.managerId;
-    this.shipFee = d.shipFee;
-    this.shipDiscountPer = d.shipDiscountPer;
+    this.pickupFee = d.pickupFee;
+    this.pickDiscountPer = d.pickDiscountPer;
     this.uncleIds = d.uncleIds;
   }
   get pickupAmount() {
@@ -44,7 +44,7 @@ export class IoPickup extends CommonField implements PickupCrt {
       (acc, curr) => acc + curr.shipAmount,
       0
     );
-    return shipAmount + this.shipFee * this.shipDiscountPer;
+    return shipAmount + this.pickupFee * this.pickDiscountPer;
   }
 }
 
@@ -61,7 +61,6 @@ export interface ShipmentCrt {
   shipFee: number;
   prepaid: boolean;
   paid: boolean;
-  pickupFee: number;
   weightUnit: string;
   weight: number;
   sizeUnit: string;
@@ -83,7 +82,6 @@ export class IoShipment extends CommonField implements ShipmentCrt {
   shipMethod: SHIP_METHOD;
   additionalInfo: string;
   shipFee: number;
-  pickupFee: number;
   prepaid: boolean;
   paid: boolean;
   weightUnit: string;
@@ -109,7 +107,6 @@ export class IoShipment extends CommonField implements ShipmentCrt {
     this.shipFee = d.shipFee;
     this.prepaid = d.prepaid;
     this.paid = d.paid;
-    this.pickupFee = d.pickupFee;
     this.weightUnit = d.weightUnit;
     this.weight = d.weight;
     this.sizeUnit = d.sizeUnit;

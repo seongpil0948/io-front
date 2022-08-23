@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { IoUser, USER_DB, USER_PROVIDER, USER_ROLE } from "@/composable";
+import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { useMessage } from "naive-ui";
 import { getCurrentInstance, ref } from "vue";
 
+const auth = useAuthStore();
 const msg = useMessage();
 const inst = getCurrentInstance();
 const name = ref("");
@@ -83,10 +85,12 @@ async function onSignUp() {
         profileImg: profileImg.value ?? undefined,
         fcmTokens: [],
         passed: true,
+        managerId: auth.currUser.userInfo.userId,
       },
     });
     console.log("Signed User: ", user);
     await user.update();
+    await auth.currUser.setWorkerId(userId.value!);
     msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
     kakaoAuthed.value = false;
   }

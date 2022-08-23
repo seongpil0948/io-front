@@ -270,6 +270,17 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
+        path: "shipAreaManage",
+        name: "ShipAreaManage",
+        component: () =>
+          import(
+            /* webpackChunkName: "uncle" */ "@/view/uncle/page/ShipAreaManage.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
         path: "WorkerRegister",
         name: "WorkerRegister",
         component: () =>

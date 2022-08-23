@@ -1,4 +1,4 @@
-export const adminAreas = Object.freeze([
+export const shipAreas = Object.freeze([
   {
     code: "1100000000",
     city: "서울특별시",

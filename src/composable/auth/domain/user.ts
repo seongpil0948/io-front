@@ -1,4 +1,4 @@
-import { IoAccount, IoUser, LocateCRT } from "@/composable";
+import { IoAccount, IoUser, Locate, LocateCRT } from "@/composable";
 import { UserCredential } from "firebase/auth";
 
 type USER_ROLE =
@@ -57,6 +57,8 @@ interface IoUserInfo {
   fcmTokens: string[];
   passed: boolean; // 관리자(주네)에게 허가받은 사용자 인지
   phone?: string;
+  managerId?: string; // 관리자 ID 근로자일경우 not null
+  workerIds?: string[]; // 근로자 ID목록 관리자일경우 not null
 }
 interface CompanyInfo {
   companyName: string; // 상호명
@@ -78,11 +80,23 @@ export interface AccountInfo {
   name: string;
   bankName: string;
 }
+export interface LocateAmount {
+  locate: Locate;
+  amount: number;
+}
+export interface UncleInfo {
+  pickupLocates: LocateAmount[];
+  shipLocates: LocateAmount[];
+  amountBySize: { [unit: string]: number };
+  amountByWeight: { [unit: string]: number };
+}
+
 interface IoUserCRT {
   userInfo: IoUserInfo;
   companyInfo?: CompanyInfo;
   operInfo?: ShopOperInfo | VendorOperInfo;
   account?: AccountInfo;
+  uncleInfo?: UncleInfo;
   preferDark?: boolean;
 }
 export type UserFields = CompanyInfo &

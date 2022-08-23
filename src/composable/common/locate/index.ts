@@ -36,7 +36,16 @@ export class Locate implements LocateCRT {
   town?: string;
   locateType: LocateType;
   constructor(p: LocateCRT) {
-    if (!((p.postalCode && p.detailLocate) || (p.latitude && p.longitude))) {
+    if (
+      !(
+        (p.postalCode && p.detailLocate) ||
+        (p.latitude && p.longitude) ||
+        p.city ||
+        p.county ||
+        p.town
+      )
+    ) {
+      console.error(p);
       throw Error("위도,경도 혹은 우편코드,상세주소가 있어야 합니다.");
     }
     this.alias = p.alias;

@@ -17,7 +17,7 @@ export const useAuthStore = defineStore({
   state: () =>
     <AuthStoreInterface>{
       user: process.env.VUE_APP_IS_TEST
-        ? IoUser.fromJson(getMockVendors()[0])
+        ? IoUser.fromJson(getMockUncles()[0])
         : null,
       // user: null,
     },

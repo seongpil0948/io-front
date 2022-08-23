@@ -39,6 +39,10 @@ const menuOptions: MenuOption[] = [
         label: () => renderRoute("차량관리", "VehicleManage"),
         key: "VehicleManage",
       },
+      {
+        label: () => renderRoute("활동지역관리", "ShipAreaManage"),
+        key: "ShipAreaManage",
+      },
     ],
   },
   {

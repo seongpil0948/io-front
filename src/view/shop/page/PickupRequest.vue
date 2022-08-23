@@ -13,7 +13,7 @@ const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 const orders = shopOrderStore.getOrders(inStates);
 const garmentOrdersByVendor =
   shopOrderStore.getGarmentOrdersByVendor(filteredOrders);
-const { tableRef, byVendorCol, byVendorKeys } = useOrderTable({
+const { tableRef, byVendorCol } = useOrderTable({
   garmentOrders: filteredOrders,
   orders,
   updateOrderCnt: true,

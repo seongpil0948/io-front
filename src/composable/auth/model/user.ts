@@ -4,6 +4,7 @@ import {
   IoUserCRT,
   IoUserInfo,
   ShopOperInfo,
+  UncleInfo,
   USER_PROVIDER,
   USER_ROLE,
   VendorOperInfo,
@@ -26,6 +27,7 @@ export class IoUser extends CommonField implements IoUserCRT {
   operInfo?: ShopOperInfo | VendorOperInfo;
   account?: AccountInfo;
   preferDark = false;
+  uncleInfo?: UncleInfo;
 
   get name() {
     return this.userInfo.displayName ?? this.userInfo.userName;
@@ -44,7 +46,16 @@ export class IoUser extends CommonField implements IoUserCRT {
     this.companyInfo = c.companyInfo;
     this.operInfo = c.operInfo;
     this.account = c.account;
+    this.uncleInfo = c.uncleInfo;
     this.preferDark = c.preferDark ?? true;
+    if (this.userInfo.role === USER_ROLE.UNCLE && !this.uncleInfo) {
+      this.uncleInfo = {
+        pickupLocates: [],
+        shipLocates: [],
+        amountBySize: {},
+        amountByWeight: {},
+      };
+    }
   }
 
   async update() {
@@ -98,6 +109,7 @@ export class IoUser extends CommonField implements IoUserCRT {
           operInfo: data.operInfo,
           account: data.account,
           preferDark: data.preferDark ?? false,
+          uncleInfo: data.uncleInfo,
         })
       : null;
   }
@@ -117,6 +129,14 @@ export class IoUser extends CommonField implements IoUserCRT {
         return data !== undefined ? IoUser.fromJson(data) : null;
       },
     };
+  }
+  async setWorkerId(userId: string) {
+    if (!this.userInfo.workerIds) {
+      this.userInfo.workerIds = [userId];
+    } else {
+      this.userInfo.workerIds.push(userId);
+    }
+    await this.update();
   }
 }
 
