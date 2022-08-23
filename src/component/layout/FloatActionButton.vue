@@ -2,6 +2,7 @@
 import { WalletOutline, PersonCircleOutline } from "@vicons/ionicons5";
 import { CloudLogging } from "@vicons/carbon";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const walletShow = ref(false);
 const handleWalletClose = () => (walletShow.value = false);
@@ -15,10 +16,16 @@ const handleUserLogClose = () => (userLogShow.value = false);
 //     clearHideTimer();
 //     // doUpdateShow(false);
 // }
+const router = useRouter();
+console.log();
 </script>
 
 <template>
-  <div style="position: fixed; bottom: 10%; right: 100px">
+  <div
+    :style="`position: fixed; bottom: 10%; right: ${
+      router.currentRoute.value.path.includes('uncle') ? '23vw' : '10vw'
+    } `"
+  >
     <div class="menu" onclick="this.classList.toggle('open')">
       <n-popover
         display-directive="if"

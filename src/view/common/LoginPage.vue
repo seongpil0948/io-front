@@ -123,6 +123,7 @@ async function onKakaoLogin() {
       src="/img/kakao_login_medium_wide.png"
       style="cursor: pointer"
     />
+    <io-footer />
   </n-space>
 </template>
 

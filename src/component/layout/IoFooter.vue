@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IoUser } from "@/composable";
+import { IoUser, USER_DB } from "@/composable";
 import { KAKAO_CHANNEL_ID } from "@/constants";
 import { useAuthStore } from "@/store";
 import {
@@ -24,19 +24,20 @@ function csChat() {
 async function toVendor() {
   const u = IoUser.fromJson(getMockVendors()[0])!;
   // await u.update();
-  await auth.login(u);
+  const realUser = await USER_DB.getUserById(u.userInfo.userId);
+  await auth.login(realUser!);
   router.goHome(auth.user!);
 }
 async function toShop() {
   const u = IoUser.fromJson(getMockShops()[0])!;
-  // await u.update();
-  auth.login(u);
+  const realUser = await USER_DB.getUserById(u.userInfo.userId);
+  await auth.login(realUser!);
   router.goHome(auth.user!);
 }
 async function toUncle() {
   const u = IoUser.fromJson(getMockUncles()[0])!;
-  // await u.update();
-  auth.login(u);
+  const realUser = await USER_DB.getUserById(u.userInfo.userId);
+  await auth.login(realUser!);
   router.goHome(auth.user!);
 }
 </script>
@@ -50,6 +51,8 @@ async function toUncle() {
       border: none;
       font-size: smaller;
       margin-bottom: 2vh;
+      background-color: transparent;
+      margin-top: auto;
       padding: 12px;
     "
   >

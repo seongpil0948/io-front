@@ -1,10 +1,5 @@
 import { defineStore } from "pinia";
 import { getAuth, signOut } from "firebase/auth";
-import {
-  getMockShops,
-  getMockVendors,
-  getMockUncles,
-} from "../../tests/e2e/fixtures/users";
 import { IoUser } from "@/composable/auth/model/user";
 import { USER_ROLE } from "@/composable/auth/domain";
 import router from "@/plugin/router";
@@ -16,10 +11,7 @@ export const useAuthStore = defineStore({
   id: "auth",
   state: () =>
     <AuthStoreInterface>{
-      user: process.env.VUE_APP_IS_TEST
-        ? IoUser.fromJson(getMockUncles()[0])
-        : null,
-      // user: null,
+      user: null,
     },
   getters: {
     currUser(): IoUser {
