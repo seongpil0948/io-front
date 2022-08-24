@@ -218,7 +218,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/uncleManage",
+        path: "/shopUncleManage",
         name: "ShopUncleManage",
         component: () =>
           import(

@@ -45,7 +45,7 @@ function getHomeName(role?: USER_ROLE) {
   if (!role) return "Login";
   else if (role === USER_ROLE.VENDOR) return "VendorHome";
   else if (role === USER_ROLE.SHOP) return "ShopHome";
-  else if (role === USER_ROLE.UNCLE) return "PickupTotalList";
+  else if (role === USER_ROLE.UNCLE) return "UncleHome";
   return "Login";
 }
 export function getPathByRole() {
