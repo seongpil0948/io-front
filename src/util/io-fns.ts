@@ -20,3 +20,7 @@ export function uniqueFilter<T>(arr: T[]): T[] {
 export function range(start: number, end: number) {
   return Array.from(Array(end - start).keys()).map((x) => x + 1);
 }
+export function choice<T>(choices: T[]): T {
+  const index = Math.floor(Math.random() * choices.length);
+  return choices[index];
+}

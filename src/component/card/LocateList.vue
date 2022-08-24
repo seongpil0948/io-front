@@ -9,7 +9,7 @@ const { info } = toRefs(props);
 const emits = defineEmits<{
   (e: "update:info", value: CompanyInfo): void;
 }>();
-const locates = computed<Locate[]>(() => info.value.locations ?? []);
+const locates = computed(() => info.value.locations ?? []);
 
 const showAppendModal = ref(false);
 function onAppendLocate(l: Locate) {
@@ -41,10 +41,12 @@ const locateKey = [
 </script>
 
 <template>
-  <div v-if="info">
+  <n-space v-if="info" style="overflow-x: scroll" :wrap="false">
     <n-tooltip trigger="hover" v-for="(i, idx) in locates" :key="idx">
       <template #trigger>
-        <n-tag round closable @close="onLocateClose(i)"> {{ i.alias }}</n-tag>
+        <n-tag round closable @close="onLocateClose(i as Locate)">
+          {{ i.alias }}</n-tag
+        >
       </template>
       <!-- keyword:  {{ locateStr(i) }} -->
       <n-card style="width: 25vw" title="주소지 정보">
@@ -52,7 +54,7 @@ const locateKey = [
           <n-button
             v-if="info.shipLocate?.postalCode !== i.postalCode"
             size="small"
-            @click="setShipAddr(i)"
+            @click="setShipAddr(i as Locate)"
           >
             배송지 선정
           </n-button>
@@ -63,10 +65,11 @@ const locateKey = [
         </n-space>
       </n-card>
     </n-tooltip>
+    <div style="width: 5px"></div>
     <n-button size="small" @click="showAppendModal = true">추가 </n-button>
     <locate-append-modal
       @appendLocate="onAppendLocate"
       v-model:showAppendModal="showAppendModal"
     />
-  </div>
+  </n-space>
 </template>

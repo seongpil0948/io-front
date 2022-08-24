@@ -56,14 +56,14 @@ async function updateUser() {
           <n-text strong>대표 연락처</n-text>
           <n-text>{{ authModel.companyInfo!.ceoPhone }}</n-text>
         </div>
-        <div class="io-row">
+        <n-space justify="space-between" :wrap="false">
           <n-text strong>주소지</n-text>
           <locate-list
             v-if="authModel.companyInfo"
             v-model:info="authModel.companyInfo"
             @update:info="updateUser"
           />
-        </div>
+        </n-space>
         <n-a
           target="_blank"
           rel="noopener noreferrer"

@@ -58,7 +58,7 @@ function onUpdateCounty() {
 }
 </script>
 <template>
-  <n-space justify="space-around">
+  <n-space justify="space-around" :wrap="false">
     <n-select
       style="color: yellow"
       filterable

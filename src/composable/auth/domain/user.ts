@@ -91,13 +91,20 @@ export interface UncleInfo {
   amountBySize: { [unit: string]: number };
   amountByWeight: { [unit: string]: number };
 }
+export interface WorkerInfo {
+  areaInCharges: Location[];
+  formOfEmp: "partTime" | "fullTime";
+  startDate: Date; // 입사일;
+  endDate: Date; // 퇴사일
+  payday: Date;
+}
 
 interface IoUserCRT {
   userInfo: IoUserInfo;
   companyInfo?: CompanyInfo;
   operInfo?: ShopOperInfo | VendorOperInfo;
   account?: AccountInfo;
-  uncleInfo?: UncleInfo;
+  uncleInfo?: UncleInfo; // uncle manager info
   preferDark?: boolean;
 }
 export type UserFields = CompanyInfo &

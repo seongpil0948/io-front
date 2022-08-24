@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { IoUser, USER_DB, USER_PROVIDER, USER_ROLE } from "@/composable";
+import {
+  IoUser,
+  usePickArea,
+  USER_DB,
+  USER_PROVIDER,
+  USER_ROLE,
+} from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { useMessage } from "naive-ui";
@@ -16,24 +22,7 @@ const email = ref(null);
 // FIXME: 저장안되는중 타겟건물들 관리자가 등록하면, 그 아이디들 저장하도록
 const areaInCharges = ref([]);
 const profileImg = ref(null);
-const options = [
-  {
-    label: "건물1",
-    value: "song0",
-  },
-  {
-    label: "건물2",
-    value: "song1",
-  },
-  {
-    label: "건물3",
-    value: "song2",
-  },
-  {
-    label: "건물4",
-    value: "song3",
-  },
-];
+const { treeOpt } = usePickArea();
 const kakaoAuthed = ref(false);
 function fail(err: any) {
   msg.error(`카카오 로그인 에러${JSON.stringify(err)}`);
@@ -122,12 +111,13 @@ const width = "35vw";
         <n-gradient-text type="info"> 연락처 </n-gradient-text>
       </template>
     </n-input>
-    <n-select
-      :style="`width: ${width}`"
+    <n-tree-select
+      multiple
       placeholder="담당건물"
       v-model:value="areaInCharges"
-      multiple
-      :options="options"
+      cascade
+      checkable
+      :options="treeOpt"
     />
 
     <n-button :style="`width: ${width}`" @click="onSignUp"> 가입하기 </n-button>

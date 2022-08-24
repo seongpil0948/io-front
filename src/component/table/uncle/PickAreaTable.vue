@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LocateAmount, Locate } from "@/composable";
+import { LocateAmount, Locate, usePickArea } from "@/composable";
 import { useAuthStore } from "@/store";
 import { useMessage, DataTableColumns, NText, NButton } from "naive-ui";
 import { ref, h } from "vue";
@@ -7,7 +7,7 @@ import { ref, h } from "vue";
 const msg = useMessage();
 const auth = useAuthStore();
 const u = auth.currUser;
-
+const { data } = usePickArea();
 const selectedArea = ref({
   city: null,
   alias: null,
@@ -17,9 +17,19 @@ async function addShipArea() {
   const v = selectedArea.value;
   if (!(v.city || v.alias) || !v.amount) {
     msg.error("올바르게 지역을 선택 해주세요.");
+    return;
   }
+  const target = data.value.find(
+    (x) => x.city === v.city && x.alias === v.alias
+  );
+  if (!target)
+    throw new Error(
+      "city or alias not matched, is there any duplicate code?" +
+        JSON.stringify(v)
+    );
   const locate: LocateAmount = {
     locate: new Locate({
+      code: target.code,
       alias: v.alias ?? "",
       country: "",
       locateType: "기타",
@@ -72,7 +82,7 @@ const cols1: DataTableColumns<LocateAmount> = [
 ];
 </script>
 <template>
-  <n-space>
+  <n-space style="margin-top: 2.5%; margin-bottom: 2.5%">
     <pick-area-selector v-model:area="selectedArea" />
     <n-input-number
       v-model:value="selectedArea.amount"

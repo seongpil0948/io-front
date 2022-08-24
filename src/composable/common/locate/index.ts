@@ -1,5 +1,5 @@
 export * from "./area";
-
+import { v4 as uuidv4 } from "uuid";
 export type LocateType = "매장" | "창고" | "기타";
 export const LocateType: { [key: string]: LocateType } = {
   SHOP: "매장",
@@ -7,6 +7,7 @@ export const LocateType: { [key: string]: LocateType } = {
   ETC: "기타",
 };
 export interface LocateCRT {
+  code?: string;
   alias: string;
   latitude?: number; // 위도
   longitude?: number; // 경도
@@ -22,6 +23,7 @@ export interface LocateCRT {
   locateType: LocateType;
 }
 export class Locate implements LocateCRT {
+  code: string;
   alias: string;
   latitude?: number; // 위도
   longitude?: number; // 경도
@@ -40,14 +42,15 @@ export class Locate implements LocateCRT {
       !(
         (p.postalCode && p.detailLocate) ||
         (p.latitude && p.longitude) ||
-        p.city ||
-        p.county ||
-        p.town
+        (p.code && (p.city || p.county || p.town))
       )
     ) {
       console.error(p);
-      throw Error("위도,경도 혹은 우편코드,상세주소가 있어야 합니다.");
+      throw Error(
+        "위도,경도 혹은 우편코드,상세주소가 있어야 합니다. \n city county town 을 사용시 간이주소와 매핑 가능한 code 를 함께 입력 해주십시오."
+      );
     }
+    this.code = p.code ?? uuidv4();
     this.alias = p.alias;
     this.latitude = p.latitude;
     this.longitude = p.longitude;

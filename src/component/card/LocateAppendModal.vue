@@ -50,7 +50,12 @@ const rule = {
   locateType: nameLenRule,
 };
 function submitLocate() {
-  if (!formRef.value) return;
+  if (!formModel.city || !formModel.county || !formModel.town) {
+    msg.error("행정구역을 입력 해주십시오");
+    return;
+  } else if (!formRef.value) {
+    return;
+  }
   formRef.value.validate((errors) => {
     if (errors) {
       msg.error("올바른 형식의 주소를 입력 해주십시오");
@@ -93,7 +98,13 @@ function submitLocate() {
         <n-form-item-gi label="별칭" path="alias">
           <n-input v-model:value="formModel.alias" placeholder="별칭 입력" />
         </n-form-item-gi>
-        <n-form-item-gi label="도시" path="city">
+        <n-form-item-gi label="행정구역">
+          <area-selector
+            style="margin-bottom: 1%; margin-top: 1%"
+            v-model:area="formModel"
+          />
+        </n-form-item-gi>
+        <!-- <n-form-item-gi label="도시" path="city">
           <n-input v-model:value="formModel.city" placeholder="도시 입력" />
         </n-form-item-gi>
         <n-form-item-gi label="구" path="county">
@@ -101,7 +112,8 @@ function submitLocate() {
         </n-form-item-gi>
         <n-form-item-gi label="동" path="town">
           <n-input v-model:value="formModel.town" placeholder="동 입력" />
-        </n-form-item-gi>
+        </n-form-item-gi> -->
+
         <n-form-item-gi label="우편번호" path="postalCode">
           <n-input
             v-model:value="formModel.postalCode"

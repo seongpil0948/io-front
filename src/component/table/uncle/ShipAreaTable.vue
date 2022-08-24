@@ -3,7 +3,7 @@ import { LocateAmount, Locate } from "@/composable";
 import { useAuthStore } from "@/store";
 import { useMessage, DataTableColumns, NText, NButton } from "naive-ui";
 import { ref, h } from "vue";
-
+import { v4 as uuidv4 } from "uuid";
 const msg = useMessage();
 const auth = useAuthStore();
 const u = auth.currUser;
@@ -18,9 +18,11 @@ async function addShipArea() {
   const v = selectedArea.value;
   if (!(v.city || v.county || v.town) || !v.amount) {
     msg.error("올바르게 지역을 선택 해주세요.");
+    return;
   }
   const locate: LocateAmount = {
     locate: new Locate({
+      code: uuidv4(),
       alias: "",
       country: "",
       locateType: "기타",
@@ -87,7 +89,7 @@ const cols1: DataTableColumns<LocateAmount> = [
 ];
 </script>
 <template>
-  <n-space>
+  <n-space style="margin-top: 2.5%; margin-bottom: 2.5%">
     <area-selector v-model:area="selectedArea" />
     <n-input-number
       v-model:value="selectedArea.amount"
