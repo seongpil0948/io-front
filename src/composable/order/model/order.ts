@@ -26,7 +26,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   orderDate?: Date;
   doneDate?: Date;
   dbId: string;
-  orderIds: string[];
+  orderIds: string[]; // garment order ids
   itemIds: string[];
   parent?: OrderParent;
   states: ORDER_STATE[];

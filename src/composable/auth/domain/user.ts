@@ -91,6 +91,9 @@ export interface UncleInfo {
   amountBySize: { [unit: string]: number };
   amountByWeight: { [unit: string]: number };
 }
+export interface ShopInfo {
+  uncleUserIds: string[];
+}
 export interface WorkerInfo {
   areaInCharges: Location[];
   formOfEmp: "partTime" | "fullTime";
@@ -106,6 +109,8 @@ interface IoUserCRT {
   account?: AccountInfo;
   uncleInfo?: UncleInfo; // uncle manager info
   preferDark?: boolean;
+  shopInfo?: ShopInfo;
+  workerInfo?: WorkerInfo;
 }
 export type UserFields = CompanyInfo &
   IoUserInfo &

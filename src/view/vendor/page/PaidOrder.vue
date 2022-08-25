@@ -23,9 +23,9 @@ onBeforeMount(() => store.init(user.userInfo.userId));
         <n-tab-pane
           display-directive="show:lazy"
           tab="출고 리스트"
-          name="BEFORE_PICKUP"
+          name="BEFORE_PICKUP_REQ"
         >
-          <order-by-shop-expand-table :inStates="['BEFORE_PICKUP']" />
+          <order-by-shop-expand-table :inStates="['BEFORE_PICKUP_REQ']" />
         </n-tab-pane>
       </n-tabs>
     </n-card>

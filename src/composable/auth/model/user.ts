@@ -3,11 +3,13 @@ import {
   CompanyInfo,
   IoUserCRT,
   IoUserInfo,
+  ShopInfo,
   ShopOperInfo,
   UncleInfo,
   USER_PROVIDER,
   USER_ROLE,
   VendorOperInfo,
+  WorkerInfo,
 } from "@/composable";
 import { CommonField } from "../../common/model";
 import { useAuthStore } from "@/store";
@@ -28,6 +30,8 @@ export class IoUser extends CommonField implements IoUserCRT {
   account?: AccountInfo;
   preferDark = false;
   uncleInfo?: UncleInfo;
+  shopInfo?: ShopInfo;
+  workerInfo?: WorkerInfo;
 
   get name() {
     return this.userInfo.displayName ?? this.userInfo.userName;
@@ -51,6 +55,7 @@ export class IoUser extends CommonField implements IoUserCRT {
   }
 
   constructor(c: IoUserCRT) {
+    const date = new Date();
     super(c.userInfo.createdAt, c.userInfo.updatedAt);
     this.userInfo = c.userInfo;
     this.companyInfo = c.companyInfo;
@@ -58,12 +63,24 @@ export class IoUser extends CommonField implements IoUserCRT {
     this.account = c.account;
     this.uncleInfo = c.uncleInfo;
     this.preferDark = c.preferDark ?? true;
-    if (this.userInfo.role === USER_ROLE.UNCLE && !this.uncleInfo) {
+    if (this.userInfo.role === "UNCLE" && !this.uncleInfo) {
       this.uncleInfo = {
         pickupLocates: [],
         shipLocates: [],
         amountBySize: {},
         amountByWeight: {},
+      };
+    } else if (this.userInfo.role === "UNCLE_WORKER" && !this.workerInfo) {
+      this.workerInfo = {
+        areaInCharges: [],
+        formOfEmp: "partTime",
+        startDate: date,
+        endDate: date,
+        payday: date,
+      };
+    } else if (this.userInfo.role === "SHOP" && !this.shopInfo) {
+      this.shopInfo = {
+        uncleUserIds: [],
       };
     }
   }
@@ -120,6 +137,8 @@ export class IoUser extends CommonField implements IoUserCRT {
           account: data.account,
           preferDark: data.preferDark ?? false,
           uncleInfo: data.uncleInfo,
+          workerInfo: data.workerInfo,
+          shopInfo: data.shopInfo,
         })
       : null;
   }

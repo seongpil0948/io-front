@@ -30,7 +30,7 @@ onBeforeMount(() => store.init(user.userInfo.userId));
           <order-by-shop-expand-table
             :inStates="[
               'BEFORE_PAYMENT',
-              'BEFORE_PICKUP',
+              'BEFORE_PICKUP_REQ',
               'BEFORE_SHIP',
               'SHIPPING',
               'SHIPPING_COMPLETE',

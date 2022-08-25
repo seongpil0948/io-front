@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { IoUser, USER_DB } from "@/composable";
 import { useAuthStore } from "@/store";
+import { useMessage } from "naive-ui";
 import { computed, onBeforeMount, ref } from "vue";
 
+const msg = useMessage();
 const auth = useAuthStore();
 const u = auth.currUser;
 const uncles = ref<IoUser[]>([]);
@@ -18,6 +20,27 @@ const title = computed(
     selectedUser.value?.userInfo.displayName ??
     selectedUser.value?.userInfo.userName
 );
+function onDetail(uncle: IoUser) {
+  console.log("onDetail Me: ", u, "with Uncle: ", uncle);
+  selectedUser.value = uncle;
+  showModal.value = true;
+}
+async function onContract() {
+  if (!selectedUser.value) return;
+  const uId = selectedUser.value.userInfo.userId;
+  if (!u.shopInfo?.uncleUserIds.includes(uId)) {
+    u.shopInfo?.uncleUserIds.push(uId);
+    await u.update();
+    msg.success("추가 완료.");
+  } else {
+    msg.error("이미 계약된 유저입니다.");
+  }
+  showModal.value = false;
+}
+function onClose() {
+  showModal.value = false;
+}
+
 const bodyStyle = {
   width: "600px",
 };
@@ -38,7 +61,7 @@ const showModal = ref(false);
       responsive="screen"
     >
       <n-grid-item v-for="(uncle, idx) in uncles" :key="idx">
-        <uncle-thum-info :uncleUser="uncle" />
+        <uncle-thum-info @onDetail="onDetail(uncle)" :uncleUser="uncle" />
       </n-grid-item>
     </n-grid>
   </n-card>
@@ -54,6 +77,11 @@ const showModal = ref(false);
   >
     <template #header-extra> Oops! </template>
     Content
-    <template #footer> Footer </template>
+    <template #action>
+      <n-space justify="space-around">
+        <n-button @click="onClose">닫기</n-button>
+        <n-button @click="onContract">계약하기</n-button>
+      </n-space>
+    </template>
   </n-modal>
 </template>

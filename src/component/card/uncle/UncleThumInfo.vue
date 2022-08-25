@@ -2,7 +2,7 @@
 import { IoUser } from "@/composable";
 import { useAuthStore } from "@/store";
 import { useMessage } from "naive-ui";
-import { computed, onBeforeMount, ref, toRefs } from "vue";
+import { computed, onBeforeMount, toRefs } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { useRouter } from "vue-router";
 
@@ -34,8 +34,12 @@ const shipAmount = computed(() => {
   return userLocate ? userLocate.amount.toLocaleString() : "배송불가";
 });
 
-function onContact() {
-  console.log("On Contact Me: ", u, "with Uncle: ", uncle.value);
+const emits = defineEmits<{
+  (e: "onDetail"): void;
+}>();
+
+function onDetail() {
+  emits("onDetail");
 }
 </script>
 <template>
@@ -56,7 +60,7 @@ function onContact() {
     </n-space>
     <template #action>
       <n-space justify="end">
-        <n-button @click="onContact">계약하기</n-button>
+        <n-button @click="onDetail">상세보기</n-button>
       </n-space>
     </template>
   </n-card>

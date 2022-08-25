@@ -39,6 +39,14 @@ async function getOrders(constraints: QueryConstraint[]) {
 }
 
 export const OrderGarmentFB: OrderDB<GarmentOrder> = {
+  reqPickup: async function (orderDbIds: string[], prodOrderIds: string[]) {
+    await stateModify(
+      orderDbIds,
+      prodOrderIds,
+      "BEFORE_PICKUP_REQ",
+      "BEFORE_APPROVE_PICKUP"
+    );
+  },
   completePay: async function (orderDbIds: string[], prodOrderIds: string[]) {
     await stateModify(
       orderDbIds,
@@ -52,7 +60,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       orderDbIds,
       prodOrderIds,
       "BEFORE_READY",
-      "BEFORE_PICKUP"
+      "BEFORE_PICKUP_REQ"
     );
   },
   orderReject: async function (orderDbIds: string[], prodOrderIds: string[]) {

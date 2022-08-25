@@ -61,8 +61,8 @@ const menuOptions: MenuOption[] = [
         key: "ShopUncleManage",
       },
       {
-        label: () => renderRoute("픽업 현황 목록", "PickupRequest"),
-        key: "PickupRequest",
+        label: () => renderRoute("픽업 현황 목록", "UncleStatus"),
+        key: "UncleStatus",
       },
     ],
   },
