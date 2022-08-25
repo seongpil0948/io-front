@@ -15,18 +15,16 @@ const selectedArea = ref({
 });
 async function addShipArea() {
   const v = selectedArea.value;
-  if (!(v.city || v.alias) || !v.amount) {
-    msg.error("올바르게 지역을 선택 해주세요.");
-    return;
-  }
   const target = data.value.find(
     (x) => x.city === v.city && x.alias === v.alias
   );
-  if (!target)
+  if (!target) {
+    msg.error("올바르게 지역을 선택 해주세요.");
     throw new Error(
       "city or alias not matched, is there any duplicate code?" +
         JSON.stringify(v)
     );
+  }
   const locate: LocateAmount = {
     locate: new Locate({
       code: target.code,

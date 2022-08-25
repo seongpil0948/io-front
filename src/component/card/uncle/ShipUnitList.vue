@@ -62,10 +62,11 @@ const data = computed(() =>
 );
 
 async function onAdd() {
-  formRef.value?.validate((errors) => {
+  await formRef.value?.validate(async (errors) => {
     if (!errors) {
       const val = formValue.value;
       target[val.unit] = val.amount;
+      await u.update();
       message.success("추가완료 ");
       showModal.value = false;
     } else {

@@ -46,7 +46,7 @@ const selectedArea = ref({
       <n-button @click="userActLog">User Log Click</n-button>
     </n-space>
     <area-selector v-model:area="selectedArea" />
-    <locate-list
+    <user-locate-list
       v-if="authModel && authModel.companyInfo"
       v-model:info="authModel.companyInfo"
       @update:info="updateUser"

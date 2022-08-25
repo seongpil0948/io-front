@@ -85,7 +85,7 @@ defineExpose({ companyInfo: formModel });
         />
       </n-form-item-gi>
       <n-form-item-gi span="2" label="주소목록" path="locations">
-        <locate-list v-model:info="formModel" />
+        <user-locate-list v-model:info="formModel" />
         <!-- <n-space justify="space-around">
           <n-tooltip
             trigger="hover"

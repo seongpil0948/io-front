@@ -3,7 +3,7 @@ import { LocateAmount, Locate } from "@/composable";
 import { useAuthStore } from "@/store";
 import { useMessage, DataTableColumns, NText, NButton } from "naive-ui";
 import { ref, h } from "vue";
-import { v4 as uuidv4 } from "uuid";
+import { shipAreas } from "@/asset/administrationAreas";
 const msg = useMessage();
 const auth = useAuthStore();
 const u = auth.currUser;
@@ -16,19 +16,25 @@ const selectedArea = ref({
 });
 async function addShipArea() {
   const v = selectedArea.value;
-  if (!(v.city || v.county || v.town) || !v.amount) {
+  const target = shipAreas.find(
+    (x) => x.city === v.city && x.county === v.county && x.town === v.town
+  );
+  if (!target) {
     msg.error("올바르게 지역을 선택 해주세요.");
-    return;
+    throw new Error(
+      "city or alias not matched, is there any duplicate code?" +
+        JSON.stringify(v)
+    );
   }
   const locate: LocateAmount = {
     locate: new Locate({
-      code: uuidv4(),
-      alias: "",
+      code: target.code,
+      alias: target.town,
       country: "",
       locateType: "기타",
       city: v.city!,
-      county: v.county!,
-      town: v.town!,
+      county: v.county ?? "",
+      town: v.town ?? "",
     }),
     amount: v.amount,
   };

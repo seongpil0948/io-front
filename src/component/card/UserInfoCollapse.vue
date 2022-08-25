@@ -58,7 +58,7 @@ async function updateUser() {
         </div>
         <n-space justify="space-between" :wrap="false">
           <n-text strong>주소지</n-text>
-          <locate-list
+          <user-locate-list
             v-if="authModel.companyInfo"
             v-model:info="authModel.companyInfo"
             @update:info="updateUser"

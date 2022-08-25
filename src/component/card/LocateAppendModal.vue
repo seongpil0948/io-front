@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { shipAreas } from "@/asset/administrationAreas";
 import { Locate, LocateCRT, LocateType } from "@/composable";
 import { locateTypeOpt, nameLenRule } from "@/util";
 import { FormInst, useMessage } from "naive-ui";
@@ -50,7 +51,13 @@ const rule = {
   locateType: nameLenRule,
 };
 function submitLocate() {
-  if (!formModel.city || !formModel.county || !formModel.town) {
+  const adminArea = shipAreas.find(
+    (x) =>
+      x.city === formModel.city &&
+      x.county === formModel.county &&
+      x.town === formModel.town
+  );
+  if (!adminArea) {
     msg.error("행정구역을 입력 해주십시오");
     return;
   } else if (!formRef.value) {
@@ -61,7 +68,10 @@ function submitLocate() {
       msg.error("올바른 형식의 주소를 입력 해주십시오");
       log.debug(null, errors);
     } else {
-      const result = new Locate(Object.assign({}, formModel));
+      const result = new Locate(
+        Object.assign({}, formModel, { code: adminArea.code })
+      );
+
       log.debug(null, errors, "submitLocate: ", result);
       emits("appendLocate", result);
       emits("update:showAppendModal", false);
