@@ -37,6 +37,15 @@ export class Locate implements LocateCRT {
   county?: string;
   town?: string;
   locateType: LocateType;
+
+  get toStr() {
+    let str = " ";
+    if (this.alias) str += this.alias + " ";
+    if (this.city) str += this.city + " ";
+    if (this.county) str += this.county + " ";
+    if (this.town) str += this.town + " ";
+    return str;
+  }
   constructor(p: LocateCRT) {
     if (
       !(

@@ -31,7 +31,7 @@ const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 const orders = shopOrderStore.getOrders(inStates);
 const garmentOrdersByVendor =
   shopOrderStore.getGarmentOrdersByVendor(filteredOrders);
-const { tableRef, byVendorCol, checkedKeys } = useOrderTable({
+const { tableRef, byVendorCol, byVendorKeys } = useOrderTable({
   garmentOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
@@ -42,15 +42,32 @@ async function pickupRequest() {
   const uncle = contractUncles.value.find(
     (x) => x.userInfo.userId === targetUncleId.value
   )!;
-  console.log("targetUncle.value: ", uncle);
+  if (!uncle) return msg.error("엉클을 선택 해주세요");
+  else if (byVendorKeys.value.length < 1) {
+    return msg.error("주문을 선택 해주세요");
+  }
+  const filtered = garmentOrdersByVendor.value.filter((x) =>
+    byVendorKeys.value.includes(x.vendorId)
+  );
+  const prodOrderIds = filtered.flatMap((x) => x.items).map((y) => y.id);
   const orderIds: string[] = [];
   orders.value.forEach((x) => {
-    if (x.itemIds.some((y) => checkedKeys.value.includes(y))) {
+    if (x.itemIds.some((y) => prodOrderIds.includes(y))) {
       orderIds.push(x.dbId);
     }
   });
-  await ORDER_GARMENT_DB.reqPickup(orderIds, checkedKeys.value);
-  msg.success("픽업 요청 성공!");
+  console.log("targetUncle.value: ", uncle, byVendorKeys.value, orderIds);
+
+  if (orderIds.length > 0) {
+    await ORDER_GARMENT_DB.reqPickup(
+      orderIds,
+      prodOrderIds,
+      uncle.userInfo.userId
+    );
+    msg.success("픽업 요청 성공!");
+  } else {
+    msg.success("픽업 요청 실패!");
+  }
 }
 </script>
 

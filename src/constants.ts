@@ -5,4 +5,5 @@ export const KAKAO_CHANNEL_ID = "_lwnyb";
 export const IO_COSTS = {
   REQ_ORDER: 1,
   APPROVE_ORDER: 2,
+  APPROVE_PICKUP: 1,
 };

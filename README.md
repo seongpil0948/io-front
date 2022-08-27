@@ -1,8 +1,10 @@
 # io-front
 
 ## TODO
-- 한함수에서 여러 데이터가 변경될때, 일관성 유지를 위해 Transaction 을 이용해야한다.
-- 각 데이터 저장시 updateAt 또한 업데이트, 필요할 경우 리스트 정렬필요.
+- readonly, private, protect 등 처리
+- 각 클래스 updatedAt 확인
+# Agenda
+- 한함수에서 한개 이상의 테이블을 다룰ㄸ, 일관성 유지를 위해 Transaction 을 이용해야한다.
 #  Reference
 ### Vscode Setup
   - [typescript-vue](https://github.com/idahogurl/vs-code-prettier-eslint/tree/master/examples/typescript-vue)

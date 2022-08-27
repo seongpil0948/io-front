@@ -63,6 +63,8 @@ export class IoUser extends CommonField implements IoUserCRT {
     this.account = c.account;
     this.uncleInfo = c.uncleInfo;
     this.preferDark = c.preferDark ?? true;
+    this.shopInfo = c.shopInfo;
+    this.workerInfo = c.workerInfo;
     if (this.userInfo.role === "UNCLE" && !this.uncleInfo) {
       this.uncleInfo = {
         pickupLocates: [],
@@ -78,11 +80,12 @@ export class IoUser extends CommonField implements IoUserCRT {
         endDate: date,
         payday: date,
       };
-    } else if (this.userInfo.role === "SHOP" && !this.shopInfo) {
-      this.shopInfo = {
-        uncleUserIds: [],
-      };
     }
+    // else if (this.userInfo.role === "SHOP" && this.shopInfo === undefined) {
+    //   this.shopInfo = {
+    //     uncleUserIds: [],
+    //   };
+    // }
   }
 
   async update() {

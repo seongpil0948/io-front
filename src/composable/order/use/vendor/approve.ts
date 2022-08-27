@@ -248,13 +248,6 @@ export function useApproveOrder(p: ApproveParam) {
         },
       },
       {
-        title: "#",
-        key: "key",
-        render: (_, index) => {
-          return `${index + 1}`;
-        },
-      },
-      {
         title: "거래처명",
         key: "name",
         render: (row) => row.shopName,

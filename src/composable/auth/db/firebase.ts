@@ -54,7 +54,7 @@ export const UserFB: UserDB = {
   },
 };
 
-function _usersFromSnap(snap: QuerySnapshot<IoUser | null>): IoUser[] {
+export function _usersFromSnap(snap: QuerySnapshot<IoUser | null>): IoUser[] {
   const users: IoUser[] = [];
 
   snap.docs.forEach((d) => {

@@ -3,6 +3,8 @@ export * from "./vendorProd";
 export * from "./common";
 export * from "./shop";
 export * from "./shopOrder";
+export * from "./vendorOrder";
+export * from "./uncleOrder";
 
 import { createPinia } from "pinia";
 import _axios from "@/plugin/axios";

@@ -1,8 +1,8 @@
-import { IoUser, IoPay, IO_PAY_DB, GarmentOrder } from "@/composable";
+import { IoUser, GarmentOrder, useUserPay } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt } from "@/util";
 import { useMessage } from "naive-ui";
-import { ref, computed, watchEffect, Ref } from "vue";
+import { ref, computed, Ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { ORDER_GARMENT_DB } from "../db";
 import { ProdOrderCombined } from "../domain";
@@ -20,7 +20,7 @@ export function useOrderBasic(
     () => IO_COSTS.REQ_ORDER * orderTargets.value.length
   );
   const showReqOrderModal = ref(false);
-  let userPay = ref<IoPay | null>(null);
+  const { userPay } = useUserPay();
   const keyField = "id";
 
   function updateReqOrderShow(val: boolean) {
@@ -50,20 +50,6 @@ export function useOrderBasic(
         showReqOrderModal.value = false;
       });
   }
-  watchEffect(() => {
-    if (!user) {
-      userPay.value = null;
-      return;
-    } else if (userPay.value) {
-      if (user.userInfo.userId !== userPay.value.userId) {
-        userPay = IO_PAY_DB.getIoPayByUserListen(user.userInfo.userId);
-      } else {
-        return;
-      }
-    } else {
-      userPay = IO_PAY_DB.getIoPayByUserListen(user.userInfo.userId);
-    }
-  });
 
   async function deleteChecked() {
     const targetProds = garmentOrders.value.filter((x) =>

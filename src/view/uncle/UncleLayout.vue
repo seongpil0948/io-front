@@ -5,6 +5,8 @@ import { LocalShippingFilled } from "@vicons/material";
 import { Box24Filled } from "@vicons/fluent";
 import { renderIcon, renderRoute } from "@/util";
 import type { MenuOption } from "naive-ui";
+import { useAuthStore, useUncleOrderStore } from "@/store";
+import { onBeforeMount } from "vue";
 
 const minHeight = "100vh";
 const menuOptions: MenuOption[] = [
@@ -68,6 +70,9 @@ const menuOptions: MenuOption[] = [
     ],
   },
 ];
+onBeforeMount(() =>
+  useUncleOrderStore().init(useAuthStore().currUser.userInfo.userId)
+);
 </script>
 <template>
   <n-space vertical>

@@ -1,29 +1,25 @@
+import { extractGarmentOrd, uniqueArr } from "@/util";
 import {
-  emptyAmount,
-  emptyProdOrder,
-  GarmentOrder,
-  SHOP_GARMENT_DB,
-  mergeProdOrder,
-  ORDER_GARMENT_DB,
   ORDER_STATE,
-  ProdOrderByShop,
-  ProdOrderCombined,
+  GarmentOrder,
   ShopUserGarment,
-  VendorUserOrderGarment,
+  ProdOrderCombined,
+  ORDER_GARMENT_DB,
+  SHOP_GARMENT_DB,
+  ProdOrderByShop,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
-import { uniqueArr, extractGarmentOrd } from "@/util";
 import { Unsubscribe } from "@firebase/util";
 import { defineStore } from "pinia";
 import { ref, computed, watchPostEffect } from "vue";
-import { useVendorsStore, useAuthStore } from "./";
+import { useAuthStore } from "./auth";
+import { useVendorsStore } from "./vendorProd";
 
-export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
-  // >>> state >>>
+export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   const authStore = useAuthStore();
   const vendorStore = useVendorsStore();
   const inStates = ref<ORDER_STATE[]>([]);
-  const vendorId = ref<string | null>(null);
+  const uncleId = ref<string | null>(null);
   const _orders = ref<GarmentOrder[]>([]);
   let orderUnSub: null | Unsubscribe = null;
   const shopGarments = ref<ShopUserGarment[]>([]);
@@ -31,30 +27,21 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   let initial = true;
   // >>> getter >>>
   const orders = computed(() => [..._orders.value]);
-  const vendorGarments = computed(() =>
-    vendorId.value
-      ? vendorStore.vendorUserGarments.filter(
-          (x) => x.vendorId === vendorId.value
-        )
-      : vendorStore.vendorUserGarments
-  );
-  function getVendorOrderGarments(orders: typeof _orders) {
+
+  function getOrders(inStates: ORDER_STATE[]) {
     return computed(() =>
-      vendorGarments.value.map((x) => {
-        const garment: VendorUserOrderGarment = Object.assign(
-          x,
-          emptyProdOrder(),
-          emptyAmount()
-        );
-        orders.value.forEach((o) => {
-          o.items.forEach((item) => {
-            if (item.vendorProdId === garment.vendorProdId) {
-              mergeProdOrder(item, garment);
-            }
-          });
-        });
-        return garment;
-      })
+      inStates.length > 0
+        ? _orders.value.filter((x) =>
+            x.states.some((y) => inStates.includes(y))
+          )
+        : _orders.value
+    );
+  }
+  function getFilteredOrder(inStates: ORDER_STATE[]) {
+    return computed(() =>
+      inStates.length > 0
+        ? _garmentOrders.value.filter((x) => inStates.includes(x.state))
+        : _garmentOrders.value
     );
   }
   function getGarmentOrdersByShop(garmentOrders: typeof _garmentOrders) {
@@ -76,23 +63,44 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
       }, [] as ProdOrderByShop[])
     );
   }
-  function getOrders(inStates: ORDER_STATE[]) {
+  function getOrdersByShop(garmentOrders: typeof _garmentOrders) {
     return computed(() =>
-      inStates.length > 0
-        ? _orders.value.filter((x) =>
-            x.states.some((y) => inStates.includes(y))
-          )
-        : _orders.value
+      garmentOrders.value.reduce((acc, curr) => {
+        const exist = acc.find((x) => x.shopId === curr.shopGarment.shopId);
+        if (!exist) {
+          acc.push({
+            shopId: curr.shopGarment.shopId,
+            shopName:
+              curr.shopGarment.userInfo.displayName ??
+              curr.shopGarment.userInfo.userName,
+            items: [curr],
+          });
+          return acc;
+        }
+        exist.items.push(curr);
+        return acc;
+      }, [] as ProdOrderByShop[])
     );
   }
-  function getFilteredOrder(inStates: ORDER_STATE[]) {
-    return computed(() =>
-      inStates.length > 0
-        ? _garmentOrders.value.filter((x) => inStates.includes(x.state))
-        : _garmentOrders.value
-    );
-  }
-  // >>> connection >>>
+
+  watchPostEffect(async () => {
+    console.log("orders", orders.value);
+    if (orders.value.length > 0) {
+      shopGarments.value = [];
+      const shopIds = uniqueArr(orders.value.map((x) => x.shopId));
+      const vendorIds = uniqueArr(orders.value.flatMap((x) => x.vendorIds));
+      const vendorGarments = vendorStore.vendorUserGarments.filter((x) =>
+        vendorIds.includes(x.vendorId)
+      );
+      shopGarments.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
+      _garmentOrders.value = extractGarmentOrd(
+        orders.value,
+        shopGarments.value,
+        vendorGarments
+      );
+    }
+  });
+
   const unsubscribeAuth = authStore.$onAction(
     ({ name, store, args, after, onError }) => {
       // this will trigger before an action on `store` is executed
@@ -103,7 +111,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
         const u = store.user;
         if (name === "login") {
           if (!u) throw new Error("User is null");
-          else if (u.userInfo.role === "VENDOR") {
+          else if (u.userInfo.role === "UNCLE") {
             init(u.userInfo.userId);
           }
         } else if (name === "logout") {
@@ -119,30 +127,17 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     },
     true
   );
-  watchPostEffect(async () => {
-    if (orders.value.length > 1) {
-      shopGarments.value = [];
-      const shopIds = uniqueArr(orders.value.map((x) => x.shopId));
-      shopGarments.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
-      _garmentOrders.value = extractGarmentOrd(
-        orders.value,
-        shopGarments.value,
-        vendorGarments.value
-      );
-    }
-  });
-  // >>> action >>>
-  function init(vendorUserId: string) {
-    if (!initial || !vendorUserId || vendorUserId === vendorId.value) return;
-    console.log(`vendorUserId: ${vendorUserId} vendorOrderStore initiated`);
-    vendorId.value = vendorUserId;
 
-    const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.vendorReadListen(
-      {
-        vendorId: vendorUserId,
-        orders: _orders,
-      }
-    );
+  function init(uncleUserId: string) {
+    console.log("try to initiate uncle store");
+    if (!initial || !uncleUserId || uncleUserId === uncleId.value) return;
+    console.log(`uncleUserId: ${uncleUserId} authOrderStore initiated`);
+    uncleId.value = uncleUserId;
+
+    const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.uncleReadListen({
+      uncleId: uncleUserId,
+      orders: _orders,
+    });
     if (orderUnSub) {
       orderUnSub();
     }
@@ -150,7 +145,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     initial = false;
   }
   function discard() {
-    console.log("=== discard vendorOrderStore ===");
+    console.log("=== discard uncleOrderStore ===");
     unsubscribeAuth();
     if (orderUnSub) {
       orderUnSub();
@@ -158,20 +153,19 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     }
     shopGarments.value = [];
     inStates.value = [];
-    vendorId.value = null;
+    uncleId.value = null;
     _orders.value = [];
     _garmentOrders.value = [];
     shopGarments.value = [];
     initial = true;
   }
+
   return {
-    getGarmentOrdersByShop,
     getOrders,
     getFilteredOrder,
-    vendorGarments,
     orders,
+    getGarmentOrdersByShop,
     init,
-    discard,
-    getVendorOrderGarments,
+    getOrdersByShop,
   };
 });

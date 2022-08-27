@@ -37,6 +37,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   cancellations: OrderCancel[];
   shopId: string;
   vendorIds: string[];
+  shipManagerId?: string;
 
   constructor(d: OrderCrt) {
     super(d.createdAt, d.updatedAt);
@@ -53,6 +54,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     this.states = d.states ?? [];
     this.cancellations = d.cancellations ?? [];
     this.vendorIds = d.vendorIds ?? [];
+    this.shipManagerId = d.shipManagerId;
   }
 
   setTotalAmount(refreshInitial = true) {
@@ -267,6 +269,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       states: d.states,
       cancellations: d.cancellations,
       vendorIds: d.vendorIds,
+      shipManagerId: d.shipManagerId,
     });
   }
 

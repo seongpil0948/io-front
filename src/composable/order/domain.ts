@@ -2,7 +2,9 @@ import { Ref } from "vue";
 import {
   BOOL_M,
   GarmentOrder,
+  Locate,
   PayMethod,
+  SHIP_METHOD,
   ShopUserGarment,
   VendorUserGarment,
 } from "..";
@@ -24,6 +26,7 @@ export type ORDER_STATE =
   | "BEFORE_READY" // 결제완료후 출고리스트 전
   | "BEFORE_PICKUP_REQ" // 출고가능 물품들의 픽업 요청전
   | "BEFORE_APPROVE_PICKUP" // 픽업 승인전
+  | "BEFORE_ASSIGN_PICKUP" // 픽업 담당자 배정전
   | "BEFORE_SHIP" // 담당자 배정 후 배송전
   | "SHIPPING"
   | "SHIPPING_COMPLETE"
@@ -44,6 +47,7 @@ export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   BEFORE_READY: "출고전",
   BEFORE_PICKUP_REQ: "픽업전",
   BEFORE_APPROVE_PICKUP: "픽업승인전",
+  BEFORE_ASSIGN_PICKUP: "담당배정전",
   BEFORE_SHIP: "배송전",
   SHIPPING: "배송중",
   SHIPPING_PENDING: "배송대기",
@@ -120,6 +124,7 @@ export interface ProdOrder {
   actualAmount: OrderAmount;
   initialAmount: OrderAmount;
   state: ORDER_STATE;
+  shipmentId?: string;
 }
 
 interface Claim {
@@ -158,8 +163,15 @@ export interface OrderCrt {
   items: ProdOrder[] | ProdOrderCombined[];
   subOrderIds: string[]; // db ids
   cancellations: OrderCancel[];
+  shipManagerId?: string; // 엉클 매니저 아이디
 }
-
+export interface ShipOrder extends ShipmentCrt, ProdOrderCombined {}
+export interface ShipOrderByShop {
+  shopId: string;
+  shopName: string;
+  uncleImgs: string[];
+  items: ShipOrder[];
+}
 export interface ProdOrderByShop {
   shopId: string;
   shopName: string;
@@ -173,6 +185,31 @@ export interface ProdOrderByVendor {
   items: ProdOrderCombined[];
 }
 // export interface OrderFlat extends OrderCrt, ProdOrderCombined, OrderAmount {}
+
+export interface ShipmentCrt {
+  createdAt?: Date;
+  updatedAt?: Date;
+  shippingId: string; // shipment db id
+  orderDbId: string; // order db id
+  prodOrderId: string; // prod order db id
+  trackingNo?: string; //송장번호
+  uncleId?: string; // 엉클근로자 아이디, 토스시 변경가능
+  shipMethod: SHIP_METHOD;
+  additionalInfo: string;
+  paid: boolean;
+  weightUnit?: string;
+  weight?: number;
+  sizeUnit?: string;
+  size?: number;
+  amountBySize?: number;
+  amountByWeight?: number;
+  amountBasic: number; // 기본배송료
+  returnAddress: Locate; // 출발지
+  startAddress: Locate; // 도매
+  receiveAddress: Locate; // 소매
+  wishedDeliveryTime: Date;
+  managerId: string; // 엉클관리자 아이디
+}
 
 export interface OrderDB<T> {
   orderGarment(row: GarmentOrder, expectedReduceCoin: number): Promise<T>;
@@ -196,6 +233,13 @@ export interface OrderDB<T> {
   }): {
     unsubscribe: () => void;
   };
+  uncleReadListen(p: {
+    inStates?: ORDER_STATE[];
+    uncleId: string;
+    orders: Ref<T[]>;
+  }): {
+    unsubscribe: () => void;
+  };
   getExistOrderIds(shopId: string): Promise<Set<string>>;
   orderApprove(
     vendorId: string,
@@ -205,5 +249,13 @@ export interface OrderDB<T> {
   orderReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
   completePay(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
   orderToReady(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
-  reqPickup(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  reqPickup(
+    orderDbIds: string[],
+    prodOrderIds: string[],
+    uncleId: string
+  ): Promise<void>;
+}
+
+export interface ShipDB<T> {
+  approvePickUp(row: GarmentOrder, expectedReduceCoin: number): Promise<T>;
 }

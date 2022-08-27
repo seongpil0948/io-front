@@ -1,5 +1,3 @@
-import { GarmentOrder } from "./../model/order";
-import { ORDER_STATE } from "./../domain";
 import { iostore } from "@/plugin/firebase";
 import { getIoCollection, getIoCollectionGroup, IoCollection } from "@/util";
 import {
@@ -13,10 +11,9 @@ import {
   WithFieldValue,
   writeBatch,
 } from "@firebase/firestore";
-import { OrderDB } from "../domain";
 import { useVendorsStore } from "@/store";
 import { Ref } from "vue";
-import { IO_PAY_DB } from "@/composable";
+import { GarmentOrder, IO_PAY_DB, OrderDB, ORDER_STATE } from "@/composable";
 import { IO_COSTS } from "@/constants";
 
 async function getOrders(constraints: QueryConstraint[]) {
@@ -39,12 +36,20 @@ async function getOrders(constraints: QueryConstraint[]) {
 }
 
 export const OrderGarmentFB: OrderDB<GarmentOrder> = {
-  reqPickup: async function (orderDbIds: string[], prodOrderIds: string[]) {
+  reqPickup: async function (
+    orderDbIds: string[],
+    prodOrderIds: string[],
+    uncleId: string
+  ) {
     await stateModify(
       orderDbIds,
       prodOrderIds,
       "BEFORE_PICKUP_REQ",
-      "BEFORE_APPROVE_PICKUP"
+      "BEFORE_APPROVE_PICKUP",
+      async function (o) {
+        o.shipManagerId = uncleId;
+        return o;
+      }
     );
   },
   completePay: async function (orderDbIds: string[], prodOrderIds: string[]) {
@@ -370,6 +375,36 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
 
     return { unsubscribe };
   },
+  uncleReadListen: function (p: {
+    inStates?: ORDER_STATE[];
+    uncleId: string;
+    orders: Ref<GarmentOrder[]>;
+  }) {
+    console.log("uncleId in uncleReadListen", p);
+    const orderQ = query(
+      getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
+        GarmentOrder.fireConverter()
+      ),
+      where("shipManagerId", "==", p.uncleId)
+    );
+    const unsubscribe = onSnapshot(orderQ, (snapshot) => {
+      p.orders.value = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (p.inStates) {
+          if (data && data.states.some((x) => p.inStates!.includes(x))) {
+            p.orders.value.push(data);
+          }
+        } else {
+          if (data) {
+            p.orders.value.push(data);
+          }
+        }
+      });
+    });
+
+    return { unsubscribe };
+  },
   getExistOrderIds: async function (shopId: string) {
     const ioc = getIoCollection({
       c: IoCollection.ORDER_PROD_NUMBER,
@@ -402,14 +437,15 @@ async function stateModify(
   orderDbIds: string[],
   prodOrderIds: string[],
   beforeState: ORDER_STATE,
-  afterState: ORDER_STATE
+  afterState: ORDER_STATE,
+  onOrder?: (o: GarmentOrder) => Promise<GarmentOrder>
 ) {
   const constraints = [where("dbId", "in", orderDbIds)];
   const orders = await getOrders(constraints);
   const { getOrdRef, converterGarment } = getSrc();
   return await runTransaction(iostore, async (transaction) => {
     for (let i = 0; i < orders.length; i++) {
-      const o = orders[i];
+      const o = onOrder ? await onOrder(orders[i]) : orders[i];
       for (let j = 0; j < o.items.length; j++) {
         const item = o.items[j];
         if (prodOrderIds.includes(item.id) && item.state === beforeState) {
