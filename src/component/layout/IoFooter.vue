@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IoUser, USER_DB } from "@/composable";
+import { USER_DB } from "@/composable";
 import { KAKAO_CHANNEL_ID } from "@/constants";
 import { useAuthStore } from "@/store";
 import {

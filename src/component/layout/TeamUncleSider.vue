@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useUncleWorkers } from "@/composable";
 import { ref } from "vue";
 
 const rightCollapsed = ref(false);
 const minHeight = "100vh";
+const { workers } = useUncleWorkers();
 </script>
 <template>
   <n-layout-sider
@@ -38,39 +40,12 @@ const minHeight = "100vh";
         <uncle-status-count status="grey" text="퇴근" :count="40" />
       </n-space>
       <n-divider />
-      <n-h2>디오트</n-h2>
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
-      <n-divider />
-      <n-h2>청평화</n-h2>
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
-      <n-h2>디오트</n-h2>
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
-      <n-divider />
-      <n-h2>청평화</n-h2>
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
-      <n-h2>디오트</n-h2>
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
-      <n-divider />
-      <n-h2>청평화</n-h2>
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
-      <uncle-status-row />
+      <!-- <n-h2>디오트</n-h2> -->
+      <uncle-status-row
+        v-for="(worker, i) in workers"
+        :key="i"
+        :worker="worker"
+      />
     </n-space>
   </n-layout-sider>
 </template>

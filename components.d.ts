@@ -109,6 +109,7 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SampleManage: typeof import('./src/view/vendor/page/SampleManage.vue')['default']
+    SelectWorkerModal: typeof import('./src/component/card/uncle/SelectWorkerModal.vue')['default']
     ShipAreaManage: typeof import('./src/view/uncle/page/ShipAreaManage.vue')['default']
     ShipAreaTable: typeof import('./src/component/table/uncle/ShipAreaTable.vue')['default']
     ShipmentTable: typeof import('./src/component/table/uncle/ShipmentTable.vue')['default']

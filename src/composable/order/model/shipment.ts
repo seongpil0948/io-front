@@ -6,6 +6,7 @@ import {
   DocumentSnapshot,
   DocumentData,
 } from "@firebase/firestore";
+import { insertById, getIoCollection, IoCollection } from "@/util";
 
 // export interface PickupCrt {
 //   pickupId: string;
@@ -107,6 +108,16 @@ export class IoShipment extends CommonField implements ShipmentCrt {
     else return -1;
   }
 
+  async update() {
+    return insertById<IoShipment>(
+      this,
+      getIoCollection({ c: IoCollection.SHIPMENT, uid: this.managerId }),
+      this.shippingId,
+      true,
+      IoShipment.fireConverter()
+    );
+  }
+
   static fromJson(d: { [x: string]: any }): IoShipment {
     return new IoShipment({
       shippingId: d.shippingId,
@@ -131,6 +142,7 @@ export class IoShipment extends CommonField implements ShipmentCrt {
       managerId: d.managerId,
     });
   }
+
   static fireConverter(): FirestoreDataConverter<IoShipment> {
     return {
       toFirestore: (m: IoShipment) => {

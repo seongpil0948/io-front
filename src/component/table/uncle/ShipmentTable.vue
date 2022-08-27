@@ -1,21 +1,26 @@
 <script setup lang="ts">
 import {
+  IoShipment,
+  IoUser,
   ORDER_STATE,
   ShipOrder,
   ShipOrderByShop,
   useShipmentUncle,
 } from "@/composable";
-import { DataTableColumns, DataTableRowKey, NButton } from "naive-ui";
+import {
+  DataTableColumns,
+  DataTableRowKey,
+  NButton,
+  useMessage,
+} from "naive-ui";
 import { computed, ref, h } from "vue";
 
 const props = defineProps<{
   inStates: ORDER_STATE[];
 }>();
-const { orderShipsByShop, byShopCols, workers } = useShipmentUncle(
-  props.inStates,
-  onClickDetail
-);
-
+const { orderShipsByShop, byShopCols, workers, refreshOrderShip } =
+  useShipmentUncle(props.inStates, onClickDetail);
+const msg = useMessage();
 const checkedKeys = ref<DataTableRowKey[]>([]);
 function onCheckRow(keys: DataTableRowKey[]) {
   checkedKeys.value = keys;
@@ -29,9 +34,9 @@ function onClickDetail(data: ShipOrderByShop) {
   console.log("onClickDetail data:", data);
   selectedData.value = data;
 }
-const emits = defineEmits<{
-  (e: "worker:set", value: ShipOrder): void;
-}>();
+// const emits = defineEmits<{
+//   (e: "worker:set", value: ShipOrder): void;
+// }>();
 function renderWorker(row: ShipOrder) {
   const worker = workers.value.find((x) => x.userInfo.userId === row.uncleId);
   const btn = h(
@@ -39,7 +44,8 @@ function renderWorker(row: ShipOrder) {
     {
       size: "small",
       onClick: () => {
-        console.log("worker 배정 클릭");
+        selectedOrderProdId.value = row.prodOrderId;
+        openWorkerModal.value = true;
       },
     },
     { default: () => (worker ? worker.name : "미배정") }
@@ -82,6 +88,24 @@ const byShopDetailCols = computed(() => {
     return x;
   });
 });
+const openWorkerModal = ref(false);
+const selectedOrderProdId = ref<string | null>(null);
+async function onSelectWorker(val: IoUser) {
+  const item = selectedData.value?.items.find(
+    (x) => x.id === selectedOrderProdId.value
+  );
+  if (item) {
+    const shipment = IoShipment.fromJson(item);
+    shipment.uncleId = val.userInfo.userId;
+    shipment.update().then(async () => {
+      msg.success("담당자 배정이 완료되었습니다.");
+      openWorkerModal.value = false;
+      selectedOrderProdId.value = null;
+      await refreshOrderShip();
+      selectedData.value = null;
+    });
+  }
+}
 </script>
 <template>
   <n-space vertical>
@@ -106,4 +130,8 @@ const byShopDetailCols = computed(() => {
       />
     </n-card>
   </n-space>
+  <select-worker-modal
+    v-model:openModal="openWorkerModal"
+    @worker:selected="onSelectWorker"
+  />
 </template>

@@ -43,7 +43,7 @@ export function useShipmentUncle(
       return acc;
     }, [] as ShipOrderByShop[])
   );
-  watchEffect(async () => {
+  async function refreshOrderShip() {
     orderShips.value = [];
     if (garmentOrders.value.length > 0) {
       const shipIds: string[] = [];
@@ -72,7 +72,8 @@ export function useShipmentUncle(
         }
       }
     }
-  });
+  }
+  watchEffect(async () => await refreshOrderShip());
 
   // 소매 도매수 건물 픽업 담당자들 상세
   const byShopCols = computed(() => {
@@ -138,5 +139,6 @@ export function useShipmentUncle(
     byShopCols,
     imageById,
     workers,
+    refreshOrderShip,
   };
 }

@@ -118,20 +118,20 @@ const targetIds = computed(() => {
   return itemIds;
 });
 
-const targetOrderIds = computed(() => {
-  const orderIds = new Set<string>();
-  for (let i = 0; i < ordStore.orders.length; i++) {
-    const o = ordStore.orders[i];
+// const targetOrderIds = computed(() => {
+//   const orderIds = new Set<string>();
+//   for (let i = 0; i < ordStore.orders.length; i++) {
+//     const o = ordStore.orders[i];
 
-    for (let j = 0; j < o.items.length; j++) {
-      const item = o.items[j];
-      if (targetIds.value.has(item.id)) {
-        orderIds.add(o.dbId);
-      }
-    }
-  }
-  return orderIds;
-});
+//     for (let j = 0; j < o.items.length; j++) {
+//       const item = o.items[j];
+//       if (targetIds.value.has(item.id)) {
+//         orderIds.add(o.dbId);
+//       }
+//     }
+//   }
+//   return orderIds;
+// });
 function approveSelected() {
   orderTargets.value = garmentOrders.value.filter((x) =>
     targetIds.value.has(x.id)
