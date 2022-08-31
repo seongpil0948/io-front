@@ -79,7 +79,7 @@ export function usePickArea() {
       if (!parent) {
         const cityOpt: TreeSelectOption = {
           label: curr.city,
-          value: curr.city,
+          key: curr.city,
           children: [child],
         };
         acc.push(cityOpt);

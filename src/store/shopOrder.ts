@@ -9,7 +9,7 @@ import {
   ShopUserGarment,
 } from "@/composable";
 import { defineStore, storeToRefs } from "pinia";
-import { ref, computed, onBeforeUnmount, watchPostEffect } from "vue";
+import { ref, computed, onBeforeUnmount, watch } from "vue";
 import { useVendorsStore } from "./vendorProd";
 import { useAuthStore } from "./auth";
 import { Unsubscribe } from "@firebase/firestore";
@@ -94,20 +94,23 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     },
     true
   );
-  watchPostEffect(async () => {
-    if (shopId.value && _orders.value) {
-      await setExistOrderIds();
-      if (shopGarments.value) {
-        _garmentOrders.value = extractGarmentOrd(
-          _orders.value,
-          shopGarments.value,
-          vendorUserGarments.value
-        );
+  watch(
+    () => orders.value,
+    async () => {
+      if (shopId.value && orders.value) {
+        await setExistOrderIds();
+        if (shopGarments.value) {
+          _garmentOrders.value = extractGarmentOrd(
+            _orders.value,
+            shopGarments.value,
+            vendorUserGarments.value
+          );
+        }
+      } else {
+        existOrderIds.value.clear();
       }
-    } else {
-      existOrderIds.value.clear();
     }
-  });
+  );
   onBeforeUnmount(() => {
     inStates.value = [];
   });

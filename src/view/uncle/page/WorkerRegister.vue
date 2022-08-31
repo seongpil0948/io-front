@@ -20,7 +20,12 @@ const displayName = ref(null);
 const phone = ref(null);
 const email = ref(null);
 // FIXME: 저장안되는중 타겟건물들 관리자가 등록하면, 그 아이디들 저장하도록
-const areaInCharges = ref([]);
+// 관리자 페이지 작업 요망.
+const areaInCharges = ref<Array<string>>([]);
+function handleUpdateArea(val: Array<string>, opt: any) {
+  console.log("handleUpdateArea: ", val, opt);
+  areaInCharges.value = val;
+}
 const profileImg = ref(null);
 const { treeOpt } = usePickArea();
 const kakaoAuthed = ref(false);
@@ -112,9 +117,10 @@ const width = "35vw";
       </template>
     </n-input>
     <n-tree-select
+      style="width: 20vw"
       multiple
       placeholder="담당건물"
-      v-model:value="areaInCharges"
+      @update:value="handleUpdateArea"
       cascade
       checkable
       :options="treeOpt"

@@ -125,7 +125,7 @@ function downSampleXlsx() {
     </template>
     <n-data-table
       ref="tableRef"
-      v-if="filteredOrders"
+      v-if="filteredOrders.length > 0"
       :table-layout="'fixed'"
       :scroll-x="800"
       :columns="tableCol"

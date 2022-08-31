@@ -15,7 +15,7 @@ import { logger } from "@/plugin/logger";
 import { uniqueArr, extractGarmentOrd } from "@/util";
 import { Unsubscribe } from "@firebase/util";
 import { defineStore } from "pinia";
-import { ref, computed, watchPostEffect } from "vue";
+import { ref, computed, watch } from "vue";
 import { useVendorsStore, useAuthStore } from "./";
 
 export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
@@ -119,8 +119,10 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     },
     true
   );
-  watchPostEffect(async () => {
-    if (orders.value.length > 1) {
+  watch(
+    () => orders.value,
+    async function () {
+      console.log("orders in vendor watch", orders.value);
       shopGarments.value = [];
       const shopIds = uniqueArr(orders.value.map((x) => x.shopId));
       shopGarments.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
@@ -129,8 +131,10 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
         shopGarments.value,
         vendorGarments.value
       );
-    }
-  });
+    },
+    { deep: true, immediate: false }
+  );
+
   // >>> action >>>
   function init(vendorUserId: string) {
     if (!initial || !vendorUserId || vendorUserId === vendorId.value) return;
