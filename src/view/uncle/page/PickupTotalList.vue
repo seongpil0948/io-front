@@ -37,14 +37,14 @@ const currTab = ref<string>("BEFORE_APPROVE_PICKUP");
         <n-tab-pane
           display-directive="show:lazy"
           tab="픽업 완료"
-          name="PICKUP_AFTER"
+          name="PICKUP_Done"
         >
           <shipment-table :inStates="['PICKUP_COMPLETE', 'BEFORE_SHIP']" />
         </n-tab-pane>
         <n-tab-pane
           display-directive="show:lazy"
           tab="배송 진행중"
-          name="PICKUP_AFTER"
+          name="SHIPPING"
         >
           <shipment-table
             :inStates="[
