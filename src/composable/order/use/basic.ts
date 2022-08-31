@@ -6,6 +6,7 @@ import { ref, computed, Ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { ORDER_GARMENT_DB } from "../db";
 import { ProdOrderCombined } from "../domain";
+import { DataFrame, toExcel } from "danfojs";
 
 export function useOrderBasic(
   user: IoUser,
@@ -107,5 +108,39 @@ export function useOrderBasic(
     updateReqOrderShow,
     onReqOrderConfirm,
     deleteChecked,
+    downProdOrders,
   };
+}
+
+export function downProdOrders(gOrders: ProdOrderCombined[]) {
+  const df = pOrdersToFrame(gOrders);
+  toExcel(df, { fileName: "testOut.xlsx" });
+  const a = document.createElement("a");
+  // a.href = url
+  a.href = "testOut.xlsx";
+  a.download = "testOut.xlsx";
+  // a.click();
+  a.remove();
+}
+
+export function pOrdersToFrame(gOrders: ProdOrderCombined[]): DataFrame {
+  const df = new DataFrame(
+    gOrders.map((x) => {
+      return {
+        소매상품명: x.shopGarment.prodName,
+        도매상품명: x.vendorGarment.vendorProdName,
+        컬러: x.vendorGarment.color,
+        사이즈: x.vendorGarment.size,
+        도매처:
+          x.vendorGarment.userInfo.displayName ??
+          x.vendorGarment.userInfo.userName,
+        주문수량: x.orderCnt,
+        미송수량: x.pendingCnt,
+        도매가: x.vendorGarment.vendorPrice,
+        합계: x.orderCnt * x.vendorGarment.vendorPrice,
+      };
+    })
+  );
+  console.log("DataFrame: ", df);
+  return df;
 }

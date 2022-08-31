@@ -18,7 +18,7 @@ import { computed, ref, h } from "vue";
 const props = defineProps<{
   inStates: ORDER_STATE[];
 }>();
-const { orderShipsByShop, byShopCols, workers, refreshOrderShip } =
+const { orderShipsByShop, byShopCols, workers, refreshOrderShip, orders } =
   useShipmentUncle(props.inStates, onClickDetail);
 const msg = useMessage();
 const checkedKeys = ref<DataTableRowKey[]>([]);
@@ -98,10 +98,12 @@ async function onSelectWorker(val: IoUser) {
   if (selectedData.value && item) {
     const shipment = IoShipment.fromJson(item);
     shipment.uncleId = val.userInfo.userId;
-
-    // FIXME: bySHop 데이터말고 GarmentOrder 받아와야함.
-    selectedData.value.setState(item.id, "BEFORE_ASSIGN_PICKUP");
-    shipment.update().then(async () => {
+    const order = orders.find((x) => x.dbId === shipment.orderDbId);
+    if (!order) throw new Error("order not exist");
+    return Promise.all([
+      order.setState(item.id, "BEFORE_ASSIGN_PICKUP"),
+      shipment.update(),
+    ]).then(async () => {
       msg.success("담당자 배정이 완료되었습니다.");
       openWorkerModal.value = false;
       selectedOrderProdId.value = null;

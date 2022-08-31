@@ -41,6 +41,7 @@ const {
   updateReqOrderShow,
   onReqOrderConfirm,
   deleteChecked,
+  downProdOrders,
 } = useOrderBasic(user, filteredOrders, orders, checkedKeys);
 
 const sheetIdx = ref(0);
@@ -67,8 +68,10 @@ async function orderDelAll() {
   existOrderIds.value.clear();
 }
 // <<<<< COLUMNS <<<<<
-
-function downXlsx() {
+function downOrder() {
+  downProdOrders(filteredOrders.value);
+}
+function downSampleXlsx() {
   const a = document.createElement("a");
   // a.href = url
   a.href = "/example/sample.xlsx";
@@ -85,8 +88,11 @@ function downXlsx() {
   >
     <template #header>
       <n-space justify="start">
-        <n-button size="small" type="primary" @click="downXlsx">
+        <n-button size="small" type="primary" @click="downSampleXlsx">
           주문취합 엑셀양식 다운
+        </n-button>
+        <n-button size="small" type="primary" @click="downOrder">
+          주문정보 다운
         </n-button>
         <n-input-number placeholder="시트번호입력" v-model:value="sheetIdx">
           <template #prefix> 시트번호 </template>

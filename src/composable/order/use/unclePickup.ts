@@ -140,5 +140,6 @@ export function useShipmentUncle(
     imageById,
     workers,
     refreshOrderShip,
+    orders: ordStore.orders,
   };
 }

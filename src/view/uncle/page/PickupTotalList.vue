@@ -30,9 +30,16 @@ const currTab = ref<string>("BEFORE_APPROVE_PICKUP");
             :inStates="[
               'BEFORE_PICKUP',
               'BEFORE_ASSIGN_PICKUP',
-              'PICKUP_COMPLETE',
+              'ONGOING_PICKUP',
             ]"
           />
+        </n-tab-pane>
+        <n-tab-pane
+          display-directive="show:lazy"
+          tab="픽업 완료"
+          name="PICKUP_AFTER"
+        >
+          <shipment-table :inStates="['PICKUP_COMPLETE', 'BEFORE_SHIP']" />
         </n-tab-pane>
         <n-tab-pane
           display-directive="show:lazy"
@@ -40,8 +47,20 @@ const currTab = ref<string>("BEFORE_APPROVE_PICKUP");
           name="PICKUP_AFTER"
         >
           <shipment-table
-            :inStates="['BEFORE_SHIP', 'SHIPPING', 'SHIPPING_COMPLETE']"
+            :inStates="[
+              'SHIPPING',
+              'SHIPPING_COMPLETE',
+              'SHIPPING_PENDING',
+              'SHIPPING_WAIT',
+            ]"
           />
+        </n-tab-pane>
+        <n-tab-pane
+          display-directive="show:lazy"
+          tab="거래완료"
+          name="ORDER_DONE"
+        >
+          <shipment-table :inStates="['ORDER_DONE']" />
         </n-tab-pane>
       </n-tabs>
     </n-card>
