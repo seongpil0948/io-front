@@ -1,10 +1,10 @@
 export * from "./area";
 import { v4 as uuidv4 } from "uuid";
-export type LocateType = "매장" | "창고" | "기타";
+export type LocateType = "SHOP" | "STORAGE" | "ETC";
 export const LocateType: { [key: string]: LocateType } = {
-  SHOP: "매장",
-  STORAGE: "창고",
-  ETC: "기타",
+  SHOP: "SHOP",
+  STORAGE: "STORAGE",
+  ETC: "ETC",
 };
 export interface LocateCRT {
   code?: string;

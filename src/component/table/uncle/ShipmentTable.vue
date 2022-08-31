@@ -94,9 +94,13 @@ async function onSelectWorker(val: IoUser) {
   const item = selectedData.value?.items.find(
     (x) => x.id === selectedOrderProdId.value
   );
-  if (item) {
+
+  if (selectedData.value && item) {
     const shipment = IoShipment.fromJson(item);
     shipment.uncleId = val.userInfo.userId;
+
+    // FIXME: bySHop 데이터말고 GarmentOrder 받아와야함.
+    selectedData.value.setState(item.id, "BEFORE_ASSIGN_PICKUP");
     shipment.update().then(async () => {
       msg.success("담당자 배정이 완료되었습니다.");
       openWorkerModal.value = false;

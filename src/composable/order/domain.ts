@@ -27,7 +27,10 @@ export type ORDER_STATE =
   | "BEFORE_PICKUP_REQ" // 출고가능 물품들의 픽업 요청전
   | "BEFORE_APPROVE_PICKUP" // 픽업 승인전
   | "BEFORE_ASSIGN_PICKUP" // 픽업 담당자 배정전
-  | "BEFORE_SHIP" // 담당자 배정 후 배송전
+  | "BEFORE_PICKUP" // 담당자 배정 후 픽업전
+  | "ONGOING_PICKUP" // 도매처 배송중
+  | "PICKUP_COMPLETE" // 픽업완료
+  | "BEFORE_SHIP"
   | "SHIPPING"
   | "SHIPPING_COMPLETE"
   | "TAKE_BACK"
@@ -47,7 +50,10 @@ export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   BEFORE_READY: "출고전",
   BEFORE_PICKUP_REQ: "픽업전",
   BEFORE_APPROVE_PICKUP: "픽업승인전",
-  BEFORE_ASSIGN_PICKUP: "담당배정전",
+  BEFORE_ASSIGN_PICKUP: "담당자배정전",
+  BEFORE_PICKUP: "픽업전",
+  ONGOING_PICKUP: "도매처 배송중",
+  PICKUP_COMPLETE: "픽업완료",
   BEFORE_SHIP: "배송전",
   SHIPPING: "배송중",
   SHIPPING_PENDING: "배송대기",
@@ -125,6 +131,8 @@ export interface ProdOrder {
   initialAmount: OrderAmount;
   state: ORDER_STATE;
   shipmentId?: string;
+  shopId: string;
+  orderDbId: string;
 }
 
 interface Claim {

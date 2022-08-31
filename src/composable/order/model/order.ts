@@ -218,10 +218,12 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       amount.shipFeeDiscountAmount,
       amount.tax
     );
-
+    const orderDbId = uuidv4();
     const prodOrder: ProdOrderCombined = {
       id: uuidv4(),
       vendorId: p.vendorId,
+      shopId: p.shopId,
+      orderDbId,
       vendorProdId: p.vendorProdId,
       shopProdId: p.shopProdId,
       orderCnt,
@@ -236,7 +238,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     const order = new GarmentOrder({
       orderDate: new Date(),
       doneDate: new Date(),
-      dbId: uuidv4(),
+      dbId: orderDbId,
       shopId: p.shopId,
       orderIds: orderIds,
       itemIds: [prodOrder.id],
@@ -431,5 +433,7 @@ export function emptyProdOrder(): ProdOrder {
     actualAmount: emptyAmount(),
     initialAmount: emptyAmount(),
     state: "BEFORE_ORDER",
+    shopId: "",
+    orderDbId: "",
   };
 }
