@@ -19,15 +19,8 @@ const userId = ref(null);
 const displayName = ref(null);
 const phone = ref(null);
 const email = ref(null);
-// FIXME: 저장안되는중 타겟건물들 관리자가 등록하면, 그 아이디들 저장하도록
-// 관리자 페이지 작업 요망.
-const areaInCharges = ref<Array<string>>([]);
-function handleUpdateArea(val: Array<string>, opt: any) {
-  console.log("handleUpdateArea: ", val, opt);
-  areaInCharges.value = val;
-}
 const profileImg = ref(null);
-const { treeOpt } = usePickArea();
+
 const kakaoAuthed = ref(false);
 function fail(err: any) {
   msg.error(`카카오 로그인 에러${JSON.stringify(err)}`);
@@ -68,6 +61,8 @@ async function onSignUp() {
     const providerId = USER_PROVIDER.KAKAO;
     const user = new IoUser({
       userInfo: {
+        createdAt: new Date(),
+        updatedAt: new Date(),
         userId: userId.value!,
         providerId,
         emailVerified: false,
@@ -116,15 +111,6 @@ const width = "35vw";
         <n-gradient-text type="info"> 연락처 </n-gradient-text>
       </template>
     </n-input>
-    <n-tree-select
-      style="width: 20vw"
-      multiple
-      placeholder="담당건물"
-      @update:value="handleUpdateArea"
-      cascade
-      checkable
-      :options="treeOpt"
-    />
 
     <n-button :style="`width: ${width}`" @click="onSignUp"> 가입하기 </n-button>
   </n-space>

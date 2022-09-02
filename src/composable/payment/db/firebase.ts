@@ -24,6 +24,7 @@ export const IopayFB: PaymentDB = {
           pendingBudget: 10,
           history: [],
         });
+        // FIXME: 운영계에선 이거 실제론 회원가입할때 0원초기화, 이후 무조건 있어야함 여기서 다루면 안됌
         setDoc(docRef, pay);
         userPay.value = pay;
       } else if (doc.data()) {

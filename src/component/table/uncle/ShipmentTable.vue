@@ -100,10 +100,8 @@ async function onSelectWorker(val: IoUser) {
     shipment.uncleId = val.userInfo.userId;
     const order = orders.find((x) => x.dbId === shipment.orderDbId);
     if (!order) throw new Error("order not exist");
-    return Promise.all([
-      order.setState(item.id, "BEFORE_ASSIGN_PICKUP"),
-      shipment.update(),
-    ]).then(async () => {
+    order.setState(item.id, "BEFORE_PICKUP");
+    return Promise.all([order.update(), shipment.update()]).then(async () => {
       msg.success("담당자 배정이 완료되었습니다.");
       openWorkerModal.value = false;
       selectedOrderProdId.value = null;

@@ -1,4 +1,10 @@
 export * from "./area";
+export * from "./pickup";
+import {
+  FirestoreDataConverter,
+  DocumentSnapshot,
+  DocumentData,
+} from "@firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 export type LocateType = "SHOP" | "STORAGE" | "ETC";
 export const LocateType: { [key: string]: LocateType } = {
@@ -73,6 +79,40 @@ export class Locate implements LocateCRT {
     this.county = p.county;
     this.town = p.town;
     this.locateType = p.locateType;
+  }
+
+  static fromJson(d: { [x: string]: any }): Locate {
+    return new Locate({
+      code: d.code,
+      alias: d.alias,
+      latitude: d.latitude,
+      longitude: d.longitude,
+      detailLocate: d.detailLocate,
+      firstName: d.firstName,
+      lastName: d.lastName,
+      phone: d.phone,
+      postalCode: d.postalCode,
+      country: d.country,
+      city: d.city,
+      county: d.county,
+      town: d.town,
+      locateType: d.locateType,
+    });
+  }
+
+  static fireConverter(): FirestoreDataConverter<Locate | null> {
+    return {
+      toFirestore: (l: Locate) => {
+        return JSON.parse(JSON.stringify(l));
+      },
+      fromFirestore: (
+        snapshot: DocumentSnapshot<DocumentData>,
+        options: any
+      ): Locate | null => {
+        const data = snapshot.data(options);
+        return data !== undefined ? Locate.fromJson(data) : null;
+      },
+    };
   }
 }
 

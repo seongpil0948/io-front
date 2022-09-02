@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LocateAmount, Locate, usePickArea } from "@/composable";
+import { LocateAmount, usePickArea } from "@/composable";
 import { useAuthStore } from "@/store";
 import { useMessage, DataTableColumns, NText, NButton } from "naive-ui";
 import { ref, h } from "vue";
@@ -7,38 +7,26 @@ import { ref, h } from "vue";
 const msg = useMessage();
 const auth = useAuthStore();
 const u = auth.currUser;
-const { data } = usePickArea();
+
 const selectedArea = ref({
-  city: null,
+  code: null,
   alias: null,
   amount: 10000,
 });
-async function addShipArea() {
-  const v = selectedArea.value;
-  const target = data.value.find(
-    (x) => x.city === v.city && x.alias === v.alias
-  );
-  if (!target) {
-    msg.error("올바르게 지역을 선택 해주세요.");
-    throw new Error(
-      "city or alias not matched, is there any duplicate code?" +
-        JSON.stringify(v)
-    );
-  }
-  const locate: LocateAmount = {
-    locate: new Locate({
-      code: target.code,
-      alias: v.alias ?? "",
-      country: "",
-      locateType: "기타",
-      city: v.city!,
-    }),
-    amount: v.amount,
-  };
+const { addPickArea } = usePickArea(selectedArea);
 
-  u.uncleInfo!.pickupLocates.push(locate);
-  await u.update();
+async function onClickAdd() {
+  const locate = addPickArea();
+  const lAmount: LocateAmount = {
+    locate,
+    amount: selectedArea.value.amount,
+  };
+  u.uncleInfo!.pickupLocates.push(lAmount);
+  u.update()
+    .then(() => msg.success("성공!"))
+    .catch(() => msg.error("실패!"));
 }
+
 const cols1: DataTableColumns<LocateAmount> = [
   {
     title: "지역",
@@ -47,7 +35,7 @@ const cols1: DataTableColumns<LocateAmount> = [
   },
   {
     title: "건물",
-    key: "locate.town",
+    key: "locate.alias",
     sorter: "default",
     filter: true,
   },
@@ -88,7 +76,7 @@ const cols1: DataTableColumns<LocateAmount> = [
       placeholder="배송금액"
       :show-button="false"
     />
-    <n-button @click="addShipArea">추가</n-button>
+    <n-button @click="onClickAdd">추가</n-button>
   </n-space>
   <n-data-table
     :columns="cols1"

@@ -103,6 +103,8 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       );
       ts[0].state = state;
       this.states.push(state);
+    } else {
+      throw new Error(`prodOrderId ${prodOrderId} not exist`);
     }
   }
   // getters

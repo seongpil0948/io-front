@@ -89,7 +89,6 @@ declare module '@vue/runtime-core' {
     NTag: typeof import('naive-ui')['NTag']
     NText: typeof import('naive-ui')['NText']
     NTooltip: typeof import('naive-ui')['NTooltip']
-    NTreeSelect: typeof import('naive-ui')['NTreeSelect']
     OrderByShopExpandTable: typeof import('./src/component/table/vendor/OrderByShopExpandTable.vue')['default']
     OrderComplete: typeof import('./src/view/shop/page/OrderComplete.vue')['default']
     OrderLinkage: typeof import('./src/view/shop/page/OrderLinkage.vue')['default']

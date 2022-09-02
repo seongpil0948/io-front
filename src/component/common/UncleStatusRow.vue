@@ -11,13 +11,14 @@ const { worker } = toRefs(props);
   <n-space
     size="large"
     inline
+    align="center"
     style="
       border-radius: 22px;
       background-color: dimgrey;
-      width: 133%;
       padding: 3%;
-      font-size: 1rem;
+      width: 15vw;
       align-items: center;
+      font-size: 1rem;
       cursor: pointer;
     "
     justify="space-around"

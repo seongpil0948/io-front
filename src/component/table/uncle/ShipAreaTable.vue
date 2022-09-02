@@ -31,7 +31,7 @@ async function addShipArea() {
       code: target.code,
       alias: target.town,
       country: "",
-      locateType: "기타",
+      locateType: "ETC",
       city: v.city!,
       county: v.county ?? "",
       town: v.town ?? "",

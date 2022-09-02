@@ -33,6 +33,9 @@ export function getIoCollection(p: getCollectParam): CollectionReference {
     case IoCollection.IO_PAY:
       str = "ioPay";
       break;
+    case IoCollection.PICKUP_LOCATES:
+      str = "pickupLocates";
+      break;
     case IoCollection.ORDER_PROD:
       str = `user/${p.uid}/orderProd`; // /${p.shopProdId}
       break;

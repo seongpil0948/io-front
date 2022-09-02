@@ -11,7 +11,7 @@ import {
 import { logger } from "@/plugin/logger";
 import { Unsubscribe } from "@firebase/util";
 import { defineStore } from "pinia";
-import { ref, computed, watchPostEffect } from "vue";
+import { ref, computed, watchEffect } from "vue";
 import { useAuthStore } from "./auth";
 import { useVendorsStore } from "./vendorProd";
 
@@ -83,7 +83,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
     );
   }
 
-  watchPostEffect(async () => {
+  watchEffect(async () => {
     console.log("orders", orders.value);
     if (orders.value.length > 0) {
       shopGarments.value = [];

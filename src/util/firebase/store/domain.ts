@@ -8,7 +8,8 @@ export type IoCollection =
   | "ORDER_PROD_NUMBER"
   | "USER_LOG"
   | "TOKENS"
-  | "SHIPMENT";
+  | "SHIPMENT"
+  | "PICKUP_LOCATES";
 
 export const IoCollection: { [key in IoCollection]: IoCollection } =
   Object.freeze({
@@ -22,6 +23,7 @@ export const IoCollection: { [key in IoCollection]: IoCollection } =
     USER_LOG: "USER_LOG",
     TOKENS: "TOKENS",
     SHIPMENT: "SHIPMENT",
+    PICKUP_LOCATES: "PICKUP_LOCATES",
   });
 
 export interface getCollectParam {

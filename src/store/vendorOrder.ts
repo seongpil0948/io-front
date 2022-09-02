@@ -122,7 +122,6 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   watch(
     () => orders.value,
     async function () {
-      console.log("orders in vendor watch", orders.value);
       shopGarments.value = [];
       const shopIds = uniqueArr(orders.value.map((x) => x.shopId));
       shopGarments.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);

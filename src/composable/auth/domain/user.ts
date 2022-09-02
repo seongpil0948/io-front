@@ -95,6 +95,7 @@ export interface ShopInfo {
   uncleUserIds: string[];
 }
 export interface WorkerInfo {
+  // FIXME: 저장안되는중
   areaInCharges: Location[];
   formOfEmp: "partTime" | "fullTime";
   startDate: Date; // 입사일;

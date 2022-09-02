@@ -1,18 +1,15 @@
 <script setup lang="ts">
-import { usePickArea } from "@/composable";
+import { CA, usePickArea } from "@/composable";
 import { toRefs } from "vue";
-export interface Area {
-  city: null | string;
-  alias: null | string;
-}
+
 const props = defineProps<{
-  area: Area;
+  area: CA;
 }>();
 const { area } = toRefs(props);
 const emits = defineEmits<{
-  (e: "update:area", value: Area): void;
+  (e: "update:area", value: CA): void;
 }>();
-const { areaOpt, officeOpt } = usePickArea();
+const { areaOpt, officeOpt } = usePickArea(area);
 function onUpdateCity() {
   area.value.alias = null;
   emits("update:area", area.value);
@@ -26,14 +23,14 @@ function onUpdateOffice() {
     <n-select
       style="color: yellow"
       filterable
-      placeholder="시선택"
+      placeholder="지역 선택"
       @update:value="onUpdateCity"
-      v-model:value="area.city"
+      v-model:value="area.code"
       :options="areaOpt"
     />
     <n-select
       filterable
-      placeholder="구선택"
+      placeholder="별칭 선택"
       v-model:value="area.alias"
       @update:value="onUpdateOffice"
       :options="officeOpt"
