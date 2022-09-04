@@ -117,7 +117,7 @@ export const GARMENT_SIZE: { [key in GARMENT_SIZE]: GARMENT_SIZE } =
     "300": "300",
   });
 
-export type GENDER = "MALE" | "FEMALE" | "UNISEX";
+export type GENDER = "MALE" | "FEMALE" | "UNISEX" | "KIDS";
 export const GENDER: { [key in GENDER]: GENDER } = Object.freeze({
   MALE: "MALE",
   FEMALE: "FEMALE",

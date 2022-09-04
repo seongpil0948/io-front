@@ -19,6 +19,8 @@ export const colKoMapper: { [key in string]: string | null } = {
   titleImgs: "이미지",
   shipFeeAmount: "배송비",
   shipFeeDiscountAmount: "배송할인액",
+  pickFeeAmount: "픽업비",
+  pickFeeDiscountAmount: "픽업할인액",
   tax: "세액",
   paidAmount: "지불된금액",
   paid: "지불여부",

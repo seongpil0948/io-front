@@ -69,6 +69,8 @@ export class GarmentOrder extends CommonField implements OrderCrt {
         if (idx === 0) {
           acc.shipFeeAmount = prev.shipFeeAmount;
           acc.shipFeeDiscountAmount = prev.shipFeeDiscountAmount;
+          acc.pickFeeAmount = prev.pickFeeAmount;
+          acc.pickFeeDiscountAmount = prev.pickFeeDiscountAmount;
           acc.tax = prev.tax;
           acc.paidAmount = prev.paidAmount;
           acc.paid = prev.paid; // 미사용
@@ -80,6 +82,8 @@ export class GarmentOrder extends CommonField implements OrderCrt {
         } else {
           acc.shipFeeAmount += prev.shipFeeAmount;
           acc.shipFeeDiscountAmount += prev.shipFeeDiscountAmount;
+          acc.pickFeeAmount += prev.pickFeeAmount;
+          acc.pickFeeDiscountAmount += prev.pickFeeDiscountAmount;
           acc.tax += prev.tax;
           acc.paidAmount += prev.paidAmount;
           acc.paid = prev.paid;
@@ -218,6 +222,8 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       pureAmount,
       amount.shipFeeAmount,
       amount.shipFeeDiscountAmount,
+      amount.pickFeeAmount,
+      amount.pickFeeDiscountAmount,
       amount.tax
     );
     const orderDbId = uuidv4();
@@ -331,6 +337,8 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       pureAmount,
       item.actualAmount.shipFeeAmount,
       item.actualAmount.shipFeeDiscountAmount,
+      item.actualAmount.pickFeeAmount,
+      item.actualAmount.pickFeeDiscountAmount,
       item.actualAmount.tax
     );
     try {
@@ -376,9 +384,16 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     pureAmount: number,
     shipFeeAmount: number,
     shipFeeDiscountAmount: number,
+    pickFeeAmount: number,
+    pickFeeDiscountAmount: number,
     tax: number
   ) {
-    return pureAmount - (shipFeeAmount - shipFeeDiscountAmount) + tax;
+    return (
+      pureAmount +
+      (shipFeeAmount - shipFeeDiscountAmount) +
+      (pickFeeAmount - pickFeeDiscountAmount) +
+      tax
+    );
   }
   static validProdOrder(o: ProdOrderCombined): void {
     const a = o.actualAmount;
@@ -402,6 +417,8 @@ export function mergeProdOrder(origin: ProdOrder, y: ProdOrder) {
 export function mergeOrderAmount(origin: OrderAmount, y: OrderAmount) {
   origin.shipFeeAmount += y.shipFeeAmount;
   origin.shipFeeDiscountAmount += y.shipFeeDiscountAmount;
+  origin.pickFeeAmount += y.pickFeeAmount;
+  origin.pickFeeDiscountAmount += y.pickFeeDiscountAmount;
   origin.tax += y.tax;
   origin.paidAmount += y.paidAmount;
   origin.paid = y.paid;
@@ -414,6 +431,8 @@ export function emptyAmount(): OrderAmount {
   return {
     shipFeeAmount: 0,
     shipFeeDiscountAmount: 0,
+    pickFeeAmount: 0,
+    pickFeeDiscountAmount: 0,
     tax: 0,
     paidAmount: 0,
     paid: BOOL_M.F,

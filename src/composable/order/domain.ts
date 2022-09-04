@@ -111,6 +111,8 @@ export interface ShopOrderParam extends OrderParam {
 export interface OrderAmount {
   shipFeeAmount: number;
   shipFeeDiscountAmount: number;
+  pickFeeAmount: number;
+  pickFeeDiscountAmount: number;
   tax: number;
   paidAmount: number; // 지불된 금액
   paid: BOOL_M; // 지불여부

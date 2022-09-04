@@ -140,7 +140,7 @@ function approveSelected() {
 }
 </script>
 <template>
-  <n-card title="' '">
+  <n-card title="">
     <template #header-extra>
       <n-space>
         <n-button size="small" type="primary" @click="approveSelected">
