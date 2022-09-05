@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import {
   IoUser,
-  usePickArea,
+  IoAccount,
   USER_DB,
   USER_PROVIDER,
   USER_ROLE,
+  WorkerInfo,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
@@ -20,7 +21,14 @@ const displayName = ref(null);
 const phone = ref(null);
 const email = ref(null);
 const profileImg = ref(null);
-
+const account = ref<IoAccount | null>(null);
+const workerInfo = ref<WorkerInfo | null>(null);
+function onSubmitAccount(acc: IoAccount) {
+  account.value = acc;
+}
+function onSubmitWorker(acc: WorkerInfo) {
+  workerInfo.value = acc;
+}
 const kakaoAuthed = ref(false);
 function fail(err: any) {
   msg.error(`카카오 로그인 에러${JSON.stringify(err)}`);
@@ -52,11 +60,15 @@ function onKakaoAuth() {
 }
 async function onSignUp() {
   if (!kakaoAuthed.value) {
-    msg.error("카카오 인증이 필요합니다.");
+    return msg.error("카카오 인증이 필요합니다.");
   } else if (!displayName.value) {
-    msg.error("이름을 입력해주세요.");
+    return msg.error("이름을 입력해주세요.");
   } else if (!email.value) {
-    msg.error("이메일을 입력해주세요.");
+    return msg.error("이메일을 입력해주세요.");
+  } else if (!account.value) {
+    return msg.error("계좌 정보를 입력 및 제출해주세요.");
+  } else if (!workerInfo.value) {
+    return msg.error("근로자 정보를 입력 및 제출해주세요.");
   } else {
     const providerId = USER_PROVIDER.KAKAO;
     const user = new IoUser({
@@ -76,6 +88,9 @@ async function onSignUp() {
         passed: true,
         managerId: auth.currUser.userInfo.userId,
       },
+      companyInfo: Object.assign({}, auth.currUser.companyInfo, {
+        currentAccount: account.value,
+      }),
     });
     console.log("Signed User: ", user);
     await user.update();
@@ -111,7 +126,10 @@ const width = "35vw";
         <n-gradient-text type="info"> 연락처 </n-gradient-text>
       </template>
     </n-input>
-
+    <bank-account-form @submit:account="onSubmitAccount" />
+    <n-checkbox :checked="account !== null">계좌 제출여부 </n-checkbox>
+    <worker-info-form @submit:workerInfo="onSubmitWorker" />
+    <n-checkbox :checked="workerInfo !== null">근로자정보 제출여부 </n-checkbox>
     <n-button :style="`width: ${width}`" @click="onSignUp"> 가입하기 </n-button>
   </n-space>
 </template>

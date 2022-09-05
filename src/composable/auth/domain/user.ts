@@ -94,13 +94,23 @@ export interface UncleInfo {
 export interface ShopInfo {
   uncleUserIds: string[];
 }
+export type SalaryMethod = "CHANGE_MIND" | "CHANGE_MIND" | "CHANGE_MIND";
+
+export const SalaryMethod: { [key in SalaryMethod]: SalaryMethod } =
+  Object.freeze({
+    CHANGE_MIND: "CHANGE_MIND",
+  });
+export type FormOfEmployee = "PART_TIME" | "FULL_TIME";
+export const FormOfEmployee: { [key in FormOfEmployee]: FormOfEmployee } =
+  Object.freeze({
+    PART_TIME: "PART_TIME",
+    FULL_TIME: "FULL_TIME",
+  });
 export interface WorkerInfo {
-  // FIXME: 저장안되는중
   areaInCharges: Location[];
-  formOfEmp: "partTime" | "fullTime";
-  startDate: Date; // 입사일;
-  endDate: Date; // 퇴사일
-  payday: Date;
+  formOfEmp: FormOfEmployee;
+  payday: number;
+  empContract: string[];
 }
 
 interface IoUserCRT {

@@ -55,7 +55,6 @@ export class IoUser extends CommonField implements IoUserCRT {
   }
 
   constructor(c: IoUserCRT) {
-    const date = new Date();
     super(c.userInfo.createdAt, c.userInfo.updatedAt);
     this.userInfo = c.userInfo;
     this.companyInfo = c.companyInfo;
@@ -73,13 +72,7 @@ export class IoUser extends CommonField implements IoUserCRT {
         amountByWeight: {},
       };
     } else if (this.userInfo.role === "UNCLE_WORKER" && !this.workerInfo) {
-      this.workerInfo = {
-        areaInCharges: [],
-        formOfEmp: "partTime",
-        startDate: date,
-        endDate: date,
-        payday: date,
-      };
+      this.workerInfo;
     }
     // else if (this.userInfo.role === "SHOP" && this.shopInfo === undefined) {
     //   this.shopInfo = {

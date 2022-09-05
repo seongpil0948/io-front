@@ -5,20 +5,25 @@ import { CommonField } from "../common";
 import { IO_BANKS, IoPayCRT, PayHistoryCRT } from "./domain";
 
 export class IoAccount {
-  userId: string;
   accountName: string;
   accountNumber: string;
   bank: IO_BANKS;
   constructor(p: {
-    userId: string;
     accountName: string;
     accountNumber: string;
     bank: IO_BANKS;
   }) {
-    this.userId = p.userId;
     this.accountName = p.accountName;
     this.accountNumber = p.accountNumber;
     this.bank = p.bank;
+  }
+
+  static empty(): IoAccount {
+    return new IoAccount({
+      accountName: "",
+      accountNumber: "",
+      bank: "NH",
+    });
   }
 }
 

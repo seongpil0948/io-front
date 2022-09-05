@@ -10,6 +10,7 @@ declare module '@vue/runtime-core' {
     AccidentManage: typeof import('./src/view/uncle/page/AccidentManage.vue')['default']
     AfterApproveList: typeof import('./src/view/vendor/page/AfterApproveList.vue')['default']
     AreaSelector: typeof import('./src/component/input/selector/AreaSelector.vue')['default']
+    BankAccountForm: typeof import('./src/component/form/BankAccountForm.vue')['default']
     BeforeApproveList: typeof import('./src/view/vendor/page/BeforeApproveList.vue')['default']
     BillingManage: typeof import('./src/view/uncle/page/BillingManage.vue')['default']
     CarouselImgCard: typeof import('./src/component/card/CarouselImgCard.vue')['default']
@@ -145,6 +146,7 @@ declare module '@vue/runtime-core' {
     VendorProdThum: typeof import('./src/component/card/vendor/VendorProdThum.vue')['default']
     VendorProductList: typeof import('./src/view/vendor/page/VendorProductList.vue')['default']
     VendorUncleManage: typeof import('./src/view/vendor/page/VendorUncleManage.vue')['default']
+    WorkerInfoForm: typeof import('./src/component/form/WorkerInfoForm.vue')['default']
     WorkerRegister: typeof import('./src/view/uncle/page/WorkerRegister.vue')['default']
     YesOrNoRadio: typeof import('./src/component/input/checker/YesOrNoRadio.vue')['default']
   }
