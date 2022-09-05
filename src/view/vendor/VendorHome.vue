@@ -31,6 +31,9 @@ onBeforeMount(() => store.init(user.userInfo.userId));
             :inStates="[
               'BEFORE_PAYMENT',
               'BEFORE_PICKUP_REQ',
+              'BEFORE_ASSIGN_PICKUP',
+              'BEFORE_PICKUP',
+              'PICKUP_COMPLETE',
               'BEFORE_SHIP',
               'SHIPPING',
               'SHIPPING_COMPLETE',

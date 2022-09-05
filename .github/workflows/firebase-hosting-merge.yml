@@ -15,7 +15,7 @@ jobs:
       - name: npm build
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
-        run: npm ci && npm run build-dev
+        run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
