@@ -23,12 +23,6 @@ export const IO_BANKS: { [key in IO_BANKS]: IO_BANKS } = Object.freeze({
   KB_STAR: "KB_STAR",
 });
 
-export interface AccountCRT {
-  userId: string;
-  accountNumber: string;
-  bank: IO_BANKS;
-}
-
 export interface PaymentDB {
   getIoPayByUser(uid: string): Promise<IoPay>;
   getIoPayByUserListen(uid: string): Ref<IoPay | null>;

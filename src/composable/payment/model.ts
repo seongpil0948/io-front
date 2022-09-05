@@ -2,14 +2,21 @@ import { COIN_PAY_RATIO, COIN_FEE } from "@/constants";
 import { loadDate, insertById, getIoCollection, IoCollection } from "@/util";
 import { DocumentData, DocumentSnapshot } from "firebase/firestore";
 import { CommonField } from "../common";
-import { IO_BANKS, AccountCRT, IoPayCRT, PayHistoryCRT } from "./domain";
+import { IO_BANKS, IoPayCRT, PayHistoryCRT } from "./domain";
 
 export class IoAccount {
   userId: string;
+  accountName: string;
   accountNumber: string;
   bank: IO_BANKS;
-  constructor(p: AccountCRT) {
+  constructor(p: {
+    userId: string;
+    accountName: string;
+    accountNumber: string;
+    bank: IO_BANKS;
+  }) {
     this.userId = p.userId;
+    this.accountName = p.accountName;
     this.accountNumber = p.accountNumber;
     this.bank = p.bank;
   }

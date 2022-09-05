@@ -10,7 +10,7 @@ import { makeMsgOpt } from "@/util";
 import { NButton, useMessage } from "naive-ui";
 import { watchEffect, h, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
-import LogoChecker from "@/component/input/LogoChecker.vue";
+import LogoChecker from "@/component/input/checker/LogoChecker.vue";
 import { useVendorOrderStore } from "@/store/vendorOrder";
 
 const log = useLogger();

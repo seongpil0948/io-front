@@ -9,7 +9,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AccidentManage: typeof import('./src/view/uncle/page/AccidentManage.vue')['default']
     AfterApproveList: typeof import('./src/view/vendor/page/AfterApproveList.vue')['default']
-    AreaSelector: typeof import('./src/component/input/AreaSelector.vue')['default']
+    AreaSelector: typeof import('./src/component/input/selector/AreaSelector.vue')['default']
     BeforeApproveList: typeof import('./src/view/vendor/page/BeforeApproveList.vue')['default']
     BillingManage: typeof import('./src/view/uncle/page/BillingManage.vue')['default']
     CarouselImgCard: typeof import('./src/component/card/CarouselImgCard.vue')['default']
@@ -17,7 +17,7 @@ declare module '@vue/runtime-core' {
     CoinReduceConfirmModal: typeof import('./src/component/card/CoinReduceConfirmModal.vue')['default']
     CoinWallet: typeof import('./src/component/card/CoinWallet.vue')['default']
     CompanyInfoForm: typeof import('./src/component/form/CompanyInfoForm.vue')['default']
-    DropZoneCard: typeof import('./src/component/input/DropZoneCard.vue')['default']
+    DropZoneCard: typeof import('./src/component/card/DropZoneCard.vue')['default']
     ExpandCard: typeof import('./src/component/card/ExpandCard.vue')['default']
     FloatActionButton: typeof import('./src/component/layout/FloatActionButton.vue')['default']
     GarmentOrderRow: typeof import('./src/component/table/vendor/GarmentOrderRow.vue')['default']
@@ -28,7 +28,7 @@ declare module '@vue/runtime-core' {
     LocateAmountList: typeof import('./src/component/card/LocateAmountList.vue')['default']
     LocateAppendModal: typeof import('./src/component/card/LocateAppendModal.vue')['default']
     LoginPage: typeof import('./src/view/common/LoginPage.vue')['default']
-    LogoChecker: typeof import('./src/component/input/LogoChecker.vue')['default']
+    LogoChecker: typeof import('./src/component/input/checker/LogoChecker.vue')['default']
     LogoImage: typeof import('./src/component/common/LogoImage.vue')['default']
     MainView: typeof import('./src/view/MainView.vue')['default']
     MapperSaver: typeof import('./src/component/input/MapperSaver.vue')['default']
@@ -95,7 +95,7 @@ declare module '@vue/runtime-core' {
     OrderRequire: typeof import('./src/view/shop/page/OrderRequire.vue')['default']
     PaidOrder: typeof import('./src/view/vendor/page/PaidOrder.vue')['default']
     PendingOrderList: typeof import('./src/view/shop/page/PendingOrderList.vue')['default']
-    PickAreaSelector: typeof import('./src/component/input/PickAreaSelector.vue')['default']
+    PickAreaSelector: typeof import('./src/component/input/selector/PickAreaSelector.vue')['default']
     PickAreaTable: typeof import('./src/component/table/uncle/PickAreaTable.vue')['default']
     PickReqTable: typeof import('./src/component/table/uncle/PickReqTable.vue')['default']
     PickupRequest: typeof import('./src/view/shop/page/PickupRequest.vue')['default']
@@ -146,6 +146,6 @@ declare module '@vue/runtime-core' {
     VendorProductList: typeof import('./src/view/vendor/page/VendorProductList.vue')['default']
     VendorUncleManage: typeof import('./src/view/vendor/page/VendorUncleManage.vue')['default']
     WorkerRegister: typeof import('./src/view/uncle/page/WorkerRegister.vue')['default']
-    YesOrNoRadio: typeof import('./src/component/input/YesOrNoRadio.vue')['default']
+    YesOrNoRadio: typeof import('./src/component/input/checker/YesOrNoRadio.vue')['default']
   }
 }

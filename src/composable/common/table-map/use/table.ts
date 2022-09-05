@@ -8,7 +8,7 @@ import { IoColOpt, MapperFields, IoColOptInner } from "../domain";
 import { colKoMapper } from "./colDict";
 import { useMapper } from "./mapper";
 import MapperSaver from "@/component/input/MapperSaver.vue";
-import LogoChecker from "@/component/input/LogoChecker.vue";
+import LogoChecker from "@/component/input/checker/LogoChecker.vue";
 
 interface useTableParam {
   userId: string;
