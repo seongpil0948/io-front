@@ -10,7 +10,6 @@ module.exports = defineConfig({
       .rule("vue")
       .use("vue-loader")
       .tap((options) => {
-        console.log("vue-loader options: ", options);
         return options;
       });
   },

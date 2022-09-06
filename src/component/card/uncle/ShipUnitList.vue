@@ -70,7 +70,6 @@ async function onAdd() {
       message.success("추가완료 ");
       showModal.value = false;
     } else {
-      console.log(errors);
       message.error("입력값을 올바르게 입력해주세요.");
     }
   });

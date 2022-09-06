@@ -10,7 +10,6 @@ const u = auth.currUser;
 const uncles = ref<IoUser[]>([]);
 onBeforeMount(async () => {
   const users = await USER_DB.getUsersByRole("UNCLE");
-  console.log("users: ", users);
   uncles.value = users.filter((x) => x.availUncleAdvertise);
 });
 // modal
@@ -21,7 +20,6 @@ const title = computed(
     selectedUser.value?.userInfo.userName
 );
 function onDetail(uncle: IoUser) {
-  console.log("onDetail Me: ", u, "with Uncle: ", uncle);
   selectedUser.value = uncle;
   showModal.value = true;
 }

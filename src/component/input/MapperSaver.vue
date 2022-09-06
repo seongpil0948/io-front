@@ -15,19 +15,28 @@ import { makeMsgOpt } from "@/util";
 // }
 
 const props = defineProps([
-  "value",
+  "value", // table cell
   "mapper",
   "mapType",
   "mapKey",
   "rowIdField",
   "targetVal",
   "show",
+  "siblings", // prodIds
 ]);
 // type-based
 const emits = defineEmits(["reqShow", "on-clickoutside"]);
 
-const { mapper, mapType, mapKey, rowIdField, targetVal, value, show } =
-  toRefs(props);
+const {
+  siblings,
+  mapper,
+  mapType,
+  mapKey,
+  rowIdField,
+  targetVal,
+  value,
+  show,
+} = toRefs(props);
 const isMapCell = mapType?.value === "cell";
 if (isMapCell && (!rowIdField || !targetVal)) {
   throw Error("Mapping Cell required rowIdField");
@@ -46,12 +55,9 @@ const synonyms = computed(() =>
 
 function onUpdate(val) {
   if (isMapCell) {
-    mapper?.value.setColVal(
-      mapKey?.value,
-      rowIdField?.value,
-      targetVal?.value,
-      val
-    );
+    (siblings?.value ?? []).forEach((id) => {
+      mapper?.value.setColVal(mapKey?.value, id, targetVal?.value, val);
+    });
   } else {
     mapper?.value.setSyno(mapKey?.value, val);
   }

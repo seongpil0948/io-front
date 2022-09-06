@@ -3,7 +3,7 @@ import {
   TableBaseColumn,
   ColumnKey,
 } from "naive-ui/es/data-table/src/interface";
-import { ref, watchEffect, h } from "vue";
+import { ref, watchEffect, h, Ref } from "vue";
 import { IoColOpt, MapperFields, IoColOptInner } from "../domain";
 import { colKoMapper } from "./colDict";
 import { useMapper } from "./mapper";
@@ -16,6 +16,8 @@ interface useTableParam {
   useChecker?: boolean;
   keyField?: keyof MapperFields;
   onCheckAll?: (to: boolean) => void;
+  data?: Ref<any[]>;
+  siblingFields?: string[];
 }
 export function useTable<T extends MapperFields>(p: useTableParam) {
   const { mapper } = useMapper(p.userId);
@@ -53,6 +55,8 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
       }
 
       if (opt.cellMapping && opt.rowIdField) {
+        if (!p.data || !p.siblingFields)
+          throw new Error("data and siblingFields is required");
         inner.cellRender = (row: T) =>
           h(
             MapperSaver,
@@ -63,13 +67,20 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
               value: row[opt.key],
               mapper,
               mapType: "cell",
-              mapKey: opt.key,
-              rowIdField: row[opt.rowIdField!],
-              targetVal: row[opt.key],
+              mapKey: opt.key, // column name
+              rowIdField: row[opt.rowIdField!], // prodId
+              targetVal: row[opt.key], // original Value
               onReqShow: onRequestShow,
               "on-clickoutside": () => {
                 openKey.value = "";
               },
+              siblings: p
+                .data!.value.filter((d) =>
+                  p.siblingFields!.every(
+                    (field) => row[field as keyof MapperFields] === d[field]
+                  )
+                )
+                .map((r) => r[opt.rowIdField!]) as string[],
             },
             {}
           );

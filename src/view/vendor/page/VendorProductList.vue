@@ -83,7 +83,9 @@ watchEffect(() => {
             NButton,
             {
               round: true,
-              onClick: () => onShowProdEdit(VendorGarment.fromJson(row)),
+              onClick: () => {
+                onShowProdEdit(VendorGarment.fromJson(row));
+              },
             },
             { default: () => "상품수정" }
           ),

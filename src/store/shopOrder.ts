@@ -71,7 +71,6 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   const unsubscribeAuth = authStore.$onAction(
     ({ name, store, args, after, onError }) => {
       // this will trigger before an action on `store` is executed
-      console.log(`action "${name}" with params [${args.join(", ")}].`);
 
       // this will trigger after action resolved
       after(async () => {
@@ -117,7 +116,6 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   // >>> action >>>
   function init(shopUserId: string) {
     if (!initial || !shopUserId || shopUserId === shopId.value) return;
-    console.log(`shopUserId: ${shopUserId} shopOrderStore initiated`);
     shopId.value = shopUserId;
     const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.shopReadListen({
       shopId: shopId.value,
@@ -132,7 +130,6 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   }
 
   function discard() {
-    console.log("=== discard shopOrderStore ===");
     if (orderUnSub) {
       orderUnSub();
     }

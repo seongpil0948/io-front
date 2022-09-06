@@ -26,7 +26,6 @@ onBeforeMount(() => {
 //   { immediate: false, deep: true }
 // );
 async function updateUser() {
-  console.log("update");
   await authModel.value?.update();
 }
 </script>

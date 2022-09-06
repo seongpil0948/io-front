@@ -31,7 +31,6 @@ async function toVendor() {
 async function toShop() {
   const u = getMockShops()[0]!;
   const realUser = await USER_DB.getUserById(u.userInfo.userId);
-  console.log("realUser: ", realUser);
   await auth.login(realUser!);
   router.goHome(auth.user!);
 }

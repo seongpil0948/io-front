@@ -56,7 +56,6 @@ async function pickupRequest() {
       orderIds.push(x.dbId);
     }
   });
-  console.log("targetUncle.value: ", uncle, byVendorKeys.value, orderIds);
 
   if (orderIds.length > 0) {
     await ORDER_GARMENT_DB.reqPickup(

@@ -42,9 +42,10 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     return computed(() =>
       vendorGarments.value.map((x) => {
         const garment: VendorUserOrderGarment = Object.assign(
-          x,
+          {},
           emptyProdOrder(),
-          emptyAmount()
+          emptyAmount(),
+          x
         );
         orders.value.forEach((o) => {
           o.items.forEach((item) => {
@@ -96,7 +97,6 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   const unsubscribeAuth = authStore.$onAction(
     ({ name, store, args, after, onError }) => {
       // this will trigger before an action on `store` is executed
-      console.log(`action "${name}" with params [${args.join(", ")}].`);
 
       // this will trigger after action resolved
       after(async () => {
@@ -137,7 +137,6 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   // >>> action >>>
   function init(vendorUserId: string) {
     if (!initial || !vendorUserId || vendorUserId === vendorId.value) return;
-    console.log(`vendorUserId: ${vendorUserId} vendorOrderStore initiated`);
     vendorId.value = vendorUserId;
 
     const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.vendorReadListen(
@@ -153,7 +152,6 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     initial = false;
   }
   function discard() {
-    console.log("=== discard vendorOrderStore ===");
     unsubscribeAuth();
     if (orderUnSub) {
       orderUnSub();

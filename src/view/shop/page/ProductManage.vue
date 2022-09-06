@@ -28,6 +28,8 @@ const { columns, mapper, checkedKeys } = useTable<
   userId: authStore.currUser.userInfo.userId,
   useChecker: true,
   keyField: rowIdField,
+  data: userProd,
+  siblingFields: ["prodName"],
   onCheckAll: (to) => {
     if (tableRef.value) {
       const idxes = (tableRef.value.paginatedData as any[]).map((x) => x.index);

@@ -10,6 +10,7 @@ import {
 } from "@/util";
 import { cloneDeep } from "lodash";
 import { useMessage, FormInst } from "naive-ui";
+import { AddCircleOutline } from "@vicons/ionicons5";
 import { ref, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 

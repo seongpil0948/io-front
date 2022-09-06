@@ -31,7 +31,6 @@ function onCheckDetailRow(keys: DataTableRowKey[]) {
 }
 const selectedData = ref<ShipOrderByShop | null>(null);
 function onClickDetail(data: ShipOrderByShop) {
-  console.log("onClickDetail data:", data);
   selectedData.value = data;
 }
 // const emits = defineEmits<{

@@ -17,7 +17,6 @@ const handleUserLogClose = () => (userLogShow.value = false);
 //     // doUpdateShow(false);
 // }
 const router = useRouter();
-console.log();
 </script>
 
 <template>

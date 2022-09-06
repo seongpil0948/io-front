@@ -84,7 +84,6 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   }
 
   watchEffect(async () => {
-    console.log("orders", orders.value);
     if (orders.value.length > 0) {
       shopGarments.value = [];
       const shopIds = uniqueArr(orders.value.map((x) => x.shopId));
@@ -103,10 +102,6 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
 
   const unsubscribeAuth = authStore.$onAction(
     ({ name, store, args, after, onError }) => {
-      // this will trigger before an action on `store` is executed
-      console.log(`action "${name}" with params [${args.join(", ")}].`);
-
-      // this will trigger after action resolved
       after(async () => {
         const u = store.user;
         if (name === "login") {
@@ -129,9 +124,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   );
 
   function init(uncleUserId: string) {
-    console.log("try to initiate uncle store");
     if (!initial || !uncleUserId || uncleUserId === uncleId.value) return;
-    console.log(`uncleUserId: ${uncleUserId} authOrderStore initiated`);
     uncleId.value = uncleUserId;
 
     const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.uncleReadListen({
@@ -145,7 +138,6 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
     initial = false;
   }
   function discard() {
-    console.log("=== discard uncleOrderStore ===");
     unsubscribeAuth();
     if (orderUnSub) {
       orderUnSub();

@@ -380,7 +380,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     uncleId: string;
     orders: Ref<GarmentOrder[]>;
   }) {
-    console.log("uncleId in uncleReadListen", p);
     const orderQ = query(
       getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
         GarmentOrder.fireConverter()
