@@ -69,7 +69,8 @@ export class IoShipment extends CommonField implements ShipmentCrt {
   size?: number;
   amountBySize?: number;
   amountByWeight?: number;
-  amountBasic: number;
+  shipFeeBasic: number;
+  pickupFeeBasic: number;
   returnAddress: Locate;
   startAddress: Locate;
   receiveAddress: Locate;
@@ -91,21 +92,32 @@ export class IoShipment extends CommonField implements ShipmentCrt {
     this.size = d.size;
     this.amountBySize = d.amountBySize;
     this.amountByWeight = d.amountByWeight;
-    this.amountBasic = d.amountBasic;
+    this.shipFeeBasic = d.shipFeeBasic;
+    this.pickupFeeBasic = d.pickupFeeBasic;
     this.returnAddress = d.returnAddress;
     this.startAddress = d.startAddress;
     this.receiveAddress = d.receiveAddress;
     this.wishedDeliveryTime = d.wishedDeliveryTime;
     this.managerId = d.managerId;
   }
-  get shipAmount() {
-    if (this.size && this.amountBySize && this.amountByWeight && this.weight)
-      return (
-        this.amountBasic +
-        this.size * this.amountBySize +
-        this.weight * this.amountByWeight
-      );
-    else return -1;
+  get pickAmount() {
+    if (
+      !this.size ||
+      !this.amountBySize ||
+      !this.amountByWeight ||
+      !this.weight
+    )
+      throw new Error("배송 제원 미입력 에러");
+
+    return (
+      this.pickupFeeBasic +
+      this.size * this.amountBySize +
+      this.weight * this.amountByWeight
+    );
+  }
+
+  get amount() {
+    return this.pickAmount + this.shipFeeBasic;
   }
 
   async update() {
@@ -134,7 +146,8 @@ export class IoShipment extends CommonField implements ShipmentCrt {
       size: d.size,
       amountBySize: d.amountBySize,
       amountByWeight: d.amountByWeight,
-      amountBasic: d.amountBasic,
+      shipFeeBasic: d.shipFeeBasic,
+      pickupFeeBasic: d.pickupFeeBasic,
       returnAddress: d.returnAddress,
       startAddress: d.startAddress,
       receiveAddress: d.receiveAddress,

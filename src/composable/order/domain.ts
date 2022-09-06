@@ -213,7 +213,8 @@ export interface ShipmentCrt {
   size?: number;
   amountBySize?: number;
   amountByWeight?: number;
-  amountBasic: number; // 기본배송료
+  shipFeeBasic: number; // 지역별 기본 배송료
+  pickupFeeBasic: number; // 지역별 기본 픽업료
   returnAddress: Locate; // 출발지
   startAddress: Locate; // 도매
   receiveAddress: Locate; // 소매

@@ -68,10 +68,15 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
         const shop = validateUser(shopDoc.data(), ord.shopId);
 
         const shipLocateCode = shop.companyInfo!.shipLocate!.code;
-        const clientLocate = uncle.uncleInfo!.shipLocates.find(
+        const shipLocate = uncle.uncleInfo!.shipLocates.find(
           (x) => x.locate.code === shipLocateCode
         );
-        if (!clientLocate) throw new Error("배송불가 지역입니다.");
+        const pickLocate = uncle.uncleInfo!.pickupLocates.find(
+          (x) => x.locate.code === shipLocateCode
+        );
+
+        if (!shipLocate) throw new Error("배송불가 지역입니다.");
+        else if (!pickLocate) throw new Error("픽업불가 지역입니다.");
         const shipment = new IoShipment({
           shippingId: uuidv4(),
           orderDbId: ord.dbId,
@@ -79,10 +84,11 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
           shipMethod: "UNCLE",
           additionalInfo: "",
           paid: false,
-          amountBasic: clientLocate.amount,
-          returnAddress: clientLocate.locate,
-          receiveAddress: clientLocate.locate,
-          startAddress: vendor.companyInfo!.shipLocate as Locate,
+          shipFeeBasic: shipLocate.amount,
+          pickupFeeBasic: pickLocate.amount,
+          returnAddress: shipLocate.locate,
+          receiveAddress: shipLocate.locate,
+          startAddress: pickLocate.locate,
           wishedDeliveryTime: new Date(),
           managerId: uncle.userInfo.userId,
         });
