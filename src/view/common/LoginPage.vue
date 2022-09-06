@@ -21,14 +21,14 @@ useEventListener(
   "keyup",
   async (evt: KeyboardEvent) => {
     if (evt.key === "Enter") {
-      await onKakaoLogin();
+      await onKakaoLogin("loginForm");
     }
   }
 );
-async function onKakaoLogin() {
+async function onKakaoLogin(auto: "loginForm" | "login") {
   const kakao = inst?.appContext.config.globalProperties.$kakao;
   // kakao.Auth.login({
-  kakao.Auth.loginForm({
+  kakao.Auth[auto]({
     // with auto login
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     success: (obj: any) => {
@@ -52,11 +52,7 @@ async function onKakaoLogin() {
                   }
                 },
                 fail: function (error: any) {
-                  log.error(
-                    user?.userInfo.userId,
-                    "카카오 채널목록 에러: ",
-                    error
-                  );
+                  log.error(null, "카카오 채널목록 에러: ", error);
                 },
               });
 
@@ -119,10 +115,16 @@ async function onKakaoLogin() {
     <n-h2>In-Out Box</n-h2>
     <n-image
       preview-disabled
-      @click="onKakaoLogin"
+      @click="() => onKakaoLogin('login')"
       src="/img/kakao_login_medium_wide.png"
       style="cursor: pointer"
     />
+    <n-button
+      color="rgba(255, 255, 47, 0.7)"
+      @click="() => onKakaoLogin('loginForm')"
+    >
+      다른계정으로 로그인
+    </n-button>
     <io-footer />
   </n-space>
 </template>
