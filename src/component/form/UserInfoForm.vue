@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {
-  AccountInfo,
   IoUser,
   IoUserInfo,
   LocateCRT,
   USER_PROVIDER,
   USER_ROLE,
+  IoAccount,
 } from "@/composable";
-import { emailRule, nameLenRule, strLenRule } from "@/util";
+import { emailRule, nameLenRule } from "@/util";
 
 import { getAuth } from "@firebase/auth";
 import { FormInst } from "naive-ui";
@@ -29,17 +29,18 @@ const formModel = reactive({
   displayName: "",
   email: props.email ?? "",
   locations: [] as LocateCRT[],
-  account: "",
-  name: "",
-  bankName: "",
 });
+const accInfo = ref<IoAccount | null>(null);
+function onSubmitAccount(acc: IoAccount) {
+  accInfo.value = acc;
+}
 async function getUserInfo(): Promise<{
-  userInfo: IoUserInfo;
-  account: AccountInfo;
+  userInfo?: IoUserInfo;
 }> {
+  if (!accInfo.value) return { userInfo: undefined };
   const token = await IoUser.getFcmToken();
   const obj: IoUserInfo = Object.assign(
-    {},
+    { account: accInfo.value! },
     {
       userId: props.userId,
       providerId: props.providerId,
@@ -51,17 +52,13 @@ async function getUserInfo(): Promise<{
     },
     formModel
   );
-  const acc: AccountInfo = formModel;
-  return { userInfo: obj, account: acc };
+  return { userInfo: obj };
 }
 
 const rule = {
   userName: nameLenRule,
   displayName: nameLenRule,
   email: emailRule,
-  account: strLenRule(10),
-  name: strLenRule(2),
-  bankName: strLenRule(2),
 };
 </script>
 
@@ -94,24 +91,8 @@ const rule = {
           placeholder="이메일을 입력 해주세요"
         />
       </n-form-item-gi>
-
-      <n-form-item-gi label="거래은행(ex 신한)" path="bankName">
-        <n-input
-          v-model:value="formModel.bankName"
-          placeholder="IBK, 농협, ..."
-        />
-      </n-form-item-gi>
-      <n-form-item-gi label="계좌 명의" path="name">
-        <n-input
-          v-model:value="formModel.name"
-          placeholder="송금시 확인 가능한 이름"
-        />
-      </n-form-item-gi>
-      <n-form-item-gi label="계좌번호" path="account">
-        <n-input
-          v-model:value="formModel.account"
-          placeholder="계좌번호 입력"
-        />
+      <n-form-item-gi path="account">
+        <bank-account-form @submit:account="onSubmitAccount" />
       </n-form-item-gi>
     </n-grid>
   </n-form>

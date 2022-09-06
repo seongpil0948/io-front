@@ -50,6 +50,7 @@ interface IoUserInfo {
   providerId: USER_PROVIDER | Extract<keyof USER_PROVIDER, string>;
   userName: string;
   displayName?: string;
+  account?: IoAccount; // 입출금 계좌
   email?: string;
   emailVerified: boolean;
   profileImg?: string;
@@ -69,17 +70,11 @@ interface CompanyInfo {
   shipLocate?: LocateCRT;
   emailTax: string; // 세금 계산서 이메일 주소
   companyPhone: string; // 사업장 연락처
-  currentAccount?: IoAccount; // 입출금 계좌
   shopLink?: string;
   ceoName: string;
   ceoPhone: string;
   managerName: string;
   managerPhone: string;
-}
-export interface AccountInfo {
-  account: string;
-  name: string;
-  bankName: string;
 }
 export interface LocateAmount {
   locate: Locate;
@@ -117,7 +112,6 @@ interface IoUserCRT {
   userInfo: IoUserInfo;
   companyInfo?: CompanyInfo;
   operInfo?: ShopOperInfo | VendorOperInfo;
-  account?: AccountInfo;
   uncleInfo?: UncleInfo; // uncle manager info
   preferDark?: boolean;
   shopInfo?: ShopInfo;
@@ -126,8 +120,7 @@ interface IoUserCRT {
 export type UserFields = CompanyInfo &
   IoUserInfo &
   ShopOperInfo &
-  VendorOperInfo &
-  AccountInfo;
+  VendorOperInfo;
 export interface UserDB {
   getUserById(uid: string): Promise<IoUser | null | undefined>;
   getUserByIds(uids: string[]): Promise<IoUser[]>;

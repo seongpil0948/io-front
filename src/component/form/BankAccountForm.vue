@@ -51,8 +51,9 @@ const rules = {
   <n-form
     ref="formRef"
     :model="account"
+    style="width: 100%"
     :rules="rules"
-    label-placement="left"
+    label-placement="top"
     require-mark-placement="right-hanging"
     label-width="auto"
   >

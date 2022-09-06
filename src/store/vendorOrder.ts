@@ -95,10 +95,8 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   }
   // >>> connection >>>
   const unsubscribeAuth = authStore.$onAction(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ({ name, store, args, after, onError }) => {
-      // this will trigger before an action on `store` is executed
-
-      // this will trigger after action resolved
       after(async () => {
         const u = store.user;
         if (name === "login") {

@@ -11,15 +11,11 @@ const props = defineProps<{
   showAppendModal: boolean;
 }>();
 const { showAppendModal } = toRefs(props);
-const showModal = ref(false);
 const emits = defineEmits<{
   (e: "appendLocate", value: Locate): void;
   (e: "update:showAppendModal", value: boolean): void;
 }>();
 
-watchEffect(() => {
-  showModal.value = showAppendModal.value;
-});
 const msg = useMessage();
 const formRef = ref<FormInst | null>(null);
 const formModel = reactive<{ [k in keyof LocateCRT]: LocateCRT[k] }>({
@@ -78,11 +74,17 @@ function submitLocate() {
     }
   });
 }
+function updateShow(val: boolean) {
+  console.log("updateShow", val);
+  emits("update:showAppendModal", val);
+}
 </script>
 
 <template>
   <n-modal
-    v-model:show="showModal"
+    :show="showAppendModal"
+    @esc="() => updateShow(false)"
+    @close="() => updateShow(false)"
     preset="card"
     style="width: 50%"
     title="주소정보추가"

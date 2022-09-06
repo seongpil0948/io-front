@@ -87,10 +87,8 @@ async function onSignUp() {
         fcmTokens: [],
         passed: true,
         managerId: auth.currUser.userInfo.userId,
+        account: account.value,
       },
-      companyInfo: Object.assign({}, auth.currUser.companyInfo, {
-        currentAccount: account.value,
-      }),
     });
     console.log("Signed User: ", user);
     await user.update();

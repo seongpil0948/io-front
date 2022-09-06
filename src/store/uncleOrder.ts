@@ -101,6 +101,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   });
 
   const unsubscribeAuth = authStore.$onAction(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ({ name, store, args, after, onError }) => {
       after(async () => {
         const u = store.user;

@@ -1,5 +1,4 @@
 import {
-  AccountInfo,
   CompanyInfo,
   IoUserCRT,
   IoUserInfo,
@@ -27,7 +26,6 @@ export class IoUser extends CommonField implements IoUserCRT {
   userInfo: IoUserInfo;
   companyInfo?: CompanyInfo;
   operInfo?: ShopOperInfo | VendorOperInfo;
-  account?: AccountInfo;
   preferDark = false;
   uncleInfo?: UncleInfo;
   shopInfo?: ShopInfo;
@@ -59,7 +57,6 @@ export class IoUser extends CommonField implements IoUserCRT {
     this.userInfo = c.userInfo;
     this.companyInfo = c.companyInfo;
     this.operInfo = c.operInfo;
-    this.account = c.account;
     this.uncleInfo = c.uncleInfo;
     this.preferDark = c.preferDark ?? true;
     this.shopInfo = c.shopInfo;
@@ -130,7 +127,6 @@ export class IoUser extends CommonField implements IoUserCRT {
           userInfo,
           companyInfo: data.companyInfo,
           operInfo: data.operInfo,
-          account: data.account,
           preferDark: data.preferDark ?? false,
           uncleInfo: data.uncleInfo,
           workerInfo: data.workerInfo,

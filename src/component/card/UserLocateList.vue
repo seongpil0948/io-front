@@ -66,7 +66,7 @@ const locateKey = [
       </n-card>
     </n-tooltip>
     <div style="width: 5px"></div>
-    <n-button size="small" @click="showAppendModal = true">추가 </n-button>
+    <n-button @click="showAppendModal = true">추가 </n-button>
     <locate-append-modal
       @appendLocate="onAppendLocate"
       v-model:showAppendModal="showAppendModal"

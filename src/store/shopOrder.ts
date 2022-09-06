@@ -70,9 +70,6 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   const { vendorUserGarments } = storeToRefs(useVendorsStore());
   const unsubscribeAuth = authStore.$onAction(
     ({ name, store, args, after, onError }) => {
-      // this will trigger before an action on `store` is executed
-
-      // this will trigger after action resolved
       after(async () => {
         const u = store.user;
         if (name === "login") {

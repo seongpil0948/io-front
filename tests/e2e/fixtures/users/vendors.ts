@@ -36,11 +36,6 @@ export const getMockVendors = () => [
       autoOrderApprove: false,
       expectNumProdMonthly: "100~500",
     },
-    account: {
-      account: "3520289183853",
-      name: "최성필",
-      bankName: "신한",
-    },
     preferDark: true,
   }),
   new IoUser({
@@ -77,11 +72,6 @@ export const getMockVendors = () => [
       saleManageType: "수기",
       autoOrderApprove: false,
       expectNumProdMonthly: "100~500",
-    },
-    account: {
-      account: "3520289183853",
-      name: "최성필",
-      bankName: "신한",
     },
     preferDark: true,
   }),

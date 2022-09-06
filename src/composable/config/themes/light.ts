@@ -28,7 +28,8 @@ export const lightThemeOver: GlobalThemeOverrides = {
     successColorPressed: lightColors.primary,
   },
   Button: {
-    colorHoverPrimary: lightColors.white,
+    colorHover: lightColors.primary,
+    colorPressed: lightColors.primary,
     textColorPrimary: lightColors.text,
     textColorSuccess: lightColors.text,
   },

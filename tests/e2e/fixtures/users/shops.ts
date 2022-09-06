@@ -35,11 +35,6 @@ export const getMockShops = () => [
       saleAverage: "300~1,000",
       purchaseMethod: "엉클",
     },
-    account: {
-      account: "3520289183853",
-      name: "최성필",
-      bankName: "농협",
-    },
     preferDark: true,
   }),
 ];

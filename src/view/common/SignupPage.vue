@@ -69,12 +69,14 @@ async function onStep5() {
   const userInfoForm = inst.refs.userInfoRef as InstanceType<
     typeof UserInfoForm
   >;
+  const { userInfo } = await userInfoForm.getUserInfo();
+  const errorMsg = "유저정보를 올바르게 입력 또는 계좌제출을 해주세요.";
+  if (!userInfo) return msg.error(errorMsg, makeMsgOpt());
   (userInfoForm.$refs.formRef as FormInst).validate(async (errors) => {
     if (errors) {
-      msg.error("매장정보를 올바르게 입력해주세요", makeMsgOpt());
+      return msg.error(errorMsg, makeMsgOpt());
     } else {
-      const { userInfo, account } = await userInfoForm.getUserInfo();
-      user.value = new IoUser({ userInfo, account });
+      user.value = new IoUser({ userInfo });
       step.value = 5;
     }
     log.debug("userInfo", user.value);

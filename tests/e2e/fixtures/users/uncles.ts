@@ -36,11 +36,6 @@ export const getMockUncles = () => [
       companyPhone: "13124512",
     },
     operInfo: undefined,
-    account: {
-      account: "312412512512",
-      bankName: "엉클은행",
-      name: "엉클명의",
-    },
     preferDark: true,
   }),
 ];
