@@ -269,7 +269,7 @@ function onRegister() {
           path="titleImgs"
         >
           <single-image-input
-            elemetId="titleImgs"
+            elementId="titleImgs"
             :user="currUser"
             v-model:urls="prodModel.titleImgs"
             size="100"
@@ -284,7 +284,7 @@ function onRegister() {
           path="bodyImgs"
         >
           <single-image-input
-            elemetId="bodyImgs"
+            elementId="bodyImgs"
             :user="currUser"
             v-model:urls="prodModel.bodyImgs"
             size="100"

@@ -117,7 +117,7 @@ const auth = useAuthStore();
         path="titleImgs"
       >
         <single-image-input
-          elemetId="titleImgs"
+          elementId="titleImgs"
           :user="auth.currUser"
           size="100"
           v-model:urls="prod.titleImgs"
@@ -132,7 +132,7 @@ const auth = useAuthStore();
         path="bodyImgs"
       >
         <single-image-input
-          elemetId="bodyImgs"
+          elementId="bodyImgs"
           :user="auth.currUser"
           v-model:urls="prod.bodyImgs"
           size="100"

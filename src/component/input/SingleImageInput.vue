@@ -10,21 +10,20 @@ import {
   refByUid,
   uploadFile,
 } from "@/util";
-
 const props = defineProps<{
   urls: string[];
   user?: IoUser;
   userId?: string;
-  elemetId: string;
+  elementId: string;
   size: string;
   max: number;
 }>();
-if (!props.userId && !props.user)
-  throw new Error(
-    "Single Image Input Compoenent Require Whether User ID or  User"
-  );
+if (!props.userId && !props.user) {
+  const msg = "Single Image Input Component Require Whether User ID or  User";
+  throw new Error(msg);
+}
 
-const { urls, size, max, elemetId } = toRefs(props);
+const { urls, size, max, elementId } = toRefs(props);
 const emits = defineEmits(["update:urls"]);
 const input = ref<HTMLInputElement | null>(null);
 const msg = useMessage();
@@ -72,7 +71,7 @@ function closeFile(src: string) {
 
     <div v-if="urls.length < max">
       <n-card :style="`width: ${size}px; height: ${size}px; `">
-        <label :for="elemetId">
+        <label :for="elementId">
           <n-spin :show="loading"><slot></slot> </n-spin
         ></label>
       </n-card>
@@ -82,8 +81,8 @@ function closeFile(src: string) {
         type="file"
         multiple
         style="visibility: hidden"
-        :id="elemetId"
-        :name="elemetId"
+        :id="elementId"
+        :name="elementId"
         accept="image/*"
         @change="loadFile"
       />

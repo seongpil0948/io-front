@@ -69,7 +69,7 @@ const rules = {
     </n-form-item>
     <n-form-item label="급여일" path="payday">
       <single-image-input
-        elemetId="empContract"
+        elementId="empContract"
         :user="u"
         v-model:urls="workerInfo.empContract"
         size="100"
