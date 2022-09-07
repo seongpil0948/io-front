@@ -537,6 +537,17 @@ export const routes: Array<RouteRecordRaw> = [
           allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
         },
       },
+      {
+        path: "unclePartnerManage",
+        name: "UnclePartnerManage",
+        component: () =>
+          import(
+            /* webpackChunkName: "uncle" */ "@/view/uncle/page/UnclePartnerManage.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
     ],
   },
   {

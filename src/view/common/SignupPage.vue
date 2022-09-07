@@ -5,6 +5,7 @@ import {
   USER_PROVIDER,
   USER_ROLE,
   VendorOperInfo,
+  useSmtp,
 } from "@/composable";
 import { makeMsgOpt, useFireWork } from "@/util";
 import { FormInst, useMessage } from "naive-ui";
@@ -31,7 +32,7 @@ const userRole = ref<USER_ROLE | null>(null);
 const user = ref<IoUser | null>(null);
 const acceptTerms = ref(false);
 const { play, stop } = useFireWork();
-
+const smtp = useSmtp();
 if (!router.currentRoute.value.params.userId) {
   log.error(
     null,
@@ -147,6 +148,13 @@ async function onSignUp() {
   log.debug(user.value);
   await user.value!.update();
   msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
+  await smtp.sendMail({
+    toUserIds: [user.value!.userInfo.userId],
+    subject: `${user.value!.name} 회원가입을 축하합니다.`,
+    body: `${
+      user.value!.name
+    } 께서 제출하신 정보를 바탕으로 검토 및 승인후 홈페이지 및 어플 이용이 가능합니다.`,
+  });
   play();
   step.value = 9;
 }

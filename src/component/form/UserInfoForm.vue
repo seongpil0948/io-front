@@ -47,7 +47,7 @@ async function getUserInfo(): Promise<{
       emailVerified: false,
       profileImg: props.profileImg,
       passed: false,
-      fcmTokens: auth.currentUser ? [token] : [],
+      fcmTokens: auth.currentUser ? [token!] : ([] as string[]),
       role: props.role,
     },
     formModel

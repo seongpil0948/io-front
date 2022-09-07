@@ -32,7 +32,6 @@ export const useAuthStore = defineStore({
       }
       this.user = u;
       localStorage.setItem(userKey, JSON.stringify(this.user));
-      router.goHome(u);
     },
     async logout(replace = true) {
       localStorage.clear();

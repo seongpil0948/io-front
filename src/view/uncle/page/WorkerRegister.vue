@@ -85,7 +85,7 @@ async function onSignUp() {
         phone: phone.value ?? undefined,
         profileImg: profileImg.value ?? undefined,
         fcmTokens: [],
-        passed: true,
+        passed: false,
         managerId: auth.currUser.userInfo.userId,
         account: account.value,
       },
