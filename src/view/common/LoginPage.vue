@@ -81,7 +81,8 @@ async function onKakaoLogin(auto: "loginForm" | "login") {
                     userId: uc.user.uid,
                     userName: uc.user.displayName,
                     email: res.kakao_account.email,
-                    profileImg: res.properties.profile_image,
+                    profileImg:
+                      res.properties.profile_image ?? "/img/io-coin.png",
                     providerId: USER_PROVIDER.KAKAO,
                   },
                 });
