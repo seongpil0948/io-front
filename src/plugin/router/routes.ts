@@ -16,6 +16,13 @@ export const routes: Array<RouteRecordRaw> = [
       import(/* webpackChunkName: "common" */ "@/view/common/SignupPage.vue"),
   },
   {
+    path: "/notice",
+    name: "NoticePage",
+
+    component: () =>
+      import(/* webpackChunkName: "common" */ "@/view/common/NoticePage.vue"),
+  },
+  {
     path: "/vendor",
     name: "VendorLayout",
     component: () =>
@@ -185,22 +192,22 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/pickuprequest",
-        name: "PickupRequest",
+        path: "/pendingOrderList",
+        name: "PendingOrderList",
         component: () =>
           import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/PickupRequest.vue"
+            /* webpackChunkName: "shop" */ "@/view/shop/page/PendingOrderList.vue"
           ),
         meta: {
           allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
         },
       },
       {
-        path: "/PendingOrderList",
-        name: "PendingOrderList",
+        path: "/pickuprequest",
+        name: "PickupRequest",
         component: () =>
           import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/PendingOrderList.vue"
+            /* webpackChunkName: "shop" */ "@/view/shop/page/PickupRequest.vue"
           ),
         meta: {
           allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
@@ -234,6 +241,48 @@ export const routes: Array<RouteRecordRaw> = [
         component: () =>
           import(
             /* webpackChunkName: "shop" */ "@/view/shop/page/UncleStatus.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/ioFast",
+        name: "IoFast",
+        component: () =>
+          import(/* webpackChunkName: "shop" */ "@/view/shop/page/IoFast.vue"),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/shopUncleManage",
+        name: "ShopUncleManage",
+        component: () =>
+          import(
+            /* webpackChunkName: "shop" */ "@/view/shop/page/ShopUncleManage.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/taxReport",
+        name: "TaxReport",
+        component: () =>
+          import(
+            /* webpackChunkName: "shop" */ "@/view/shop/page/TaxReport.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/orderHistory",
+        name: "OrderHistory",
+        component: () =>
+          import(
+            /* webpackChunkName: "shop" */ "@/view/shop/page/OrderHistoryPage.vue"
           ),
         meta: {
           allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],

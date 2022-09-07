@@ -21,6 +21,7 @@ import {
   FirestoreDataConverter,
 } from "firebase/firestore";
 import { useRouter } from "vue-router";
+import { logger } from "@/plugin/logger";
 
 export class IoUser extends CommonField implements IoUserCRT {
   userInfo: IoUserInfo;
@@ -91,10 +92,31 @@ export class IoUser extends CommonField implements IoUserCRT {
   }
   static async getFcmToken() {
     const messaging = getMessaging();
-    return await getToken(messaging, {
+    return getToken(messaging, {
       vapidKey:
         "BDATZH9Zt9gMTBQqOUpt2VMWb7wX2V8t0PeyO_UVCUf46kNkJ_smqT2nx31StrXKHVD_BRq5Bqhr2wsCCXQhLPw",
-    });
+    })
+      .then((currentToken) => {
+        if (currentToken) {
+          return currentToken;
+        } else {
+          // Show permission request UI
+          logger.info(
+            null,
+            "No registration token available. Request permission to generate one."
+          );
+          return null; // FIXME: 권한 요청후 실패시 null
+        }
+      })
+      .catch((err) => {
+        if (err.code === "messaging/permission-blocked") return null;
+        logger.error(
+          "An error occurred while retrieving msg token. ",
+          err,
+          Object.entries(err)
+        );
+        return null;
+      });
   }
 
   static async fromCredential(
@@ -113,7 +135,7 @@ export class IoUser extends CommonField implements IoUserCRT {
       email: uc.user.email ?? "",
       emailVerified: uc.user.emailVerified,
       role: role,
-      fcmTokens: [token],
+      fcmTokens: token !== null ? [token] : [],
       passed: false,
     };
     return new IoUser({ userInfo });

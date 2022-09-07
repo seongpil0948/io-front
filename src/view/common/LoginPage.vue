@@ -60,7 +60,10 @@ async function onKakaoLogin(auto: "loginForm" | "login") {
               log.debug("User from getUserById: ", user, "Uid: ", uc.user.uid);
               if (user) {
                 const token = await IoUser.getFcmToken();
-                if (!user.userInfo.fcmTokens.includes(token)) {
+                if (
+                  token !== null &&
+                  !user.userInfo.fcmTokens.includes(token)
+                ) {
                   user.userInfo.fcmTokens.push(token);
                 }
 

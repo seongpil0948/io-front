@@ -5,25 +5,26 @@ import { useAuthStore } from "@/store";
 import { useRouter } from "vue-router";
 import { renderIcon, renderRoute, getScreenSize, ScreenSize } from "@/util";
 import { LocalShippingRound } from "@vicons/material";
+import { People16Regular, News16Regular } from "@vicons/fluent";
 const minHeight = "100vh";
 const router = useRouter();
 const authStore = useAuthStore();
 const menuOptions: MenuOption[] = [
   {
-    label: "상품",
+    label: "상품 관리",
     key: "ProductParent",
     icon: renderIcon(ProductHunt),
     children: [
       {
-        label: () => renderRoute("도매처 상품 추가", "ProductAdd"),
+        label: () => renderRoute("도매 상품 등록", "ProductAdd"),
         key: "ProductAdd",
       },
       {
-        label: () => renderRoute("내상품관리", "ProductManage"),
+        label: () => renderRoute("등록 상품 조회", "ProductManage"),
         key: "ProductManage",
       },
       {
-        label: () => renderRoute("매핑관리", "MappingManage"),
+        label: () => renderRoute("상품 맵핑 관리", "MappingManage"),
         key: "MappingManage",
       },
     ],
@@ -49,6 +50,10 @@ const menuOptions: MenuOption[] = [
         label: () => renderRoute("픽업 요청", "PickupRequest"),
         key: "PickupRequest",
       },
+      {
+        label: () => renderRoute("주문 연동", "OrderLinkage"),
+        key: "OrderLinkage",
+      },
     ],
   },
   {
@@ -64,7 +69,35 @@ const menuOptions: MenuOption[] = [
         label: () => renderRoute("픽업 현황 목록", "UncleStatus"),
         key: "UncleStatus",
       },
+      {
+        label: () => renderRoute("IO패스트 (준비중)", "IoFast"),
+        key: "IoFast",
+      },
     ],
+  },
+  {
+    label: "거래처 관리",
+    key: "PartnerManage",
+    icon: renderIcon(People16Regular),
+    children: [
+      {
+        label: () => renderRoute("엉클 관리(계약)", "ShopUncleManage"),
+        key: "ShopUncleManage",
+      },
+      {
+        label: () => renderRoute("세금계산서 조회", "TaxReport"),
+        key: "TaxReport",
+      },
+      {
+        label: () => renderRoute("거래내역 조회", "OrderHistory"),
+        key: "OrderHistory",
+      },
+    ],
+  },
+  {
+    label: () => renderRoute("공지사항", "NoticePage"),
+    key: "NoticePage",
+    icon: renderIcon(News16Regular),
   },
 ];
 </script>

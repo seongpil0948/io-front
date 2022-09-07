@@ -3,7 +3,7 @@ import { shipAreas } from "@/asset/administrationAreas";
 import { Locate, LocateCRT, LocateType } from "@/composable";
 import { locateTypeOpt, nameLenRule } from "@/util";
 import { FormInst, useMessage } from "naive-ui";
-import { reactive, ref, toRefs, watchEffect } from "vue";
+import { reactive, ref, toRefs } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const log = useLogger();
