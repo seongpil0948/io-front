@@ -7,7 +7,7 @@ import { renderIcon, renderRoute } from "@/util";
 import type { MenuOption } from "naive-ui";
 import { useAuthStore, useUncleOrderStore } from "@/store";
 import { onBeforeMount } from "vue";
-
+import { People16Regular, News16Regular } from "@vicons/fluent";
 const minHeight = "100vh";
 const menuOptions: MenuOption[] = [
   {
@@ -16,8 +16,16 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(Box24Filled),
     children: [
       {
-        label: () => renderRoute("통합조회", "PickupTotalList"),
+        label: () => renderRoute("통합 조회", "PickupTotalList"),
         key: "PickupTotalList",
+      },
+      {
+        label: () => renderRoute("거래 내역", "RequestHistory"),
+        key: "RequestHistory",
+      },
+      {
+        label: () => renderRoute("담당 관리", "MngInCharge"),
+        key: "MngInCharge",
       },
     ],
   },
@@ -27,8 +35,16 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(MoneyBillWave),
     children: [
       {
-        label: () => renderRoute("결제관리", "BillingManage"),
+        label: () => renderRoute("결제 관리", "BillingManage"),
         key: "BillingManage",
+      },
+      {
+        label: () => renderRoute("급여 관리", "MngSalary"),
+        key: "MngSalary",
+      },
+      {
+        label: () => renderRoute("급여 관리", "MngMaintainCost"),
+        key: "MngMaintainCost",
       },
     ],
   },
@@ -38,14 +54,28 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(LocalShippingFilled),
     children: [
       {
-        label: () => renderRoute("차량관리", "VehicleManage"),
+        label: () => renderRoute("차량 관리", "VehicleManage"),
         key: "VehicleManage",
       },
       {
-        label: () => renderRoute("활동지역관리", "ShipAreaManage"),
+        label: () => renderRoute("배송지 관리", "ShipAreaManage"),
         key: "ShipAreaManage",
       },
+      {
+        label: () => renderRoute("배송 내역", "ShipHistory"),
+        key: "ShipHistory",
+      },
     ],
+  },
+  {
+    label: () => renderRoute("공지사항", "NoticePage"),
+    key: "NoticePage",
+    icon: renderIcon(News16Regular),
+  },
+  {
+    label: () => renderRoute("거래처 관리", "UnclePartnerManage"),
+    key: "UnclePartnerManage",
+    icon: renderIcon(People16Regular),
   },
   {
     label: "엉클관리",
@@ -55,6 +85,10 @@ const menuOptions: MenuOption[] = [
       {
         label: () => renderRoute("신규등록", "WorkerRegister"),
         key: "WorkerRegister",
+      },
+      {
+        label: () => renderRoute("활동 조회", "WorkerHistory"),
+        key: "WorkerHistory",
       },
     ],
   },
@@ -66,6 +100,10 @@ const menuOptions: MenuOption[] = [
       {
         label: () => renderRoute("사고접수", "AccidentManage"),
         key: "AccidentManage",
+      },
+      {
+        label: () => renderRoute("사고 내역", "AccidentHistory"),
+        key: "AccidentHistory",
       },
     ],
   },

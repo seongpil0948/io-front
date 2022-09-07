@@ -405,18 +405,30 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "AccidentManage",
-        name: "AccidentManage",
+        path: "requestHistory",
+        name: "RequestHistory",
         component: () =>
           import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/AccidentManage.vue"
+            /* webpackChunkName: "uncle" */ "@/view/uncle/page/RequestHistory.vue"
           ),
         meta: {
           allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
         },
       },
       {
-        path: "BillingManage",
+        path: "mngInCharge",
+        name: "MngInCharge",
+        component: () =>
+          import(
+            /* webpackChunkName: "uncle" */ "@/view/uncle/page/MngInCharge.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+
+      {
+        path: "billingManage",
         name: "BillingManage",
         component: () =>
           import(
@@ -427,7 +439,29 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "VehicleManage",
+        path: "mngSalary",
+        name: "MngSalary",
+        component: () =>
+          import(
+            /* webpackChunkName: "uncle" */ "@/view/uncle/page/MngSalary.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "mngMaintainCost",
+        name: "MngMaintainCost",
+        component: () =>
+          import(
+            /* webpackChunkName: "uncle" */ "@/view/uncle/page/MngMaintainCost.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "vehicleManage",
         name: "VehicleManage",
         component: () =>
           import(
@@ -449,11 +483,55 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "WorkerRegister",
+        path: "shipHistory",
+        name: "ShipHistory",
+        component: () =>
+          import(
+            /* webpackChunkName: "uncle" */ "@/view/uncle/page/ShipHistory.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "workerRegister",
         name: "WorkerRegister",
         component: () =>
           import(
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/WorkerRegister.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "workerHistory",
+        name: "WorkerHistory",
+        component: () =>
+          import(
+            /* webpackChunkName: "uncle" */ "@/view/uncle/page/WorkerHistory.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "accidentManage",
+        name: "AccidentManage",
+        component: () =>
+          import(
+            /* webpackChunkName: "uncle" */ "@/view/uncle/page/AccidentManage.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "accidentHistory",
+        name: "AccidentHistory",
+        component: () =>
+          import(
+            /* webpackChunkName: "uncle" */ "@/view/uncle/page/AccidentHistory.vue"
           ),
         meta: {
           allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],

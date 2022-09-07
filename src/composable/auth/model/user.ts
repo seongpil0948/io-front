@@ -111,6 +111,7 @@ export class IoUser extends CommonField implements IoUserCRT {
       .catch((err) => {
         if (err.code === "messaging/permission-blocked") return null;
         logger.error(
+          null,
           "An error occurred while retrieving msg token. ",
           err,
           Object.entries(err)
