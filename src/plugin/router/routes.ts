@@ -65,6 +65,28 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
+        path: "/productFillUpMng",
+        name: "ProductFillUpMng",
+        component: () =>
+          import(
+            /* webpackChunkName: "vendor" */ "@/view/vendor/page/ProductFillUpMng.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/marketingMng",
+        name: "MarketingMng",
+        component: () =>
+          import(
+            /* webpackChunkName: "vendor" */ "@/view/vendor/page/MarketingMng.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+        },
+      },
+      {
         path: "/samplemanage",
         name: "SampleManage",
         component: () =>
@@ -114,6 +136,72 @@ export const routes: Array<RouteRecordRaw> = [
         component: () =>
           import(
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/PaidOrder.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/pendingOrderMng",
+        name: "PendingOrderMng",
+        component: () =>
+          import(
+            /* webpackChunkName: "vendor" */ "@/view/vendor/page/PendingOrderMng.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/returnExchange",
+        name: "ReturnExchange",
+        component: () =>
+          import(
+            /* webpackChunkName: "vendor" */ "@/view/vendor/page/ReturnExchange.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/payMng",
+        name: "PayMng",
+        component: () =>
+          import(
+            /* webpackChunkName: "vendor" */ "@/view/vendor/page/PayMng.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/vendorPartnerMng",
+        name: "VendorPartnerMng",
+        component: () =>
+          import(
+            /* webpackChunkName: "vendor" */ "@/view/vendor/page/VendorPartnerMng.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/packingList",
+        name: "PackingList",
+        component: () =>
+          import(
+            /* webpackChunkName: "vendor" */ "@/view/vendor/page/PackingList.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/buildingPosMng",
+        name: "BuildingPosMng",
+        component: () =>
+          import(
+            /* webpackChunkName: "vendor" */ "@/view/vendor/page/BuildingPosMng.vue"
           ),
         meta: {
           allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],

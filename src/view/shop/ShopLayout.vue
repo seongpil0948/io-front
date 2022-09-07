@@ -81,8 +81,8 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(People16Regular),
     children: [
       {
-        label: () => renderRoute("엉클 관리(계약)", "ShopUncleManage"),
-        key: "ShopUncleManage",
+        label: () => renderRoute("팔로우한 거래처", "FollowPartner"),
+        key: "FollowPartner",
       },
       {
         label: () => renderRoute("세금계산서 조회", "TaxReport"),
