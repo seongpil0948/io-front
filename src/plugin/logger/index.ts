@@ -5,7 +5,7 @@ import {
   // StringifyObjectsHook,
 } from "vue-logger-plugin";
 import { IoLog } from "./model";
-// import _axios from "@/plugin/axios";
+import _axios from "@/plugin/axios";
 
 const ServerLogHook: LoggerHook = {
   async run(event: LogEvent) {
@@ -35,10 +35,10 @@ const ServerLogHook: LoggerHook = {
 
         formData.set("categorySub", ctgr);
         await ioLog.save();
-        // await _axios.post("/log/ioLogging", formData);
+        await _axios.post("/log/ioLogging", formData);
       } else {
         formData.set("categorySub", "server-log");
-        // await _axios.post("/log/ioLogging", formData);
+        await _axios.post("/log/ioLogging", formData);
       }
     } else {
       console.log(`[${event.level}]`, event.argumentArray);
