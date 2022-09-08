@@ -22,21 +22,17 @@ function csChat() {
   });
 }
 async function toVendor() {
-  const u = getMockVendors()[0]!;
-  // await u.update();
-  const realUser = await USER_DB.getUserById(u.userInfo.userId);
+  const realUser = await USER_DB.getUserById(getMockVendors()[0]!);
   await auth.login(realUser!);
   router.goHome(auth.user!);
 }
 async function toShop() {
-  const u = getMockShops()[0]!;
-  const realUser = await USER_DB.getUserById(u.userInfo.userId);
+  const realUser = await USER_DB.getUserById(getMockShops()[0]!);
   await auth.login(realUser!);
   router.goHome(auth.user!);
 }
 async function toUncle() {
-  const u = getMockUncles()[0]!;
-  const realUser = await USER_DB.getUserById(u.userInfo.userId);
+  const realUser = await USER_DB.getUserById(getMockUncles()[0]!);
   await auth.login(realUser!);
   router.goHome(auth.user!);
 }

@@ -28,7 +28,7 @@ const menuOptions: MenuOption[] = [
         key: "ProductFillUpMng",
       },
       {
-        label: () => renderRoute("상품 목록 조회", "MarketingMng"),
+        label: () => renderRoute("마케팅/광고 관리", "MarketingMng"),
         key: "MarketingMng",
       },
     ],
@@ -55,7 +55,7 @@ const menuOptions: MenuOption[] = [
         key: "PendingOrderMng",
       },
       {
-        label: () => renderRoute("교환/반품 관리 ", "ReturnExchange"),
+        label: () => renderRoute("수정/반품/취소 관리 ", "ReturnExchange"),
         key: "ReturnExchange",
       },
       {
@@ -87,11 +87,6 @@ const menuOptions: MenuOption[] = [
     label: () => renderRoute("매장/포스 관리", "BuildingPosMng"),
     key: "BuildingPosMng",
     icon: renderIcon(CashRegister),
-  },
-  {
-    label: () => renderRoute("엉클관리", "VendorUncleManage"),
-    key: "VendorUncleManage",
-    icon: renderIcon(PersonIcon),
   },
 ];
 const minHeight = "100vh";

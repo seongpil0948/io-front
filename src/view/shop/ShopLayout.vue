@@ -47,6 +47,18 @@ const menuOptions: MenuOption[] = [
         key: "PendingOrderList",
       },
       {
+        label: () => renderRoute("교환/반품 관리", "ShopReturnExchange"),
+        key: "ShopReturnExchange",
+      },
+      {
+        label: () => renderRoute("샘플요청", "SampleReq"),
+        key: "SampleReq",
+      },
+      {
+        label: () => renderRoute("결제내역 조회", "PayHistory"),
+        key: "PayHistory",
+      },
+      {
         label: () => renderRoute("픽업 요청", "PickupRequest"),
         key: "PickupRequest",
       },

@@ -98,17 +98,6 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/unclemanage",
-        name: "VendorUncleManage",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/VendorUncleManage.vue"
-          ),
-        meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
-        },
-      },
-      {
         path: "/beforeApproveList",
         name: "BeforeApproveList",
         component: () =>
@@ -291,6 +280,39 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
+        path: "/shopReturnExchange",
+        name: "ShopReturnExchange",
+        component: () =>
+          import(
+            /* webpackChunkName: "shop" */ "@/view/shop/page/ShopReturnExchange.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/sampleReq",
+        name: "SampleReq",
+        component: () =>
+          import(
+            /* webpackChunkName: "shop" */ "@/view/shop/page/SampleReq.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/payHistory",
+        name: "PayHistory",
+        component: () =>
+          import(
+            /* webpackChunkName: "shop" */ "@/view/shop/page/PayHistory.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+        },
+      },
+      {
         path: "/pickuprequest",
         name: "PickupRequest",
         component: () =>
@@ -349,6 +371,17 @@ export const routes: Array<RouteRecordRaw> = [
         component: () =>
           import(
             /* webpackChunkName: "shop" */ "@/view/shop/page/ShopUncleManage.vue"
+          ),
+        meta: {
+          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+        },
+      },
+      {
+        path: "/followPartner",
+        name: "FollowPartner",
+        component: () =>
+          import(
+            /* webpackChunkName: "shop" */ "@/view/shop/page/FollowPartner.vue"
           ),
         meta: {
           allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
