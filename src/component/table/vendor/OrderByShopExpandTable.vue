@@ -87,7 +87,6 @@ function getRowKey(row: ProdOrderByShop) {
     @onConfirm="approvePartial"
     :userId="u.userInfo.userId"
     :expectedReduceCoin="1"
-    :userPay="null"
   >
     <template #title>[ 부분승인 ] </template>
     <template #default>
@@ -106,7 +105,6 @@ function getRowKey(row: ProdOrderByShop) {
     @onConfirm="approveGarments"
     :userId="u.userInfo.userId"
     :expectedReduceCoin="orderReduceCoins"
-    :userPay="null"
   >
     <template #title> 해당 주문건들을 승인 하시겠습니까? </template>
     <template #default>

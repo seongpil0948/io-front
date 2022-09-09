@@ -37,7 +37,6 @@ const {
   deleteAll,
   expectedReduceCoin,
   showReqOrderModal,
-  userPay,
   updateReqOrderShow,
   onReqOrderConfirm,
   deleteChecked,
@@ -147,7 +146,6 @@ function downSampleXlsx() {
       @onConfirm="onReqOrderConfirm"
       :userId="user.userInfo.userId"
       :expectedReduceCoin="expectedReduceCoin"
-      :userPay="userPay"
     >
       <template #title>주문을 전송 하시겠습니까? </template>
       <template #default>

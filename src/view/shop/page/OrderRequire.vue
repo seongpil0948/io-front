@@ -23,7 +23,6 @@ const {
   deleteAll,
   expectedReduceCoin,
   showReqOrderModal,
-  userPay,
   updateReqOrderShow,
   onReqOrderConfirm,
   deleteChecked,
@@ -75,7 +74,6 @@ const {
         @onConfirm="onReqOrderConfirm"
         :userId="auth.currUser.userInfo.userId"
         :expectedReduceCoin="expectedReduceCoin"
-        :userPay="userPay"
       >
         <template #title>주문을 전송 하시겠습니까? </template>
         <template #default>

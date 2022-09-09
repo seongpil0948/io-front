@@ -1,23 +1,20 @@
 <script setup>
 import BootPay from "bootpay-js";
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref } from "vue";
 import { v4 as uuidv4 } from "uuid";
 import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
-import { IO_PAY_DB, IoPay } from "@/composable";
+import { IO_PAY_DB, IoPay, useUserPay } from "@/composable";
 
 const log = useLogger();
 const APP_ID = "62b45e0fe38c3000215aec6b";
 const authStore = useAuthStore();
 const msg = useMessage();
 const user = authStore.currUser;
-const userPay = ref(null);
+const userPay = useUserPay(user.userInfo.userId);
 
-watchEffect(async () => {
-  userPay.value = await IO_PAY_DB.getIoPayByUser(user.userInfo.userId);
-});
 async function reqPay() {
   const date = new Date();
   const price = IoPay.coinToMoney(chargeCoin.value).toString();

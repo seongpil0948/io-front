@@ -21,7 +21,6 @@ export function useOrderBasic(
     () => IO_COSTS.REQ_ORDER * orderTargets.value.length
   );
   const showReqOrderModal = ref(false);
-  const { userPay } = useUserPay();
   const keyField = "id";
 
   function updateReqOrderShow(val: boolean) {

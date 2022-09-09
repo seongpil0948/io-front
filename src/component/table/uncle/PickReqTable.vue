@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  ProdOrderByShop,
-  ProdOrderCombined,
-  SHIPMENT_DB,
-  useUserPay,
-} from "@/composable";
+import { ProdOrderByShop, ProdOrderCombined, SHIPMENT_DB } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { useAuthStore, useUncleOrderStore } from "@/store";
 import { makeMsgOpt } from "@/util";
@@ -80,7 +75,6 @@ const expectedReduceCoin = computed(
   () => IO_COSTS.APPROVE_PICKUP * orderTargets.value.length
 );
 const u = auth.currUser;
-const { userPay } = useUserPay();
 async function onReqOrderConfirm() {
   const ids = orderTargets.value.map((x) => x.id);
 
@@ -162,7 +156,6 @@ function approveSelected() {
       @onConfirm="onReqOrderConfirm"
       :userId="u.userInfo.userId"
       :expectedReduceCoin="expectedReduceCoin"
-      :userPay="userPay"
     >
       <template #default>
         픽업 승인 완료처리가 되면 품목별 1코인이 소모됩니다.
