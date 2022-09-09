@@ -13,7 +13,7 @@ const APP_ID = "62b45e0fe38c3000215aec6b";
 const authStore = useAuthStore();
 const msg = useMessage();
 const user = authStore.currUser;
-const userPay = useUserPay(user.userInfo.userId);
+const { userPay } = useUserPay(user.userInfo.userId);
 
 async function reqPay() {
   const date = new Date();
