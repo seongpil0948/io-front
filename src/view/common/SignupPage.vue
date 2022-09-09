@@ -5,7 +5,7 @@ import {
   USER_PROVIDER,
   USER_ROLE,
   VendorOperInfo,
-  useSmtp,
+  useAlarm,
 } from "@/composable";
 import { makeMsgOpt, useFireWork } from "@/util";
 import { FormInst, useMessage } from "naive-ui";
@@ -32,7 +32,7 @@ const userRole = ref<USER_ROLE | null>(null);
 const user = ref<IoUser | null>(null);
 const acceptTerms = ref(false);
 const { play, stop } = useFireWork();
-const smtp = useSmtp();
+const smtp = useAlarm();
 if (!router.currentRoute.value.params.userId) {
   log.error(
     null,
@@ -148,12 +148,17 @@ async function onSignUp() {
   log.debug(user.value);
   await user.value!.update();
   msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
-  await smtp.sendMail({
+  await smtp.sendAlarm({
     toUserIds: [user.value!.userInfo.userId],
-    subject: `${user.value!.name} 회원가입을 축하합니다.`,
+    subject: `inoutbox 회원가입 처리내역 알림.`,
     body: `${
       user.value!.name
-    } 께서 제출하신 정보를 바탕으로 검토 및 승인후 홈페이지 및 어플 이용이 가능합니다.`,
+    } 께서 제출하신 정보를 바탕으로 계정 검토 및 승인 후 홈페이지 및 어플 이용이 가능합니다.
+    처리된 내용에 문의가 있으실 경우 해당 거래처에 문의하시면 보다 자세한 답변을 받아보실 수 있습니다.
+    해당 메일은 회신이 불가한 메일입니다.
+    `,
+    notiLoadUri: "/",
+    uriArgs: {},
   });
   play();
   step.value = 9;
