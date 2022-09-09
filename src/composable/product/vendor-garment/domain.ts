@@ -51,4 +51,5 @@ export interface VendorGarmentDB {
     unsubscribe: () => void;
   };
   batchUpdate(args: VendorGarment[]): Promise<void>;
+  delete(prodId: string): Promise<void>;
 }

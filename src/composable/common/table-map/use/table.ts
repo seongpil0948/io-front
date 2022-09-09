@@ -178,13 +178,6 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
           { default: () => (row.allowPending ? "가능" : "불가능") }
         );
       col.filter = (value, row: any) => row.allowPending.toString() === value;
-    } else if (col.key === "orderAmount") {
-      // col.render = (row: any) => row.actualAmount.amount!.toLocaleString();
-      col.title = "금액";
-      // col.render = (row: any) => {
-      //   // console.log(row);
-      //   return row.actualAmount.orderAmount;
-      // };
     }
     if (
       (

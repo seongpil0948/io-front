@@ -9,6 +9,7 @@ import {
   orderBy,
   query,
   where,
+  deleteDoc,
 } from "@firebase/firestore";
 import { ref } from "vue";
 
@@ -45,5 +46,11 @@ export const VendorGarmentFB: VendorGarmentDB = {
       }
     );
     return { items, unsubscribe };
+  },
+  delete: async function (prodId) {
+    const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
+      VendorGarment.fireConverter()
+    );
+    await deleteDoc(doc(c, prodId));
   },
 };

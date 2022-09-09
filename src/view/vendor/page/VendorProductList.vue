@@ -4,6 +4,7 @@ import {
   IoColOpt,
   VendorUserOrderGarment,
   VendorGarment,
+  VENDOR_GARMENT_DB,
 } from "@/composable/";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
@@ -13,7 +14,7 @@ import { useLogger } from "vue-logger-plugin";
 import LogoChecker from "@/component/input/checker/LogoChecker.vue";
 import { useVendorOrderStore } from "@/store/vendorOrder";
 
-const log = useLogger();
+const logger = useLogger();
 const auth = useAuthStore();
 const msg = useMessage();
 
@@ -29,7 +30,7 @@ const colKeys = [
   "pendingCnt",
   "stockCnt",
   "vendorPrice",
-  "amount",
+  "orderAmount",
 ].map((x) => {
   return { key: x } as IoColOpt;
 });
@@ -66,17 +67,7 @@ watchEffect(() => {
           }),
       },
       {
-        title: () =>
-          h(
-            NButton,
-            {
-              round: true,
-              onClick: () => {
-                log.debug("Clicked 변경사항 수정 Title");
-              },
-            },
-            { default: () => "변경사항 수정" }
-          ),
+        title: "수정",
         key: "edit",
         render: (row: VendorUserOrderGarment) =>
           h(
@@ -87,7 +78,27 @@ watchEffect(() => {
                 onShowProdEdit(VendorGarment.fromJson(row));
               },
             },
-            { default: () => "상품수정" }
+            { default: () => "수정" }
+          ),
+      },
+      {
+        title: "삭제",
+        key: "delete",
+        render: (row: VendorUserOrderGarment) =>
+          h(
+            NButton,
+            {
+              round: true,
+              onClick: () => {
+                VENDOR_GARMENT_DB.delete(row.vendorProdId)
+                  .then(() => msg.success("삭제성공.", makeMsgOpt()))
+                  .catch((err) => {
+                    msg.success("삭제실패.", makeMsgOpt());
+                    logger.error(auth.currUser.userInfo.userId, err);
+                  });
+              },
+            },
+            { default: () => "삭제" }
           ),
       },
     ]
