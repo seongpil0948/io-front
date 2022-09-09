@@ -112,7 +112,7 @@ export function useApproveOrder(p: ApproveParam) {
       })
       .catch((err) => {
         msg.success("주문승인 실패", makeMsgOpt());
-        logger.error(p.vendorId, "error in approvePartial", err);
+        logger.error(p.vendorId, "error in approveOrder", err);
       })
       .finally(() => {
         orderTargets.value = [];

@@ -38,10 +38,7 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
       for (let i = 0; i < ord.items.length; i++) {
         const item = ord.items[i];
 
-        const vendor = validateUser(
-          vendorStore.vendorById[item.vendorId],
-          item.vendorId
-        );
+        validateUser(vendorStore.vendorById[item.vendorId], item.vendorId);
         const prod = vendorStore.vendorGarments.find(
           (g) => g.vendorProdId === item.vendorProdId
         );

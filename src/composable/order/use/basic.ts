@@ -1,4 +1,4 @@
-import { IoUser, GarmentOrder, useUserPay } from "@/composable";
+import { IoUser, GarmentOrder } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt } from "@/util";
 import { useMessage } from "naive-ui";
@@ -101,7 +101,6 @@ export function useOrderBasic(
     orderTargets,
     expectedReduceCoin,
     showReqOrderModal,
-    userPay,
     keyField,
     updateReqOrderShow,
     onReqOrderConfirm,

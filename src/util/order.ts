@@ -21,10 +21,10 @@ export function extractGarmentOrd(
         (k) => k.vendorProdId === order.items[i].vendorProdId
       );
       if (!vendorGarment) continue;
-      const item: ProdOrderCombined = Object.assign(
-        { shopGarment, vendorGarment },
-        order.items[i]
-      );
+      const item: ProdOrderCombined = Object.assign({}, order.items[i], {
+        shopGarment,
+        vendorGarment,
+      });
       garmentOrders.push(item);
     }
   });

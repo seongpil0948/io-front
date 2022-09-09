@@ -72,8 +72,20 @@ function setEditMode() {
   <n-text v-else style="color: inherit" @click="setEditMode">
     <n-tooltip trigger="hover">
       <template #trigger> {{ activeCnt }} / {{ pendingCnt }} </template>
-      주문시도 개수: {{ prodOrder.orderCnt }}, 재고 개수:
-      {{ prodOrder.vendorGarment.stockCnt }}
+      <n-space vertical>
+        <n-text>
+          주문시도 개수: {{ prodOrder.orderCnt }}, 재고 개수:
+          {{ prodOrder.vendorGarment.stockCnt }}
+        </n-text>
+        <n-text>
+          미송 가능여부:
+          <n-gradient-text
+            :type="prodOrder.vendorGarment.allowPending ? 'info' : 'error'"
+          >
+            {{ prodOrder.vendorGarment.allowPending ? "가능" : "불가능" }}
+          </n-gradient-text>
+        </n-text>
+      </n-space>
     </n-tooltip>
   </n-text>
 </template>

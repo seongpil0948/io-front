@@ -86,8 +86,8 @@ async function onReqOrderConfirm() {
     .then(() => msg.success("픽업 승인완료.", makeMsgOpt()))
     .catch((err) => {
       console.log("error", err);
-      msg.error(`주문 실패. ${err}`, makeMsgOpt());
-      log.error(u.userInfo.userId, `주문 실패. ${err}`);
+      msg.error(`픽업 승인 실패. ${err}`, makeMsgOpt());
+      log.error(u.userInfo.userId, `픽업 승인 실패. ${err}`);
     })
     .finally(() => {
       orderTargets.value = [];

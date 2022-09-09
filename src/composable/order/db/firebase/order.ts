@@ -206,7 +206,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           );
         else if (!vendor)
           throw new Error(`vendor user does not exist!: ${item.vendorId}`);
-        else if (item.orderCnt > prod.stockCnt) {
+        else if (item.orderCnt > prod.stockCnt && !prod.allowPending) {
           throw new Error(
             `out of stock(${prod.stockCnt}) order(${ord.dbId})(${item.id}) cnt: ${item.orderCnt} }`
           );

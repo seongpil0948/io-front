@@ -401,7 +401,11 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       throw new Error("invalid count");
     } else if (!(a.orderAmount > 0 && a.orderAmount >= a.pureAmount)) {
       throw new Error("invalid amount");
-    } else if (o.pendingCnt > 0 && !o.vendorGarment.allowPending) {
+    } else if (
+      o.pendingCnt > 0 &&
+      o.vendorGarment &&
+      !o.vendorGarment.allowPending
+    ) {
       throw new Error("invalid allowPending");
     }
   }
