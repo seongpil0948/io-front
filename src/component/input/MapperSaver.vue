@@ -64,7 +64,8 @@ function onUpdate(val) {
 }
 
 async function onSave() {
-  await mapper?.value.update();
+  console.log("Save mapper: ", mapper);
+  await mapper.value.update(false);
   msg.success("변경사항 저장이 완료 되었어요!", makeMsgOpt());
   return emits("reqShow", "");
 }

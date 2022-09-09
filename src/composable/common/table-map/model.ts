@@ -20,12 +20,12 @@ class Mapper implements MapperCRT {
     this.colSynonyms = c.colSynonyms;
   }
 
-  async update() {
+  async update(merge = true) {
     await insertById<Mapper>(
       this,
       getIoCollection({ c: IoCollection.MAPPER }),
       this.userId,
-      true,
+      merge,
       Mapper.fireConverter()
     );
   }
