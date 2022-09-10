@@ -3,6 +3,7 @@ import {
   ORDER_GARMENT_DB,
   ProdOrderByShop,
   ProdOrderCombined,
+  useAlarm,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { logger } from "@/plugin/logger";
@@ -15,6 +16,7 @@ import {
 } from "naive-ui";
 import { computed, h, ref, Ref, VNode } from "vue";
 import GarmentOrderRow from "@/component/table/vendor/GarmentOrderRow.vue";
+import { useAuthStore } from "@/store";
 
 interface ApproveParam {
   garmentOrders: Ref<ProdOrderCombined[]>;
@@ -25,6 +27,8 @@ export function useApproveOrder(p: ApproveParam) {
   const checkedOrders = ref<string[]>([]); // garment order id
   const checkedShops = ref<DataTableRowKey[]>([]); // shop id
   const msg = useMessage();
+  const smtp = useAlarm();
+  const auth = useAuthStore();
   // Partial
   const numOfAllow = ref(0);
   const showPartialModal = ref(false);
@@ -97,17 +101,29 @@ export function useApproveOrder(p: ApproveParam) {
   async function approveGarments() {
     const prodIds = orderTargets.value.map((x) => x.id);
     const orderDBIds: string[] = [];
+    const shopIds = [] as string[];
     for (let i = 0; i < p.orders.value.length; i++) {
       const o = p.orders.value[i];
       for (let j = 0; j < o.items.length; j++) {
         const item = o.items[j];
         if (prodIds.includes(item.id) && !orderDBIds.includes(o.dbId)) {
           orderDBIds.push(o.dbId);
+          if (!shopIds.includes(o.shopId)) {
+            shopIds.push(o.shopId);
+          }
         }
       }
     }
     ORDER_GARMENT_DB.orderApprove(p.vendorId, orderDBIds, prodIds)
-      .then(() => {
+      .then(async () => {
+        await smtp.sendAlarm({
+          // toUserIds: shopIds,
+          toUserIds: [...shopIds, "2285273867"],
+          subject: `inoutbox 주문 처리내역 알림.`,
+          body: `${auth.currUser.name} 에서 주문 요청을 승인하였습니다. <br> 처리된 내용에 문의가 있으실 경우 해당 거래처에 문의하시면 보다 자세한 답변을 받아보실 수 있습니다. <br> 해당 메일은 회신이 불가한 메일입니다.`,
+          notiLoadUri: "/",
+          uriArgs: {},
+        });
         msg.success("주문승인 완료", makeMsgOpt());
       })
       .catch((err) => {

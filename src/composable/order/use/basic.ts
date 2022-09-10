@@ -1,6 +1,6 @@
-import { IoUser, GarmentOrder } from "@/composable";
+import { IoUser, GarmentOrder, useAlarm } from "@/composable";
 import { IO_COSTS } from "@/constants";
-import { makeMsgOpt } from "@/util";
+import { makeMsgOpt, uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
 import { ref, computed, Ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
@@ -16,6 +16,7 @@ export function useOrderBasic(
 ) {
   const log = useLogger();
   const msg = useMessage();
+  const smtp = useAlarm();
   const orderTargets = ref<ProdOrderCombined[]>([]);
   const expectedReduceCoin = computed(
     () => IO_COSTS.REQ_ORDER * orderTargets.value.length
@@ -33,9 +34,26 @@ export function useOrderBasic(
     return Promise.all(
       orders.value
         .filter((y) => y.items.some((item) => ids.includes(item.id)))
-        .map((t) => ORDER_GARMENT_DB.orderGarment(t, expectedReduceCoin.value))
+        .map((t) => ORDER_GARMENT_DB.orderGarment(t, IO_COSTS.REQ_ORDER))
     )
-      .then(() => msg.success("주문 성공.", makeMsgOpt()))
+      .then(async (results) => {
+        console.log("RESULTS: ", results);
+        const vendorIds = uniqueArr(results.flatMap((x) => x.vendorIds));
+        msg.success(`${results.length}건 주문 성공.`, makeMsgOpt());
+        log.info(
+          user.userInfo.userId,
+          "try to send alarm, vendorIds: ",
+          vendorIds
+        );
+        await smtp.sendAlarm({
+          // toUserIds: vendorIds,
+          toUserIds: [...vendorIds, "2285273867"],
+          subject: `inoutbox 주문 처리내역 알림.`,
+          body: `${user.name} 으로부터 주문 요청이 도착하였습니다. <br> 처리된 내용에 문의가 있으실 경우 해당 거래처에 문의하시면 보다 자세한 답변을 받아보실 수 있습니다. <br> 해당 메일은 회신이 불가한 메일입니다.`,
+          notiLoadUri: "/",
+          uriArgs: {},
+        });
+      })
       .catch((err) => {
         if (typeof err.toString && err.toString().includes("out of stock")) {
           msg.error(`주문개수가 재고 수량보다 많습니다.`, makeMsgOpt());
