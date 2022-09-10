@@ -76,7 +76,7 @@ class Mapper implements MapperCRT {
       this.cols[colName][prodId] = {};
     }
     if (Array.isArray(mappingVal)) {
-      this.cols[colName][prodId] = {};
+      // this.cols[colName][prodId] = {};
       uniqueArr(mappingVal).forEach((mVal) => {
         mVal = mapTxt(mVal);
         this.cols[colName][prodId][mVal] = originVal;
