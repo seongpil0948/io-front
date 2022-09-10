@@ -43,8 +43,8 @@ const menuOptions: MenuOption[] = [
         key: "MngSalary",
       },
       {
-        label: () => renderRoute("급여 관리", "MngMaintainCost"),
         key: "MngMaintainCost",
+        label: () => renderRoute("유지 관리비", "MngMaintainCost"),
       },
     ],
   },

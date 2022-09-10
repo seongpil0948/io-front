@@ -7,7 +7,7 @@ import {
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { logger } from "@/plugin/logger";
-import { makeMsgOpt } from "@/util";
+import { makeMsgOpt, uniqueArr } from "@/util";
 import {
   DataTableColumns,
   DataTableRowKey,
@@ -117,10 +117,9 @@ export function useApproveOrder(p: ApproveParam) {
     ORDER_GARMENT_DB.orderApprove(p.vendorId, orderDBIds, prodIds)
       .then(async () => {
         await smtp.sendAlarm({
-          // toUserIds: shopIds,
-          toUserIds: [...shopIds, "2285273867"],
+          toUserIds: shopIds,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${auth.currUser.name} 에서 주문 요청을 승인하였습니다. <br> 처리된 내용에 문의가 있으실 경우 해당 거래처에 문의하시면 보다 자세한 답변을 받아보실 수 있습니다. <br> 해당 메일은 회신이 불가한 메일입니다.`,
+          body: `${auth.currUser.name} 에서 주문 요청을 승인하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
         });
@@ -153,7 +152,7 @@ export function useApproveOrder(p: ApproveParam) {
     // return garmentOrders.value.filter((z) => itemIds.has(z.id));
     return itemIds;
   });
-  const targetOrderIds = computed(() => {
+  const targetOrdDbIds = computed(() => {
     const orderIds = new Set<string>();
     for (let i = 0; i < p.orders.value.length; i++) {
       const o = p.orders.value[i];
@@ -179,12 +178,26 @@ export function useApproveOrder(p: ApproveParam) {
     showOrderModal.value = true;
   }
 
+  const targetShopIds = computed(() =>
+    uniqueArr(
+      p.orders.value
+        .filter((x) => targetOrdDbIds.value.has(x.dbId))
+        .map((y) => y.shopId)
+    )
+  );
   async function rejectSelected() {
     ORDER_GARMENT_DB.orderReject(
-      [...targetOrderIds.value],
+      [...targetOrdDbIds.value],
       [...targetIds.value]
     )
-      .then(() => {
+      .then(async () => {
+        await smtp.sendAlarm({
+          toUserIds: targetShopIds.value,
+          subject: `inoutbox 주문 처리내역 알림.`,
+          body: `${auth.currUser.name} 에서 주문 요청을 거절 하였습니다. `,
+          notiLoadUri: "/",
+          uriArgs: {},
+        });
         msg.success("주문거절 완료", makeMsgOpt());
       })
       .catch((err) => {
@@ -198,11 +211,18 @@ export function useApproveOrder(p: ApproveParam) {
   }
   function completePay() {
     ORDER_GARMENT_DB.completePay(
-      [...targetOrderIds.value],
+      [...targetOrdDbIds.value],
       [...targetIds.value]
     )
-      .then(() => {
+      .then(async () => {
         msg.success("결제승인 완료", makeMsgOpt());
+        await smtp.sendAlarm({
+          toUserIds: targetShopIds.value,
+          subject: `inoutbox 주문 처리내역 알림.`,
+          body: `${auth.currUser.name} 에서 결제를 승인 하였습니다. `,
+          notiLoadUri: "/",
+          uriArgs: {},
+        });
       })
       .catch((err) => {
         msg.error(`결제승인 실패 ${JSON.stringify(err)}`, makeMsgOpt());
@@ -211,11 +231,18 @@ export function useApproveOrder(p: ApproveParam) {
   }
   function onProdReady() {
     ORDER_GARMENT_DB.orderToReady(
-      [...targetOrderIds.value],
+      [...targetOrdDbIds.value],
       [...targetIds.value]
     )
-      .then(() => {
+      .then(async () => {
         msg.success("출고리스트 업로드 완료", makeMsgOpt());
+        await smtp.sendAlarm({
+          toUserIds: targetShopIds.value,
+          subject: `inoutbox 주문 처리내역 알림.`,
+          body: `${auth.currUser.name} 에서 출고리스트에 주문을 업로드 하였습니다.<br> 이제 배송요청이 가능합니다. `,
+          notiLoadUri: "/",
+          uriArgs: {},
+        });
       })
       .catch((err) => {
         msg.error(

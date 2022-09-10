@@ -46,10 +46,9 @@ export function useOrderBasic(
           vendorIds
         );
         await smtp.sendAlarm({
-          // toUserIds: vendorIds,
-          toUserIds: [...vendorIds, "2285273867"],
+          toUserIds: vendorIds,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${user.name} 으로부터 주문 요청이 도착하였습니다. <br> 처리된 내용에 문의가 있으실 경우 해당 거래처에 문의하시면 보다 자세한 답변을 받아보실 수 있습니다. <br> 해당 메일은 회신이 불가한 메일입니다.`,
+          body: `${user.name} 으로부터 주문 요청이 도착하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
         });
