@@ -17,7 +17,7 @@ const locateKey = [
 </script>
 
 <template>
-  <n-space v-if="locates.length > 0" style="overflow-x: scroll" :wrap="false">
+  <n-space v-if="locates.length > 0" style="overflow-x: auto" :wrap="false">
     <n-tooltip trigger="hover" v-for="(i, idx) in locates" :key="idx">
       <template #trigger>
         <n-tag round> {{ i.locate.alias }}</n-tag>

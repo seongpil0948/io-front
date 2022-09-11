@@ -25,7 +25,7 @@ const { workers } = useUncleWorkers();
       style="
         padding-top: 2vh;
         padding-left: 1vw;
-        overflow-y: scroll;
+        overflow-y: auto;
         max-height: 90vh;
       "
     >

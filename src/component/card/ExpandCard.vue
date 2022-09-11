@@ -17,7 +17,7 @@ const expanded = ref(false);
     :content-style="`
     max-height: ${expanded ? '70vh' : '35vh'};
     width: ${expanded ? '70vw' : '35vw'}; 
-    overflow: scroll;
+    overflow: auto;
     `"
     style="padding-bottom: 5%"
     header-style="

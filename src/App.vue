@@ -55,7 +55,7 @@ body {
   margin-bottom: 12px;
 }
 .n-card-header {
-  overflow: scroll;
+  overflow: auto;
 }
 .button-card {
   cursor: pointer;

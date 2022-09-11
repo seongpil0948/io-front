@@ -58,7 +58,7 @@ function validProd(prod: VendorUserGarmentCombined) {
         v-model:selectedPart="selectedPart"
         v-model:selectedCtgr="selectedCtgr"
       /> -->
-      <n-card style="height: 70vh; overflow: scroll">
+      <n-card style="height: 70vh; overflow: auto">
         <!-- prods -->
         <n-grid
           x-gap="12"

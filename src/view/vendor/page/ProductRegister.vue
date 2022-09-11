@@ -204,7 +204,7 @@ function onRegister() {
               <n-form-item label="컬러" path="colors">
                 <n-dynamic-tags
                   round
-                  style="flex-wrap: ;no-wrap; overflow-x: scroll;"
+                  style="flex-wrap: ;no-wrap; overflow-x: auto;"
                   v-model:value="prodModel.colors"
                   @keydown.enter.prevent
                 />
