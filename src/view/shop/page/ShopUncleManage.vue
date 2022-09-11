@@ -26,7 +26,12 @@ function onDetail(uncle: IoUser) {
 async function onContract() {
   if (!selectedUser.value) return;
   const uId = selectedUser.value.userInfo.userId;
-  if (!u.shopInfo?.uncleUserIds.includes(uId)) {
+  if (!u.shopInfo) {
+    u.shopInfo = {
+      uncleUserIds: [uId],
+    };
+    msg.success("추가 완료.");
+  } else if (!u.shopInfo.uncleUserIds.includes(uId)) {
     u.shopInfo?.uncleUserIds.push(uId);
     await u.update();
     msg.success("추가 완료.");

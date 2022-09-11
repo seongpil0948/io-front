@@ -76,6 +76,8 @@ async function onKakaoLogin(auto: "loginForm" | "login") {
                   authS.logout();
                 }
               } else {
+                console.log("Kakao Login Response: ", res);
+
                 router.push({
                   name: "SignUp",
                   params: {
@@ -83,7 +85,9 @@ async function onKakaoLogin(auto: "loginForm" | "login") {
                     userName: uc.user.displayName,
                     email: res.kakao_account.email,
                     profileImg:
-                      res.properties.profile_image ?? "/img/io-coin.png",
+                      res.properties && res.properties.profile_image
+                        ? res.properties.profile_image
+                        : "/img/io-coin.png",
                     providerId: USER_PROVIDER.KAKAO,
                   },
                 });
