@@ -75,19 +75,18 @@ function submitLocate() {
   });
 }
 function updateShow(val: boolean) {
-  console.log("updateShow", val);
-  emits("update:showAppendModal", val);
+  if (val !== showAppendModal.value) emits("update:showAppendModal", val);
 }
 </script>
 
 <template>
   <n-modal
     :show="showAppendModal"
-    @esc="() => updateShow(false)"
-    @close="() => updateShow(false)"
+    @on-update:show="updateShow"
     preset="card"
     style="width: 50%"
     title="주소정보추가"
+    :mask-closable="false"
   >
     <n-form
       ref="formRef"
