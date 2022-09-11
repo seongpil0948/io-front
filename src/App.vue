@@ -30,8 +30,8 @@ const currTheme = computed(() =>
 @import "./asset/variables.scss";
 
 body {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
