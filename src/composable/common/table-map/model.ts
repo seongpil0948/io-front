@@ -86,6 +86,9 @@ class Mapper implements MapperCRT {
       this.cols[colName][prodId][mappingVal] = originVal;
     }
   }
+  deleteColVal(colName: MapKey, prodId: string, mappingVal: string) {
+    delete this.cols[colName][prodId][mappingVal];
+  }
   getColVal(colName: MapKey, prodId: string): MappingJson {
     if (!this.cols[colName]) {
       this.cols[colName] = {};

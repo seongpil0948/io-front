@@ -1,6 +1,6 @@
 <script setup>
-import { useMessage } from "naive-ui";
-import { computed, toRefs } from "vue";
+import { useMessage, NDynamicTags } from "naive-ui";
+import { computed, toRefs, ref, watchEffect } from "vue";
 import { makeMsgOpt } from "@/util";
 
 // type MappingType = "cell" | "column";
@@ -55,9 +55,19 @@ const synonyms = computed(() =>
 
 function onUpdate(val) {
   if (isMapCell) {
-    (siblings?.value ?? []).forEach((id) => {
-      mapper?.value.setColVal(mapKey?.value, id, targetVal?.value, val);
-    });
+    const deleted = synonyms.value.filter((x) => !val.includes(x));
+    // console.log("synonyms: ", synonyms.value, "updated val:", val);
+    // console.log("deleted:", deleted, deleted.length === 1);
+    if (deleted.length === 1) {
+      (siblings?.value ?? []).forEach((id) => {
+        mapper?.value.deleteColVal(mapKey?.value, id, deleted[0]);
+      });
+      // mapper?.value.deleteColVal(mapKey?.value, rowIdField?.value, deleted[0]);
+    } else {
+      (siblings?.value ?? []).forEach((id) => {
+        mapper?.value.setColVal(mapKey?.value, id, targetVal?.value, val);
+      });
+    }
   } else {
     mapper?.value.setSyno(mapKey?.value, val);
   }
