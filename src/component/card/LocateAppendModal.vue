@@ -75,7 +75,7 @@ function submitLocate() {
   });
 }
 function updateShow(val: boolean) {
-  if (val !== showAppendModal.value) emits("update:showAppendModal", val);
+  emits("update:showAppendModal", val);
 }
 </script>
 
@@ -83,6 +83,8 @@ function updateShow(val: boolean) {
   <n-modal
     :show="showAppendModal"
     @on-update:show="updateShow"
+    @esc="() => updateShow(false)"
+    @close="() => updateShow(false)"
     preset="card"
     style="width: 50%"
     title="주소정보추가"

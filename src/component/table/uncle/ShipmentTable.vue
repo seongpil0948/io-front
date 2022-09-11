@@ -104,7 +104,6 @@ async function onSelectWorker(val: IoUser) {
       msg.success("담당자 배정이 완료되었습니다.");
       openWorkerModal.value = false;
       selectedOrderProdId.value = null;
-      await refreshOrderShip();
       selectedData.value = null;
     });
   }

@@ -46,10 +46,10 @@ export class Locate implements LocateCRT {
 
   get toStr() {
     let str = " ";
-    if (this.alias) str += this.alias + " ";
     if (this.city) str += this.city + " ";
     if (this.county) str += this.county + " ";
     if (this.town) str += this.town + " ";
+    if (this.alias) str += this.alias + " ";
     return str;
   }
   constructor(p: LocateCRT) {

@@ -31,7 +31,9 @@ function setShipAddr(l: Locate) {
   //   await user.update();
 }
 const locateKey = [
-  ["도시", "city"],
+  ["도", "city"],
+  ["시", "county"],
+  ["군/구", "town"],
   ["우편번호", "postalCode"],
   ["상세주소", "detailLocate"],
   ["성", "firstName"],
@@ -52,7 +54,11 @@ const locateKey = [
       <n-card style="width: 25vw" title="주소지 정보">
         <template #header-extra>
           <n-button
-            v-if="info.shipLocate?.postalCode !== i.postalCode"
+            v-if="
+              !info.shipLocate ||
+              info.shipLocate.postalCode !== i.postalCode ||
+              info.shipLocate.alias !== i.alias
+            "
             size="small"
             @click="setShipAddr(i as Locate)"
           >

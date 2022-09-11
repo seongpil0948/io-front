@@ -5,6 +5,7 @@ import {
   getIoCollection,
   IoCollection,
   dataFromSnap,
+  uniqueArr,
 } from "@/util";
 import { NButton, DataTableColumns, NAvatarGroup } from "naive-ui";
 import ag from "naive-ui/es/avatar-group/src/AvatarGroup";
@@ -88,6 +89,14 @@ export function useShipmentUncle(
       {
         title: "도매수량",
         key: "items.length",
+        render: (row) =>
+          h(
+            "div",
+            {},
+            {
+              default: () => uniqueArr(row.items.map((x) => x.vendorId)).length,
+            }
+          ),
       },
 
       {

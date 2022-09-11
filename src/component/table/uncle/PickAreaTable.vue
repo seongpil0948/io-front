@@ -29,9 +29,24 @@ async function onClickAdd() {
 
 const cols1: DataTableColumns<LocateAmount> = [
   {
-    title: "지역",
-    key: "locate.alias",
+    title: "도",
+    key: "locate.city",
+    sorter(rowA, rowB) {
+      return rowA.locate.city!.length - rowB.locate.city!.length;
+    },
+  },
+  {
+    title: "시",
+    key: "locate.county",
+    sorter(rowA, rowB) {
+      return rowA.locate.county!.length - rowB.locate.county!.length;
+    },
+  },
+  {
+    title: "군/구",
+    key: "locate.town",
     sorter: "default",
+    filter: true,
   },
   {
     title: "건물",

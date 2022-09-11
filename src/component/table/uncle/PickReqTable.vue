@@ -2,7 +2,7 @@
 import { ProdOrderByShop, ProdOrderCombined, SHIPMENT_DB } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { useAuthStore, useUncleOrderStore } from "@/store";
-import { makeMsgOpt } from "@/util";
+import { makeMsgOpt, uniqueArr } from "@/util";
 import {
   DataTableRowKey,
   DataTableColumns,
@@ -33,7 +33,14 @@ const columns = computed(() => {
     },
     {
       title: "도매수량",
-      key: "items.length",
+      render: (row) =>
+        h(
+          "div",
+          {},
+          {
+            default: () => uniqueArr(row.items.map((x) => x.vendorId)).length,
+          }
+        ),
     },
 
     {
@@ -134,14 +141,12 @@ function approveSelected() {
 }
 </script>
 <template>
-  <n-card title="">
-    <template #header-extra>
-      <n-space>
-        <n-button size="small" type="primary" @click="approveSelected">
-          선택승인
-        </n-button></n-space
-      >
-    </template>
+  <n-card>
+    <n-space justify="end" style="margin-bottom: 1vh">
+      <n-button size="small" type="primary" @click="approveSelected">
+        선택승인
+      </n-button>
+    </n-space>
     <n-data-table
       :bordered="false"
       :columns="columns"

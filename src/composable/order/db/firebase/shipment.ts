@@ -35,40 +35,50 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
       if (ord.items.length < 1)
         throw new Error("request order items not exist");
 
+      const uncleDoc = await transaction.get(
+        doc(
+          getIoCollection({ c: IoCollection.USER }).withConverter(
+            IoUser.fireConverter()
+          ),
+          ord.shipManagerId
+        )
+      );
+      const shopDoc = await transaction.get(
+        doc(
+          getIoCollection({ c: IoCollection.USER }).withConverter(
+            IoUser.fireConverter()
+          ),
+          ord.shopId
+        )
+      );
+
+      const uncle = validateUser(uncleDoc.data(), ord.shipManagerId!);
+      const shop = validateUser(shopDoc.data(), ord.shopId);
+
       for (let i = 0; i < ord.items.length; i++) {
         const item = ord.items[i];
-
-        validateUser(vendorStore.vendorById[item.vendorId], item.vendorId);
         const prod = vendorStore.vendorGarments.find(
           (g) => g.vendorProdId === item.vendorProdId
         );
-        const uncleDoc = await transaction.get(
+        const vendorDoc = await transaction.get(
           doc(
             getIoCollection({ c: IoCollection.USER }).withConverter(
               IoUser.fireConverter()
             ),
-            ord.shipManagerId
-          )
-        );
-        const shopDoc = await transaction.get(
-          doc(
-            getIoCollection({ c: IoCollection.USER }).withConverter(
-              IoUser.fireConverter()
-            ),
-            ord.shopId
+            item.vendorId
           )
         );
         if (!prod)
           throw new Error(`도매처 상품이 없습니다.: ${item.vendorProdId}`);
-        const uncle = validateUser(uncleDoc.data(), ord.shipManagerId!);
-        const shop = validateUser(shopDoc.data(), ord.shopId);
+        const vendor = validateUser(vendorDoc.data(), item.vendorId);
 
         const shipLocateCode = shop.companyInfo!.shipLocate!.code;
+        const vendorLocateCode = vendor.companyInfo!.shipLocate!.code;
         const shipLocate = uncle.uncleInfo!.shipLocates.find(
           (x) => x.locate.code === shipLocateCode
         );
         const pickLocate = uncle.uncleInfo!.pickupLocates.find(
-          (x) => x.locate.code === shipLocateCode
+          (x) => x.locate.code === vendorLocateCode
         );
 
         if (!shipLocate) throw new Error("배송불가 지역입니다.");

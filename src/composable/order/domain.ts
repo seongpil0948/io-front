@@ -48,7 +48,7 @@ export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   BEFORE_APPROVE: "승인전",
   BEFORE_PAYMENT: "결제전",
   BEFORE_READY: "출고전",
-  BEFORE_PICKUP_REQ: "픽업전",
+  BEFORE_PICKUP_REQ: "픽업요청전",
   BEFORE_APPROVE_PICKUP: "픽업승인전",
   BEFORE_ASSIGN_PICKUP: "담당자배정전",
   BEFORE_PICKUP: "픽업전",

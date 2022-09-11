@@ -439,8 +439,13 @@ async function stateModify(
   afterState: ORDER_STATE,
   onOrder?: (o: GarmentOrder) => Promise<GarmentOrder>
 ) {
-  const constraints = [where("dbId", "in", orderDbIds)];
-  const orders = await getOrders(constraints);
+  const orders: GarmentOrder[] = [];
+  while (orderDbIds.length) {
+    const batchIds = orderDbIds.splice(0, 10); // batch size 10
+    const constraints = [where("dbId", "in", batchIds)];
+    orders.push(...(await getOrders(constraints)));
+  }
+
   const { getOrdRef, converterGarment } = getSrc();
   return await runTransaction(iostore, async (transaction) => {
     for (let i = 0; i < orders.length; i++) {
