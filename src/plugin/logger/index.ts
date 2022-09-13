@@ -2,7 +2,7 @@ import {
   createLogger,
   LogEvent,
   LoggerHook,
-  // StringifyObjectsHook,
+  StringifyObjectsHook,
 } from "vue-logger-plugin";
 import { IoLog } from "./model";
 import _axios from "@/plugin/axios";
@@ -17,7 +17,7 @@ const ServerLogHook: LoggerHook = {
       const isUserLog =
         event.argumentArray[0] && typeof event.argumentArray[0] === "string";
       const formData = new FormData();
-      formData.set("logName", "io-web");
+      formData.set("logName", "io-web-app");
       formData.set("category", "client-side");
       formData.set("txt", event.argumentArray.slice(1).join("&&"));
       formData.set("severity", event.level);
@@ -56,7 +56,7 @@ const logger = createLogger({
           caller?.functionName
         }:${caller?.lineNumber}]`
       : `[${level.toUpperCase()}]`,
-  // beforeHooks: [StringifyObjectsHook],
+  beforeHooks: [StringifyObjectsHook],
   afterHooks: [ServerLogHook],
 });
 

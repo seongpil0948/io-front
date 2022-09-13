@@ -12,11 +12,11 @@ const testObject = {
   value: "this is a test object",
 };
 const auth = useAuthStore();
-const authModel = auth.currUser;
+const authModel = auth.user;
 
 async function updateUser() {
-  console.log("update");
-  await authModel.update();
+  console.log("update", authModel);
+  await authModel?.update();
 }
 function logging() {
   log.debug(null, "Test debug Message", testObject);
