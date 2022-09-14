@@ -91,7 +91,7 @@ async function onSignUp() {
       },
     });
     console.log("Signed User: ", user);
-    await user.update();
+    await user.update(false);
     await auth.currUser.setWorkerId(userId.value!);
     msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
     kakaoAuthed.value = false;

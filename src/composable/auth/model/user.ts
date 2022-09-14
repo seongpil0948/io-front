@@ -79,7 +79,7 @@ export class IoUser extends CommonField implements IoUserCRT {
     // }
   }
 
-  async update() {
+  async update(login = true) {
     const authS = useAuthStore();
     await insertById<IoUser>(
       this,
@@ -88,7 +88,7 @@ export class IoUser extends CommonField implements IoUserCRT {
       true,
       IoUser.fireConverter()
     );
-    await authS.login(this);
+    if (login) await authS.login(this);
   }
   static async getFcmToken() {
     const messaging = getMessaging();
