@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import { getAuth, signOut } from "firebase/auth";
 import { IoUser } from "@/composable/auth/model/user";
 import { USER_ROLE } from "@/composable/auth/domain";
-import router from "@/plugin/router";
 interface AuthStoreInterface {
   user: IoUser | null;
 }

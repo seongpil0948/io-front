@@ -1,6 +1,6 @@
 <script setup>
 import { useMessage, NDynamicTags } from "naive-ui";
-import { computed, toRefs, ref, watchEffect } from "vue";
+import { computed, toRefs } from "vue";
 import { makeMsgOpt } from "@/util";
 
 // type MappingType = "cell" | "column";

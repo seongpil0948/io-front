@@ -2,7 +2,6 @@
 import type { MenuOption } from "naive-ui";
 import { BookOutline as BookIcon } from "@vicons/ionicons5";
 import { ProductHunt, CashRegister } from "@vicons/fa";
-import { Person as PersonIcon } from "@vicons/carbon";
 import { renderIcon, renderRoute, ScreenSize, getScreenSize } from "@/util";
 import {
   People16Regular,

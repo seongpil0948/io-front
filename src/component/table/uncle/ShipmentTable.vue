@@ -18,8 +18,10 @@ import { computed, ref, h } from "vue";
 const props = defineProps<{
   inStates: ORDER_STATE[];
 }>();
-const { orderShipsByShop, byShopCols, workers, refreshOrderShip, orders } =
-  useShipmentUncle(props.inStates, onClickDetail);
+const { orderShipsByShop, byShopCols, workers, orders } = useShipmentUncle(
+  props.inStates,
+  onClickDetail
+);
 const msg = useMessage();
 const checkedKeys = ref<DataTableRowKey[]>([]);
 function onCheckRow(keys: DataTableRowKey[]) {
