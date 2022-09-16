@@ -23,7 +23,7 @@ export type ORDER_STATE =
   | "BEFORE_ORDER"
   | "BEFORE_APPROVE"
   | "BEFORE_PAYMENT"
-  | "BEFORE_READY" // 결제완료후 출고리스트 전
+  | "BEFORE_READY" // 결제완료후 출고리스트 전 = 미송
   | "BEFORE_PICKUP_REQ" // 출고가능 물품들의 픽업 요청전
   | "BEFORE_APPROVE_PICKUP" // 픽업 승인전
   | "BEFORE_ASSIGN_PICKUP" // 픽업 담당자 배정전

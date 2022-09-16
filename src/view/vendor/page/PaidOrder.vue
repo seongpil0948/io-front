@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { useAuthStore } from "@/store";
 import { useVendorOrderStore } from "@/store/vendorOrder";
 import { onBeforeMount, ref } from "vue";
@@ -15,7 +15,7 @@ onBeforeMount(() => store.init(user.userInfo.userId));
       <n-tabs v-model:value="currTab">
         <n-tab-pane
           display-directive="show:lazy"
-          tab="결제 완료된 주문"
+          tab="결제완료 / 미송 주문"
           name="BEFORE_READY"
         >
           <order-by-shop-expand-table :inStates="['BEFORE_READY']" />
@@ -30,4 +30,16 @@ onBeforeMount(() => store.init(user.userInfo.userId));
       </n-tabs>
     </n-card>
   </n-space>
+</template> -->
+
+<script setup lang="ts"></script>
+<template>
+  <n-card>
+    <template #header>
+      <n-h2 class="under-bar" style="text-align: left"
+        >결제완료 / 미송 주문</n-h2
+      >
+    </template>
+    <order-by-shop-expand-table :inStates="['BEFORE_READY']" />
+  </n-card>
 </template>

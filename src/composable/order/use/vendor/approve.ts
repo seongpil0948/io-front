@@ -11,6 +11,7 @@ import { makeMsgOpt, uniqueArr } from "@/util";
 import {
   DataTableColumns,
   DataTableRowKey,
+  NButton,
   NSpace,
   useMessage,
 } from "naive-ui";
@@ -22,6 +23,8 @@ interface ApproveParam {
   garmentOrders: Ref<ProdOrderCombined[]>;
   orders: Ref<GarmentOrder[]>;
   vendorId: string;
+  expandCol: boolean;
+  detailCol: boolean;
 }
 export function useApproveOrder(p: ApproveParam) {
   const checkedOrders = ref<string[]>([]); // garment order id
@@ -32,6 +35,7 @@ export function useApproveOrder(p: ApproveParam) {
   // Partial
   const numOfAllow = ref(0);
   const showPartialModal = ref(false);
+  const detailShopIds = ref<string[]>([]);
   function showPartial() {
     const ts = checkedOrders.value;
     if (ts.length !== 1) {
@@ -253,12 +257,14 @@ export function useApproveOrder(p: ApproveParam) {
       });
   }
   // <<< Order <<<
-  const expandColumns = computed(() => {
+  const columns = computed(() => {
     const cols = [
       {
         type: "selection",
       },
-      {
+    ] as DataTableColumns<ProdOrderByShop>;
+    if (p.expandCol)
+      cols.push({
         type: "expand",
         expandable: (row) => row.items.length > 0,
         renderExpand: (row) => {
@@ -289,38 +295,63 @@ export function useApproveOrder(p: ApproveParam) {
             { default: () => children }
           );
         },
-      },
-      {
-        title: "거래처명",
-        key: "name",
-        render: (row) => row.shopName,
-      },
-      {
-        title: "품목수량",
-        key: "age",
-        render: (row) => row.items.length,
-      },
-      {
-        title: "주문수량",
-        key: "orderCnt",
+      });
+
+    cols.push(
+      ...([
+        {
+          title: "거래처명",
+          key: "name",
+          render: (row) => row.shopName,
+        },
+        {
+          title: "품목수량",
+          key: "age",
+          render: (row) => row.items.length,
+        },
+        {
+          title: "주문수량",
+          key: "orderCnt",
+          render: (row) =>
+            row.items.reduce((acc, curr) => acc + curr.orderCnt, 0),
+        },
+        {
+          title: "미송개수",
+          key: "pendingCnt",
+          render: (row) =>
+            row.items.reduce((acc, curr) => acc + curr.pendingCnt, 0),
+        },
+        {
+          title: "결제금액",
+          key: "orderAmount",
+          render: (row) =>
+            row.items
+              .reduce((acc, curr) => acc + curr.actualAmount.orderAmount, 0)
+              .toLocaleString(),
+        },
+      ] as DataTableColumns<ProdOrderByShop>)
+    );
+    if (p.detailCol)
+      cols.push({
+        title: "상세",
+        key: "detail",
         render: (row) =>
-          row.items.reduce((acc, curr) => acc + curr.orderCnt, 0),
-      },
-      {
-        title: "미송개수",
-        key: "pendingCnt",
-        render: (row) =>
-          row.items.reduce((acc, curr) => acc + curr.pendingCnt, 0),
-      },
-      {
-        title: "결제금액",
-        key: "orderAmount",
-        render: (row) =>
-          row.items
-            .reduce((acc, curr) => acc + curr.actualAmount.orderAmount, 0)
-            .toLocaleString(),
-      },
-    ] as DataTableColumns<ProdOrderByShop>;
+          h(
+            NButton,
+            {
+              text: true,
+              onClick: async () => {
+                const d = detailShopIds.value;
+                if (d.includes(row.shopId)) {
+                  d.splice(d.indexOf(row.shopId), 1);
+                } else {
+                  d.push(row.shopId);
+                }
+              },
+            },
+            { default: () => "상세보기" }
+          ),
+      });
     return cols.map((x: any) => {
       if (!["selection", "expand"].includes(x.type)) {
         x.sorter = "default";
@@ -340,11 +371,13 @@ export function useApproveOrder(p: ApproveParam) {
     approveSelected,
     approveAll,
     rejectSelected,
-    expandColumns,
+    columns,
     orderTargets,
     showPartialModal,
     numOfAllow,
     completePay,
     onProdReady,
+    detailShopIds,
+    checkedOrders,
   };
 }

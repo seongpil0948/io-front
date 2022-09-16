@@ -46,11 +46,11 @@ const menuOptions: MenuOption[] = [
         key: "AfterApproveList",
       },
       {
-        label: () => renderRoute("결제 완료된 주문", "PaidOrder"),
+        label: () => renderRoute("결제완료 / 미송 주문", "PaidOrder"),
         key: "PaidOrder",
       },
       {
-        label: () => renderRoute("미송 주문 관리 ", "PendingOrderMng"),
+        label: () => renderRoute("픽업 대기 주문 ", "PendingOrderMng"),
         key: "PendingOrderMng",
       },
       {

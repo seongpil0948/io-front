@@ -26,7 +26,7 @@ const {
   approveSelected,
   approveAll,
   rejectSelected,
-  expandColumns,
+  columns,
   orderTargets,
   showPartialModal,
   numOfAllow,
@@ -36,6 +36,8 @@ const {
   garmentOrders,
   orders,
   vendorId: u.userInfo.userId,
+  expandCol: true,
+  detailCol: false,
 });
 function getRowKey(row: ProdOrderByShop) {
   return row.shopId;
@@ -73,7 +75,7 @@ function getRowKey(row: ProdOrderByShop) {
     </template>
     <n-data-table
       :bordered="false"
-      :columns="expandColumns"
+      :columns="columns"
       :data="garmentOrdersByShop"
       :rowKey="getRowKey"
       @update:checked-row-keys="onClickShop"
