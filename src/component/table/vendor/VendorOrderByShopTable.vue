@@ -61,6 +61,22 @@ const tableCol = computed(
       title: "사이즈",
       key: "vendorGarment.size",
     },
+    {
+      title: "재고개수",
+      key: "vendorGarment.stockCnt",
+    },
+    {
+      title: "주문수량",
+      key: "orderCnt",
+    },
+    {
+      title: "미송개수",
+      key: "pendingCnt",
+    },
+    {
+      title: "결제일",
+      key: "actualAmount.paidDate",
+    },
   ]
 );
 const targetShops = computed(() =>
@@ -91,9 +107,9 @@ function onClickOrder(keys: string[]) {
       :bordered="false"
       :columns="shopTableCol"
       :data="garmentOrdersByShop"
-      style="min-width: 50vw"
+      style="min-width: 65vw"
     />
-    <n-card v-if="targetShops.length > 0" style="width: 50vw; margin-top: 5vh">
+    <n-card v-if="targetShops.length > 0" style="width: 65vw; margin-top: 5vh">
       <template #header>
         <n-space justify="start"> <n-h2>상세보기</n-h2> </n-space>
       </template>

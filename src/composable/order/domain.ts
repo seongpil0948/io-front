@@ -120,6 +120,7 @@ export interface OrderAmount {
   orderAmount: number; // 주문 요청 금액
   paymentConfirm: boolean;
   paymentMethod?: PayMethod;
+  paidDate?: Date;
 }
 export interface ProdOrder {
   id: string;
@@ -230,6 +231,7 @@ export interface OrderDB<T> {
     orderState?: ORDER_STATE;
   }): Promise<void>;
   batchDelete(ords: T[]): Promise<void>;
+  batchRead(orderDbIds: string[]): Promise<T[]>;
   shopReadListen(p: {
     inStates?: ORDER_STATE[];
     shopId: string;

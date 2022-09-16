@@ -13,7 +13,13 @@ import {
 } from "@firebase/firestore";
 import { useVendorsStore } from "@/store";
 import { Ref } from "vue";
-import { GarmentOrder, IO_PAY_DB, OrderDB, ORDER_STATE } from "@/composable";
+import {
+  GarmentOrder,
+  IO_PAY_DB,
+  OrderDB,
+  ORDER_STATE,
+  ProdOrder,
+} from "@/composable";
 import { IO_COSTS } from "@/constants";
 
 async function getOrders(constraints: QueryConstraint[]) {
@@ -57,15 +63,40 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       orderDbIds,
       prodOrderIds,
       "BEFORE_PAYMENT",
-      "BEFORE_READY"
+      "BEFORE_READY",
+      undefined,
+      async function (po) {
+        po.actualAmount.paidDate = new Date();
+        return po;
+      }
     );
   },
   orderToReady: async function (orderDbIds: string[], prodOrderIds: string[]) {
+    const vendorStore = useVendorsStore();
     await stateModify(
       orderDbIds,
       prodOrderIds,
       "BEFORE_READY",
-      "BEFORE_PICKUP_REQ"
+      "BEFORE_PICKUP_REQ",
+      undefined,
+      async function (po) {
+        // po.orderCnt
+        const garment = vendorStore.vendorGarments.find(
+          (x) => x.vendorProdId === po.vendorProdId
+        );
+        if (!garment)
+          throw new Error(`vendor prod ${po.vendorProdId} is not exist`);
+        else if (garment.stockCnt < po.orderCnt)
+          throw new Error(
+            `재고개수(${garment.stockCnt}) 가 주문개수(${po.orderCnt}) 보다 적습니다.`
+          );
+        else {
+          garment.stockCnt -= po.orderCnt;
+          await garment.update();
+        }
+
+        return po;
+      }
     );
   },
   orderReject: async function (orderDbIds: string[], prodOrderIds: string[]) {
@@ -414,6 +445,15 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     snapShot.forEach((doc) => orderIds.add(doc.id));
     return orderIds;
   },
+  batchRead: async function (orderDbIds: string[]): Promise<GarmentOrder[]> {
+    const orders: GarmentOrder[] = [];
+    while (orderDbIds.length) {
+      const batchIds = orderDbIds.splice(0, 10); // batch size 10
+      const constraints = [where("dbId", "in", batchIds)];
+      orders.push(...(await getOrders(constraints)));
+    }
+    return orders;
+  },
 };
 
 export function getSrc() {
@@ -437,22 +477,21 @@ async function stateModify(
   prodOrderIds: string[],
   beforeState: ORDER_STATE,
   afterState: ORDER_STATE,
-  onOrder?: (o: GarmentOrder) => Promise<GarmentOrder>
+  onOrder?: (o: GarmentOrder) => Promise<GarmentOrder>,
+  onProdOrder?: (o: ProdOrder) => Promise<ProdOrder>
 ) {
-  const orders: GarmentOrder[] = [];
-  while (orderDbIds.length) {
-    const batchIds = orderDbIds.splice(0, 10); // batch size 10
-    const constraints = [where("dbId", "in", batchIds)];
-    orders.push(...(await getOrders(constraints)));
-  }
+  const orders = await OrderGarmentFB.batchRead(orderDbIds);
 
   const { getOrdRef, converterGarment } = getSrc();
   return await runTransaction(iostore, async (transaction) => {
     for (let i = 0; i < orders.length; i++) {
       const o = onOrder ? await onOrder(orders[i]) : orders[i];
       for (let j = 0; j < o.items.length; j++) {
-        const item = o.items[j];
-        if (prodOrderIds.includes(item.id) && item.state === beforeState) {
+        if (
+          prodOrderIds.includes(o.items[j].id) &&
+          o.items[j].state === beforeState
+        ) {
+          const item = onProdOrder ? await onProdOrder(o.items[j]) : o.items[j];
           o.setState(item.id, afterState);
           transaction.update(
             doc(getOrdRef(o.shopId), o.dbId),

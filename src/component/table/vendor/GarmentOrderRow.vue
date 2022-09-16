@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ORDER_STATE, ProdOrderCombined } from "@/composable";
+import { commonTime } from "@/util";
 import { toRefs } from "vue";
-
+const { timeToDate } = commonTime();
 const props = defineProps<{
   garmentOrder: ProdOrderCombined;
   checked: boolean;
@@ -23,9 +24,12 @@ function onClickChecker() {
       {{ o.vendorGarment.size }}
     </n-text>
     <n-text v-if="o.pendingCnt > 0" :type="'error'">
-      {{ o.orderCnt }} ({{ o.pendingCnt }})
+      , 주문/미송 개수: {{ o.orderCnt }} / ({{ o.pendingCnt }})
     </n-text>
-    <n-text v-else :type="'primary'"> / {{ o.orderCnt }} </n-text>
-    <n-text :type="'primary'"> {{ ORDER_STATE[o.state] }} </n-text>
+    <n-text v-else :type="'primary'">, 주문개수: {{ o.orderCnt }} </n-text>
+    <n-text :type="'primary'">, 주문상태: {{ ORDER_STATE[o.state] }} </n-text>
+    <n-text v-if="o.actualAmount.paidDate" :type="'primary'"
+      >, 결제일: {{ timeToDate(o.actualAmount.paidDate) }}
+    </n-text>
   </n-space>
 </template>
