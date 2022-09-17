@@ -60,7 +60,7 @@ export const saleAvgOpt = computed(() =>
   })
 );
 export const newProdQuantityOpt = computed(() =>
-  ["100~500", "500~1,000", "1,000~3,000", "3,000~"].map((k) => {
+  ["10~100", "100~300", "300~1000", "1,000~3,000", "3,000~"].map((k) => {
     return { label: k, value: k };
   })
 );
