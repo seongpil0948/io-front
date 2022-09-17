@@ -24,7 +24,7 @@ export const commonTime = () => {
   const currDate = moment().format(TimeFormat);
   const defaultDate = currDate;
   const defaultEDate = currDate;
-  const defaultSdate = moment(defaultEDate, TimeFormat)
+  const defaultSDate = moment(defaultEDate, TimeFormat)
     .subtract(7, "days")
     .format(TimeFormat);
   return {
@@ -33,7 +33,7 @@ export const commonTime = () => {
     currDate,
     defaultDate,
     defaultEDate,
-    defaultSdate,
+    defaultSDate,
   };
 };
 
@@ -52,14 +52,14 @@ export function dateComposition() {
 }
 
 export function dateRanges(useDefault = false) {
-  const { defaultSdate, defaultEDate } = commonTime();
+  const { defaultSDate, defaultEDate } = commonTime();
   const dateRangeTime = useDefault
     ? ref([
-        moment(defaultSdate, TimeFormat).valueOf(), // ms
+        moment(defaultSDate, TimeFormat).valueOf(), // ms
         moment(defaultEDate, TimeFormat).valueOf(),
       ])
     : ref(null);
-  const startDate = useDefault ? ref(defaultSdate) : ref(null);
+  const startDate = useDefault ? ref(defaultSDate) : ref(null);
   const endDate = useDefault ? ref(defaultEDate) : ref(null);
 
   const updateDate = () => {

@@ -30,7 +30,7 @@ const colKeys = [
   "pendingCnt",
   "stockCnt",
   "vendorPrice",
-  "orderAmount",
+  "actualAmount.orderAmount",
 ].map((x) => {
   return { key: x } as IoColOpt;
 });

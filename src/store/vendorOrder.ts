@@ -50,7 +50,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
         orders.value.forEach((o) => {
           o.items.forEach((item) => {
             if (item.vendorProdId === garment.vendorProdId) {
-              mergeProdOrder(item, garment);
+              mergeProdOrder(garment, item);
             }
           });
         });
