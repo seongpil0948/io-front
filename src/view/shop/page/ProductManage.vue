@@ -4,8 +4,10 @@ import {
   useTable,
   useShopUserGarments,
   SHOP_GARMENT_DB,
+  ORDER_GARMENT_DB,
+  GarmentOrder,
 } from "@/composable";
-import { useAuthStore } from "@/store";
+import { useAuthStore, useVendorsStore } from "@/store";
 import { makeMsgOpt, isMobile } from "@/util";
 import {
   NButton,
@@ -14,6 +16,8 @@ import {
   type DataTableColumns,
 } from "naive-ui";
 import { computed, h, ref, watchEffect } from "vue";
+import { v4 as uuidv4 } from "uuid";
+import { useLogger } from "vue-logger-plugin";
 
 const authStore = useAuthStore();
 const msg = useMessage();
@@ -21,7 +25,9 @@ const { rowIdField, userProd } = useShopUserGarments(
   authStore.currUser.userInfo.userId,
   null
 );
+const log = useLogger();
 const tableRef = ref<any>(null);
+const vendorStore = useVendorsStore();
 const { columns, mapper, checkedKeys } = useTable<
   Omit<ShopUserGarment, "account">
 >({
@@ -135,6 +141,38 @@ async function onCheckedDelete() {
   );
   msg.success("삭제 완료", makeMsgOpt());
 }
+async function onCheckedOrder() {
+  const orders: GarmentOrder[] = [];
+  for (let i = 0; i < checkedKeys.value.length; i++) {
+    const prod = userProd.value.find(
+      (x) => x.shopProdId === checkedKeys.value[i]
+    )!;
+
+    const vendorProd = vendorStore.vendorUserGarments.find(
+      (y) => y.vendorProdId === prod.vendorProdId
+    );
+    if (!vendorProd) {
+      return msg.error("도매 상품정보가 존재하지 않습니다", makeMsgOpt());
+    }
+    const order = GarmentOrder.fromProd(prod, [uuidv4()], 1, vendorProd);
+    orders.push(order);
+  }
+  ORDER_GARMENT_DB.batchCreate(authStore.currUser.userInfo.userId, orders)
+    .then(() =>
+      msg.success(
+        `${orders.length} 개 상품 주문데이터 생성이 완료 되었습니다.`,
+        makeMsgOpt()
+      )
+    )
+    .catch((err) => {
+      msg.error("상품 데이터 생성에 실패 하였습니다.", makeMsgOpt());
+      log.error(
+        authStore.currUser.userInfo.userId,
+        "상품 데이터 생성에 실패",
+        err
+      );
+    });
+}
 function updateOrderId(arr: string[]) {
   mapper?.value?.setSyno("orderId", arr);
 }
@@ -158,7 +196,13 @@ function updateOrderId(arr: string[]) {
         >
           선택 상품 삭제</n-button
         >
-        <n-button v-if="!isMobile()" size="small" round type="primary">
+        <n-button
+          @click="onCheckedOrder"
+          v-if="!isMobile()"
+          size="small"
+          round
+          type="primary"
+        >
           선택 상품 주문</n-button
         >
       </template>
