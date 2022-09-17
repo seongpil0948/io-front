@@ -67,7 +67,7 @@ const rules = {
     <n-form-item label="급여일" path="payday">
       <n-input-number :min="1" :max="31" v-model:value="workerInfo.payday" />
     </n-form-item>
-    <n-form-item label="급여일" path="payday">
+    <n-form-item label="근로계약서" path="payday">
       <single-image-input
         elementId="empContract"
         :user="u"
