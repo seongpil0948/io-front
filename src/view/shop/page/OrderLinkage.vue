@@ -14,7 +14,7 @@ const inst = getCurrentInstance();
 const http = inst?.appContext.config.globalProperties.$http;
 const authUrl = computed(
   () =>
-    `https://${model.value.mallId}.cafe24api.com/api/v2/oauth/authorize?response_type=code&client_id=${CAFE_CLIENT_ID}&state=${model.value.mallId}&redirect_uri=https://inout-box.com/orderlinkage&scope=mall.read_product,mall.read_order,mall.write_application,mall.read_application`
+    `https://${model.value.mallId}.cafe24api.com/api/v2/oauth/authorize?response_type=code&client_id=${CAFE_CLIENT_ID}&state=${model.value.mallId}&redirect_uri=https://inout-box.com/orderlinkage&scope=mall.read_product mall.read_order`
 );
 onBeforeMount(async () => {
   const urlParameter = window.location.search;
@@ -41,7 +41,7 @@ function authorizeCafe() {
     return msg.error("쇼핑몰 ID를 입력 해주세요.");
   }
   console.log("authUrl: ", authUrl.value);
-  // window.location.href = authUrl.value;
+  window.open(authUrl.value, "gg");
 }
 </script>
 

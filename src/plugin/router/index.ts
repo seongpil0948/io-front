@@ -12,13 +12,13 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore();
-  const role = authStore.currUser.userInfo.role;
   const notAuth = to.name && notAuthName.includes(to.name.toString());
 
   if (!notAuth) {
     if (authStore.currUser === null) {
       return { name: "Login" };
     }
+    const role = authStore.currUser.userInfo.role;
     if (to.path === "/") {
       return { name: getHomeName(role) };
     } else if (to.meta.allowRoles && !to.meta.allowRoles.includes(role)) {
