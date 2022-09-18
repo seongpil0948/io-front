@@ -69,7 +69,7 @@ async function onKakaoLogin(auto: "loginForm" | "login") {
 
                 await user.update();
                 if (user.userInfo.passed) {
-                  authS.login(user);
+                  await authS.login(user);
                   router.goHome(user);
                 } else {
                   msg.error("관리자가 검토중인 계정입니다.");

@@ -12,7 +12,7 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore();
-  const role = authStore.currUserRole;
+  const role = authStore.currUser.userInfo.role;
   const notAuth = to.name && notAuthName.includes(to.name.toString());
 
   if (!notAuth) {
@@ -20,7 +20,7 @@ router.beforeEach(async (to) => {
       return { name: "Login" };
     }
     if (to.path === "/") {
-      return { name: getHomeName(authStore.currUser.userInfo.role) };
+      return { name: getHomeName(role) };
     } else if (to.meta.allowRoles && !to.meta.allowRoles.includes(role)) {
       logger.error(
         authStore.currUser.userInfo.userId,

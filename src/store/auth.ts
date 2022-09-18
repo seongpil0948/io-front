@@ -15,7 +15,15 @@ export const useAuthStore = defineStore({
   getters: {
     currUser(): IoUser {
       if (!this.user) {
-        this.$router.replace({ name: "Login" });
+        const userStr = localStorage.getItem(userKey);
+        if (userStr) {
+          const u = IoUser.fromJson(JSON.parse(userStr));
+          if (!u) this.$router.replace({ name: "Login" });
+          this.user = u!;
+          return u!;
+        } else {
+          this.$router.replace({ name: "Login" });
+        }
       }
       return this.user as IoUser;
     },
