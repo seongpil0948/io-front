@@ -11,7 +11,12 @@ import {
   SHIP_METHOD,
   Locate,
 } from "@/composable";
-import { OrderCancel, ORDER_STATE, ProdOrderCombined } from "../domain";
+import {
+  OrderCancel,
+  ORDER_STATE,
+  ORDER_TYPE,
+  ProdOrderCombined,
+} from "../domain";
 import {
   FirestoreDataConverter,
   DocumentSnapshot,
@@ -105,6 +110,9 @@ export class GarmentOrder extends CommonField implements OrderCrt {
         this.states.findIndex((x) => ts[0].state),
         1
       );
+      if (!ts[0].history) ts[0].history = [];
+      console.log(ts[0]);
+      ts[0].history.push(JSON.parse(JSON.stringify(ts[0])));
       ts[0].state = state;
       this.states.push(state);
     } else {
@@ -242,6 +250,8 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       shopGarment: p,
       vendorGarment: v,
       state: "BEFORE_ORDER",
+      history: [],
+      orderType: "STANDARD",
     };
     const order = new GarmentOrder({
       orderDate: new Date(),
@@ -460,5 +470,7 @@ export function emptyProdOrder(): ProdOrder {
     state: "BEFORE_ORDER",
     shopId: "",
     orderDbId: "",
+    history: [],
+    orderType: "STANDARD",
   };
 }

@@ -50,8 +50,8 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     await stateModify(
       orderDbIds,
       prodOrderIds,
-      "BEFORE_PICKUP_REQ",
       "BEFORE_APPROVE_PICKUP",
+      undefined,
       async function (o) {
         o.shipManagerId = uncleId;
         return o;
@@ -62,8 +62,8 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     await stateModify(
       orderDbIds,
       prodOrderIds,
-      "BEFORE_PAYMENT",
       "BEFORE_READY",
+      "BEFORE_PAYMENT",
       undefined,
       async function (po) {
         po.actualAmount.paidDate = new Date();
@@ -76,8 +76,8 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     await stateModify(
       orderDbIds,
       prodOrderIds,
-      "BEFORE_READY",
       "BEFORE_PICKUP_REQ",
+      "BEFORE_READY",
       undefined,
       async function (po) {
         // po.orderCnt
@@ -454,6 +454,57 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     }
     return orders;
   },
+  returnReq: async function (
+    orderDbIds: string[],
+    prodOrderIds: string[]
+  ): Promise<void> {
+    await stateModify(orderDbIds, prodOrderIds, "RETURN_REQ");
+  },
+  returnApprove: async function (
+    orderDbIds: string[],
+    prodOrderIds: string[]
+  ): Promise<void> {
+    await stateModify(
+      orderDbIds,
+      prodOrderIds,
+      "RETURN_APPROVED",
+      "RETURN_REQ",
+      undefined,
+      async function (po) {
+        po.orderType = "RETURN";
+        return po;
+      }
+    );
+  },
+  returnReject: async function (
+    orderDbIds: string[],
+    prodOrderIds: string[]
+  ): Promise<void> {
+    const { getOrdRef, converterGarment } = getSrc();
+    return await runTransaction(iostore, async (transaction) => {
+      const orders = await OrderGarmentFB.batchRead(orderDbIds);
+      for (let i = 0; i < orders.length; i++) {
+        const o = orders[i];
+        for (let j = 0; j < o.items.length; j++) {
+          const item = o.items[j];
+          const rollback = item.history.pop()!;
+          if (prodOrderIds.includes(item.id)) {
+            o.setState(item.id, rollback.state);
+            transaction.update(
+              doc(getOrdRef(o.shopId), o.dbId),
+              converterGarment.toFirestore(o)
+            );
+          }
+        }
+      }
+    });
+  },
+  returnDone: async function (
+    orderDbIds: string[],
+    prodOrderIds: string[]
+  ): Promise<void> {
+    throw new Error("Function not implemented.");
+  },
 };
 
 export function getSrc() {
@@ -475,8 +526,8 @@ export function getSrc() {
 async function stateModify(
   orderDbIds: string[],
   prodOrderIds: string[],
-  beforeState: ORDER_STATE,
   afterState: ORDER_STATE,
+  beforeState?: ORDER_STATE,
   onOrder?: (o: GarmentOrder) => Promise<GarmentOrder>,
   onProdOrder?: (o: ProdOrder) => Promise<ProdOrder>
 ) {
@@ -488,14 +539,19 @@ async function stateModify(
       const o = onOrder ? await onOrder(orders[i]) : orders[i];
       for (let j = 0; j < o.items.length; j++) {
         if (
-          prodOrderIds.includes(o.items[j].id) &&
-          o.items[j].state === beforeState
+          !beforeState ||
+          (prodOrderIds.includes(o.items[j].id) &&
+            o.items[j].state === beforeState)
         ) {
           const item = onProdOrder ? await onProdOrder(o.items[j]) : o.items[j];
           o.setState(item.id, afterState);
           transaction.update(
             doc(getOrdRef(o.shopId), o.dbId),
             converterGarment.toFirestore(o)
+          );
+        } else {
+          throw new Error(
+            `error in stateModify beforeState: ${beforeState} prodOrderIds length: ${prodOrderIds.length}`
           );
         }
       }

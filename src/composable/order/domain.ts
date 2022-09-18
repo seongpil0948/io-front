@@ -32,9 +32,12 @@ export type ORDER_STATE =
   | "PICKUP_COMPLETE" // 픽업완료
   | "BEFORE_SHIP"
   | "SHIPPING"
+  | "SHIPPING_PENDING"
+  | "SHIPPING_WAIT"
   | "SHIPPING_COMPLETE"
-  | "TAKE_BACK"
-  | "TAKE_BACK_DONE"
+  | "RETURN_REQ"
+  | "RETURN_APPROVED"
+  | "RETURN_DONE"
   | "REFUND"
   | "REFUND_DONE"
   | "CHANGE"
@@ -42,7 +45,6 @@ export type ORDER_STATE =
   | "CANCEL"
   | "CANCEL_DONE"
   | "ORDER_DONE";
-
 export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   BEFORE_ORDER: "주문전",
   BEFORE_APPROVE: "승인전",
@@ -59,8 +61,9 @@ export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   SHIPPING_PENDING: "배송대기",
   SHIPPING_WAIT: "배송보류",
   SHIPPING_COMPLETE: "배송완료",
-  TAKE_BACK: "반품중",
-  TAKE_BACK_DONE: "반품완료",
+  RETURN_REQ: "반품요청중",
+  RETURN_APPROVED: "반품승인",
+  RETURN_DONE: "반품완료",
   REFUND: "환불중",
   REFUND_DONE: "환불완료",
   CHANGE: "교환중",
@@ -96,6 +99,12 @@ export const REASON_TYPE: { [key in REASON_TYPE]: string } = Object.freeze({
   SERVICE_DISSATISFIED: "SERVICE_DISSATISFIED",
   SOLD_OUT: "SOLD_OUT",
   ETC: "ETC",
+});
+export type ORDER_TYPE = "STANDARD" | "RETURN";
+
+export const ORDER_TYPE: { [key in ORDER_TYPE]: string } = Object.freeze({
+  STANDARD: "STANDARD",
+  RETURN: "RETURN",
 });
 
 export interface OrderParam {
@@ -136,6 +145,8 @@ export interface ProdOrder {
   shipmentId?: string;
   shopId: string;
   orderDbId: string;
+  history: ProdOrder[];
+  orderType: ORDER_TYPE;
 }
 
 interface Claim {
@@ -267,8 +278,15 @@ export interface OrderDB<T> {
     prodOrderIds: string[],
     uncleId: string
   ): Promise<void>;
+  returnReq(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  returnApprove(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  returnReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  returnDone(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
 }
 
 export interface ShipDB<T> {
-  approvePickUp(row: GarmentOrder, expectedReduceCoin: number): Promise<T>;
+  approvePickUp(
+    row: GarmentOrder,
+    expectedReduceCoin: number
+  ): Promise<T | Error>;
 }

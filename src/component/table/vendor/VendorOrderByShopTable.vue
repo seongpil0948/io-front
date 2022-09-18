@@ -30,6 +30,8 @@ const {
   showPartialModal,
   numOfAllow,
   completePay,
+  returnApproved,
+  returnReject,
   onProdReady,
   detailShopIds,
   columns,
@@ -131,6 +133,14 @@ function onClickOrder(keys: string[]) {
         <n-space v-else-if="inStates?.includes('BEFORE_PAYMENT')">
           <n-button text class="under-bar" @click="completePay">
             결제완료
+          </n-button>
+        </n-space>
+        <n-space v-else-if="inStates?.includes('RETURN_REQ')">
+          <n-button text class="under-bar" @click="returnApproved">
+            반품승인
+          </n-button>
+          <n-button text class="under-bar" @click="returnReject">
+            반품거절
           </n-button>
         </n-space>
         <n-space v-else-if="inStates?.includes('BEFORE_READY')">

@@ -233,6 +233,46 @@ export function useApproveOrder(p: ApproveParam) {
         logger.error(p.vendorId, "error in complete payment", err);
       });
   }
+  function returnApproved() {
+    ORDER_GARMENT_DB.returnApprove(
+      [...targetOrdDbIds.value],
+      [...targetIds.value]
+    )
+      .then(async () => {
+        msg.success("반품 승인 완료", makeMsgOpt());
+        await smtp.sendAlarm({
+          toUserIds: targetShopIds.value,
+          subject: `inoutbox 주문 처리내역 알림.`,
+          body: `${auth.currUser.name} 에서 반품을 승인 하였습니다. `,
+          notiLoadUri: "/",
+          uriArgs: {},
+        });
+      })
+      .catch((err) => {
+        msg.error(`반품승인 실패 ${JSON.stringify(err)}`, makeMsgOpt());
+        logger.error(p.vendorId, "error in complete payment", err);
+      });
+  }
+  function returnReject() {
+    ORDER_GARMENT_DB.returnReject(
+      [...targetOrdDbIds.value],
+      [...targetIds.value]
+    )
+      .then(async () => {
+        msg.success("반품 거절 완료", makeMsgOpt());
+        await smtp.sendAlarm({
+          toUserIds: targetShopIds.value,
+          subject: `inoutbox 주문 처리내역 알림.`,
+          body: `${auth.currUser.name} 에서 반품을 거절 하였습니다. `,
+          notiLoadUri: "/",
+          uriArgs: {},
+        });
+      })
+      .catch((err) => {
+        msg.error(`반품승인 실패 ${JSON.stringify(err)}`, makeMsgOpt());
+        logger.error(p.vendorId, "error in complete payment", err);
+      });
+  }
   function onProdReady() {
     ORDER_GARMENT_DB.orderToReady(
       [...targetOrdDbIds.value],
@@ -379,5 +419,7 @@ export function useApproveOrder(p: ApproveParam) {
     onProdReady,
     detailShopIds,
     checkedOrders,
+    returnApproved,
+    returnReject,
   };
 }

@@ -72,7 +72,7 @@ async function pickupRequest() {
 
 <template>
   <n-space vertical align="center">
-    <n-card title="미출고/출고 가능목록">
+    <n-card title="픽업 가능목록">
       <template #header-extra>
         <n-space>
           <n-select

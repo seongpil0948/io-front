@@ -71,18 +71,32 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
         if (!prod)
           throw new Error(`도매처 상품이 없습니다.: ${item.vendorProdId}`);
         const vendor = validateUser(vendorDoc.data(), item.vendorId);
+        const isReturn = item.orderType === "RETURN";
+        const shopLocate = shop.companyInfo!.shipLocate;
+        const vendorLocate = vendor.companyInfo!.shipLocate;
+        if (!shopLocate) {
+          return new Error(
+            `소매처 대표 배송지 정보가 없습니다. ${shop.userInfo.userId}`
+          );
+        } else if (!vendorLocate) {
+          return new Error(
+            `도매처 대표 배송지 정보가 없습니다. ${shop.userInfo.userId}`
+          );
+        }
+        const pickLocateCode = isReturn ? shopLocate.code : vendorLocate.code;
+        const shipLocateCode = isReturn ? vendorLocate.code : shopLocate.code;
+        const ship = uncle.uncleInfo!.shipLocates;
+        const pick = uncle.uncleInfo!.pickupLocates;
+        const shipLocate = isReturn
+          ? pick.find((x) => x.locate.code === shipLocateCode)!
+          : ship.find((x) => x.locate.code === shipLocateCode)!;
+        const pickLocate = isReturn
+          ? ship.find((x) => x.locate.code === pickLocateCode)!
+          : pick.find((x) => x.locate.code === pickLocateCode)!;
 
-        const shipLocateCode = shop.companyInfo!.shipLocate!.code;
-        const vendorLocateCode = vendor.companyInfo!.shipLocate!.code;
-        const shipLocate = uncle.uncleInfo!.shipLocates.find(
-          (x) => x.locate.code === shipLocateCode
-        );
-        const pickLocate = uncle.uncleInfo!.pickupLocates.find(
-          (x) => x.locate.code === vendorLocateCode
-        );
-
-        if (!shipLocate) throw new Error("배송불가 지역입니다.");
-        else if (!pickLocate) throw new Error("픽업불가 지역입니다.");
+        if (!isReturn && !shipLocate) throw new Error("배송불가 지역입니다.");
+        else if (!isReturn && !pickLocate)
+          throw new Error("픽업불가 지역입니다.");
         const shipment = new IoShipment({
           shippingId: uuidv4(),
           orderDbId: ord.dbId,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ProdOrderCombined } from "@/composable";
+import { ORDER_STATE, ProdOrderCombined } from "@/composable";
 import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
+import { commonTime } from "@/util";
 import { DataTableColumns, NImage, NText } from "naive-ui";
 import InfoCell from "@/component/table/InfoCell.vue";
 import { computed, h, onBeforeMount } from "vue";
@@ -9,9 +10,11 @@ const auth = useAuthStore();
 const vendorStore = useVendorsStore();
 
 const shopOrderStore = useShopOrderStore();
+const inStates = ["BEFORE_READY"] as ORDER_STATE[];
+const { timeToDate } = commonTime();
 onBeforeMount(() => shopOrderStore.init(auth.currUser.userInfo.userId));
-const filteredOrders = shopOrderStore.getFilteredOrder([]);
-const orders = shopOrderStore.getOrders([]);
+const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
+const orders = shopOrderStore.getOrders(inStates);
 const columns = computed(
   () =>
     [
@@ -32,7 +35,7 @@ const columns = computed(
       {
         key: "info",
         title: "상품정보",
-        width: 400,
+        width: 200,
         render: (x) =>
           h(
             InfoCell,
@@ -91,6 +94,20 @@ const columns = computed(
             }
           ),
       },
+      {
+        title: "결제완료일",
+        key: "actualAmount.paidDate",
+        render: (x) =>
+          h(
+            NText,
+            {
+              primary: true,
+            },
+            {
+              default: () => timeToDate(x.actualAmount.paidDate),
+            }
+          ),
+      },
     ] as DataTableColumns<ProdOrderCombined>
 );
 const filterOpts = computed<FilterOption[]>(() => {
@@ -99,7 +116,6 @@ const filterOpts = computed<FilterOption[]>(() => {
     return { label: name, value: name };
   });
 });
-// FIXME 미송 어케함..
 </script>
 <template>
   <n-card>
