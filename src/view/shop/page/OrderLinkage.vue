@@ -41,7 +41,7 @@ function authorizeCafe() {
     return msg.error("쇼핑몰 ID를 입력 해주세요.");
   }
   console.log("authUrl: ", authUrl.value);
-  window.open(authUrl.value, "gg");
+  window.location.href = authUrl.value;
 }
 </script>
 

@@ -3,7 +3,7 @@ import { routes } from "./routes";
 import { useAuthStore, useCommonStore } from "@/store";
 import { logger } from "../logger";
 import { IoUser, USER_ROLE } from "@/composable";
-export const notAuthName = ["Login", "SignUp", "PlayGround"];
+export const notAuthName = ["Login", "SignUp", "PlayGround", "OrderLinkage"];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
