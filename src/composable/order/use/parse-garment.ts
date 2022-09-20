@@ -123,8 +123,6 @@ export function useParseGarmentOrder(
     const targetDf = inputDf.loc({
       columns: uniqueArr(Object.values(colMapper)),
     });
-    // console.log("targetDf: ", targetDf);
-    // console.log("colMapper: ", colMapper);
     const prodMapper = mapper.getProdMapper();
     if (Object.keys(prodMapper).length === 0) {
       const message = "주문취합을 위해 상품매핑정보를 등록 해주십시오";
@@ -171,10 +169,6 @@ export function useParseGarmentOrder(
           }
         }
         if (!synoColor || !synoSize) {
-          logger.debug(null, "prodMapper: ", prodMapper);
-          logger.debug(null, "matchedNameSynoId: ", matchedNameSynoId);
-          logger.debug(null, "synoColor: ", synoColor);
-          logger.debug(null, "synoSize: ", synoSize);
           let msg = `${row[idx.prodNameIdx]} 상품의 매핑에 실패 하였습니다.`;
           if (!synoColor) {
             msg += ` 컬러 매핑실패정보,${row[idx.colorIdx]} `;

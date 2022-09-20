@@ -1,6 +1,7 @@
 import { Timestamp } from "@firebase/firestore";
 import moment from "moment";
 import { ref } from "vue";
+import "moment/locale/ko";
 
 export function dateToTimeStamp(d: Date | undefined): Timestamp {
   if (!d) {
@@ -14,7 +15,12 @@ export function loadDate(d: Date | { [x: string]: number } | string): Date {
   if (!d) return new Date();
   else if (d instanceof Date) return d;
   else if (typeof d === "string") return new Date(d);
-  else if (d.seconds) return new Date(d.seconds * 1000);
+  // else if (d.seconds && d.constructor.name === "ut")
+  // return new Date(d.seconds * 1000 + 60 * 60 * 9);
+  // else if (d.seconds) return new Date(d.seconds * 1000);
+  else if (d.seconds && d.constructor.name === "ut")
+    return new Timestamp(d.seconds + 60 * 60 * 15, d.nanoseconds).toDate();
+  else if (d.seconds) return new Timestamp(d.seconds, d.nanoseconds).toDate();
   else throw Error("Fail to load Date");
 }
 
@@ -28,7 +34,8 @@ export const commonTime = () => {
     .subtract(7, "days")
     .format(TimeFormat);
   return {
-    timeToDate: (t: any) => moment(t).format(TimeFormat), // str -> moment
+    timeToDate: (t: any, format?: string) =>
+      moment(t).format(format ?? TimeFormat), // str -> moment
     timeFormat: TimeFormat,
     currDate,
     defaultDate,

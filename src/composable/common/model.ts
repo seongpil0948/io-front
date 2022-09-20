@@ -8,11 +8,16 @@ export class CommonField {
     this.updatedAt = updatedAt ?? new Date();
   }
   toJson(): { [x: string]: Partial<unknown> } {
-    const c = dateToJson(this.createdAt);
-    const u = dateToJson(this.updatedAt);
+    const dateKeys: string[] = [];
+    Object.entries(this).forEach(([k, v]) => {
+      if (Object.prototype.toString.call(v) === "[object Date]") {
+        dateKeys.push(k);
+      }
+    });
     const j = JSON.parse(JSON.stringify(this));
-    j.createdAt = c;
-    j.updatedAt = u;
+    dateKeys.forEach((dk) => {
+      j[dk] = dateToJson(j[dk]);
+    });
     return j;
   }
   update(): Promise<void> {

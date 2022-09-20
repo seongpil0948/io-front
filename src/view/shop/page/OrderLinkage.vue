@@ -14,8 +14,12 @@ import { ref, h, onBeforeUnmount } from "vue";
 const msg = useMessage();
 const auth = useAuthStore();
 const { timeToDate } = commonTime();
-const tokenId = ref<string | null>(null);
+const { tokens, unsubscribe } = LINKAGE_DB.getTokensByIdListen(
+  auth.currUser.userInfo.userId
+);
+onBeforeUnmount(() => unsubscribe());
 // cafe - order module
+const ordRaws = ref<any>([]);
 const timeFormat = "yyyy-MM-dd";
 const {
   dateRangeTime: range,
@@ -28,19 +32,30 @@ const { authorizeCafe, mallId } = useCafeAuth();
 async function onGetOrder() {
   if (!startDate.value || !endDate.value)
     return msg.error("일자가 입력되지 않았습니다.");
-  else if (!tokenId.value) return msg.error("토큰이 선택되지 않았습니다.");
-  return await getCafeOrders(
-    startDate.value,
-    endDate.value,
-    tokenId.value,
-    auth.currUser.userInfo.userId
-  );
+  for (let i = 0; i < tokens.value.length; i++) {
+    const token = tokens.value[i];
+    try {
+      if (token.service === "CAFE") {
+        const cafeOrds = await getCafeOrders(
+          startDate.value,
+          endDate.value,
+          token.dbId,
+          auth.currUser.userInfo.userId,
+          token.mallId
+        );
+        console.log("cafeOrds mallId: ", token.mallId, cafeOrds);
+        if (cafeOrds.length > 0) {
+          ordRaws.value.push(...cafeOrds);
+        }
+      }
+    } catch (err) {
+      return msg.error(
+        `${token.service} ${token.mallId}  주문을 받아오는 과정에서 실패하였습니다.`
+      );
+    }
+  }
 }
-
-const { tokens, unsubscribe } = LINKAGE_DB.getTokensByIdListen(
-  auth.currUser.userInfo.userId
-);
-onBeforeUnmount(() => unsubscribe());
+// function parseCafeOrder(obj: { [k: string]: any }): ;
 
 const rowOpts = [
   {
@@ -123,7 +138,7 @@ const cols: DataTableColumns<ApiToken> = [
           primary: true,
         },
         {
-          default: () => timeToDate(row.expireAt),
+          default: () => timeToDate(row.expireAt, "YYYY-MM-DD HH시 mm분"),
         }
       ),
   },
@@ -154,10 +169,9 @@ const cols: DataTableColumns<ApiToken> = [
         </n-space>
         <n-space>
           <n-button class="big" @click="authorizeCafe"> 카페24 연동 </n-button>
-          <n-button class="big" @click="onGetOrder"> 주문 받아오기 </n-button>
-          <n-button class="big"> 활성 서비스 주문 취합 </n-button>
-          <n-button class="big"> 비활성 인증갱신 </n-button>
-          <n-button class="big"> 서비스 별 주문 취합 </n-button>
+          <n-button class="big" @click="onGetOrder">
+            활성 서비스 주문 취합
+          </n-button>
         </n-space>
       </n-space>
     </n-card>
