@@ -23,6 +23,7 @@ export const lightThemeOver: GlobalThemeOverrides = {
     textColorBase: lightColors.text,
     textColor1: lightColors.text,
     textColor2: lightColors.text,
+    textColor3: lightColors.text,
     successColor: lightColors.primary,
     successColorHover: lightColors.primary,
     successColorPressed: lightColors.primary,
@@ -32,6 +33,10 @@ export const lightThemeOver: GlobalThemeOverrides = {
     colorPressed: lightColors.primary,
     textColorPrimary: lightColors.text,
     textColorSuccess: lightColors.text,
+    borderPressed: "1px solid #f0c755",
+    borderFocus: "1px solid #f0c755",
+    textColorFocus: lightColors.text,
+    // border: "1px solid #f0c755",
   },
   Radio: {
     dotColorActive: lightColors.primary,
@@ -62,5 +67,8 @@ export const lightThemeOver: GlobalThemeOverrides = {
   },
   Tabs: {
     barColor: lightColors.primary,
+  },
+  Typography: {
+    textColor: lightColors.text,
   },
 };

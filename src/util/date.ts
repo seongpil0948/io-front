@@ -71,11 +71,18 @@ export function dateRanges(useDefault = false) {
       : null;
   };
 
+  function updateRangeNaive(value: [string, string] | null) {
+    if (value) {
+      startDate.value = value[0];
+      endDate.value = value[1];
+    }
+  }
   return {
     dateRangeTime,
     startDate,
     endDate,
     updateDate,
+    updateRangeNaive,
     diableGenerator:
       ({ maxDate = 7 }) =>
       (time: any) => {
