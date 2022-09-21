@@ -2,7 +2,7 @@
 import {
   ORDER_STATE,
   ORDER_GARMENT_DB,
-  useParseGarmentOrder,
+  useOrderParseExcel,
   useOrderBasic,
   useOrderTable,
 } from "@/composable";
@@ -45,7 +45,7 @@ const {
 
 const sheetIdx = ref(0);
 const startRow = ref(0);
-useParseGarmentOrder(
+useOrderParseExcel(
   mapper,
   user.userInfo.userId,
   fileModel,

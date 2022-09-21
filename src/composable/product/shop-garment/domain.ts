@@ -4,11 +4,12 @@ import { Ref } from "vue";
 import { ProductCrt, GARMENT_SIZE } from "../domain";
 import { ShopGarment } from "./model";
 
-export interface ShopGarmentQField {
+export interface GarmentOrderCondi {
   prodName: string;
   size: string;
   color: string;
   orderId: string;
+  orderCnt?: number;
 }
 
 export interface ShopProdCrt extends ProductCrt {

@@ -1,11 +1,11 @@
 import { MapKey, ShopUserGarment } from "@/composable";
 import { useVendorsStore } from "@/store";
 import { Ref, ref, watchEffect } from "vue";
-import { ShopGarment, ShopGarmentQField, SHOP_GARMENT_DB } from "..";
+import { ShopGarment, GarmentOrderCondi, SHOP_GARMENT_DB } from "..";
 
 export function useShopUserGarments(
   userId: string,
-  shopCondi: Ref<ShopGarmentQField[]> | null
+  shopCondi: Ref<GarmentOrderCondi[]> | null
 ) {
   const userProd: Ref<ShopUserGarment[]> = ref([]);
   const rowIdField: MapKey = "shopProdId";
@@ -34,7 +34,7 @@ export function useShopUserGarments(
 
 export function useShopGarments(
   userId: string,
-  condi: Ref<ShopGarmentQField[]> | null
+  condi: Ref<GarmentOrderCondi[]> | null
 ) {
   const matching = (p: ShopGarment) =>
     condi && condi.value.length > 0

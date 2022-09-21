@@ -1,5 +1,5 @@
 import _axios from "@/plugin/axios";
-type CafeOrder = { [k: string]: any };
+export type CafeOrder = { [k: string]: any };
 export async function getCafeOrders(
   startDate: string,
   endDate: string,

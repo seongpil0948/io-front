@@ -58,3 +58,11 @@ export type IoColName<T> = { [n in MapKey]: IoColOptInner<T> };
 export interface MapperDB {
   getMapper(uid: string): Promise<Mapper | null | undefined>;
 }
+
+export type ProdMapper = {
+  [nameSynoId: string]: {
+    ioProdName: string;
+    colorMapper: MappingJson;
+    sizeMapper: MappingJson;
+  };
+};

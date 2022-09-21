@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { useCafeAuth, getCafeOrders, LINKAGE_DB, ApiToken } from "@/composable";
-import { useAuthStore } from "@/store";
+import {
+  useCafeAuth,
+  getCafeOrders,
+  LINKAGE_DB,
+  ApiToken,
+  useOrderParseCafe,
+  useMapper,
+  ORDER_GARMENT_DB,
+} from "@/composable";
+import { useAuthStore, useShopOrderStore } from "@/store";
 import { dateRanges, commonTime } from "@/util";
 import {
   useMessage,
@@ -10,16 +18,18 @@ import {
   DropdownOption,
   NText,
 } from "naive-ui";
-import { ref, h, onBeforeUnmount } from "vue";
+import { h, onBeforeUnmount, computed } from "vue";
+import { useLogger } from "vue-logger-plugin";
+import { storeToRefs } from "pinia";
+
 const msg = useMessage();
+const log = useLogger();
 const auth = useAuthStore();
 const { timeToDate } = commonTime();
-const { tokens, unsubscribe } = LINKAGE_DB.getTokensByIdListen(
-  auth.currUser.userInfo.userId
-);
+const uid = computed(() => auth.currUser.userInfo.userId);
+const { tokens, unsubscribe } = LINKAGE_DB.getTokensByIdListen(uid.value);
 onBeforeUnmount(() => unsubscribe());
 // cafe - order module
-const ordRaws = ref<any>([]);
 const timeFormat = "yyyy-MM-dd";
 const {
   dateRangeTime: range,
@@ -29,6 +39,14 @@ const {
 } = dateRanges(true);
 const { authorizeCafe, mallId } = useCafeAuth();
 // FIXME: refresh logic 중 이전 토큰 삭제 안하는 로직이 있었던듯..? 기존 DocID 에 잘 저장하는지 확인 필요
+const { mapper } = useMapper(uid.value);
+const shopOrderStore = useShopOrderStore();
+const { existOrderIds } = storeToRefs(shopOrderStore);
+const { parseCafeOrder, conditions } = useOrderParseCafe(
+  mapper,
+  uid.value,
+  existOrderIds
+);
 async function onGetOrder() {
   if (!startDate.value || !endDate.value)
     return msg.error("일자가 입력되지 않았습니다.");
@@ -43,19 +61,25 @@ async function onGetOrder() {
           auth.currUser.userInfo.userId,
           token.mallId
         );
-        console.log("cafeOrds mallId: ", token.mallId, cafeOrds);
-        if (cafeOrds.length > 0) {
-          ordRaws.value.push(...cafeOrds);
+
+        const orders = parseCafeOrder(cafeOrds);
+        log.info(uid.value, "newOrders: ", orders);
+        if (orders) {
+          ORDER_GARMENT_DB.batchCreate(uid.value, orders).then(() => {
+            orders.forEach((ord) => {
+              ord.orderIds.forEach((id) => existOrderIds.value.add(id));
+            });
+          });
         }
       }
     } catch (err) {
+      console.error(err);
       return msg.error(
-        `${token.service} ${token.mallId}  주문을 받아오는 과정에서 실패하였습니다.`
+        `${token.service} ${token.mallId}  주문을 받아오는 과정에서 실패하였습니다. 상세: ${err}`
       );
     }
   }
 }
-// function parseCafeOrder(obj: { [k: string]: any }): ;
 
 const rowOpts = [
   {

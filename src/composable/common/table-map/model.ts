@@ -7,7 +7,14 @@ import type {
   FirestoreDataConverter,
 } from "firebase/firestore";
 import { MAPPER_DB } from "./db";
-import { MapperCRT, MapCols, KeyMapper, MapKey, MappingJson } from "./domain";
+import {
+  MapperCRT,
+  MapCols,
+  KeyMapper,
+  MapKey,
+  MappingJson,
+  ProdMapper,
+} from "./domain";
 
 class Mapper implements MapperCRT {
   userId: string;
@@ -117,7 +124,7 @@ class Mapper implements MapperCRT {
     return JSON.parse(JSON.stringify(this));
   }
 
-  getProdMapper() {
+  getProdMapper(): ProdMapper {
     // 상품 nameSyno 과 매칭되는 상품들중 하위 컬러매퍼와 매칭이 된다? 오케이
     return Object.keys(this.cols.prodName).reduce((acc, prodId) => {
       Object.entries(this.cols.prodName[prodId]).forEach(
