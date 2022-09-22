@@ -17,6 +17,7 @@ export class ApiToken extends CommonField implements ApiTokenCrt {
   mallId: string;
   scopes: string[];
   service: API_SERVICE_EX;
+  serviceId?: string;
   shopNo?: string | undefined;
   userId: string;
   constructor(c: ApiTokenCrt) {
@@ -32,6 +33,7 @@ export class ApiToken extends CommonField implements ApiTokenCrt {
     this.service = c.service;
     this.shopNo = c.shopNo;
     this.userId = c.userId;
+    this.serviceId = c.serviceId;
   }
   static fromJson(data: { [x: string]: any }, dbId: string): ApiToken | null {
     return data
@@ -47,6 +49,7 @@ export class ApiToken extends CommonField implements ApiTokenCrt {
           mallId: data.mallId,
           scopes: data.scopes,
           service: data.service,
+          serviceId: data.serviceId,
           shopNo: data.shopNo,
           userId: data.userId,
         })

@@ -21,6 +21,7 @@ export interface ApiTokenCrt {
   mallId: string;
   scopes: string[];
   service: API_SERVICE_EX;
+  serviceId?: string;
   shopNo?: string;
   userId: string;
 }
