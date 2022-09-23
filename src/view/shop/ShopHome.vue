@@ -38,13 +38,8 @@ const numOfShipping = computed(
 </script>
 <template>
   <n-space vertical align="center">
-    <shop-add-order-table
-      style="width: 65vw"
-      :showSizes="false"
-      :inStates="['BEFORE_ORDER']"
-    />
+    <shop-add-order-table :showSizes="false" :inStates="['BEFORE_ORDER']" />
     <n-grid
-      style="width: 65vw"
       cols="1 s:2 m:2 l:4 xl:4 2xl:4"
       x-gap="24"
       y-gap="12"

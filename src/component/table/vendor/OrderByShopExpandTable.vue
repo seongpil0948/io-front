@@ -77,6 +77,8 @@ function getRowKey(row: ProdOrderByShop) {
       :bordered="false"
       :columns="columns"
       :data="garmentOrdersByShop"
+      :table-layout="'fixed'"
+      :scroll-x="800"
       :rowKey="getRowKey"
       @update:checked-row-keys="onClickShop"
       default-expand-all

@@ -395,6 +395,7 @@ export function useApproveOrder(p: ApproveParam) {
     return cols.map((x: any) => {
       if (!["selection", "expand"].includes(x.type)) {
         x.sorter = "default";
+        x.width = "120";
       }
       return x;
     });
