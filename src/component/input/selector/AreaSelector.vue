@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAdminArea } from "@/composable";
+import { isMobile } from "@/util";
 import { computed, toRefs, watchEffect } from "vue";
 export interface Area {
   city: null | string;
@@ -58,7 +59,7 @@ function onUpdateCounty() {
 }
 </script>
 <template>
-  <n-space justify="space-around" :wrap="false">
+  <n-space :vertical="isMobile()" justify="space-around" :wrap="false">
     <n-select
       style="color: yellow"
       filterable

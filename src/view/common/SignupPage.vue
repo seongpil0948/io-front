@@ -166,14 +166,19 @@ async function onSignUp() {
     <Transition name="one">
       <n-space vertical align="center" v-if="step === 1">
         <n-image preview-disabled class="vibe" src="/logo.png" width="100" />
-        <n-h1>인-아웃 박스에 오신것을 환영 합니다</n-h1>
+        <n-h1
+          >인-아웃 박스에 <br />
+          오신것을 환영 합니다</n-h1
+        >
       </n-space>
     </Transition>
     <Transition name="one">
       <n-space vertical align="center" v-if="step === 2">
         <n-image preview-disabled class="vibe" src="/logo.png" width="100" />
         <n-h1 style="padding: 1vw">
-          쇼핑몰 주문부터 픽업 - 상품 정보 정산까지 한번에 해결해드립니다!
+          쇼핑몰 주문부터 <br />
+          픽업 - 상품 정보 정산까지 <br />
+          한번에 해결해드립니다!
         </n-h1>
         <n-button text @click="step = 3" class="btn">
           지금 회원가입하기</n-button
@@ -182,17 +187,46 @@ async function onSignUp() {
     </Transition>
     <Transition name="one">
       <n-space v-if="step === 3" justify="center" align="center" vertical>
-        <n-h1>회원가입</n-h1>
+        <n-h2 class="txt">회원가입</n-h2>
+        <n-p class="txt-small">해당되는 역할을 클릭 해주세요!</n-p>
         <n-space justify="center">
-          <n-button @click="selectRole(USER_ROLE.SHOP)" class="role-btn" round
-            >쇼핑몰</n-button
-          >
-          <n-button @click="selectRole(USER_ROLE.VENDOR)" class="role-btn" round
-            >도매처</n-button
-          >
-          <n-button @click="selectRole(USER_ROLE.UNCLE)" class="role-btn" round
-            >엉클</n-button
-          >
+          <n-tooltip trigger="hover">
+            <template #trigger>
+              <n-button
+                @click="selectRole(USER_ROLE.SHOP)"
+                class="role-btn txt"
+                round
+                >쇼핑몰</n-button
+              >
+            </template>
+            <n-p>
+              쇼핑몰을 운영하며, 일반 고객에게 의류등 각종 품목을 직접 판매하는
+              역할로 <br />
+              각 위탁판매 업체로부터의 주문취합/상품관리/배송 등을 제공받습니다.
+            </n-p>
+          </n-tooltip>
+          <n-tooltip trigger="hover">
+            <template #trigger>
+              <n-button
+                @click="selectRole(USER_ROLE.VENDOR)"
+                class="role-btn txt"
+                round
+                >도매처</n-button
+              >
+            </template>
+            <n-p> 쇼핑몰을 운영하는 인원에게 의류 등 각종 품목을 준다 </n-p>
+          </n-tooltip>
+          <n-tooltip trigger="hover">
+            <template #trigger>
+              <n-button
+                @click="selectRole(USER_ROLE.UNCLE)"
+                class="role-btn txt"
+                round
+                >엉클</n-button
+              >
+            </template>
+            <n-p> 도매가 쇼핑몰에게 팔면 넌 배송한다. </n-p>
+          </n-tooltip>
         </n-space>
       </n-space>
     </Transition>
@@ -214,9 +248,7 @@ async function onSignUp() {
           />
           <template #action>
             <n-space justify="end">
-              <n-button style="margin-left: auto" @click="onStep5"
-                >다음</n-button
-              >
+              <n-button @click="onStep5">다음</n-button>
             </n-space>
           </template>
         </n-card>
@@ -336,8 +368,8 @@ async function onSignUp() {
     </Transition>
     <n-card class="form-card" v-if="step > 3 && step < 9">
       <n-steps
+        style="overflow-x: auto; max-width: 100%"
         :current="(step -3 as number)"
-        style="margin-top: 1vh; margin-left: 7%"
       >
         <template #finish-icon>
           <n-image
@@ -359,7 +391,7 @@ async function onSignUp() {
 
 <style scoped>
 .btn {
-  font-size: 1.5vw;
+  font-size: 1.3rem;
   min-height: 5vh;
   text-decoration: underline;
 }
@@ -367,10 +399,17 @@ async function onSignUp() {
   font-size: 1.5vw;
   color: azure;
 }
+.txt {
+  font-size: 1.8rem;
+  color: whitesmoke;
+}
+.txt-small {
+  font-size: 1.2rem;
+  color: whitesmoke;
+}
 .role-btn {
-  font-size: 5vh;
   width: 30vw;
-  height: 30vw;
+  height: 15vh;
 }
 #signup-page-container {
   justify-content: center !important;
@@ -378,6 +417,7 @@ async function onSignUp() {
   height: 100vh;
   width: 100%;
   background-color: #ffc800;
+  overflow-y: auto;
 }
 
 .one-enter-active {
@@ -409,7 +449,7 @@ async function onSignUp() {
   }
 }
 .form-card {
-  width: 70vw;
+  width: 80vw;
   justify-content: center;
 }
 </style>

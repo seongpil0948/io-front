@@ -2,7 +2,7 @@
 import { reactive, ref } from "vue";
 import { FormInst } from "naive-ui";
 import { Certificate } from "@vicons/carbon";
-import { arrLenRule, emailRule, nameLenRule } from "@/util";
+import { arrLenRule, emailRule, nameLenRule, isMobile } from "@/util";
 import { CompanyInfo } from "@/composable";
 
 const props = defineProps<{
@@ -42,7 +42,7 @@ defineExpose({ companyInfo: formModel });
 <template>
   <n-form
     ref="formRef"
-    style="width: 60%"
+    style="height: 50vh"
     inline
     :label-width="80"
     label-placement="top"
@@ -50,7 +50,7 @@ defineExpose({ companyInfo: formModel });
     :rules="rule"
     size="medium"
   >
-    <n-grid cols="2" :x-gap="24">
+    <n-grid :cols="isMobile() ? 1 : 2" :x-gap="24">
       <n-form-item-gi label="상호명" path="companyName">
         <n-input
           v-model:value="formModel.companyName"

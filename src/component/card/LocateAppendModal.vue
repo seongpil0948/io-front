@@ -86,13 +86,11 @@ function updateShow(val: boolean) {
     @esc="() => updateShow(false)"
     @close="() => updateShow(false)"
     preset="card"
-    style="width: 50%"
     title="주소정보추가"
     :mask-closable="false"
   >
     <n-form
       ref="formRef"
-      style="width: 60%"
       inline
       :label-width="80"
       label-placement="top"
