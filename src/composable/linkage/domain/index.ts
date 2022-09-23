@@ -11,8 +11,6 @@ export const API_SERVICE_EX: { [key in API_SERVICE_EX]: API_SERVICE_EX } =
 
 export interface ApiTokenCrt {
   dbId: string;
-  accessToken: string;
-  refreshToken: string;
   clientId: string;
   createdAt?: Date;
   updatedAt?: Date;

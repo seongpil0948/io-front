@@ -38,7 +38,6 @@ const {
   updateRangeNaive,
 } = dateRanges(true);
 const { authorizeCafe, mallId } = useCafeAuth();
-// FIXME: refresh logic 중 이전 토큰 삭제 안하는 로직이 있었던듯..? 기존 DocID 에 잘 저장하는지 확인 필요
 const { mapper } = useMapper(uid.value);
 const shopOrderStore = useShopOrderStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);

@@ -9,8 +9,6 @@ import { ApiTokenCrt, API_SERVICE_EX } from "..";
 
 export class ApiToken extends CommonField implements ApiTokenCrt {
   dbId: string;
-  accessToken: string; // FIXME: will be removed for security
-  refreshToken: string; // FIXME: will be removed for security
   clientId: string;
   expireAt: Date;
   refreshExpireAt: Date;
@@ -23,8 +21,6 @@ export class ApiToken extends CommonField implements ApiTokenCrt {
   constructor(c: ApiTokenCrt) {
     super(c.createdAt, c.updatedAt);
     this.dbId = c.dbId;
-    this.accessToken = c.accessToken;
-    this.refreshToken = c.refreshToken;
     this.clientId = c.clientId;
     this.expireAt = c.expireAt;
     this.refreshExpireAt = c.refreshExpireAt;
@@ -43,8 +39,6 @@ export class ApiToken extends CommonField implements ApiTokenCrt {
           updatedAt: loadDate(data.updatedAt),
           expireAt: loadDate(data.expireAt),
           refreshExpireAt: loadDate(data.refreshExpireAt),
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
           clientId: data.clientId,
           mallId: data.mallId,
           scopes: data.scopes,
