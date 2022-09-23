@@ -2,7 +2,7 @@ import {
   GarmentOrderCondi,
   useShopUserGarments,
   Mapper,
-  parseDf,
+  mapDfToOrder,
   GarmentOrder,
   garmentOrderFromCondi,
 } from "@/composable";
@@ -50,11 +50,11 @@ export function useOrderParseExcel(
               .values[0] as string[]
           );
           conditions.value.push(
-            ...parseDf(newDf, mapper.value, existIds.value, userId)
+            ...mapDfToOrder(newDf, mapper.value, existIds.value, userId)
           );
         } else {
           conditions.value.push(
-            ...parseDf(inputDf, mapper.value, existIds.value, userId)
+            ...mapDfToOrder(inputDf, mapper.value, existIds.value, userId)
           );
         }
       }

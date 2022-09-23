@@ -5,7 +5,7 @@ import { useMessage } from "naive-ui";
 import { MapKey, Mapper, synonymFilter } from "..";
 import { GarmentOrderCondi } from "../../..";
 
-export function parseDf(
+export function mapDfToOrder(
   inputDf: DataFrame,
   mapper: Mapper,
   existIds: Set<string>,
