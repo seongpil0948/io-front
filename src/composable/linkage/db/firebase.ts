@@ -1,12 +1,8 @@
 import { getIoCollection, IoCollection } from "@/util";
-import { onSnapshot } from "@firebase/firestore";
+import { deleteDoc, doc, onSnapshot } from "@firebase/firestore";
 import { ref } from "vue";
 import { ApiToken, LinkageDB } from "..";
 
-const getC = (uid: string) =>
-  getIoCollection({ c: IoCollection.TOKENS, uid }).withConverter(
-    ApiToken.fireConverter()
-  );
 export const LinkageFB: LinkageDB = {
   getTokensByIdListen: function (uid: string) {
     const c = getC(uid);
@@ -22,4 +18,13 @@ export const LinkageFB: LinkageDB = {
     });
     return { tokens, unsubscribe };
   },
+  deleteToken: async function (uid: string, tokenDbId: string): Promise<void> {
+    const c = getC(uid);
+    return await deleteDoc(doc(c, tokenDbId));
+  },
 };
+
+const getC = (uid: string) =>
+  getIoCollection({ c: IoCollection.TOKENS, uid }).withConverter(
+    ApiToken.fireConverter()
+  );

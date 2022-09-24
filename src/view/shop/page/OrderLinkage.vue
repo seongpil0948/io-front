@@ -73,7 +73,7 @@ async function onGetOrder() {
         );
 
         const orders = parseCafeOrder(cafeOrds);
-        log.info(uid.value, "newOrders: ", orders);
+        log.info(uid.value, "newOrders: ", orders ?? []);
         if (orders) {
           ORDER_GARMENT_DB.batchCreate(uid.value, orders).then(() => {
             orders.forEach((ord) => {
@@ -104,16 +104,25 @@ const rowOpts = [
   {
     label: "삭제",
     key: "delete",
-    disabled: true,
   },
 ];
-function handleSelect(
+async function handleSelect(
   row: ApiToken,
   key: string | number,
   option: DropdownOption
 ) {
-  msg.info(String(key));
   console.log("option: ", option);
+  if (option.key === "delete") {
+    console.log("row.dbId:", row.dbId, "uid.value: ", uid.value);
+    LINKAGE_DB.deleteToken(uid.value, row.dbId)
+      .then(() => msg.info("삭제 완료"))
+      .catch((err) => {
+        msg.error("삭제 실패");
+        log.error(uid.value, "삭제 실패", err);
+      });
+  } else {
+    msg.info(String(key));
+  }
 }
 const cols: DataTableColumns<ApiToken> = [
   {
