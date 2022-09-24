@@ -51,7 +51,7 @@ async function onSubmit() {
       )
     ) {
       msg.error(
-        `컬러 ${optById[vendorProdId].color}, 사이즈: ${optById[vendorProdId].size} 상품은 이미 존재합니다.`,
+        `컬러 ${optById[vendorProdId].color}, 사이즈: ${optById[vendorProdId].size} 상품은 이미 추가 되었습니다.`,
         makeMsgOpt()
       );
       addCnt -= 1;
@@ -72,7 +72,7 @@ async function onSubmit() {
     });
     await shopProd.update();
   }
-  msg.success(`${addCnt}개 상품들이 추가되었습니다.`);
+  msg.success(`${addCnt}개의 상품 추가완료!`);
   selectedProdIds.value = [];
   emits("update:showAddModal", false);
 }

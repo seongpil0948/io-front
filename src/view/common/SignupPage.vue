@@ -71,7 +71,7 @@ async function onStep5() {
     typeof UserInfoForm
   >;
   const { userInfo } = await userInfoForm.getUserInfo();
-  const errorMsg = "유저정보를 올바르게 입력 또는 계좌제출을 해주세요.";
+  const errorMsg = "정보저장 후 다음으로 넘어가주세요!";
   if (!userInfo) return msg.error(errorMsg, makeMsgOpt());
   (userInfoForm.$refs.formRef as FormInst).validate(async (errors) => {
     if (errors) {
@@ -199,11 +199,7 @@ async function onSignUp() {
                 >쇼핑몰</n-button
               >
             </template>
-            <n-p>
-              쇼핑몰을 운영하며, 일반 고객에게 의류등 각종 품목을 직접 판매하는
-              역할로 <br />
-              각 위탁판매 업체로부터의 주문취합/상품관리/배송 등을 제공받습니다.
-            </n-p>
+            <n-p> 쇼핑몰을 운영하는 사장님을 위한 서비스. </n-p>
           </n-tooltip>
           <n-tooltip trigger="hover">
             <template #trigger>
@@ -214,7 +210,7 @@ async function onSignUp() {
                 >도매처</n-button
               >
             </template>
-            <n-p> 쇼핑몰을 운영하는 인원에게 의류 등 각종 품목을 준다 </n-p>
+            <n-p> 도매업을 운영하는 사장님을 위한 서비스. </n-p>
           </n-tooltip>
           <n-tooltip trigger="hover">
             <template #trigger>
@@ -225,7 +221,9 @@ async function onSignUp() {
                 >엉클</n-button
               >
             </template>
-            <n-p> 도매가 쇼핑몰에게 팔면 넌 배송한다. </n-p>
+            <n-p>
+              도매시장에서 픽업 및 물류대행을 운영하는 사장님을 위한 서비스.
+            </n-p>
           </n-tooltip>
         </n-space>
       </n-space>

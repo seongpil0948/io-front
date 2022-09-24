@@ -125,8 +125,8 @@ function onRegister() {
     });
     if (valid) {
       dialog.success({
-        title: "상품정보 제출",
-        content: `${products.length}개의 상품을 등록하시겠습니까?`,
+        title: "상품을 등록합니다.",
+        content: `입력하신 내용으로 상품이 등록됩니다.`,
         positiveText: "등록",
         negativeText: "취소",
         closeOnEsc: true,
