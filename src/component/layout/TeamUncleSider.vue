@@ -3,6 +3,7 @@ import { useUncleWorkers } from "@/composable";
 import { ref } from "vue";
 
 const rightCollapsed = ref(false);
+const width = 360;
 const minHeight = "100vh";
 const { workers } = useUncleWorkers();
 </script>
@@ -12,7 +13,7 @@ const { workers } = useUncleWorkers();
     show-trigger
     collapse-mode="width"
     :collapsed-width="64"
-    :width="360"
+    :width="width"
     :native-scrollbar="false"
     v-model:collapsed="rightCollapsed"
     :style="`min-height: ${minHeight}; height: 100%;`"
@@ -23,13 +24,18 @@ const { workers } = useUncleWorkers();
       vertical
       align="start"
       style="
+        width: 100%;
         padding-top: 2vh;
         padding-left: 1vw;
         overflow-y: auto;
         max-height: 90vh;
       "
     >
-      <n-space inline justify="space-between" style="width: 150%">
+      <n-space
+        inline
+        justify="space-between"
+        :style="`width: ${width * 0.8}px;`"
+      >
         <n-h2> 팀 엉클 </n-h2> <n-button text>팀 설정</n-button>
       </n-space>
       <n-text>인원: 100 </n-text>
@@ -42,6 +48,7 @@ const { workers } = useUncleWorkers();
       <n-divider />
       <!-- <n-h2>디오트</n-h2> -->
       <uncle-status-row
+        :style="`width: ${width * 0.8}px;`"
         v-for="(worker, i) in workers"
         :key="i"
         :worker="worker"

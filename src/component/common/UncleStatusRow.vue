@@ -9,19 +9,18 @@ const { worker } = toRefs(props);
 </script>
 <template>
   <n-space
-    size="large"
     inline
     align="center"
     style="
       border-radius: 22px;
       background-color: dimgrey;
       padding: 3%;
-      width: 15vw;
+      width: 100%;
       align-items: center;
       font-size: 1rem;
       cursor: pointer;
+      gap: 10%;
     "
-    justify="space-around"
     @click="$emit('worker:click')"
   >
     <uncle-status-icon status="grey" />
