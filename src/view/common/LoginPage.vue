@@ -3,12 +3,12 @@ import { getCurrentInstance } from "vue";
 import { getAuth, signInWithCustomToken } from "firebase/auth";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store";
-import { useMessage } from "naive-ui";
+import { useMessage, lightTheme } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
 import { useEventListener } from "@/util";
 import { KAKAO_CHANNEL_ID } from "@/constants";
 import { IoUser, USER_DB, USER_PROVIDER } from "@/composable";
-
+import { lightThemeOver } from "@/composable/config";
 const log = useLogger();
 const inst = getCurrentInstance();
 const router = useRouter();
@@ -119,23 +119,25 @@ async function onKakaoLogin(auto: "loginForm" | "login") {
 </script>
 
 <template>
-  <n-space id="login-page-container" vertical>
-    <n-image src="/logo.png" width="100" />
-    <n-h2>In-Out Box</n-h2>
-    <n-image
-      preview-disabled
-      @click="() => onKakaoLogin('login')"
-      src="/img/kakao_login_medium_wide.png"
-      style="cursor: pointer"
-    />
-    <n-button
-      color="rgba(255, 255, 47, 0.7)"
-      @click="() => onKakaoLogin('loginForm')"
-    >
-      다른계정으로 로그인
-    </n-button>
-    <io-footer />
-  </n-space>
+  <n-config-provider :theme="lightTheme" :theme-overrides="lightThemeOver">
+    <n-space id="login-page-container" vertical>
+      <n-image src="/logo.png" width="100" />
+      <n-h2>In-Out Box</n-h2>
+      <n-image
+        preview-disabled
+        @click="() => onKakaoLogin('login')"
+        src="/img/kakao_login_medium_wide.png"
+        style="cursor: pointer"
+      />
+      <n-button
+        color="rgba(255, 255, 47, 0.7)"
+        @click="() => onKakaoLogin('loginForm')"
+      >
+        다른계정으로 로그인
+      </n-button>
+      <io-footer />
+    </n-space>
+  </n-config-provider>
 </template>
 
 <style>
