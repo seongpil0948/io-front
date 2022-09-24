@@ -7,6 +7,7 @@ import {
   useOrderParseCafe,
   useMapper,
   ORDER_GARMENT_DB,
+  API_SERVICE_EX,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { dateRanges, commonTime } from "@/util";
@@ -46,6 +47,16 @@ const { parseCafeOrder, conditions } = useOrderParseCafe(
   uid.value,
   existOrderIds
 );
+function goAuthorizeCafe() {
+  if (
+    tokens.value.filter(
+      (x) => x.service === API_SERVICE_EX.CAFE && x.mallId === mallId.value
+    ).length > 0
+  ) {
+    return msg.error("이미 해당 쇼핑몰ID의 토큰이 존재합니다.");
+  }
+  return authorizeCafe();
+}
 async function onGetOrder() {
   if (!startDate.value || !endDate.value)
     return msg.error("일자가 입력되지 않았습니다.");
@@ -186,15 +197,21 @@ const cols: DataTableColumns<ApiToken> = [
             clearable
           />
         </n-space>
+
         <n-space>
-          <n-h5 style="text-align: start">쇼핑몰 ID 입력</n-h5>
-          <n-input v-model:value="mallId" />
-        </n-space>
-        <n-space>
-          <n-button class="big" @click="authorizeCafe"> 카페24 연동 </n-button>
           <n-button class="big" @click="onGetOrder">
             활성 서비스 주문 취합
           </n-button>
+          <n-popover trigger="click">
+            <template #trigger>
+              <n-button class="big"> 카페24 연동 </n-button>
+            </template>
+            <n-h5 style="width: 100%; text-align: start">쇼핑몰 ID 입력</n-h5>
+            <n-space vertical align="end">
+              <n-input v-model:value="mallId" />
+              <n-button @click="goAuthorizeCafe">연동하기</n-button>
+            </n-space>
+          </n-popover>
         </n-space>
       </n-space>
     </n-card>
