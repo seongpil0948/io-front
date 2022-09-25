@@ -13,6 +13,8 @@ export function mapCafeOrder(
   mapper: Mapper,
   existIds: Set<string>
 ): GarmentOrderCondi[] {
+  console.log("order.canceled: ", order.canceled, order.canceled === "T");
+  if (order.canceled === "T") return [];
   const result: GarmentOrderCondi[] = [];
   const orderId = order.order_id;
   const prodMapper = mapper.getProdMapper();
@@ -20,7 +22,6 @@ export function mapCafeOrder(
     throw new Error("주문취합을 위해 상품매핑정보를 등록 해주십시오");
   const colorColSyno = mapper.getSyno("color", false);
   const sizeColSyno = mapper.getSyno("size", false);
-
   for (let i = 0; i < order.items.length; i++) {
     const item = order.items[i];
     const prodName: TryStr = item.product_name ?? item.product_name_default;
