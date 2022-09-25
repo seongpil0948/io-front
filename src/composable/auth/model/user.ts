@@ -23,6 +23,10 @@ import {
 import { useRouter } from "vue-router";
 import { logger } from "@/plugin/logger";
 
+export const getUserLocate = (u: IoUserCRT) => {
+  if (!u.companyInfo || u.companyInfo.locations.length < 1) return null;
+  return u.companyInfo.shipLocate ?? u.companyInfo.locations[0];
+};
 export class IoUser extends CommonField implements IoUserCRT {
   userInfo: IoUserInfo;
   companyInfo?: CompanyInfo;
@@ -32,6 +36,9 @@ export class IoUser extends CommonField implements IoUserCRT {
   shopInfo?: ShopInfo;
   workerInfo?: WorkerInfo;
 
+  get locate() {
+    return getUserLocate(this);
+  }
   get name() {
     return this.userInfo.displayName ?? this.userInfo.userName;
   }

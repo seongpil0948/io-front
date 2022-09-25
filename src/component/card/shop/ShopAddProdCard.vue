@@ -7,10 +7,12 @@ import {
   ShopGarment,
   SHOP_GARMENT_DB,
   VendorUserGarmentCombined,
+  getUserLocate,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-
+import { HouseTwotone } from "@vicons/material";
+import { Phone20Filled } from "@vicons/fluent";
 const props = defineProps<{
   showAddModal: boolean;
   prod: VendorUserGarmentCombined;
@@ -90,45 +92,61 @@ function onCheck(val: string) {
     :show="showAddModal"
     :on-update:show="(val: boolean) => emits('update:showAddModal', val)"
     :mask-closable="false"
-    :title="prod.userInfo.userName"
     close-on-esc
     size="huge"
     preset="card"
     style="margin: 0 10%"
   >
-    <n-card>
-      <n-space inline justify="center">
-        <carousel-img-card
-          :imgUrls="imgUrls"
-          :width="30"
-          :height="30"
-          unit="vw"
-        />
-        <n-space vertical style="max-height: 50vh; overflow: auto; width: 100%">
-          <n-h2>도매 상품명: {{ prod.vendorProdName }}</n-h2>
-          <n-h2>도매가: {{ prod.vendorPrice }}원</n-h2>
-          <n-space
-            inline
-            justify="space-between"
-            v-for="(opt, i) in prodOpts"
-            :key="i"
+    <n-space
+      size="large"
+      inline
+      style="border: grey solid 1px; padding: 10px; width: 70vw"
+      justify="space-around"
+    >
+      <carousel-img-card
+        :imgUrls="imgUrls"
+        :width="30"
+        :height="30"
+        unit="vw"
+      />
+      <n-space vertical style="max-height: 50vh; overflow: auto; width: 35vw">
+        <n-space justify="space-between" v-if="getUserLocate(prod)">
+          <n-button text>
+            <template #icon>
+              <n-icon size="24" :component="HouseTwotone" />
+            </template>
+            {{ getUserLocate(prod)!.detailLocate }}</n-button
           >
-            <logo-checker
-              :size="2"
-              :checked="selectedProdIds.includes(opt.value)"
-              @onClick="onCheck(opt.value)"
-            />
-            <n-h4 style="margin-left: 20px">{{ opt.label }}</n-h4>
-          </n-space>
+          <n-button text>
+            <template #icon>
+              <n-icon size="24" :component="Phone20Filled" />
+            </template>
+            {{ getUserLocate(prod)!.phone }}</n-button
+          >
+        </n-space>
+        <n-divider style="width: 100%" />
+        <n-h2>{{ prod.vendorProdName }}</n-h2>
+
+        <n-h2>{{ prod.vendorPrice }}원</n-h2>
+        <n-space
+          inline
+          justify="space-between"
+          align="center"
+          style="border: grey solid 1px; padding: 10px; width: 25vw"
+          v-for="(opt, i) in prodOpts"
+          :key="i"
+        >
+          <n-h4 style="margin: 0">{{ opt.label }}</n-h4>
+          <logo-checker
+            :size="1"
+            :checked="selectedProdIds.includes(opt.value)"
+            @onClick="onCheck(opt.value)"
+            style="margin-right: 20px"
+          />
         </n-space>
       </n-space>
-    </n-card>
+    </n-space>
 
-    <template #header-extra>
-      <n-h3 v-if="prod.companyInfo && prod.companyInfo.locations.length > 0">{{
-        prod.companyInfo?.locations[0].phone
-      }}</n-h3>
-    </template>
     <template #action>
       <n-space justify="end">
         <n-button @click="onSubmit"> 추가하기 </n-button>

@@ -1,6 +1,6 @@
 <template>
   <n-card content-style="padding: 0;">
-    <n-space vertical justify="start" style="margin: 0; width: 100%">
+    <n-space vertical justify="start" style="margin: 0">
       <n-carousel
         ref="inst"
         autoplay
