@@ -91,6 +91,11 @@ watchEffect(async () => {
 });
 const cols = computed((): DataTableColumns<ShopUserGarment> => {
   if (mapper.value === null) return [];
+  columns.value.forEach((x) => {
+    if (["vendorProdName", "prodName"].includes(x.key)) {
+      x.width = 150;
+    }
+  });
   return [
     ...columns.value,
     {
