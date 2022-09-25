@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PART, VendorUserGarmentCombined } from "@/composable";
 import { useVendorsStore } from "@/store";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 const vendorStore = useVendorsStore();
 const selectedPart = ref<PART | "전체" | null>(null);
@@ -25,6 +25,17 @@ function validProd(prod: VendorUserGarmentCombined) {
   }
   return valid;
 }
+const prodSearchVal = ref(null);
+const filteredGarments = computed(() =>
+  Object.values(vendorStore.vendorUserCombinedGarments).filter((x) => {
+    const v = prodSearchVal.value;
+    return v === null
+      ? true
+      : x.fabric.includes(v) ||
+          x.description.includes(v) ||
+          x.vendorProdName.includes(v);
+  })
+);
 </script>
 <template>
   <shop-add-prod-card
@@ -40,7 +51,7 @@ function validProd(prod: VendorUserGarmentCombined) {
     <!-- ROW1 -->
     <n-space justify="space-between">
       <logo-image size="3rem" />
-      <n-input-group
+      <!-- <n-input-group
         style="width: 50vw; justify-content: center; padding-top: 1.2%"
       >
         <n-select style="width: 22%" placeholder="전체상품 검색"></n-select>
@@ -49,7 +60,12 @@ function validProd(prod: VendorUserGarmentCombined) {
           :style="{ width: '50%' }"
         />
         <n-button> 검색 </n-button>
-      </n-input-group>
+      </n-input-group> -->
+      <n-input
+        v-model:value="prodSearchVal"
+        placeholder="상품검색 - 오늘도 신상을 잘 찾아보즈아!"
+        style="width: 30vw"
+      />
       <logo-image size="3rem" />
     </n-space>
     <!-- ROW2 -->
@@ -63,17 +79,12 @@ function validProd(prod: VendorUserGarmentCombined) {
         <n-grid
           x-gap="12"
           y-gap="12"
-          cols="2 s:2 m:2 l:5 xl:6 2xl:7"
+          cols="1 s:2 m:3 l:4 xl:5 2xl:6"
           responsive="screen"
         >
-          <n-gi
-            v-for="(prod, i) in Object.values(
-              vendorStore.vendorUserCombinedGarments
-            )"
-            :key="i"
-          >
+          <n-gi v-for="(prod, i) in filteredGarments" :key="i">
             <vendor-prod-thum
-              style="width: 200px; height: 200px"
+              style="width: 200px; padding: 5%"
               v-if="validProd(prod)"
               :prod="prod"
               @onClickProd="onClickProd"

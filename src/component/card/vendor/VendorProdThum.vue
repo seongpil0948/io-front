@@ -5,7 +5,10 @@
     content-style="padding: 0px 10px"
   >
     <template #cover>
-      <img style="object-fit: fill; height: 150px" :src="prod.titleImgs[0]" />
+      <img
+        style="object-fit: contain; height: 200px"
+        :src="prod.titleImgs[0]"
+      />
     </template>
     <n-space class="row" inline>
       <n-text class="txt">{{ prod.vendorProdName }}</n-text>
@@ -37,6 +40,6 @@ function onClickProd() {
   width: 100%;
 }
 .txt {
-  font-size: 0.5rem;
+  font-size: 0.8rem;
 }
 </style>
