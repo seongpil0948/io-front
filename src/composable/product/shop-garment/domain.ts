@@ -1,5 +1,5 @@
 import { Unsubscribe } from "@firebase/firestore";
-import { IoUserCRT } from "@/composable";
+import { IoUserCRT, API_SERVICE_EX } from "@/composable";
 import { Ref } from "vue";
 import { ProductCrt, GARMENT_SIZE } from "../domain";
 import { ShopGarment } from "./model";
@@ -24,6 +24,7 @@ export interface ShopProdCrt extends ProductCrt {
 export interface ShopGarmentCrt extends ShopProdCrt {
   size: GARMENT_SIZE;
   color: string;
+  cafeProdId?: string;
 }
 
 export type StockCntObj = {
@@ -43,3 +44,16 @@ export interface ShopGarmentDB {
 }
 
 export interface ShopUserGarment extends IoUserCRT, ShopGarmentCrt {}
+
+export interface MatchGarment {
+  service: API_SERVICE_EX;
+  orderCnt: number;
+  id?: string;
+  inputId: string;
+  color?: string;
+  size?: string;
+  prodName?: string;
+  inputProdName?: string;
+  optionValue?: string;
+  orderId: string;
+}

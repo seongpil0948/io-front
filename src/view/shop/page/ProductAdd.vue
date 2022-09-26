@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { PART, VendorUserGarmentCombined } from "@/composable";
-import { useVendorsStore } from "@/store";
-import { ref, computed } from "vue";
+import {
+  PART,
+  VendorUserGarmentCombined,
+  useSearchVendorGarment,
+} from "@/composable";
+import { ref } from "vue";
 
-const vendorStore = useVendorsStore();
 const selectedPart = ref<PART | "전체" | null>(null);
 const selectedCtgr = ref<string | null>(null);
 
@@ -25,17 +27,7 @@ function validProd(prod: VendorUserGarmentCombined) {
   }
   return valid;
 }
-const prodSearchVal = ref(null);
-const filteredGarments = computed(() =>
-  Object.values(vendorStore.vendorUserCombinedGarments).filter((x) => {
-    const v = prodSearchVal.value;
-    return v === null
-      ? true
-      : x.fabric.includes(v) ||
-          x.description.includes(v) ||
-          x.vendorProdName.includes(v);
-  })
-);
+const { prodSearchVal, filteredGarments } = useSearchVendorGarment();
 </script>
 <template>
   <shop-add-prod-card
@@ -43,11 +35,7 @@ const filteredGarments = computed(() =>
     v-model:showAddModal="showAddModal"
     :prod="selectedProd"
   />
-  <n-space
-    v-if="Object.values(vendorStore.vendorUserCombinedGarments).length > 0"
-    vertical
-    style="width: 100%"
-  >
+  <n-space vertical style="width: 100%">
     <!-- ROW1 -->
     <n-space justify="space-between">
       <logo-image size="3rem" />
@@ -69,7 +57,7 @@ const filteredGarments = computed(() =>
       <logo-image size="3rem" />
     </n-space>
     <!-- ROW2 -->
-    <n-space justify="center">
+    <n-space justify="center" v-if="filteredGarments.length > 0">
       <!-- <part-ctgr-menu
         v-model:selectedPart="selectedPart"
         v-model:selectedCtgr="selectedCtgr"
@@ -93,12 +81,12 @@ const filteredGarments = computed(() =>
         </n-grid>
       </n-card>
     </n-space>
+    <div v-else>
+      <n-result
+        style="margin-top: 30%"
+        status="error"
+        title="상품 데이터가 없습니다"
+      />
+    </div>
   </n-space>
-  <div v-else>
-    <n-result
-      style="margin-top: 30%"
-      status="error"
-      title="상품 데이터가 없습니다"
-    />
-  </div>
 </template>

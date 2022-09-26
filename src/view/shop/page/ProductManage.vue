@@ -1,144 +1,23 @@
 <script setup lang="ts">
 import {
-  ShopUserGarment,
-  useTable,
-  useShopUserGarments,
   SHOP_GARMENT_DB,
   ORDER_GARMENT_DB,
   GarmentOrder,
+  useShopGarmentTable,
 } from "@/composable";
 import { useAuthStore, useVendorsStore } from "@/store";
 import { makeMsgOpt, isMobile } from "@/util";
-import {
-  NButton,
-  NPopselect,
-  useMessage,
-  type DataTableColumns,
-} from "naive-ui";
-import { computed, h, ref, watchEffect } from "vue";
+import { NButton, useMessage } from "naive-ui";
 import { v4 as uuidv4 } from "uuid";
 import { useLogger } from "vue-logger-plugin";
 
 const authStore = useAuthStore();
 const msg = useMessage();
-const { rowIdField, userProd } = useShopUserGarments(
-  authStore.currUser.userInfo.userId,
-  null
-);
+
 const log = useLogger();
-const tableRef = ref<any>(null);
 const vendorStore = useVendorsStore();
-const { columns, mapper, checkedKeys } = useTable<
-  Omit<ShopUserGarment, "account">
->({
-  userId: authStore.currUser.userInfo.userId,
-  useChecker: true,
-  keyField: rowIdField,
-  data: userProd,
-  siblingFields: ["prodName"],
-  onCheckAll: (to) => {
-    if (tableRef.value) {
-      const idxes = (tableRef.value.paginatedData as any[]).map((x) => x.index);
-      checkedKeys.value = to
-        ? userProd.value
-            .filter((o, idx) => idxes.includes(idx))
-            .map((p) => p[rowIdField]!)
-        : [];
-    }
-  },
-  colKeys: [
-    { key: "vendorProdName", rowIdField },
-    { key: "userName" },
-    { key: "titleImgs", imgField: true },
-    {
-      key: "prodName",
-      titleMapping: true,
-      cellMapping: true,
-      rowIdField,
-    },
-    { key: "vendorPrice", rowIdField },
-    {
-      key: "prodPrice",
-      titleMapping: true,
-      rowIdField,
-    },
-    {
-      key: "color",
-      titleMapping: true,
-      cellMapping: true,
-      rowIdField,
-    },
-    {
-      key: "size",
-      titleMapping: true,
-      cellMapping: true,
-      rowIdField,
-    },
-    { key: "stockCnt", rowIdField },
-  ],
-});
-const selectedRow = ref<ShopUserGarment | null>(null);
-const popVal = ref("");
-watchEffect(async () => {
-  if (popVal.value === "Delete" && selectedRow.value) {
-    await SHOP_GARMENT_DB.deleteShopGarments(
-      authStore.currUser.userInfo.userId,
-      [selectedRow.value.shopProdId]
-    )
-      .then(() => msg.success("삭제 완료", makeMsgOpt()))
-      .catch(() => msg.error("삭제 실패", makeMsgOpt()));
-  }
-});
-const cols = computed((): DataTableColumns<ShopUserGarment> => {
-  if (mapper.value === null) return [];
-  columns.value.forEach((x) => {
-    if (["vendorProdName", "prodName"].includes(x.key)) {
-      x.width = 150;
-    }
-  });
-  return [
-    ...columns.value,
-    {
-      title: "옵션",
-      key: "option",
-      render: (row) =>
-        h(
-          NPopselect,
-          {
-            value: popVal.value,
-            onUpdateValue: (val: string) => {
-              popVal.value = val;
-              selectedRow.value = row;
-            },
-            options: [
-              {
-                label: "수정",
-                value: "Edit",
-              },
-              {
-                label: "삭제",
-                value: "Delete",
-              },
-            ],
-            scrollable: true,
-            // "render-label": (opt: SelectBaseOption) =>
-            //   h(NButton, {}, { default: () => opt.label }),
-          },
-          {
-            default: () =>
-              h(
-                NButton,
-                {
-                  strong: true,
-                  size: "small",
-                },
-                { default: () => "선택" }
-              ),
-          }
-        ),
-    },
-  ];
-});
+const { tableCols, mapper, checkedKeys, userProd, popVal, selectedRow } =
+  useShopGarmentTable(false);
 async function onCheckedDelete() {
   await SHOP_GARMENT_DB.deleteShopGarments(
     authStore.currUser.userInfo.userId,
@@ -213,7 +92,7 @@ function updateOrderId(arr: string[]) {
       </template>
       <n-data-table
         ref="tableRef"
-        :columns="cols"
+        :columns="tableCols"
         :data="userProd"
         :pagination="{
           'show-size-picker': true,

@@ -162,6 +162,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
 
   return {
     existOrderIds,
+    shopGarments,
     getOrders,
     unsubscribeAuth,
     garmentOrders,

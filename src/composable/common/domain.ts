@@ -4,3 +4,6 @@ export const BOOL_M: { [key in BOOL_M]: BOOL_M } = Object.freeze({
   F: "F",
   M: "M",
 });
+
+export type TryStr = string | undefined | null;
+export type TryNum = number | undefined | null;

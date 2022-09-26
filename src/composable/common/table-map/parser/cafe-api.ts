@@ -3,17 +3,16 @@ import {
   GarmentOrderCondi,
   Mapper,
   synonymFilter,
+  TryStr,
+  TryNum,
 } from "@/composable";
 
-type TryStr = string | undefined | null;
-type TryNum = number | undefined | null;
 // const garmentTargetCols = ["prodName", "size", "color", "orderId"];
 export function mapCafeOrder(
   order: CafeOrder,
   mapper: Mapper,
   existIds: Set<string>
 ): GarmentOrderCondi[] {
-  console.log("order.canceled: ", order.canceled, order.canceled === "T");
   if (order.canceled === "T") return [];
   const result: GarmentOrderCondi[] = [];
   const orderId = order.order_id;

@@ -19,7 +19,10 @@ interface useTableParam {
   data?: Ref<any[]>;
   siblingFields?: string[];
 }
-export function useTable<T extends MapperFields>(p: useTableParam) {
+export function useTable<T extends MapperFields>(
+  p: useTableParam,
+  onSelect?: (g: T) => Promise<void>
+) {
   const { mapper } = useMapper(p.userId);
   const columns = ref<TableBaseColumn<T>[]>([]);
   const openKey = ref("");
@@ -136,6 +139,20 @@ export function useTable<T extends MapperFields>(p: useTableParam) {
               }
             },
           }),
+      });
+    }
+    if (onSelect) {
+      columns.value.push({
+        title: "선택",
+        key: "select",
+        render: (row) =>
+          h(
+            NButton,
+            {
+              onClick: () => onSelect(row),
+            },
+            { default: () => "선택" }
+          ),
       });
     }
   });
