@@ -30,6 +30,7 @@ const {
 </script>
 <template>
   <n-card
+    v-if="orders && orders.length > 0"
     :segmented="{
       content: true,
     }"
@@ -56,7 +57,6 @@ const {
       </n-space>
       <n-data-table
         ref="tableRef"
-        v-if="orders && orders.length > 0"
         :table-layout="'fixed'"
         :scroll-x="800"
         :columns="tableCol"
@@ -68,7 +68,6 @@ const {
         :bordered="false"
       />
       <coin-reduce-confirm-modal
-        v-if="orders && orders.length > 0"
         :showModal="showReqOrderModal"
         @update:showModal="updateReqOrderShow"
         @onConfirm="onReqOrderConfirm"
@@ -85,4 +84,10 @@ const {
       </coin-reduce-confirm-modal>
     </n-space>
   </n-card>
+  <n-result
+    v-else
+    style="margin-top: 30%"
+    status="error"
+    title="주문 전 데이터가 없습니다"
+  />
 </template>

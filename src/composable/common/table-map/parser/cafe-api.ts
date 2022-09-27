@@ -14,6 +14,7 @@ export function mapCafeOrder(
   existIds: Set<string>
 ): GarmentOrderCondi[] {
   if (order.canceled === "T") return [];
+  else if (order.paid !== "T") return [];
   const result: GarmentOrderCondi[] = [];
   const orderId = order.order_id;
   const prodMapper = mapper.getProdMapper();

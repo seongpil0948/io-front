@@ -264,7 +264,9 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       const { getOrdRef, getOrderNumberRef, converterGarment } = getSrc();
       const ordRef = getOrdRef(uid);
       const ordNumRef = getOrderNumberRef(uid);
+      const ordIds = await this.getExistOrderIds(uid);
       const existOrders: GarmentOrder[] = [];
+      // >>> 주문요청전 주문들을 가져온다. >>>
       const existQ = query(
         ordRef,
         where("shopId", "==", uid),
@@ -277,15 +279,18 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           existOrders.push(data);
         }
       });
-
+      // <<< 주문요청전 주문들을 가져온다. <<<
       for (let i = 0; i < orders.length; i++) {
         const order = orders[i];
+        if (order.orderIds.filter((oid) => ordIds.has(oid)).length > 0) {
+          continue; //`이미 사용된 주문번호(${ordIds})가 포함 되어있습니다. `
+        }
+
         for (let j = 0; j < order.items.length; j++) {
           const item = order.items[j];
           let exist: typeof order | null = null;
           for (let k = 0; k < existOrders.length; k++) {
             const o = existOrders[k];
-            if (exist) break;
             for (let z = 0; z < o.items.length; z++) {
               const existItem = o.items[z];
               if (existItem.state !== "BEFORE_ORDER") continue;
@@ -321,6 +326,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
               order
             ) as WithFieldValue<GarmentOrder | null>
           );
+          existOrders.push(order);
         }
         order.orderIds.forEach((oid) =>
           transaction.set(doc(ordNumRef, oid), { done: false })

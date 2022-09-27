@@ -179,6 +179,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
             const orderId = order.order_id;
             if (existOrderIds.value.has(orderId)) continue;
             else if (order.canceled === "T") continue;
+            else if (order.paid !== "T") continue;
             for (let i = 0; i < order.items.length; i++) {
               const item = order.items[i];
               const inputProdName: TryStr =
@@ -204,13 +205,17 @@ async function onGetOrder(useMatching = true, useMapping = true) {
             }
           }
         }
-        if (orders) {
-          ORDER_GARMENT_DB.batchCreate(uid.value, orders).then(() => {
-            orders?.forEach((ord) => {
-              ord.orderIds.forEach((id) => existOrderIds.value.add(id));
-            });
-            msg.success(`${orders?.length} 주문 건 성공`);
-          });
+        if (!orders || orders.length < 1) {
+          msg.error(`주문이 없습니다~`);
+        } else if (orders) {
+          ORDER_GARMENT_DB.batchCreate(uid.value, orders)
+            .then(() => {
+              orders?.forEach((ord) => {
+                ord.orderIds.forEach((id) => existOrderIds.value.add(id));
+              });
+              msg.success(`주문취합 ${orders?.length}건 취합성공!`);
+            })
+            .catch((err) => msg.error(`주문취합 실패 ${JSON.stringify(err)}`));
         }
       }
     } catch (err) {
