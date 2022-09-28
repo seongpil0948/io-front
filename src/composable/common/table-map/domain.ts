@@ -23,7 +23,7 @@ export type MapperFields = Partial<
     IoUserCRT &
     UserFields &
     ProdOrder &
-    AdditionalMap
+    AdditionalMap & { accountStr: string }
 >;
 
 export type MapKey = keyof MapperFields;

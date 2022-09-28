@@ -6,63 +6,117 @@ import {
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { DataTableColumns, NButton, NImage, useMessage } from "naive-ui";
+import {
+  DataTableColumns,
+  DataTableRowKey,
+  NButton,
+  NImage,
+  useMessage,
+  NText,
+} from "naive-ui";
 import { computed, h, Ref, ref } from "vue";
 import { useTable } from "./table";
 import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
 import InfoCell from "@/component/table/InfoCell.vue";
-
-const colKeys = [
-  "vendorGarment.userInfo.displayName",
-  "orderCnt",
-  "vendorGarment.vendorPrice",
-  "actualAmount.orderAmount",
-  "shopGarment.size",
-  "shopGarment.color",
-].map((c) => {
-  return { key: c } as IoColOpt;
-});
-const byVendorColKeys = ["vendorName", "orderCnt", "pendingCnt"].map((c) => {
-  return { key: c } as IoColOpt;
-});
-byVendorColKeys.push({
-  key: "id",
-  cellRender: (row: ProdOrderByVendor) =>
-    h(
-      NButton,
-      {
-        text: true,
-        onClick: () => {
-          console.log("onClick", row);
-        },
-      },
-      { default: () => "상세보기" }
-    ),
-});
+import { write } from "clipboardy";
 interface orderTableParam {
   garmentOrders: Ref<ProdOrderCombined[]>;
   orders: Ref<GarmentOrder[]>;
   updateOrderCnt: boolean;
+  useChecker?: boolean;
 }
 export function useOrderTable(d: orderTableParam) {
   const auth = useAuthStore();
   const msg = useMessage();
 
+  const colKeys = [
+    "vendorGarment.userInfo.displayName",
+    "orderCnt",
+    "vendorGarment.vendorPrice",
+    "actualAmount.orderAmount",
+    "shopGarment.size",
+    "shopGarment.color",
+  ].map((c) => {
+    return { key: c } as IoColOpt;
+  });
+  const byVendorColKeys = ["vendorName", "orderCnt", "pendingCnt", "phone"].map(
+    (c) => {
+      return { key: c } as IoColOpt;
+    }
+  );
+  byVendorColKeys.push({
+    key: "orderAmount",
+    cellRender: (row: ProdOrderByVendor) =>
+      h(
+        NText,
+        {
+          type: "info",
+        },
+        {
+          default: () =>
+            row.items.reduce(
+              (acc, curr) =>
+                acc +
+                (curr.actualAmount.orderAmount - curr.actualAmount.paidAmount),
+              0
+            ),
+        }
+      ),
+  });
+  byVendorColKeys.push({
+    key: "accountStr",
+    cellRender: (row: ProdOrderByVendor) =>
+      h(
+        NButton,
+        {
+          text: true,
+          onClick: () => {
+            if (row.accountStr) {
+              write(row.accountStr);
+              msg.info("복사완료");
+            }
+          },
+        },
+        { default: () => row.accountStr }
+      ),
+  });
+  byVendorColKeys.push({
+    key: "id",
+    cellRender: (row: ProdOrderByVendor) =>
+      h(
+        NButton,
+        {
+          text: true,
+          onClick: () => onClickDetail(row),
+        },
+        { default: () => "상세보기" }
+      ),
+  });
+
   const tableRef = ref<any>(null);
   const keyField = "id";
+  const selectedData = ref<ProdOrderByVendor | null>(null);
+  function onClickDetail(data: ProdOrderByVendor) {
+    selectedData.value = data;
+    console.log("selectedData: ", selectedData.value);
+  }
+  const checkedDetailKeys = ref<DataTableRowKey[]>([]);
+  function onCheckDetailRow(keys: DataTableRowKey[]) {
+    checkedDetailKeys.value = keys;
+  }
 
   const { columns: byVendorCol, checkedKeys: byVendorKeys } =
     useTable<ProdOrderByVendor>({
       userId: auth.currUser.userInfo.userId,
       colKeys: byVendorColKeys,
-      useChecker: true,
+      useChecker: d.useChecker ?? true,
       keyField: "vendorId",
     });
 
   const { columns, checkedKeys, mapper } = useTable<ProdOrderCombined>({
     userId: auth.currUser.userInfo.userId,
     colKeys,
-    useChecker: true,
+    useChecker: d.useChecker ?? true,
     keyField,
     onCheckAll: (to) => {
       if (tableRef.value) {
@@ -154,5 +208,9 @@ export function useOrderTable(d: orderTableParam) {
     mapper,
     byVendorCol,
     byVendorKeys,
+    onClickDetail,
+    selectedData,
+    checkedDetailKeys,
+    onCheckDetailRow,
   };
 }

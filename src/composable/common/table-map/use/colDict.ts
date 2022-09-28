@@ -1,6 +1,8 @@
 export const colKoMapper: { [key in string]: string | null } = {
   vendorProdName: "도매처 상품명",
   vendorName: "도매처명",
+  accountStr: "계좌",
+  phone: "연락처",
   userName: "거래처명",
   prodName: "상품명",
   "shopGarment.prodName": "상품명",

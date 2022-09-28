@@ -45,6 +45,10 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
       garmentOrders.value.reduce((acc, curr) => {
         const exist = acc.find((x) => x.vendorId === curr.vendorId);
         if (!exist) {
+          const account = curr.vendorGarment.userInfo.account;
+          const accStr = `${account?.bank.toString()} ${account?.accountName} ${
+            account?.accountNumber
+          }`;
           acc.push({
             vendorId: curr.vendorId,
             vendorName:
@@ -52,6 +56,11 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
               curr.vendorGarment.userInfo.userName,
             orderCnt: curr.orderCnt,
             pendingCnt: curr.pendingCnt,
+            accountStr: account === undefined ? "미등록" : accStr,
+            phone:
+              curr.vendorGarment.userInfo.phone ??
+              curr.vendorGarment.companyInfo?.managerPhone ??
+              "미등록",
             items: [curr],
           });
           return acc;

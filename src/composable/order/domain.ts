@@ -204,6 +204,8 @@ export interface ProdOrderByVendor {
   vendorName: string;
   orderCnt: number;
   pendingCnt: number;
+  accountStr?: string;
+  phone?: string;
   items: ProdOrderCombined[];
 }
 // export interface OrderFlat extends OrderCrt, ProdOrderCombined, OrderAmount {}
