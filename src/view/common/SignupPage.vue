@@ -68,15 +68,13 @@ function onPrevToThree() {
   step.value = 3;
 }
 function selectRole(role: USER_ROLE) {
-  const isValid = [USER_ROLE.SHOP, USER_ROLE.VENDOR, USER_ROLE.UNCLE].includes(
-    role
-  );
+  const isValid = ["SHOP", "VENDOR", "UNCLE"].includes(role);
   const content =
-    role === USER_ROLE.SHOP
+    role === "SHOP"
       ? "쇼핑몰을 운영하는 사장님을 위한 서비스."
-      : role === USER_ROLE.VENDOR
+      : role === "VENDOR"
       ? "도매업을 운영하는 사장님을 위한 서비스."
-      : role === USER_ROLE.UNCLE
+      : role === "UNCLE"
       ? "도매시장에서 픽업 및 물류대행을 운영하는 사장님을 위한 서비스."
       : "지원하지 않는 ROLE입니다.";
   dialog.success({
@@ -127,7 +125,7 @@ function onStep6() {
       const companyInfo = companyInfoForm.companyInfo;
       user.value!.companyInfo = companyInfo;
       log.debug("companyInfo: ", companyInfo);
-      if (user.value!.userInfo.role === USER_ROLE.UNCLE) {
+      if (user.value!.userInfo.role === "UNCLE") {
         step.value = 7;
         setTimeout(() => {
           step.value = 8;
@@ -141,7 +139,7 @@ function onStep6() {
 
 function onStep7() {
   if (!inst || !user.value) return;
-  if (user.value.userInfo.role === USER_ROLE.SHOP) {
+  if (user.value.userInfo.role === "SHOP") {
     const operForm = inst.refs.shopOperRef as InstanceType<
       typeof ShopOperInfoVue
     >;
@@ -152,7 +150,7 @@ function onStep7() {
         user.value!.operInfo = operForm.operInfo as ShopOperInfo;
       }
     });
-  } else if (user.value.userInfo.role === USER_ROLE.VENDOR) {
+  } else if (user.value.userInfo.role === "VENDOR") {
     const operForm = inst.refs.vendorOperRef as InstanceType<
       typeof VendorOperInfoVue
     >;
@@ -222,22 +220,13 @@ async function onSignUp() {
           <n-h2 class="txt">회원가입</n-h2>
           <n-p class="txt-small">해당되는 역할을 클릭 해주세요!</n-p>
           <n-space justify="center">
-            <n-button
-              @click="selectRole(USER_ROLE.SHOP)"
-              class="role-btn txt"
-              round
+            <n-button @click="selectRole('SHOP')" class="role-btn txt" round
               >쇼핑몰</n-button
             >
-            <n-button
-              @click="selectRole(USER_ROLE.VENDOR)"
-              class="role-btn txt"
-              round
+            <n-button @click="selectRole('VENDOR')" class="role-btn txt" round
               >도매처</n-button
             >
-            <n-button
-              @click="selectRole(USER_ROLE.UNCLE)"
-              class="role-btn txt"
-              round
+            <n-button @click="selectRole('UNCLE')" class="role-btn txt" round
               >엉클</n-button
             >
           </n-space>
@@ -294,7 +283,7 @@ async function onSignUp() {
         <n-space
           vertical
           align="center"
-          v-if="step === 6 && user && user.userInfo.role === USER_ROLE.SHOP"
+          v-if="step === 6 && user && user.userInfo.role === 'SHOP'"
         >
           <n-image preview-disabled src="/logo.png" width="30" />
           <n-h5 style="color: dimgray"> 히힛 간지러워요! 으익 </n-h5>
@@ -312,7 +301,7 @@ async function onSignUp() {
         <n-space
           vertical
           align="center"
-          v-if="step === 6 && user && user.userInfo.role === USER_ROLE.VENDOR"
+          v-if="step === 6 && user && user.userInfo.role === 'VENDOR'"
         >
           <n-image preview-disabled src="/logo.png" width="30" />
           <n-h5 style="color: dimgray"> 히힛 간지러워요! 으익 </n-h5>

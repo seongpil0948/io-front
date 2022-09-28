@@ -28,7 +28,7 @@ export const routes: Array<RouteRecordRaw> = [
     component: () =>
       import(/* webpackChunkName: "vendor" */ "@/view/vendor/VendorLayout.vue"),
     meta: {
-      allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+      allowRoles: ["VENDOR", "ADMIN"],
     },
     children: [
       {
@@ -39,7 +39,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/VendorHome.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -50,7 +50,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/VendorProductList.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -61,7 +61,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/ProductRegister.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -72,7 +72,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/ProductFillUpMng.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -83,7 +83,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/MarketingMng.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -94,7 +94,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/SampleManage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -105,7 +105,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/BeforeApproveList.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -116,7 +116,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/AfterApproveList.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -127,7 +127,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/PaidOrder.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -138,7 +138,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/PendingOrderMng.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -149,7 +149,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/ReturnExchange.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -160,7 +160,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/PayMng.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -171,7 +171,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/VendorPartnerMng.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -182,7 +182,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/PackingList.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
       {
@@ -193,7 +193,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "vendor" */ "@/view/vendor/page/BuildingPosMng.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.VENDOR, USER_ROLE.ADMIN],
+          allowRoles: ["VENDOR", "ADMIN"],
         },
       },
     ],
@@ -210,7 +210,7 @@ export const routes: Array<RouteRecordRaw> = [
         component: () =>
           import(/* webpackChunkName: "shop" */ "@/view/shop/ShopHome.vue"),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -221,7 +221,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/ProductAdd.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -232,7 +232,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/ProductManage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -243,7 +243,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/MappingManage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -254,7 +254,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/OrderRequire.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -265,7 +265,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/OrderComplete.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -276,7 +276,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/PendingOrderList.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -287,7 +287,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/ShopReturnExchange.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -298,7 +298,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/SampleReq.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -309,7 +309,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/PayHistory.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -320,7 +320,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/PickupRequest.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -331,7 +331,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/OrderLinkage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -342,7 +342,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/ShopUncleManage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -353,7 +353,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/UncleStatus.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -362,7 +362,7 @@ export const routes: Array<RouteRecordRaw> = [
         component: () =>
           import(/* webpackChunkName: "shop" */ "@/view/shop/page/IoFast.vue"),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -373,7 +373,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/ShopUncleManage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -384,7 +384,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/FollowPartner.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -395,7 +395,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/TaxReport.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
       {
@@ -406,7 +406,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "shop" */ "@/view/shop/page/OrderHistoryPage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.SHOP, USER_ROLE.ADMIN],
+          allowRoles: ["SHOP", "ADMIN"],
         },
       },
     ],
@@ -423,7 +423,7 @@ export const routes: Array<RouteRecordRaw> = [
         component: () =>
           import(/* webpackChunkName: "uncle" */ "@/view/uncle/UncleHome.vue"),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -434,7 +434,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/PickupTotalList.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -445,7 +445,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/RequestHistory.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -456,7 +456,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/MngInCharge.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
 
@@ -468,7 +468,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/BillingManage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -479,7 +479,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/MngSalary.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -490,7 +490,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/MngMaintainCost.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -501,7 +501,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/VehicleManage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -512,7 +512,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/ShipAreaManage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -523,7 +523,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/ShipHistory.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -534,7 +534,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/WorkerRegister.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -545,7 +545,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/WorkerHistory.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -556,7 +556,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/AccidentManage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -567,7 +567,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/AccidentHistory.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
       {
@@ -578,7 +578,7 @@ export const routes: Array<RouteRecordRaw> = [
             /* webpackChunkName: "uncle" */ "@/view/uncle/page/UnclePartnerManage.vue"
           ),
         meta: {
-          allowRoles: [USER_ROLE.UNCLE, USER_ROLE.ADMIN],
+          allowRoles: ["UNCLE", "ADMIN"],
         },
       },
     ],

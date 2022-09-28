@@ -8,7 +8,7 @@ type USER_ROLE =
   | "UNCLE_WORKER"
   | "ADMIN"
   | "ANONYMOUSE";
-const USER_ROLE: { [key in USER_ROLE]: USER_ROLE } = Object.freeze({
+const USER_ROLE: { [key in USER_ROLE]: string } = Object.freeze({
   SHOP: "SHOP",
   VENDOR: "VENDOR",
   UNCLE: "UNCLE",

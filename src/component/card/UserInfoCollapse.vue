@@ -100,7 +100,7 @@ async function updateUser() {
       <n-space
         vertical
         style="width: 100%"
-        v-if="authModel.userInfo.role === USER_ROLE.SHOP"
+        v-if="authModel.userInfo.role === 'SHOP'"
       >
         <div class="io-row">
           <n-text strong>현재사입방식</n-text>
@@ -114,7 +114,7 @@ async function updateUser() {
       <n-space
         vertical
         style="width: 100%"
-        v-if="authModel.userInfo.role === USER_ROLE.VENDOR"
+        v-if="authModel.userInfo.role === 'VENDOR'"
       >
         <div class="io-row">
           <n-text strong>주문 자동 승인</n-text>

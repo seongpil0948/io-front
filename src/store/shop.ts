@@ -22,7 +22,7 @@ export const useShopStore = defineStore({
       return this.shops.find((s) => s.userInfo.userId === userId);
     },
     async setShops() {
-      this.shops = await USER_DB.getUsersByRole(USER_ROLE.SHOP);
+      this.shops = await USER_DB.getUsersByRole("SHOP");
     },
   },
 });

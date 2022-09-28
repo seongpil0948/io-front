@@ -43,18 +43,21 @@ router.goHome = (user?: IoUser) => {
 };
 function getHomeName(role?: USER_ROLE) {
   if (!role) return "Login";
-  else if (role === USER_ROLE.VENDOR) return "VendorHome";
-  else if (role === USER_ROLE.SHOP) return "ShopHome";
-  else if (role === USER_ROLE.UNCLE) return "UncleHome";
+  else if (role === "VENDOR") return "VendorHome";
+  else if (role === "SHOP") return "ShopHome";
+  else if (role === "UNCLE") return "UncleHome";
+  else if (role === "ADMIN") return "ShopHome";
   return "Login";
 }
 export function getPathByRole() {
   const authStore = useAuthStore();
   const role = authStore.currUserRole;
   if (!role) return "/login";
-  else if (role === USER_ROLE.VENDOR) return "/vendor";
-  else if (role === USER_ROLE.SHOP) return "/shop";
-  else if (role === USER_ROLE.UNCLE) return "/uncle";
+  else if (role === "VENDOR") return "/vendor";
+  else if (role === "SHOP") return "/shop";
+  else if (role === "UNCLE") return "/uncle";
+  else if (role === "ADMIN") return "/shop";
+  logger.error("", "not matched role: ", role);
   return "/login";
 }
 

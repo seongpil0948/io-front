@@ -2,8 +2,8 @@ import { useAuthStore } from "@/store";
 import { getIoCollection, IoCollection } from "@/util";
 import { getDocs, query, where } from "@firebase/firestore";
 import { onBeforeMount, ref, computed } from "vue";
-import { _usersFromSnap } from "./db/firebase";
-import { IoUser } from "./model";
+import { _usersFromSnap } from "../db/firebase";
+import { IoUser } from "../model";
 
 export function useUncleWorkers() {
   const auth = useAuthStore();

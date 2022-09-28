@@ -78,7 +78,7 @@ async function onSignUp() {
         userId: userId.value!,
         providerId,
         emailVerified: false,
-        role: USER_ROLE.UNCLE_WORKER,
+        role: "UNCLE_WORKER",
         displayName: displayName.value ?? undefined,
         userName: name.value,
         email: email.value,

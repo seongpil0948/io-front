@@ -72,7 +72,7 @@ export const useVendorsStore = defineStore(
     });
 
     async function getVendors() {
-      vendors.value = await USER_DB.getUsersByRole(USER_ROLE.VENDOR);
+      vendors.value = await USER_DB.getUsersByRole("VENDOR");
     }
     onBeforeMount(async () => {
       if (isInitial.value) {
