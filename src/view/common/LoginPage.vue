@@ -3,7 +3,7 @@ import { lightThemeOver } from "@/composable/config";
 import { useLogin } from "@/composable";
 import { lightTheme } from "naive-ui";
 
-const { onKakaoLogin } = useLogin();
+const { onKakaoLogin, googleLogin } = useLogin();
 </script>
 
 <template>
@@ -11,6 +11,12 @@ const { onKakaoLogin } = useLogin();
     <n-space id="login-page-container" vertical>
       <n-image src="/logo.png" width="100" />
       <n-h2>In-Out Box</n-h2>
+      <n-image
+        preview-disabled
+        @click="googleLogin"
+        src="/img/google_login.png"
+        style="cursor: pointer; width: 300px; height: 50px"
+      />
       <n-image
         preview-disabled
         @click="() => onKakaoLogin('login')"

@@ -1,13 +1,18 @@
 import { useEventListener } from "@/util";
 import { KAKAO_CHANNEL_ID } from "@/constants";
 import { getCurrentInstance } from "vue";
-import { getAuth, signInWithCustomToken } from "firebase/auth";
+import {
+  getAuth,
+  signInWithCustomToken,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
-
 import { IoUser, USER_DB, USER_PROVIDER } from "@/composable";
+import { logger } from "@/plugin/logger";
 
 interface SignupParam {
   providerId: USER_PROVIDER;
@@ -22,8 +27,16 @@ export function useLogin() {
   const inst = getCurrentInstance();
   const router = useRouter();
   const auth = getAuth();
+  //   auth.languageCode = "ko";
+  auth.useDeviceLanguage();
   const authS = useAuthStore();
   const msg = useMessage();
+  const provider = new GoogleAuthProvider();
+  //   provider.addScope("https://www.googleapis.com/auth/contacts.readonly");
+  provider.addScope("https://www.googleapis.com/auth/user.emails.read");
+  //   provider.addScope("https://www.googleapis.com/auth/user.phonenumbers.read");
+  provider.addScope("https://www.googleapis.com/auth/userinfo.email");
+  provider.addScope("https://www.googleapis.com/auth/userinfo.profile");
 
   async function login(uid: string, params: SignupParam, toSignUp = true) {
     const user = await USER_DB.getUserById(uid);
@@ -49,6 +62,35 @@ export function useLogin() {
           params: params as { [k: string]: any },
         });
     }
+  }
+
+  async function googleLogin() {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential?.accessToken;
+        const user = result.user;
+        console.log("credential: ", credential);
+        console.log("token: ", token);
+        console.log("user: ", user);
+        login(user.uid, {
+          providerId: "GOOGLE",
+          userId: user.uid,
+          userName: user.displayName ?? undefined,
+          email: user.email ?? undefined,
+          profileImg: user.photoURL ?? undefined,
+        });
+      })
+      .catch((error) => {
+        logger.error(
+          null,
+          error.customData.email,
+          error.code,
+          error.message,
+          GoogleAuthProvider.credentialFromError(error)
+        );
+      });
   }
 
   useEventListener(
@@ -127,5 +169,6 @@ export function useLogin() {
   return {
     login,
     onKakaoLogin,
+    googleLogin,
   };
 }

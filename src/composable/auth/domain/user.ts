@@ -17,10 +17,11 @@ const USER_ROLE: { [key in USER_ROLE]: string } = Object.freeze({
   UNCLE_WORKER: "UNCLE_WORKER",
 });
 
-type USER_PROVIDER = "EMAIL" | "KAKAO";
+type USER_PROVIDER = "EMAIL" | "KAKAO" | "GOOGLE";
 const USER_PROVIDER: { [key in string]: USER_PROVIDER } = Object.freeze({
   EMAIL: "EMAIL",
   KAKAO: "KAKAO",
+  GOOGLE: "GOOGLE",
 });
 type SHIP_METHOD = "UNCLE" | "SHIP" | "NO_SHIP";
 const SHIP_METHOD: { [key in SHIP_METHOD]: string } = Object.freeze({
