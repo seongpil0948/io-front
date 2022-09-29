@@ -44,6 +44,14 @@ export class IoPay extends CommonField implements IoPayCRT {
   get availBudget() {
     return this.budget - this.pendingBudget;
   }
+  static initial(userId: string) {
+    return new IoPay({
+      userId,
+      budget: 0,
+      pendingBudget: 0,
+      history: [],
+    });
+  }
   static toMoneyString(coin: number) {
     return IoPay.coinToMoney(coin).toLocaleString() + "원";
   }

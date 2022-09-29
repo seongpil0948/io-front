@@ -18,6 +18,19 @@ export const IopayFB: PaymentDB = {
     });
     return userPay;
   },
+  getIoPaysListen: function () {
+    const usersPay = ref<IoPay[]>([]);
+    onSnapshot(getPayCollection(), async (snapshot) => {
+      usersPay.value = [];
+      snapshot.forEach((s) => {
+        const data = s.data();
+        if (data) {
+          usersPay.value.push(data);
+        }
+      });
+    });
+    return usersPay;
+  },
   getIoPayByUser: async function (uid: string) {
     const docRef = getDocRef(uid);
     const docData = await getDoc(docRef);
@@ -26,22 +39,21 @@ export const IopayFB: PaymentDB = {
 };
 
 function getDocRef(uid: string) {
-  return doc(getIoCollection({ c: IoCollection.IO_PAY }), uid).withConverter(
-    IoPay.fireConverter()
-  );
+  return doc(getPayCollection(), uid);
 }
 
 async function getPayFromDoc(d: DocumentSnapshot<IoPay | null>, uid: string) {
   if (!d.exists() || !d.data()) {
     const docRef = getDocRef(uid);
-    const pay = new IoPay({
-      userId: uid,
-      budget: 0,
-      pendingBudget: 0,
-      history: [],
-    });
+    const pay = IoPay.initial(uid);
     await setDoc(docRef, pay);
     return pay;
   }
   return d.data()!;
+}
+
+function getPayCollection() {
+  return getIoCollection({ c: IoCollection.IO_PAY }).withConverter(
+    IoPay.fireConverter()
+  );
 }

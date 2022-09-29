@@ -26,6 +26,7 @@ export const IO_BANKS: { [key in IO_BANKS]: IO_BANKS } = Object.freeze({
 export interface PaymentDB {
   getIoPayByUser(uid: string): Promise<IoPay>;
   getIoPayByUserListen(uid: string): Ref<IoPay | null>;
+  getIoPaysListen(): Ref<IoPay[]>;
 }
 
 export interface IoPayCRT {
