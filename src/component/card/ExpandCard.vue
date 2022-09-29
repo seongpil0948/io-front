@@ -16,8 +16,8 @@ const expanded = ref(false);
     :bordered="false"
     :content-style="`
     max-height: ${expanded ? '70vh' : '35vh'};
-    width: ${expanded ? '70vw' : '35vw'}; 
-    overflow: auto;
+    width: ${expanded ? '70vw' : '35vw'};
+    overflow: hidden;
     `"
     style="padding-bottom: 5%"
     header-style="

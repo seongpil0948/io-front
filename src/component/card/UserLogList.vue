@@ -1,64 +1,76 @@
 <script setup lang="ts">
-import { useReadLogger } from "@/plugin/logger";
+import { IoLog, useReadLogger } from "@/plugin/logger";
 import { useAuthStore } from "@/store";
-import { isObject } from "@/util";
-import { computed } from "vue";
+import { isObject, commonTime } from "@/util";
+import { computed, Ref } from "vue";
 
 const authStore = useAuthStore();
+const { timeToDate } = commonTime();
 
-const { userLogs } = useReadLogger({
+const { userLogs: errLogs } = useReadLogger({
   uids: [authStore.currUser.userInfo.userId],
   limit: 30,
   severity: ["error"],
 });
-
-const logTxts = computed(() => {
-  const txts: string[][] = [];
-  const parseTxts = (ts: { [b: string]: any | string }[]) => {
-    const texts: string[] = [];
-    for (let t = 0; t < ts.length; t++) {
-      const txt = ts[t];
-      if (typeof txt === "string") {
-        texts.push(txt);
-      } else if (isObject(txt)) {
-        texts.push(JSON.stringify(txt).substring(0, 18));
-      }
-      break;
-    }
-    return texts.join(" ");
-  };
-  userLogs.value.forEach((x) => {
-    txts.push([
-      `[${x.severity}]`,
-      `${parseTxts(x.txts)} ${x.createdAt?.toLocaleString()}`,
-    ]);
-  });
-  return txts;
+const { userLogs: infoLogs } = useReadLogger({
+  uids: [authStore.currUser.userInfo.userId],
+  limit: 30,
+  severity: ["info"],
 });
-function onScroll(e: any) {
-  console.log("ON Scroll", e);
-}
+const getLogs = (l: Ref<IoLog[]>) =>
+  computed(() => {
+    const txts: string[][] = [];
+    const parseTxts = (ts: { [b: string]: any | string }[]) => {
+      const texts: string[] = [];
+      for (let t = 0; t < ts.length; t++) {
+        const txt = ts[t];
+        if (typeof txt === "string") {
+          texts.push(txt);
+        } else if (isObject(txt)) {
+          texts.push(JSON.stringify(txt).substring(0, 18));
+        }
+        break;
+      }
+      return texts.join(" ");
+    };
+    l.value.forEach((x) => {
+      txts.push([
+        `[${timeToDate(x.createdAt, "YYYY-MM-DD HH시 mm분")}]`,
+        `${parseTxts(x.txts)} `,
+      ]);
+    });
+    return txts;
+  });
+const errorLogRef = getLogs(errLogs);
+const infoLogRef = getLogs(infoLogs);
 </script>
 
 <template>
-  <n-scrollbar @scroll="onScroll" x-scrollable trigger="hover">
-    <!-- <n-button-group>
-      <n-button
-        size="tiny"
-        @click="scrollTo({ position: 'bottom', slient: true })"
+  <n-tabs
+    size="small"
+    type="line"
+    animated
+    pane-style="overflow: auto; height: 40vh"
+  >
+    <n-tab-pane name="info" tab="활동로그">
+      <div style="margin-top: 10px" v-for="(txt, idx) in infoLogRef" :key="idx">
+        <n-h6 style="margin: 0; font-size: 0.8rem"> {{ txt[0] }} </n-h6>
+        <n-p style="margin-top: 0; text-indent: 2vw !important">
+          {{ txt[1] }}
+        </n-p>
+      </div>
+    </n-tab-pane>
+    <n-tab-pane name="error" tab="에러로그">
+      <div
+        style="margin-top: 10px"
+        v-for="(txt, idx) in errorLogRef"
+        :key="idx"
       >
-        아래로
-      </n-button>
-      <n-button
-        size="tiny"
-        @click="scrollTo({ position: 'top', slient: true })"
-      >
-        맨위로
-      </n-button>
-    </n-button-group> -->
-    <n-space v-for="(txt, idx) in logTxts" :key="idx">
-      <n-text strong> {{ txt[0] }} </n-text>
-      <n-text italic> {{ txt[1] }} </n-text>
-    </n-space>
-  </n-scrollbar>
+        <n-h6 style="margin: 0; font-size: 0.8rem"> {{ txt[0] }} </n-h6>
+        <n-p style="margin-top: 0; text-indent: 2vw !important">
+          {{ txt[1] }}
+        </n-p>
+      </div>
+    </n-tab-pane>
+  </n-tabs>
 </template>
