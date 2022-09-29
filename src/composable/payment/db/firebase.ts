@@ -36,7 +36,7 @@ async function getPayFromDoc(d: DocumentSnapshot<IoPay | null>, uid: string) {
     const docRef = getDocRef(uid);
     const pay = new IoPay({
       userId: uid,
-      budget: 1000, // FIXME: To 0
+      budget: 0,
       pendingBudget: 0,
       history: [],
     });
