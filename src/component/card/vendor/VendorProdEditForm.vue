@@ -47,7 +47,6 @@ function onEdit() {
       return msg.error("상품 작성란을 올바르게 작성 해주세요", makeMsgOpt());
 
     await prod.value!.update();
-    log.info(prod.value?.vendorId, "도매상품 수정완료", prod.value);
     emits("onSubmitProd");
   });
 }

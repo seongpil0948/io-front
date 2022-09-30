@@ -108,7 +108,7 @@ export class IoUser extends CommonField implements IoUserCRT {
           return currentToken;
         } else {
           // Show permission request UI
-          logger.info(
+          console.info(
             null,
             "No registration token available. Request permission to generate one."
           );
@@ -117,7 +117,7 @@ export class IoUser extends CommonField implements IoUserCRT {
       })
       .catch((err) => {
         if (err.code === "messaging/permission-blocked") return null;
-        logger.error(
+        console.error(
           null,
           "An error occurred while retrieving msg token. ",
           err,

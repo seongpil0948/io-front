@@ -40,11 +40,6 @@ export function useOrderBasic(
         console.log("RESULTS: ", results);
         const vendorIds = uniqueArr(results.flatMap((x) => x.vendorIds));
         msg.success(`${results.length}건 주문 성공.`, makeMsgOpt());
-        log.info(
-          user.userInfo.userId,
-          "try to send alarm, vendorIds: ",
-          vendorIds
-        );
         await smtp.sendAlarm({
           toUserIds: vendorIds,
           subject: `inoutbox 주문 처리내역 알림.`,

@@ -51,7 +51,6 @@ useOrderParseExcel(
   fileModel,
   existOrderIds,
   async (newOrders) => {
-    log.info(user.userInfo.userId, "newOrders: ", newOrders);
     ORDER_GARMENT_DB.batchCreate(user.userInfo.userId, newOrders).then(() => {
       newOrders.forEach((ord) => {
         ord.orderIds.forEach((id) => existOrderIds.value.add(id));

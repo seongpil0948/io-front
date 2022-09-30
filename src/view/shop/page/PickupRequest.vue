@@ -5,6 +5,7 @@ import {
   USER_DB,
   IoUser,
   ORDER_GARMENT_DB,
+  useAlarm,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { useMessage } from "naive-ui";
@@ -15,7 +16,7 @@ const auth = useAuthStore();
 const u = auth.currUser;
 const inStates: ORDER_STATE[] = ["BEFORE_PICKUP_REQ"];
 const shopOrderStore = useShopOrderStore();
-
+const smtp = useAlarm();
 const contractUncles = ref<IoUser[]>([]);
 onBeforeMount(async () => {
   shopOrderStore.init(auth.currUser.userInfo.userId);
@@ -64,6 +65,13 @@ async function pickupRequest() {
       uncle.userInfo.userId
     );
     msg.success("픽업 요청 성공!");
+    await smtp.sendAlarm({
+      toUserIds: [uncle.userInfo.userId],
+      subject: `inoutbox 주문 처리내역 알림.`,
+      body: `${uncle.name} 으로부터 픽업요청이 도착하였습니다. `,
+      notiLoadUri: "/",
+      uriArgs: {},
+    });
   } else {
     msg.success("픽업 요청 실패!");
   }

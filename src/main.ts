@@ -17,7 +17,11 @@ window.onerror = function (errorMsg, url, errorObj) {
     errorObj
   );
 };
-logger.info(null, "in-out box front(web) has Ignited, with Env: ", process.env);
+logger.debug(
+  null,
+  "in-out box front(web) has Ignited, with Env: ",
+  process.env
+);
 Date.prototype.toJSON = function () {
   return moment(this).format();
 };
@@ -39,12 +43,12 @@ app.mount("#app");
 
 const messaging = getMessaging();
 onMessage(messaging, (payload) => {
-  logger.info(null, "Foreground Message received. in onMessage ", payload);
+  logger.debug(null, "Foreground Message received. in onMessage ", payload);
 });
 
 const channel = new BroadcastChannel("sw-messages");
 channel.addEventListener("message", function (event) {
-  logger.info(
+  logger.debug(
     null,
     "Receive message in foreground-side from  sw-messages channel event: ",
     event

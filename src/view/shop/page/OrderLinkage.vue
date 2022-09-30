@@ -171,8 +171,6 @@ async function onGetOrder(useMatching = true, useMapping = true) {
         let orders: GarmentOrder[] | undefined = undefined;
         if (useMapping) {
           orders = parseCafeOrder(cafeOrds);
-          //FIXME
-          log.info(uid.value, "newOrders: ", orders ?? []);
         } else if (useMatching) {
           matchData.value = [];
           for (let i = 0; i < cafeOrds.length; i++) {

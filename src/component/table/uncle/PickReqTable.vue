@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { ProdOrderByShop, ProdOrderCombined, SHIPMENT_DB } from "@/composable";
+import {
+  ProdOrderByShop,
+  ProdOrderCombined,
+  SHIPMENT_DB,
+  useAlarm,
+} from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { useAuthStore, useUncleOrderStore } from "@/store";
 import { makeMsgOpt, uniqueArr } from "@/util";
@@ -12,6 +17,7 @@ import {
 import { computed, h, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
+const smtp = useAlarm();
 const ordStore = useUncleOrderStore();
 const garmentOrders = ordStore.getFilteredOrder(["BEFORE_APPROVE_PICKUP"]);
 const garmentOrdersByShop = ordStore.getGarmentOrdersByShop(garmentOrders);
@@ -84,13 +90,26 @@ const expectedReduceCoin = computed(
 const u = auth.currUser;
 async function onReqOrderConfirm() {
   const ids = orderTargets.value.map((x) => x.id);
-
+  const targetOrd = ordStore.orders.filter((y) =>
+    y.items.some((item) => ids.includes(item.id))
+  );
   return Promise.all(
-    ordStore.orders
-      .filter((y) => y.items.some((item) => ids.includes(item.id)))
-      .map((t) => SHIPMENT_DB.approvePickUp(t, expectedReduceCoin.value))
+    targetOrd.map((t) => SHIPMENT_DB.approvePickUp(t, expectedReduceCoin.value))
   )
-    .then(() => msg.success("픽업 승인완료.", makeMsgOpt()))
+    .then(async () => {
+      msg.success("픽업 승인완료.", makeMsgOpt());
+      await smtp.sendAlarm({
+        toUserIds: [
+          ...targetOrd.map((x) => x.shopId),
+          ...targetOrd.flatMap((x) => x.vendorIds),
+          u.userInfo.userId,
+        ],
+        subject: `inoutbox 주문 처리내역 알림.`,
+        body: `${targetOrd.length} 건의  픽업승인이 완료되었습니다. `,
+        notiLoadUri: "/",
+        uriArgs: {},
+      });
+    })
     .catch((err) => {
       console.log("error", err);
       msg.error(`픽업 승인 실패. ${err}`, makeMsgOpt());

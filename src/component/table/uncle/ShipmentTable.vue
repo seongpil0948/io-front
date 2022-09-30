@@ -6,6 +6,7 @@ import {
   ShipOrder,
   ShipOrderByShop,
   useShipmentUncle,
+  useAlarm,
 } from "@/composable";
 import {
   DataTableColumns,
@@ -22,6 +23,7 @@ const { orderShipsByShop, byShopCols, workers, orders } = useShipmentUncle(
   props.inStates,
   onClickDetail
 );
+const smtp = useAlarm();
 const msg = useMessage();
 const checkedKeys = ref<DataTableRowKey[]>([]);
 function onCheckRow(keys: DataTableRowKey[]) {
@@ -104,6 +106,13 @@ async function onSelectWorker(val: IoUser) {
     order.setState(item.id, "BEFORE_PICKUP");
     return Promise.all([order.update(), shipment.update()]).then(async () => {
       msg.success("담당자 배정이 완료되었습니다.");
+      await smtp.sendAlarm({
+        toUserIds: [order.shopId, ...order.vendorIds],
+        subject: `inoutbox 주문 처리내역 알림.`,
+        body: `배송 담당자 ${val.name} 님이 배정되었습니다.`,
+        notiLoadUri: "/",
+        uriArgs: {},
+      });
       openWorkerModal.value = false;
       selectedOrderProdId.value = null;
       selectedData.value = null;

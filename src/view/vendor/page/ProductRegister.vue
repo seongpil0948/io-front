@@ -135,7 +135,6 @@ function onRegister() {
           return Promise.all(products.map((p) => p.update()))
             .then(() => {
               msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
-              log.info(currUser.userInfo.userId, "상품 등록 성공", products);
               router.replace({ name: "VendorProductList" });
             })
             .catch(() => {
