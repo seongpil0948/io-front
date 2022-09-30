@@ -151,7 +151,7 @@ function switchFilter(b: boolean) {
 }
 const filteredMatchData = computed(() =>
   filterIsNull.value
-    ? matchData.value.filter((x) => x.id === null)
+    ? matchData.value.filter((x) => x.id === undefined || x.id === null)
     : matchData.value
 );
 async function onGetOrder(useMatching = true, useMapping = true) {
@@ -171,6 +171,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
         let orders: GarmentOrder[] | undefined = undefined;
         if (useMapping) {
           orders = parseCafeOrder(cafeOrds);
+          //FIXME
           log.info(uid.value, "newOrders: ", orders ?? []);
         } else if (useMatching) {
           matchData.value = [];
@@ -387,7 +388,7 @@ const cols: DataTableColumns<ApiToken> = [
         </n-space>
       </n-space>
     </n-card>
-    <n-card v-if="filteredMatchData.length > 0" title="수동매칭관리">
+    <n-card title="수동매칭관리">
       <n-space style="margin-bottom: 10px" justify="end">
         <n-button v-if="filterIsNull" @click="() => switchFilter(false)"
           >전체보기</n-button
