@@ -34,3 +34,5 @@ exports.scheduledFirestoreExport = functions.pubsub
         throw new Error("Export operation failed");
       });
   });
+
+//TODO: 매 시간 order state 가 SHIPPING_COMPLETE 인 주문건들의 마지막 updatedAt이 7일이 경과한 경우 ORDER_DONE 으로 상태변경

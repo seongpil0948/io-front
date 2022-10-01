@@ -199,7 +199,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
             }
           }
         }
-        if (!orders || orders.length < 1) {
+        if ((!orders || orders.length < 1) && matchData.value.length < 1) {
           msg.error(`주문이 없습니다~`);
         } else if (orders) {
           ORDER_GARMENT_DB.batchCreate(uid.value, orders)

@@ -26,6 +26,7 @@ function onClickRow(keys: DataTableRowKey[]) {
   checkedKeys.value = keys;
 }
 function onClickDetail(data: ProdOrderByShop) {
+  // TODO
   console.log("onClickDetail data:", data);
 }
 const columns = computed(() => {
