@@ -21,7 +21,6 @@ import {
   FirestoreDataConverter,
 } from "firebase/firestore";
 import { useRouter } from "vue-router";
-import { logger } from "@/plugin/logger";
 
 export const getUserLocate = (u: IoUserCRT) => {
   if (!u.companyInfo || u.companyInfo.locations.length < 1) return null;

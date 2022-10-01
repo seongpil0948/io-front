@@ -12,13 +12,11 @@ import { cloneDeep } from "lodash";
 import { useMessage, FormInst } from "naive-ui";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { ref, watchEffect } from "vue";
-import { useLogger } from "vue-logger-plugin";
 
 const props = defineProps<{
   prod?: VendorGarment;
 }>();
 const emits = defineEmits(["onSubmitProd"]);
-const log = useLogger();
 const prod = ref<VendorGarment | null>(null);
 watchEffect(() => {
   if (props.prod) {

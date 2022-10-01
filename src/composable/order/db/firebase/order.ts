@@ -505,10 +505,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       }
     });
   },
-  returnDone: async function (
-    orderDbIds: string[],
-    prodOrderIds: string[]
-  ): Promise<void> {
+  returnDone: async function (): Promise<void> {
     throw new Error("Function not implemented.");
   },
 };

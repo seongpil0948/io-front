@@ -5,7 +5,6 @@ import {
   IoUser,
   SALE_MANAGE,
   ShopOperInfo,
-  USER_ROLE,
   VendorOperInfo,
 } from "@/composable";
 import { useAuthStore } from "@/store";

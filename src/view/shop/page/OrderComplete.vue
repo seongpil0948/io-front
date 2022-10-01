@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { ORDER_STATE, ProdOrderCombined, useOrderTable } from "@/composable";
-import { useAuthStore, useShopOrderStore } from "@/store";
-import { useMessage } from "naive-ui";
-import { computed } from "vue";
+import { useShopOrderStore } from "@/store";
 
-const msg = useMessage();
-const auth = useAuthStore();
-const u = auth.currUser;
+// const msg = useMessage();
+// const u = auth.currUser;
 const inStates: ORDER_STATE[] = ["BEFORE_PAYMENT"];
 const shopOrderStore = useShopOrderStore();
 
@@ -17,9 +14,9 @@ const garmentOrdersByVendor =
 const {
   tableRef,
   byVendorCol,
-  byVendorKeys,
+  // byVendorKeys,
   selectedData, // selected
-  checkedDetailKeys, // selected Item
+  // checkedDetailKeys, // selected Item
   onCheckDetailRow,
   tableCol,
 } = useOrderTable({
@@ -28,11 +25,11 @@ const {
   updateOrderCnt: true,
   useChecker: false,
 });
-const filtered = computed(() =>
-  garmentOrdersByVendor.value.filter((x) =>
-    byVendorKeys.value.includes(x.vendorId)
-  )
-);
+// const filtered = computed(() =>
+//   garmentOrdersByVendor.value.filter((x) =>
+//     byVendorKeys.value.includes(x.vendorId)
+//   )
+// );
 </script>
 <template>
   <n-space vertical justify="space-around">

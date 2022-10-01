@@ -13,7 +13,6 @@ import {
   TryNum,
   MatchGarment,
   ShopGarment,
-  ShopUserGarment,
   useShopGarmentTable,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
@@ -50,11 +49,7 @@ const { mapper } = useMapper(uid.value);
 const shopOrderStore = useShopOrderStore();
 const vendorStore = useVendorsStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
-const { parseCafeOrder, conditions } = useOrderParseCafe(
-  mapper,
-  uid.value,
-  existOrderIds
-);
+const { parseCafeOrder } = useOrderParseCafe(mapper, uid.value, existOrderIds);
 const { selectFunc, userProd, tableCols, openSelectList } =
   useShopGarmentTable(true);
 function goAuthorizeCafe() {

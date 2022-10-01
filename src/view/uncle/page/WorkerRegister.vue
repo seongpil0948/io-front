@@ -4,7 +4,6 @@ import {
   IoAccount,
   USER_DB,
   USER_PROVIDER,
-  USER_ROLE,
   WorkerInfo,
 } from "@/composable";
 import { useAuthStore } from "@/store";

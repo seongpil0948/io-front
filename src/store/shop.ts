@@ -1,4 +1,4 @@
-import { IoUser, USER_DB, USER_ROLE } from "@/composable";
+import { IoUser, USER_DB } from "@/composable";
 import { defineStore } from "pinia";
 
 interface VendorStoreInterface {

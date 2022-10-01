@@ -8,7 +8,6 @@ import {
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { ref } from "vue";
-import { useLogger } from "vue-logger-plugin";
 import { IO_COSTS } from "@/constants";
 import { storeToRefs } from "pinia";
 interface Props {
@@ -20,7 +19,6 @@ const props = defineProps<Props>();
 const auth = useAuthStore();
 const user = auth.currUser;
 const fileModel = ref<File[]>([]);
-const log = useLogger();
 
 const shopOrderStore = useShopOrderStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
