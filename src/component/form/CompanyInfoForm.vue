@@ -42,7 +42,7 @@ defineExpose({ companyInfo: formModel });
 <template>
   <n-form
     ref="formRef"
-    style="height: 50vh"
+    style="height: 50vh; overflow: auto"
     inline
     :label-width="80"
     label-placement="top"
@@ -51,10 +51,10 @@ defineExpose({ companyInfo: formModel });
     size="medium"
   >
     <n-grid :cols="isMobile() ? 1 : 2" :x-gap="24">
-      <n-form-item-gi label="상호명" path="companyName">
+      <n-form-item-gi label="사업자명" path="companyName">
         <n-input
           v-model:value="formModel.companyName"
-          placeholder="회사 상호명"
+          placeholder="ex) 인아웃박스"
         />
       </n-form-item-gi>
       <n-form-item-gi label="사업자등록번호" path="companyNo">
@@ -84,7 +84,7 @@ defineExpose({ companyInfo: formModel });
           placeholder="세금 계산서 이메일 주소"
         />
       </n-form-item-gi>
-      <n-form-item-gi span="2" label="주소목록" path="locations">
+      <n-form-item-gi span="2" label="사업장 주소" path="locations">
         <user-locate-list v-model:info="formModel" />
         <!-- <n-space justify="space-around">
           <n-tooltip
@@ -113,8 +113,11 @@ defineExpose({ companyInfo: formModel });
           placeholder="사업장 연락처"
         />
       </n-form-item-gi>
-      <n-form-item-gi label="운영링크" path="shopLink">
-        <n-input v-model:value="formModel.shopLink" placeholder="운영 링크" />
+      <n-form-item-gi label="쇼핑몰 링크" path="shopLink">
+        <n-input
+          v-model:value="formModel.shopLink"
+          placeholder="쇼핑몰 링크 입력"
+        />
       </n-form-item-gi>
       <n-form-item-gi label="대표자명" path="ceoName">
         <n-input v-model:value="formModel.ceoName" placeholder="대표자이름" />

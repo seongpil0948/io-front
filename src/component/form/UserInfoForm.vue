@@ -10,7 +10,7 @@ import {
 import { emailRule, nameLenRule } from "@/util";
 
 import { getAuth } from "@firebase/auth";
-import { FormInst } from "naive-ui";
+import { FormInst, useMessage } from "naive-ui";
 import { reactive, ref } from "vue";
 
 const auth = getAuth();
@@ -31,8 +31,10 @@ const formModel = reactive({
   locations: [] as LocateCRT[],
 });
 const accInfo = ref<IoAccount | null>(null);
+const msg = useMessage();
 function onSubmitAccount(acc: IoAccount) {
   accInfo.value = acc;
+  msg.info("계좌정보 저장 완료!");
 }
 async function getUserInfo(): Promise<{
   userInfo?: IoUserInfo;
@@ -74,16 +76,16 @@ const rule = {
     size="medium"
   >
     <n-grid cols="1" :x-gap="24">
-      <n-form-item-gi label="매장이름" path="userName">
+      <n-form-item-gi label="쇼핑몰 명" path="userName">
         <n-input
           v-model:value="formModel.userName"
-          placeholder="이름을 입력 해주세요"
+          placeholder="쇼핑몰 명을 입력 해주세요"
         />
       </n-form-item-gi>
-      <n-form-item-gi label="닉네임" path="displayName">
+      <n-form-item-gi label="담당자 이름" path="displayName">
         <n-input
           v-model:value="formModel.displayName"
-          placeholder="닉네임을 입력 해주세요"
+          placeholder="담당자 이름을 입력 해주세요"
         />
       </n-form-item-gi>
       <n-form-item-gi label="이메일" path="email">

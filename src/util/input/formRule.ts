@@ -12,14 +12,14 @@ export const nameLenRule = {
   validator: (rule: FormRules, value: string) => lenValidator(value),
   required: true,
   trigger: ["blur", "input"],
-  message: "이름을 입력 해주세요.",
+  message: "필수 입력 사항 입니다.",
 };
 export const strLenRule = (len: number) => {
   return {
     validator: (rule: FormRules, value: string) => lenValidator(value, len),
     required: true,
     trigger: ["blur", "input"],
-    message: "이름을 입력 해주세요.",
+    message: "필수 입력 사항 입니다.",
   };
 };
 export const pwRule = {

@@ -83,7 +83,7 @@ async function updateUser() {
           <n-text>{{ authModel.userInfo.email }}</n-text>
         </div>
         <div class="io-row">
-          <n-text strong>매장이름</n-text>
+          <n-text strong>쇼핑몰 명</n-text>
           <n-text>{{ authModel.userInfo.userName }}</n-text>
         </div>
         <div class="io-row">

@@ -261,7 +261,7 @@ async function onSignUp() {
         <n-space vertical align="center" v-if="step === 5">
           <n-image preview-disabled src="/logo.png" width="30" />
           <n-h5 style="color: dimgray">
-            우리 천천히 하나씩 다 해나아가요 :)
+            아무리 눌러도 흔들리는게 전부에요! :)
           </n-h5>
           <n-card class="form-card">
             <company-info-form
@@ -385,8 +385,8 @@ async function onSignUp() {
           </template>
           <n-step @click="step = 4" title="매장 정보 입력" />
           <n-step @click="step = 5" title="사업자 정보 입력" />
-          <n-step @click="step = 6" title="운영방식 설정" />
-          <n-step title="가입완료" />
+          <n-step @click="step = 6" title="운영방식 입력" />
+          <n-step title="얏호! 믿고있었다구!" />
         </n-steps>
       </n-card>
     </n-space>

@@ -25,6 +25,7 @@ const account = ref<IoAccount | null>(null);
 const workerInfo = ref<WorkerInfo | null>(null);
 function onSubmitAccount(acc: IoAccount) {
   account.value = acc;
+  msg.info("계좌정보 저장 완료!");
 }
 function onSubmitWorker(acc: WorkerInfo) {
   workerInfo.value = acc;

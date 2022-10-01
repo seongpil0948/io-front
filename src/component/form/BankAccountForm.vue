@@ -65,12 +65,18 @@ const rules = {
       />
     </n-form-item>
 
-    <n-form-item label="명의" path="accountName">
-      <n-input v-model:value="account.accountName" />
+    <n-form-item label="예금주 명" path="accountName">
+      <n-input
+        v-model:value="account.accountName"
+        placeholder="통장에 입력되어있는 성함을 입력해주세요."
+      />
     </n-form-item>
     <n-form-item label="계좌번호" path="accountNumber">
-      <n-input v-model:value="account.accountNumber" />
+      <n-input
+        v-model:value="account.accountNumber"
+        placeholder="평생 계좌번호를 입력시 송금 받을때 문제가 생길 수 있어요."
+      />
     </n-form-item>
-    <n-button @click="onSubmit">계좌제출</n-button>
+    <n-button @click="onSubmit">계좌정보 저장</n-button>
   </n-form>
 </template>
