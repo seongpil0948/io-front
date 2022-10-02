@@ -6,10 +6,13 @@ import { useRouter } from "vue-router";
 
 const walletShow = ref(false);
 const handleWalletClose = () => (walletShow.value = false);
+const handleWalletOpen = () => (walletShow.value = true);
 const personalShow = ref(false);
 const handlePersonalClose = () => (personalShow.value = false);
+const handlePersonalOpen = () => (personalShow.value = true);
 const userLogShow = ref(false);
 const handleUserLogClose = () => (userLogShow.value = false);
+const handleUserLogOpen = () => (userLogShow.value = true);
 // import { NPopover } from "naive-ui"; handleClickOutside 함수의  doUpdateShow 주석여부 확인
 // if (props.trigger === 'click') {
 //     clearShowTimer();
@@ -27,12 +30,12 @@ const router = useRouter();
   >
     <div class="menu" onclick="this.classList.toggle('open')">
       <n-popover
-        display-directive="if"
+        display-directive="show"
         v-model:show="walletShow"
-        trigger="click"
+        trigger="manual"
       >
         <template #trigger>
-          <n-icon class="button" size="25">
+          <n-icon class="button" size="25" @click="handleWalletOpen">
             <WalletOutline />
           </n-icon>
         </template>
@@ -42,12 +45,12 @@ const router = useRouter();
       </n-popover>
 
       <n-popover
-        display-directive="if"
+        display-directive="show"
         v-model:show="personalShow"
-        trigger="click"
+        trigger="manual"
       >
         <template #trigger>
-          <n-icon class="button" size="25">
+          <n-icon class="button" size="25" @click="handlePersonalOpen">
             <PersonCircleOutline />
           </n-icon>
         </template>
@@ -57,12 +60,12 @@ const router = useRouter();
       </n-popover>
 
       <n-popover
-        display-directive="if"
+        display-directive="show"
         v-model:show="userLogShow"
-        trigger="click"
+        trigger="manual"
       >
         <template #trigger>
-          <n-icon class="button" size="25">
+          <n-icon class="button" size="25" @click="handleUserLogOpen">
             <CloudLogging />
           </n-icon>
         </template>
