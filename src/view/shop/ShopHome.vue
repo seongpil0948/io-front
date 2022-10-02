@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useAuthStore, useShopOrderStore } from "@/store";
+import { useShopOrderStore } from "@/store";
 import { commonTime } from "@/util";
-import { computed, onBeforeMount } from "vue";
+import { computed } from "vue";
 const { currDate } = commonTime();
-const auth = useAuthStore();
-const user = auth.currUser;
 
 const shopOrderStore = useShopOrderStore();
-onBeforeMount(() => shopOrderStore.init(user.userInfo.userId));
 const { garmentOrders } = storeToRefs(shopOrderStore);
 
 const numOfApprove = computed(

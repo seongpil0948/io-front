@@ -1,15 +1,8 @@
 <script setup lang="ts">
-import { useAuthStore } from "@/store";
-import { useVendorOrderStore } from "@/store/vendorOrder";
 import { commonTime } from "@/util";
-import { onBeforeMount, ref } from "vue";
+import { ref } from "vue";
 const currTab = ref<string>("BEFORE_APPROVE");
 const { currDate } = commonTime();
-
-const auth = useAuthStore();
-const user = auth.currUser;
-const store = useVendorOrderStore();
-onBeforeMount(() => store.init(user.userInfo.userId));
 </script>
 <template>
   <n-space vertical align="center">

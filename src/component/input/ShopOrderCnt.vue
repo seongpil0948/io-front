@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { GarmentOrder, ProdOrderCombined } from "@/composable";
+import { GarmentOrder, ORDER_STATE, ProdOrderCombined } from "@/composable";
 import { makeMsgOpt } from "@/util";
 import { useMessage } from "naive-ui";
 import { toRefs, ref, computed, onBeforeMount } from "vue";
@@ -31,7 +31,7 @@ const editVal = ref(0);
 onBeforeMount(() => {
   editVal.value = prodOrder.value.activeCnt;
 });
-function onBlur() {
+async function onBlur() {
   edit.value = false;
   if (!editVal.value || typeof editVal.value !== "number") {
     editVal.value = prodOrder.value.orderCnt;
@@ -41,20 +41,46 @@ function onBlur() {
     editVal.value = prodOrder.value.orderCnt;
     return;
   }
-  const prod = order.value.items.find((x) => x.id === prodOrder.value.id);
-  if (!prod) throw new Error("not matched prod order");
-
-  order.value.setOrderCnt(prod.id, editVal.value, false);
-  order.value
-    .update()
-    .then(() => {
-      msg.error(`주문개수가 업데이트에 성공하였습니다.`, makeMsgOpt());
-    })
-    .finally(() => (edit.value = false));
+  try {
+    const prod = order.value.items.find((x) => x.id === prodOrder.value.id);
+    if (!prod) throw new Error("not matched prod order");
+    else if (prod.state === "BEFORE_ORDER") {
+      order.value.setOrderCnt(prod.id, editVal.value, false);
+    } else if (prod.state === "BEFORE_READY") {
+      // console.log("===> before dividePartial", [...order.value.items]);
+      await order.value.dividePartial(
+        prod.id,
+        editVal.value,
+        GarmentOrder.getPendingCnt(
+          stockCnt.value,
+          editVal.value,
+          prodOrder.value.vendorGarment.allowPending
+        ),
+        false
+      );
+      msg.success(`주문 분할에 성공하였습니다.`, makeMsgOpt());
+      // console.log("===> after dividePartial", [...order.value.items]);
+    }
+    order.value
+      .update()
+      .then(() => {
+        msg.success(`주문개수가 업데이트에 성공하였습니다.`, makeMsgOpt());
+      })
+      .finally(() => (edit.value = false));
+  } catch (err) {
+    msg.error(
+      err instanceof Error ? err.message : "주문개수 업데이트 실패",
+      makeMsgOpt()
+    );
+  }
 }
 
 function setEditMode() {
-  if (prodOrder.value.state === "BEFORE_ORDER") {
+  if (
+    (["BEFORE_ORDER", "BEFORE_READY"] as ORDER_STATE[]).includes(
+      prodOrder.value.state
+    )
+  ) {
     edit.value = true;
   }
 }
@@ -67,7 +93,6 @@ function setEditMode() {
     style="min-width: 100px"
     :min="1"
     @blur="onBlur"
-    @keyup.enter="onBlur"
   />
   <n-text v-else style="color: inherit" @click="setEditMode">
     <n-tooltip trigger="hover">

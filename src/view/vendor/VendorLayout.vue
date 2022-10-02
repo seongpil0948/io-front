@@ -8,6 +8,13 @@ import {
   News16Regular,
   ShoppingBag20Filled,
 } from "@vicons/fluent";
+import { useAuthStore, useVendorOrderStore } from "@/store";
+import { onBeforeMount } from "vue";
+
+const auth = useAuthStore();
+const user = auth.currUser;
+const store = useVendorOrderStore();
+onBeforeMount(() => store.init(user.userInfo.userId));
 const menuOptions: MenuOption[] = [
   {
     label: "상품",

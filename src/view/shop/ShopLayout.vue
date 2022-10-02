@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import type { MenuOption } from "naive-ui";
 import { ProductHunt, ShoppingCart } from "@vicons/fa";
-import { useAuthStore } from "@/store";
+import { useAuthStore, useShopOrderStore } from "@/store";
 import { useRouter } from "vue-router";
 import { renderIcon, renderRoute, getScreenSize, ScreenSize } from "@/util";
 import { LocalShippingRound } from "@vicons/material";
 import { People16Regular, News16Regular } from "@vicons/fluent";
+import { onBeforeMount } from "vue";
+
 const minHeight = "100vh";
 const router = useRouter();
 const authStore = useAuthStore();
+const user = authStore.currUser;
+
+const shopOrderStore = useShopOrderStore();
+onBeforeMount(() => shopOrderStore.init(user.userInfo.userId));
 const menuOptions: MenuOption[] = [
   {
     label: "상품 관리",

@@ -313,7 +313,10 @@ export function useApproveOrder(p: ApproveParam) {
             const item = row.items[i];
             children.push(
               h(GarmentOrderRow, {
-                garmentOrder: item as ProdOrderCombined,
+                garmentOrder: p.orders.value.find(
+                  (o) => o.dbId === item.orderDbId
+                )!,
+                itemId: item.id,
                 checked: checkedOrders.value.includes(item.id),
                 onClick: () => {
                   const cs = checkedOrders.value;
