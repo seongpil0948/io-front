@@ -2,11 +2,17 @@
 import { LocateAmount, Locate } from "@/composable";
 import { useAuthStore } from "@/store";
 import { useMessage, DataTableColumns, NText, NButton } from "naive-ui";
-import { ref, h } from "vue";
+import { ref, h, computed } from "vue";
 import { shipAreas } from "@/asset/administrationAreas";
+import { useLogger } from "vue-logger-plugin";
+
+const logger = useLogger();
 const msg = useMessage();
 const auth = useAuthStore();
 const u = auth.currUser;
+const shipLocates = computed(() =>
+  u.uncleInfo ? u.uncleInfo.shipLocates : []
+);
 
 const selectedArea = ref({
   city: null,
@@ -17,30 +23,39 @@ const selectedArea = ref({
 async function addShipArea() {
   const v = selectedArea.value;
   const target = shipAreas.find(
-    (x) => x.city === v.city && x.county === v.county && x.town === v.town
+    (x) =>
+      (x.city === v.city && x.county) ??
+      ("" === v.county && x.town) ??
+      "" === v.town
   );
   if (!target) {
     msg.error("올바르게 지역을 선택 해주세요.");
-    throw new Error(
+    logger.error(
+      u.userInfo.userId,
       "city or alias not matched, is there any duplicate code?" +
         JSON.stringify(v)
     );
+  } else {
+    if (u.uncleInfo!.shipLocates.some((x) => x.locate.code === target.code)) {
+      msg.error("이미 추가한 지역입니다.");
+    } else {
+      const locate: LocateAmount = {
+        locate: new Locate({
+          code: target.code,
+          alias: target.town,
+          country: "",
+          locateType: "ETC",
+          city: v.city!,
+          county: v.county ?? "",
+          town: v.town ?? "",
+        }),
+        amount: v.amount,
+      };
+      u.uncleInfo!.shipLocates.push(locate);
+      await u.update();
+      msg.success("지역 추가 완료");
+    }
   }
-  const locate: LocateAmount = {
-    locate: new Locate({
-      code: target.code,
-      alias: target.town,
-      country: "",
-      locateType: "ETC",
-      city: v.city!,
-      county: v.county ?? "",
-      town: v.town ?? "",
-    }),
-    amount: v.amount,
-  };
-  u.uncleInfo!.shipLocates.push(locate);
-
-  await u.update();
 }
 const cols1: DataTableColumns<LocateAmount> = [
   {
@@ -76,17 +91,18 @@ const cols1: DataTableColumns<LocateAmount> = [
         NButton,
         {
           type: "error",
-          onClick: () => {
+          onClick: async () => {
             const l = row.locate;
-            u.uncleInfo!.shipLocates.splice(
-              u.uncleInfo!.shipLocates.findIndex(
-                (e) =>
-                  l.city === e.locate.city &&
-                  l.county === e.locate.county &&
-                  l.town === e.locate.town
-              ),
-              1
+            const idx = u.uncleInfo!.shipLocates.findIndex(
+              (e) =>
+                l.city === e.locate.city &&
+                l.county === e.locate.county &&
+                l.town === e.locate.town
             );
+            console.log("idx:", idx);
+            u.uncleInfo!.shipLocates.splice(idx, 1);
+            await u.update();
+            msg.success("삭제완료.");
           },
         },
         { default: () => "삭제" }
@@ -107,7 +123,7 @@ const cols1: DataTableColumns<LocateAmount> = [
   </n-space>
   <n-data-table
     :columns="cols1"
-    :data="u.uncleInfo ? u.uncleInfo.shipLocates : []"
+    :data="shipLocates"
     :pagination="{ pageSize: 5 }"
   />
 </template>
