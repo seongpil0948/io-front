@@ -161,7 +161,8 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       const vendorPay = await IO_PAY_DB.getIoPayByUser(vendorId);
       const vReduceCoin = shopIds.length * IO_COSTS.APPROVE_ORDER;
       if (vendorPay.availBudget < vReduceCoin) {
-        throw new Error("vendorPay.availBudget < vReduceCoin");
+        // throw new Error("vendorPay.availBudget < vReduceCoin");
+        throw new Error("유저 코인이 부족합니다.");
       }
       vendorPay.budget -= vReduceCoin;
       transaction.update(
@@ -560,10 +561,6 @@ async function stateModify(
           transaction.update(
             doc(getOrdRef(o.shopId), o.dbId),
             converterGarment.toFirestore(o)
-          );
-        } else {
-          throw new Error(
-            `error in stateModify beforeState: ${beforeState} prodOrderIds length: ${prodOrderIds.length}`
           );
         }
       }

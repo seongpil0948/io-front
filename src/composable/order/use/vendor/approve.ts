@@ -329,26 +329,28 @@ export function useApproveOrder(p: ApproveParam) {
           const children: VNode[] = [];
           for (let i = 0; i < row.items.length; i++) {
             const item = row.items[i];
-            children.push(
-              h(GarmentOrderRow, {
-                garmentOrder: p.orders.value.find(
-                  (o) => o.dbId === item.orderDbId
-                )!,
-                itemId: item.id,
-                checked: checkedOrders.value.includes(item.id),
-                onClick: () => {
-                  const cs = checkedOrders.value;
-                  if (cs.includes(item.id)) {
-                    cs.splice(
-                      cs.findIndex((x) => x === item.id),
-                      1
-                    );
-                  } else {
-                    cs.push(item.id);
-                  }
-                },
-              })
+            const garmentOrder = p.orders.value.find(
+              (o) => o.dbId === item.orderDbId
             );
+            if (garmentOrder)
+              children.push(
+                h(GarmentOrderRow, {
+                  garmentOrder,
+                  itemId: item.id,
+                  checked: checkedOrders.value.includes(item.id),
+                  onClick: () => {
+                    const cs = checkedOrders.value;
+                    if (cs.includes(item.id)) {
+                      cs.splice(
+                        cs.findIndex((x) => x === item.id),
+                        1
+                      );
+                    } else {
+                      cs.push(item.id);
+                    }
+                  },
+                })
+              );
           }
           return h(
             NSpace,
