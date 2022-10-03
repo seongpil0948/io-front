@@ -6,6 +6,7 @@ import { DataTableColumns } from "naive-ui";
 import { computed, ref, watchEffect } from "vue";
 
 const props = defineProps<{
+  showPaidDate: boolean;
   inStates?: ORDER_STATE[];
 }>();
 
@@ -46,8 +47,8 @@ const {
 const shopTableCol = computed(() =>
   columns.value.filter((x) => x.type !== "selection")
 );
-const tableCol = computed(
-  (): DataTableColumns<ProdOrderCombined> => [
+const tableCol = computed((): DataTableColumns<ProdOrderCombined> => {
+  const cols: DataTableColumns<ProdOrderCombined> = [
     {
       type: "selection",
     },
@@ -75,12 +76,15 @@ const tableCol = computed(
       title: "미송개수",
       key: "pendingCnt",
     },
-    {
+  ];
+  if (props.showPaidDate) {
+    cols.push({
       title: "결제일",
       key: "actualAmount.paidDate",
-    },
-  ]
-);
+    });
+  }
+  return cols;
+});
 const targetShops = computed(() =>
   garmentOrdersByShop.value.filter((x) =>
     detailShopIds.value.includes(x.shopId)
