@@ -44,7 +44,8 @@ export function usePickArea(model: Ref<CA>) {
     });
   });
 
-  const getPickId = (x: CA) => `${x.code}__${x.alias}`;
+  // const getPickId = (x: CA) => `${x.code}__${x.alias}`;
+  const getPickId = (x: CA) => x.alias;
   const isSameLocate = (a: CA, b: CA) => getPickId(a) === getPickId(b);
   const areaOpt = computed(() =>
     locates.value.map((x) => {
