@@ -8,7 +8,7 @@ import {
   getMockUncles,
 } from "../../../tests/e2e/fixtures/users";
 
-import { getCurrentInstance } from "vue";
+import { getCurrentInstance, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const inst = getCurrentInstance();
@@ -36,6 +36,10 @@ async function toUncle() {
   await auth.login(realUser!);
   router.goHome(auth.user!);
 }
+const showTos = ref(false);
+function onTos() {
+  showTos.value = true;
+}
 </script>
 
 <template>
@@ -58,6 +62,7 @@ async function toUncle() {
         1동 13층 1호
         <br />
         사업자등록번호: 720-08-02296 | 문의: inoutboxofficial@gmail.com
+        <n-button text @click="onTos"> 이용약관 </n-button>
       </n-text>
       <n-space v-if="isTest === 'true'" justify="center">
         <n-button round type="primary" @click="toVendor">도매계정전환</n-button>
@@ -73,5 +78,12 @@ async function toUncle() {
         >
       </n-space>
     </n-space>
+    <n-modal
+      v-model:show="showTos"
+      style="width: 60vw; height: 60vh; overflow: auto"
+      :bordered="false"
+    >
+      <term-of-service />
+    </n-modal>
   </n-layout-footer>
 </template>

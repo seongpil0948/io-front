@@ -327,8 +327,10 @@ async function onSignUp() {
         <n-space vertical align="center" style="padding: 3vw" v-if="step === 8">
           <n-image preview-disabled src="/logo.png" width="30" />
           <n-h5 style="color: dimgray"> 히힛 간지러워요! 으익 </n-h5>
-          <n-card class="form-card" title="인 아웃 박스 이용 약관">
-            <n-text>이용약관 어쩌구 저쩌구 </n-text>
+          <n-card class="form-card">
+            <term-of-service
+              style="width: 60vw; height: 40vh; overflow: auto"
+            />
             <template #action>
               <n-space justify="end">
                 <n-checkbox label="동의" v-model:checked="acceptTerms" />
