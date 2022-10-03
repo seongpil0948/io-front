@@ -3,6 +3,7 @@ import { onSnapshot } from "@firebase/firestore";
 import { computed, ref, Ref } from "vue";
 import { Locate } from ".";
 import { useMessage } from "naive-ui";
+import { useLogger } from "vue-logger-plugin";
 
 export interface CA {
   code: string | null;
@@ -11,7 +12,7 @@ export interface CA {
 export function usePickArea(model: Ref<CA>) {
   const msg = useMessage();
   const locates = ref<Locate[]>([]);
-
+  const logger = useLogger();
   // >>> for select logic >>>
 
   function addPickArea() {
@@ -19,8 +20,9 @@ export function usePickArea(model: Ref<CA>) {
     const target = locates.value.find((x) => isSameLocate(x, v as CA));
     if (!target) {
       msg.error("올바르게 지역을 선택 해주세요.");
-      throw new Error(
-        "city or alias not matched, is there any duplicate code?" +
+      logger.error(
+        null,
+        "city or alias not matched in usePickArea, is there any duplicate code?" +
           JSON.stringify(v)
       );
     }

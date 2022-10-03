@@ -11,7 +11,7 @@ const msg = useMessage();
 const auth = useAuthStore();
 const u = auth.currUser;
 const shipLocates = computed(() =>
-  u.uncleInfo ? u.uncleInfo.shipLocates : []
+  auth.currUser.uncleInfo ? auth.currUser.uncleInfo.shipLocates : []
 );
 
 const selectedArea = ref({

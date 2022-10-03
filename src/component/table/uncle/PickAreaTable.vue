@@ -13,18 +13,23 @@ const selectedArea = ref({
   alias: null,
   amount: 10000,
 });
-const { addPickArea } = usePickArea(selectedArea);
+const { addPickArea, locates } = usePickArea(selectedArea);
 
 async function onClickAdd() {
   const locate = addPickArea();
+  if (!locate) return;
   const lAmount: LocateAmount = {
     locate,
     amount: selectedArea.value.amount,
   };
-  u.uncleInfo!.pickupLocates.push(lAmount);
-  u.update()
-    .then(() => msg.success("성공!"))
-    .catch((err) => msg.error(err instanceof Error ? err.message : "실패!"));
+  if (u.uncleInfo!.shipLocates.some((x) => x.locate.code === locate.code)) {
+    msg.error("이미 추가한 지역입니다.");
+  } else {
+    u.uncleInfo!.pickupLocates.push(lAmount);
+    u.update()
+      .then(() => msg.success("성공!"))
+      .catch((err) => msg.error(err instanceof Error ? err.message : "실패!"));
+  }
 }
 
 const cols1: DataTableColumns<LocateAmount> = [
@@ -69,12 +74,11 @@ const cols1: DataTableColumns<LocateAmount> = [
           type: "error",
           onClick: () => {
             const l = row.locate;
-            u.uncleInfo!.pickupLocates.splice(
-              u.uncleInfo!.pickupLocates.findIndex(
-                (e) => l.city === e.locate.city && l.alias === e.locate.alias
-              ),
-              1
+            const idx = u.uncleInfo!.pickupLocates.findIndex(
+              (e) => l.city === e.locate.city && l.alias === e.locate.alias
             );
+            // console.log("idx: ", idx, l);
+            u.uncleInfo!.pickupLocates.splice(idx, 1);
           },
         },
         { default: () => "삭제" }

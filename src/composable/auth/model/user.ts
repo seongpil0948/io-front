@@ -87,6 +87,8 @@ export class IoUser extends CommonField implements IoUserCRT {
 
   async update(login = true) {
     const authS = useAuthStore();
+    authS.$patch({ user: this });
+    authS.setUser();
     await insertById<IoUser>(
       this,
       getIoCollection({ c: IoCollection.USER }),
