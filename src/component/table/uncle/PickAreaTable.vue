@@ -24,7 +24,7 @@ async function onClickAdd() {
   u.uncleInfo!.pickupLocates.push(lAmount);
   u.update()
     .then(() => msg.success("성공!"))
-    .catch(() => msg.error("실패!"));
+    .catch((err) => msg.error(err instanceof Error ? err.message : "실패!"));
 }
 
 const cols1: DataTableColumns<LocateAmount> = [

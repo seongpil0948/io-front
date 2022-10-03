@@ -137,9 +137,12 @@ function onRegister() {
               msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
               router.replace({ name: "VendorProductList" });
             })
-            .catch(() => {
-              msg.error("상품등록 실패.", makeMsgOpt());
-              log.error(currUser.userInfo.userId, "상품등록 실패.", products);
+            .catch((err) => {
+              const message = `상품등록 실패. ${
+                err instanceof Error ? err.message : JSON.stringify(err)
+              }`;
+              msg.error(message, makeMsgOpt());
+              log.error(currUser.userInfo.userId, message, products);
             });
         },
       });

@@ -30,7 +30,10 @@ exports.scheduledFirestoreExport = functions.pubsub
       })
       .catch((err) => {
         console.error(err);
-        functions.logger.error("scheduledFirestoreExport Fail", err);
+        functions.logger.error(
+          "scheduledFirestoreExport Fail",
+          err instanceof Error ? err.message : JSON.stringify(err)
+        );
         throw new Error("Export operation failed");
       });
   });

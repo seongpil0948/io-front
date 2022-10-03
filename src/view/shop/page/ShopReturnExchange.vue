@@ -79,8 +79,11 @@ async function returnReq() {
       });
     })
     .catch((err) => {
-      msg.error(` 반품 요청이 실패 되었습니다.`, makeMsgOpt());
-      log.error(targetProdOrders.value[0].shopId, "반품 요청 실패", err);
+      const message = `반품 요청이 실패 되었습니다. ${
+        err instanceof Error ? err.message : JSON.stringify(err)
+      }`;
+      msg.error(message, makeMsgOpt());
+      log.error(targetProdOrders.value[0].shopId, message, err);
     });
 }
 // request return  <<<
@@ -124,7 +127,13 @@ async function pickupRequest() {
   if (orderIds.length > 0) {
     ORDER_GARMENT_DB.reqPickup(orderIds, prodOrderIds, uncle.userInfo.userId)
       .then(() => msg.success("픽업 요청 성공!"))
-      .catch((err) => msg.success("픽업 요청 실패!" + err));
+      .catch((err) => {
+        const message = `픽업 요청 실패! ${
+          err instanceof Error ? err.message : JSON.stringify(err)
+        }`;
+        log.error(u.userInfo.userId, message);
+        msg.error(message);
+      });
   } else {
     msg.warning("행을 선택 해주세요");
   }

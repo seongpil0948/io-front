@@ -209,7 +209,13 @@ async function onGetOrder(useMatching = true, useMapping = true) {
               });
               msg.success(`주문취합 ${orders?.length}건 취합성공!`);
             })
-            .catch((err) => msg.error(`주문취합 실패 ${JSON.stringify(err)}`));
+            .catch((err) => {
+              const message = `주문취합 실패 ${
+                err instanceof Error ? err.message : JSON.stringify(err)
+              }`;
+              msg.error(message);
+              log.error(uid.value, message);
+            });
         }
       }
     } catch (err) {
@@ -271,8 +277,11 @@ async function handleSelect(
     LINKAGE_DB.deleteToken(uid.value, row.dbId)
       .then(() => msg.info("삭제 완료"))
       .catch((err) => {
-        msg.error("삭제 실패");
-        log.error(uid.value, "삭제 실패", err);
+        const message = `삭제 실패 ${
+          err instanceof Error ? err.message : JSON.stringify(err)
+        }`;
+        msg.error(message);
+        log.error(uid.value, message);
       });
   } else {
     msg.info(String(key));

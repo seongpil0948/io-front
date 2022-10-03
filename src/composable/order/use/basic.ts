@@ -52,8 +52,10 @@ export function useOrderBasic(
         if (typeof err.toString && err.toString().includes("out of stock")) {
           msg.error(`주문개수가 재고 수량보다 많습니다.`, makeMsgOpt());
         } else {
-          msg.error(`주문 실패. ${err}`, makeMsgOpt());
-          log.error(user.userInfo.userId, `주문 실패. ${err}`);
+          const message =
+            err instanceof Error ? err.message : JSON.stringify(err);
+          msg.error(`주문 실패. ${message}`, makeMsgOpt());
+          log.error(user.userInfo.userId, `주문 실패. ${message}`);
         }
       })
       .finally(() => {
@@ -88,12 +90,26 @@ export function useOrderBasic(
     }
     return ORDER_GARMENT_DB.batchDelete(targets)
       .then(() => msg.success("삭제 성공.", makeMsgOpt()))
-      .catch(() => msg.success("삭제 실패.", makeMsgOpt()));
+      .catch((err) =>
+        msg.success(
+          `삭제 실패. ${
+            err instanceof Error ? err.message : JSON.stringify(err)
+          }`,
+          makeMsgOpt()
+        )
+      );
   }
   async function deleteAll() {
     return ORDER_GARMENT_DB.batchDelete(orders.value)
       .then(() => msg.success("삭제 성공.", makeMsgOpt()))
-      .catch(() => msg.success("삭제 실패.", makeMsgOpt()));
+      .catch((err) =>
+        msg.success(
+          `삭제 실패. ${
+            err instanceof Error ? err.message : JSON.stringify(err)
+          }`,
+          makeMsgOpt()
+        )
+      );
   }
   async function orderChecked() {
     orderTargets.value = garmentOrders.value.filter((x) =>

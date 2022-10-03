@@ -69,7 +69,9 @@ async function onBlur() {
       .finally(() => (edit.value = false));
   } catch (err) {
     msg.error(
-      err instanceof Error ? err.message : "주문개수 업데이트 실패",
+      err instanceof Error
+        ? err.message
+        : `주문개수 업데이트 실패 ${JSON.stringify(err)}`,
       makeMsgOpt()
     );
   }

@@ -112,9 +112,9 @@ async function onReqOrderConfirm() {
       });
     })
     .catch((err) => {
-      console.log("error", err);
-      msg.error(`픽업 승인 실패. ${err}`, makeMsgOpt());
-      log.error(u.userInfo.userId, `픽업 승인 실패. ${err}`);
+      const message = err instanceof Error ? err.message : JSON.stringify(err);
+      msg.error(`픽업 승인 실패. ${message}`, makeMsgOpt());
+      log.error(u.userInfo.userId, `픽업 승인 실패. ${message}`);
     })
     .finally(() => {
       orderTargets.value = [];

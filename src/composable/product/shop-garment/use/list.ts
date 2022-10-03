@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { DataTableColumns, NPopselect, NButton, useMessage } from "naive-ui";
 import { ref, computed, h, watchEffect } from "vue";
+import { useLogger } from "vue-logger-plugin";
 import { ShopUserGarment } from "../domain";
 import { useShopUserGarments } from "./by-user";
 
@@ -17,6 +18,7 @@ export function useShopGarmentTable(briefly: boolean) {
     null
   );
   const selectFunc = ref<((s: ShopUserGarment) => Promise<void>) | null>(null);
+  const logger = useLogger();
   const { columns, mapper, checkedKeys } = useTable<
     Omit<ShopUserGarment, "account">
   >(
@@ -84,7 +86,13 @@ export function useShopGarmentTable(briefly: boolean) {
         [selectedRow.value.shopProdId]
       )
         .then(() => msg.success("삭제 완료", makeMsgOpt()))
-        .catch(() => msg.error("삭제 실패", makeMsgOpt()));
+        .catch((err) => {
+          const message = `삭제 실패 ${
+            err instanceof Error ? err.message : JSON.stringify(err)
+          }`;
+          logger.error(authStore.currUser.userInfo.userId, message);
+          msg.error(message, makeMsgOpt());
+        });
     }
   });
   const tableCols = computed((): DataTableColumns<ShopUserGarment> => {

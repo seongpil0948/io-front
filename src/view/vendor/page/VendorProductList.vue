@@ -93,8 +93,11 @@ watchEffect(() => {
                 VENDOR_GARMENT_DB.delete(row.vendorProdId)
                   .then(() => msg.success("삭제성공.", makeMsgOpt()))
                   .catch((err) => {
-                    msg.success("삭제실패.", makeMsgOpt());
-                    logger.error(auth.currUser.userInfo.userId, err);
+                    const message = `삭제실패. ${
+                      err instanceof Error ? err.message : JSON.stringify(err)
+                    }`;
+                    msg.error(message, makeMsgOpt());
+                    logger.error(auth.currUser.userInfo.userId, message);
                   });
               },
             },

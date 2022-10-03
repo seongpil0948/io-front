@@ -85,6 +85,7 @@ export function useLogin() {
       .catch((error) => {
         logger.error(
           null,
+          error instanceof Error ? error.message : JSON.stringify(error),
           error.customData.email,
           error.code,
           error.message,

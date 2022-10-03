@@ -74,8 +74,11 @@ export function useApproveOrder(p: ApproveParam) {
                 msg.success("부분승인 완료", makeMsgOpt());
               })
               .catch((err) => {
-                msg.error("부분승인 실패", makeMsgOpt());
-                logger.error(p.vendorId, "error in approvePartial", err);
+                const message = `부분승인 실패 ${
+                  err instanceof Error ? err.message : JSON.stringify(err)
+                }`;
+                msg.error(message, makeMsgOpt());
+                logger.error(p.vendorId, message);
               })
               .finally(() => {
                 onCloseModal(false);
@@ -130,8 +133,11 @@ export function useApproveOrder(p: ApproveParam) {
         msg.success("주문승인 완료", makeMsgOpt());
       })
       .catch((err) => {
-        msg.success("주문승인 실패", makeMsgOpt());
-        logger.error(p.vendorId, "error in approveOrder", err);
+        const message = `주문승인 실패 ${
+          err instanceof Error ? err.message : JSON.stringify(err)
+        }`;
+        msg.success(message, makeMsgOpt());
+        logger.error(p.vendorId, message);
       })
       .finally(() => {
         orderTargets.value = [];
@@ -205,8 +211,11 @@ export function useApproveOrder(p: ApproveParam) {
         msg.success("주문거절 완료", makeMsgOpt());
       })
       .catch((err) => {
-        msg.success("주문거절 실패", makeMsgOpt());
-        logger.error(p.vendorId, "error in reject order", err);
+        const message = `주문거절 실패 ${
+          err instanceof Error ? err.message : JSON.stringify(err)
+        }`;
+        msg.success(message, makeMsgOpt());
+        logger.error(p.vendorId, message);
       })
       .finally(() => {
         orderTargets.value = [];
@@ -229,8 +238,11 @@ export function useApproveOrder(p: ApproveParam) {
         });
       })
       .catch((err) => {
-        msg.error(`결제승인 실패 ${JSON.stringify(err)}`, makeMsgOpt());
-        logger.error(p.vendorId, "error in complete payment", err);
+        const message = `결제승인 실패 ${
+          err instanceof Error ? err.message : JSON.stringify(err)
+        }`;
+        msg.error(message, makeMsgOpt());
+        logger.error(p.vendorId, message);
       });
   }
   function returnApproved() {
@@ -249,8 +261,11 @@ export function useApproveOrder(p: ApproveParam) {
         });
       })
       .catch((err) => {
-        msg.error(`반품승인 실패 ${JSON.stringify(err)}`, makeMsgOpt());
-        logger.error(p.vendorId, "error in complete payment", err);
+        const message = `반품승인 실패 ${
+          err instanceof Error ? err.message : JSON.stringify(err)
+        }`;
+        msg.error(message, makeMsgOpt());
+        logger.error(p.vendorId, message);
       });
   }
   function returnReject() {
@@ -269,8 +284,11 @@ export function useApproveOrder(p: ApproveParam) {
         });
       })
       .catch((err) => {
-        msg.error(`반품승인 실패 ${JSON.stringify(err)}`, makeMsgOpt());
-        logger.error(p.vendorId, "error in complete payment", err);
+        const message = `반품거절 실패 ${
+          err instanceof Error ? err.message : JSON.stringify(err)
+        }`;
+        msg.error(message, makeMsgOpt());
+        logger.error(p.vendorId, message);
       });
   }
   function onProdReady() {
@@ -289,11 +307,11 @@ export function useApproveOrder(p: ApproveParam) {
         });
       })
       .catch((err) => {
-        msg.error(
-          `출고리스트 업로드 실패 ${JSON.stringify(err)}`,
-          makeMsgOpt()
-        );
-        logger.error(p.vendorId, "error in onProdReady", err);
+        const message = `출고리스트 업로드 실패 ${
+          err instanceof Error ? err.message : JSON.stringify(err)
+        }`;
+        msg.error(message, makeMsgOpt());
+        logger.error(p.vendorId, message);
       });
   }
   // <<< Order <<<

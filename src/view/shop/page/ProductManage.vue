@@ -25,6 +25,19 @@ async function onCheckedDelete() {
   );
   msg.success("삭제 완료", makeMsgOpt());
 }
+
+async function mapperUpdate() {
+  mapper.value
+    ?.update()
+    .then(() => msg.success("업데이트 성공", makeMsgOpt()))
+    .catch((err) => {
+      const message = `업데이트 실패 ${
+        err instanceof Error ? err.message : JSON.stringify(err)
+      }`;
+      msg.error(message, makeMsgOpt());
+      log.error(authStore.currUser.userInfo.userId, message, err);
+    });
+}
 async function onCheckedOrder() {
   const orders: GarmentOrder[] = [];
   for (let i = 0; i < checkedKeys.value.length; i++) {
@@ -49,12 +62,11 @@ async function onCheckedOrder() {
       )
     )
     .catch((err) => {
-      msg.error("상품 데이터 생성에 실패 하였습니다.", makeMsgOpt());
-      log.error(
-        authStore.currUser.userInfo.userId,
-        "상품 데이터 생성에 실패",
-        err
-      );
+      const message = `상품 데이터 생성에 실패 하였습니다. ${
+        err instanceof Error ? err.message : JSON.stringify(err)
+      }`;
+      msg.error(message, makeMsgOpt());
+      log.error(authStore.currUser.userInfo.userId, message, err);
     });
 }
 function updateOrderId(arr: string[]) {
@@ -110,19 +122,7 @@ function updateOrderId(arr: string[]) {
         @update:value="updateOrderId"
       />
       <template #action>
-        <n-button
-          round
-          type="primary"
-          @click="
-            async () =>
-              mapper
-                ?.update()
-                .then(() => msg.success('업데이트 성공', makeMsgOpt()))
-                .catch(() => msg.error('업데이트 실패', makeMsgOpt()))
-          "
-        >
-          저장
-        </n-button>
+        <n-button round type="primary" @click="mapperUpdate"> 저장 </n-button>
       </template>
     </n-card>
   </n-space>

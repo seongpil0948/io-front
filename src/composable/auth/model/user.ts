@@ -119,8 +119,7 @@ export class IoUser extends CommonField implements IoUserCRT {
         console.error(
           null,
           "An error occurred while retrieving msg token. ",
-          err,
-          Object.entries(err)
+          err instanceof Error ? err.message : JSON.stringify(err)
         );
         return null;
       });
