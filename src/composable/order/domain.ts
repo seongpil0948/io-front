@@ -237,7 +237,7 @@ export interface ShipmentCrt {
 }
 
 export interface OrderDB<T> {
-  orderGarment(row: GarmentOrder, expectedReduceCoin: number): Promise<T>;
+  orderGarment(orders: GarmentOrder[], shopId: string): Promise<T[]>;
   batchCreate(uid: string, orders: T[]): Promise<void>;
   batchUpdate(arg: {
     orderDbIdByShops: { [shopId: string]: string[] };

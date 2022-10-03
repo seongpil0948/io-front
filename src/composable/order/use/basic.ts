@@ -31,13 +31,14 @@ export function useOrderBasic(
   async function onReqOrderConfirm() {
     const ids = orderTargets.value.map((x) => x.id);
 
-    return Promise.all(
-      orders.value
-        .filter((y) => y.items.some((item) => ids.includes(item.id)))
-        .map((t) => ORDER_GARMENT_DB.orderGarment(t, IO_COSTS.REQ_ORDER))
+    ORDER_GARMENT_DB.orderGarment(
+      orders.value.filter((y) =>
+        y.items.every((item) => ids.includes(item.id))
+      ),
+      user.userInfo.userId
     )
       .then(async (results) => {
-        console.log("RESULTS: ", results);
+        // console.log("RESULTS: ", results);
         const vendorIds = uniqueArr(results.flatMap((x) => x.vendorIds));
         msg.success(`${results.length}건 주문 성공.`, makeMsgOpt());
         await smtp.sendAlarm({

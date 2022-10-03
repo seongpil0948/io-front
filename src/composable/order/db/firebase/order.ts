@@ -206,57 +206,66 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       }
     });
   },
-  orderGarment: async function (row: GarmentOrder, expectedReduceCoin: number) {
+  orderGarment: async function (orders: GarmentOrder[], shopId: string) {
     const vendorStore = useVendorsStore();
     const { getOrdRef, converterGarment } = getSrc();
-    const userPay = await IO_PAY_DB.getIoPayByUser(row.shopId);
-    if (userPay.availBudget < expectedReduceCoin)
+    const userPay = await IO_PAY_DB.getIoPayByUser(shopId);
+    // console.log("userPay: ", userPay);
+    const reduceCoin = IO_COSTS.REQ_ORDER * orders.length;
+    // console.log("expectedReduceCoin: ", reduceCoin);
+    if (userPay.availBudget < reduceCoin)
       throw new Error("보유 코인이 부족합니다.");
-    else if (!row.isValid) throw new Error("invalid order.");
-    const ordRef = getOrdRef(row.shopId);
-    const ordDocRef = doc(ordRef, row.dbId).withConverter(converterGarment);
 
     return runTransaction(iostore, async (transaction) => {
-      const ordDoc = await transaction.get(ordDocRef);
-      if (!ordDoc.exists()) throw new Error("order doc does not exist!");
-
-      const ord = ordDoc.data()!;
-      if (ord.items.length < 1)
-        throw new Error("request order items not exist");
-
-      for (let i = 0; i < ord.items.length; i++) {
-        const item = ord.items[i];
-
-        const vendor = vendorStore.vendorById[item.vendorId];
-        const prod = vendorStore.vendorGarments.find(
-          (g) => g.vendorProdId === item.vendorProdId
+      const newOrds: GarmentOrder[] = [];
+      for (let i = 0; i < orders.length; i++) {
+        const order = orders[i];
+        if (!order.isValid) throw new Error("invalid order.");
+        const ordRef = getOrdRef(order.shopId);
+        const ordDocRef = doc(ordRef, order.dbId).withConverter(
+          converterGarment
         );
-        if (!prod)
-          throw new Error(
-            `vendor garment does not exist!: ${item.vendorProdId}`
+        const ordDoc = await transaction.get(ordDocRef);
+        if (!ordDoc.exists()) throw new Error("order doc does not exist!");
+        const ord = ordDoc.data()!;
+        if (ord.items.length < 1) continue;
+        for (let j = 0; j < ord.items.length; j++) {
+          const item = ord.items[j];
+          const vendor = vendorStore.vendorById[item.vendorId];
+          const prod = vendorStore.vendorGarments.find(
+            (g) => g.vendorProdId === item.vendorProdId
           );
-        else if (!vendor)
-          throw new Error(`vendor user does not exist!: ${item.vendorId}`);
-        else if (item.orderCnt > prod.stockCnt && !prod.allowPending) {
-          throw new Error(
-            `out of stock(${prod.stockCnt}) order(${ord.dbId})(${item.id}) cnt: ${item.orderCnt} }`
-          );
+          if (!prod)
+            throw new Error(
+              `vendor garment does not exist!: ${item.vendorProdId}`
+            );
+          else if (!vendor)
+            throw new Error(`vendor user does not exist!: ${item.vendorId}`);
+          else if (item.orderCnt > prod.stockCnt && !prod.allowPending) {
+            throw new Error(
+              `out of stock(${prod.stockCnt}) order(${ord.dbId})(${item.id}) cnt: ${item.orderCnt} }`
+            );
+          }
+          ord.setState(item.id, "BEFORE_APPROVE");
         }
-        // if ((vendor.operInfo as VendorOperInfo).autoOrderApprove) {
-        //   item.state = "BEFORE_PAYMENT";
-        // } else {
-        ord.setState(item.id, "BEFORE_APPROVE");
-        // }
+        newOrds.push(ord);
       }
-      transaction.update(ordDocRef, converterGarment.toFirestore(ord));
+
+      for (let k = 0; k < newOrds.length; k++) {
+        const newOrd = newOrds[k];
+        transaction.update(
+          doc(getOrdRef(newOrd.shopId), newOrd.dbId),
+          converterGarment.toFirestore(newOrd)
+        );
+      }
       transaction.update(
         doc(getIoCollection({ c: IoCollection.IO_PAY }), userPay.userId),
         {
-          pendingBudget: userPay.pendingBudget + expectedReduceCoin,
-          budget: userPay.budget - expectedReduceCoin,
+          pendingBudget: userPay.pendingBudget + reduceCoin,
+          budget: userPay.budget - reduceCoin,
         }
       );
-      return ord;
+      return newOrds;
     });
   },
   batchCreate: async function (uid: string, orders: GarmentOrder[]) {
