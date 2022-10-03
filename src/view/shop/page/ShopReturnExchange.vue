@@ -38,7 +38,7 @@ onBeforeMount(async () => {
 const targetOrders = shopOrderStore.getOrders(inStates);
 const targetProdOrders = shopOrderStore.getFilteredOrder(inStates);
 const {
-  checkedKeys: targetKeys,
+  checkedDetailKeys: targetKeys,
   tableCol: targetTCol,
   tableRef: targetRef,
 } = useOrderTable({

@@ -24,7 +24,7 @@ const shopOrderStore = useShopOrderStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
 const filteredOrders = shopOrderStore.getFilteredOrder(props.inStates ?? []);
 const orders = shopOrderStore.getOrders(props.inStates ?? []);
-const { checkedKeys, tableCol, tableRef, mapper } = useOrderTable({
+const { checkedDetailKeys, tableCol, tableRef, mapper } = useOrderTable({
   garmentOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
@@ -39,7 +39,7 @@ const {
   onReqOrderConfirm,
   deleteChecked,
   downProdOrders,
-} = useOrderBasic(user, filteredOrders, orders, checkedKeys);
+} = useOrderBasic(user, filteredOrders, orders, checkedDetailKeys);
 
 const sheetIdx = ref(0);
 const startRow = ref(0);

@@ -16,14 +16,13 @@ const {
   byVendorCol,
   // byVendorKeys,
   selectedData, // selected
-  // checkedDetailKeys, // selected Item
-  onCheckDetailRow,
+  checkedDetailKeys, // selected Item,
   tableCol,
 } = useOrderTable({
   garmentOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
-  useChecker: false,
+  useChecker: true,
 });
 // const filtered = computed(() =>
 //   garmentOrdersByVendor.value.filter((x) =>
@@ -62,7 +61,6 @@ const {
         :columns="tableCol"
         :data="selectedData.items"
         :rowKey="(row: ProdOrderCombined) => row.id"
-        @update:checked-row-keys="onCheckDetailRow"
       />
     </n-card>
   </n-space>

@@ -100,11 +100,6 @@ export function useOrderTable(d: orderTableParam) {
     selectedData.value = data;
     console.log("selectedData: ", selectedData.value);
   }
-  const checkedDetailKeys = ref<DataTableRowKey[]>([]);
-  function onCheckDetailRow(keys: DataTableRowKey[]) {
-    checkedDetailKeys.value = keys;
-  }
-
   const { columns: byVendorCol, checkedKeys: byVendorKeys } =
     useTable<ProdOrderByVendor>({
       userId: auth.currUser.userInfo.userId,
@@ -113,7 +108,11 @@ export function useOrderTable(d: orderTableParam) {
       keyField: "vendorId",
     });
 
-  const { columns, checkedKeys, mapper } = useTable<ProdOrderCombined>({
+  const {
+    columns,
+    checkedKeys: checkedDetailKeys,
+    mapper,
+  } = useTable<ProdOrderCombined>({
     userId: auth.currUser.userInfo.userId,
     colKeys,
     useChecker: d.useChecker ?? true,
@@ -123,7 +122,7 @@ export function useOrderTable(d: orderTableParam) {
         const idxes = (tableRef.value.paginatedData as any[]).map(
           (x) => x.index
         );
-        checkedKeys.value = to
+        checkedDetailKeys.value = to
           ? d.garmentOrders.value
               .filter((o: any, idx: any) => idxes.includes(idx))
               .map((p: { [x: string]: any }) => p[keyField])
@@ -203,7 +202,6 @@ export function useOrderTable(d: orderTableParam) {
   return {
     tableRef,
     columns,
-    checkedKeys,
     tableCol,
     mapper,
     byVendorCol,
@@ -211,6 +209,5 @@ export function useOrderTable(d: orderTableParam) {
     onClickDetail,
     selectedData,
     checkedDetailKeys,
-    onCheckDetailRow,
   };
 }

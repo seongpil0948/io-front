@@ -11,7 +11,7 @@ onBeforeMount(() => shopOrderStore.init(auth.currUser.userInfo.userId));
 const orders = shopOrderStore.getOrders(inStates);
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 
-const { checkedKeys, tableCol, tableRef } = useOrderTable({
+const { checkedDetailKeys, tableCol, tableRef } = useOrderTable({
   garmentOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
@@ -26,7 +26,7 @@ const {
   updateReqOrderShow,
   onReqOrderConfirm,
   deleteChecked,
-} = useOrderBasic(auth.currUser, filteredOrders, orders, checkedKeys);
+} = useOrderBasic(auth.currUser, filteredOrders, orders, checkedDetailKeys);
 </script>
 <template>
   <n-card
