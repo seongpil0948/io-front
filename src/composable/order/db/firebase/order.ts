@@ -66,9 +66,13 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       "BEFORE_PAYMENT",
       undefined,
       async function (po) {
+        // TODO: test required
         po.actualAmount.paidDate = new Date();
+        po.actualAmount.paidAmount = po.actualAmount.orderAmount;
+        po.actualAmount.paid = "T";
         return po;
-      }
+      },
+      true
     );
   },
   orderToReady: async function (orderDbIds: string[], prodOrderIds: string[]) {
@@ -518,6 +522,24 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
   returnDone: async function (): Promise<void> {
     throw new Error("Function not implemented.");
   },
+  cancelReq: async function (
+    orderDbIds: string[],
+    prodOrderIds: string[]
+  ): Promise<void> {
+    throw new Error("Function not implemented.");
+  },
+  cancelApprove: async function (
+    orderDbIds: string[],
+    prodOrderIds: string[]
+  ): Promise<void> {
+    throw new Error("Function not implemented.");
+  },
+  cancelReject: async function (
+    orderDbIds: string[],
+    prodOrderIds: string[]
+  ): Promise<void> {
+    throw new Error("Function not implemented.");
+  },
 };
 
 export function getSrc() {
@@ -542,7 +564,8 @@ async function stateModify(
   afterState: ORDER_STATE,
   beforeState?: ORDER_STATE,
   onOrder?: (o: GarmentOrder) => Promise<GarmentOrder>,
-  onProdOrder?: (o: ProdOrder) => Promise<ProdOrder>
+  onProdOrder?: (o: ProdOrder) => Promise<ProdOrder>,
+  setTotalAmount = false
 ) {
   const orders = await OrderGarmentFB.batchRead(orderDbIds);
 
@@ -558,6 +581,9 @@ async function stateModify(
         ) {
           const item = onProdOrder ? await onProdOrder(o.items[j]) : o.items[j];
           o.setState(item.id, afterState);
+          if (setTotalAmount) {
+            o.setTotalAmount();
+          }
           transaction.update(
             doc(getOrdRef(o.shopId), o.dbId),
             converterGarment.toFirestore(o)

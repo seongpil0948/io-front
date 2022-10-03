@@ -284,6 +284,9 @@ export interface OrderDB<T> {
   returnApprove(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
   returnReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
   returnDone(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  cancelReq(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  cancelApprove(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  cancelReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
 }
 
 export interface ShipDB<T> {
