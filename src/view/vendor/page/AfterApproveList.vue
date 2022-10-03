@@ -6,7 +6,7 @@
     </template>
     <vendor-order-by-shop-table
       :inStates="['BEFORE_PAYMENT']"
-      :paidDate="false"
+      :showPaidDate="false"
     />
   </n-card>
 </template>

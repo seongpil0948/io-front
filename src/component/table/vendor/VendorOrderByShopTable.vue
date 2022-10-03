@@ -93,7 +93,6 @@ const targetShops = computed(() =>
 
 const currTab = ref<string | null>(null);
 watchEffect(() => {
-  console.log(currTab.value, !currTab.value, targetShops.value.length === 0);
   if (currTab.value && targetShops.value.length === 0) {
     currTab.value = null;
   } else if (!currTab.value && targetShops.value.length > 0) {
