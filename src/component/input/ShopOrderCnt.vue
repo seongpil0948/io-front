@@ -29,14 +29,17 @@ const activeCnt = computed(() => prodOrder.value.activeCnt);
 
 const editVal = ref(0);
 onBeforeMount(() => {
-  editVal.value = prodOrder.value.activeCnt;
+  editVal.value = prodOrder.value.orderCnt;
 });
 async function onBlur() {
   edit.value = false;
-  if (!editVal.value || typeof editVal.value !== "number") {
+  const ordCnt = editVal.value;
+  if (editVal.value === prodOrder.value.orderCnt) {
+    return;
+  } else if (!ordCnt || typeof ordCnt !== "number") {
     editVal.value = prodOrder.value.orderCnt;
     return;
-  } else if (editVal.value < 1) {
+  } else if (ordCnt < 1) {
     msg.warning("주문개수는 0이상이어야 합니다.");
     editVal.value = prodOrder.value.orderCnt;
     return;
@@ -45,28 +48,26 @@ async function onBlur() {
     const prod = order.value.items.find((x) => x.id === prodOrder.value.id);
     if (!prod) throw new Error("not matched prod order");
     else if (prod.state === "BEFORE_ORDER") {
-      order.value.setOrderCnt(prod.id, editVal.value, false);
+      order.value.setOrderCnt(prod.id, ordCnt, false);
     } else if (prod.state === "BEFORE_READY") {
-      // console.log("===> before dividePartial", [...order.value.items]);
       await order.value.dividePartial(
         prod.id,
-        editVal.value,
-        GarmentOrder.getPendingCnt(
-          stockCnt.value,
-          editVal.value,
-          prodOrder.value.vendorGarment.allowPending
-        ),
+        ordCnt,
+        // GarmentOrder.getPendingCnt(
+        //   stockCnt.value,
+        //   ordCnt,
+        //   prodOrder.value.vendorGarment.allowPending
+        // ),
         false
       );
       msg.success(`주문 분할에 성공하였습니다.`, makeMsgOpt());
       // console.log("===> after dividePartial", [...order.value.items]);
+    } else {
+      console.error(prod);
     }
-    order.value
-      .update()
-      .then(() => {
-        msg.success(`주문개수가 업데이트에 성공하였습니다.`, makeMsgOpt());
-      })
-      .finally(() => (edit.value = false));
+    order.value.update().then(() => {
+      msg.success(`주문개수가 업데이트에 성공하였습니다.`, makeMsgOpt());
+    });
   } catch (err) {
     msg.error(
       err instanceof Error

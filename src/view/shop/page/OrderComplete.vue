@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ORDER_STATE, ProdOrderCombined, useOrderTable } from "@/composable";
 import { useShopOrderStore } from "@/store";
+import { computed } from "vue";
 
 // const msg = useMessage();
 // const u = auth.currUser;
@@ -29,6 +30,12 @@ const {
 //     byVendorKeys.value.includes(x.vendorId)
 //   )
 // );
+const targetOrds = computed(() =>
+  filteredOrders.value.filter((x) => checkedDetailKeys.value.includes(x.id))
+);
+function cancelSelected() {
+  console.log(targetOrds.value.length, targetOrds.value);
+}
 </script>
 <template>
   <n-space vertical justify="space-around">
@@ -56,6 +63,11 @@ const {
       :bordered="false"
       :title="selectedData.vendorName"
     >
+      <template #header-extra>
+        <n-space>
+          <n-button @click="cancelSelected"> 주문취소 </n-button>
+        </n-space>
+      </template>
       <n-data-table
         :bordered="false"
         :columns="tableCol"

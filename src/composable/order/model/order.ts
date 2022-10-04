@@ -196,33 +196,45 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   async doneOrder(arg: any): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  async dividePartial(
-    prodOrderId: string,
-    orderCnt: number,
-    pendingCnt: number,
-    update: boolean
-  ) {
-    const item = this.items.find((x) => x.id === prodOrderId);
+  async dividePartial(prodOrderId: string, orderCnt: number, update: boolean) {
+    const item = (this.items as ProdOrderCombined[]).find(
+      (x) => x.id === prodOrderId
+    );
     if (!item) throw new Error("prodOrderId not exist");
-    else if (orderCnt < 0 || pendingCnt < 0 || orderCnt > item.orderCnt) {
+    else if (orderCnt < 0 || orderCnt > item.orderCnt) {
       throw new Error("invalid Cnt");
     }
-    const newOrder: ProdOrder = Object.assign({}, item, {
-      orderCnt,
-      activeCnt: GarmentOrder.getActiveCnt(orderCnt, pendingCnt),
-      pendingCnt,
-      id: uuidv4(),
-    });
-    item.orderCnt -= newOrder.orderCnt;
-    item.activeCnt -= newOrder.activeCnt;
-    item.pendingCnt -= newOrder.pendingCnt;
+    const id = uuidv4();
+
+    (this.items as ProdOrderCombined[]).push(
+      Object.assign({}, item, {
+        id,
+      })
+    );
+    this.setOrderCnt(id, orderCnt, false, item.actualAmount.paid);
+    const newOrder: ProdOrderCombined = (
+      this.items as ProdOrderCombined[]
+    ).find((x) => x.id === id)!;
+    // const newOrder: ProdOrder = Object.assign({}, item, {
+    //   orderCnt,
+    //   activeCnt: GarmentOrder.getActiveCnt(orderCnt, pendingCnt),
+    //   pendingCnt,
+    //   id: uuidv4(),
+    // });
+    this.setOrderCnt(
+      item.id,
+      (item.orderCnt -= newOrder.orderCnt),
+      false,
+      item.actualAmount.paid
+    );
+
     if (item.orderCnt < 1) {
       this.items.splice(
         this.items.findIndex((x) => x.id === item.id),
         1
       );
     }
-    (this.items as ProdOrder[]).push(newOrder);
+
     this.itemIds.push(newOrder.id);
     if (update) {
       await this.update();
