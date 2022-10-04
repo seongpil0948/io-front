@@ -63,7 +63,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       orderDbIds,
       prodOrderIds,
       "BEFORE_READY",
-      "BEFORE_PAYMENT",
+      ["BEFORE_PAYMENT"],
       undefined,
       async function (po) {
         // TODO: test required
@@ -81,7 +81,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       orderDbIds,
       prodOrderIds,
       "BEFORE_PICKUP_REQ",
-      "BEFORE_READY",
+      ["BEFORE_READY"],
       undefined,
       async function (po) {
         // po.orderCnt
@@ -488,7 +488,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       orderDbIds,
       prodOrderIds,
       "RETURN_APPROVED",
-      "RETURN_REQ",
+      ["RETURN_REQ"],
       undefined,
       async function (po) {
         po.orderType = "RETURN";
@@ -526,7 +526,19 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     orderDbIds: string[],
     prodOrderIds: string[]
   ): Promise<void> {
-    throw new Error("Function not implemented.");
+    await stateModify(
+      orderDbIds,
+      prodOrderIds,
+      "RETURN_APPROVED",
+      ["RETURN_REQ"],
+      async function (o) {
+        return o;
+      },
+      async function (po) {
+        po.orderType = "RETURN";
+        return po;
+      }
+    );
   },
   cancelApprove: async function (
     orderDbIds: string[],
@@ -562,7 +574,7 @@ async function stateModify(
   orderDbIds: string[],
   prodOrderIds: string[],
   afterState: ORDER_STATE,
-  beforeState?: ORDER_STATE,
+  beforeState?: ORDER_STATE[],
   onOrder?: (o: GarmentOrder) => Promise<GarmentOrder>,
   onProdOrder?: (o: ProdOrder) => Promise<ProdOrder>,
   setTotalAmount = false
@@ -577,7 +589,7 @@ async function stateModify(
         if (
           !beforeState ||
           (prodOrderIds.includes(o.items[j].id) &&
-            o.items[j].state === beforeState)
+            beforeState.includes(o.items[j].state))
         ) {
           const item = onProdOrder ? await onProdOrder(o.items[j]) : o.items[j];
           o.setState(item.id, afterState);

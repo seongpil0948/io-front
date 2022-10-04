@@ -159,10 +159,10 @@ interface Claim {
 }
 
 export interface OrderExchange extends Claim {
-  exchangedDate: string;
+  exchangedDate: string; // 교환 완료일
 }
 export interface OrderCancel extends Claim {
-  canceledDate: string;
+  canceledDate: string; // 취소 완료일
 }
 export interface ProdOrderCombined extends ProdOrder {
   shopGarment: ShopUserGarment;
