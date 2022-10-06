@@ -15,6 +15,7 @@ declare module '@vue/runtime-core' {
     BeforeApproveList: typeof import('./src/view/vendor/page/BeforeApproveList.vue')['default']
     BillingManage: typeof import('./src/view/uncle/page/BillingManage.vue')['default']
     BuildingPosMng: typeof import('./src/view/vendor/page/BuildingPosMng.vue')['default']
+    CancelButton: typeof import('./src/component/button/CancelButton.vue')['default']
     CarouselImgCard: typeof import('./src/component/card/CarouselImgCard.vue')['default']
     CoinImage: typeof import('./src/component/common/CoinImage.vue')['default']
     CoinReduceConfirmModal: typeof import('./src/component/card/CoinReduceConfirmModal.vue')['default']

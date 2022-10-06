@@ -24,7 +24,7 @@ import {
 } from "@firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { cloneDeep } from "lodash";
-import { insertById, getIoCollection, IoCollection } from "@/util";
+import { insertById, getIoCollection, IoCollection, uniqueArr } from "@/util";
 import { logger } from "@/plugin/logger";
 
 export class GarmentOrder extends CommonField implements OrderCrt {
@@ -106,15 +106,16 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   setState(prodOrderId: string, state: ORDER_STATE) {
     const ts = this.getProdOrders(prodOrderId);
     if (ts && ts.length > 0) {
-      this.states.splice(
-        this.states.findIndex((x) => ts[0].state),
-        1
-      );
+      // this.states.splice(
+      //   this.states.findIndex((x) => ts[0].state),
+      //   1
+      // );
       if (!ts[0].history) ts[0].history = [];
       console.log(ts[0]);
       ts[0].history.push(JSON.parse(JSON.stringify(ts[0])));
       ts[0].state = state;
-      this.states.push(state);
+      // this.states.push(state);
+      this.states = uniqueArr(this.items.map((x) => x.state));
     } else {
       throw new Error(`prodOrderId ${prodOrderId} not exist`);
     }
@@ -125,7 +126,6 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     shopProdId?: string,
     vendorProdId?: string
   ) {
-    // deep copy
     const orders: ProdOrder[] = [];
     for (let i = 0; i < this.items.length; i++) {
       const item = this.items[i];
@@ -137,8 +137,8 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       } else if (vendorProdId && item.vendorProdId === vendorProdId) {
         orders.push(item);
       }
-      return orders;
     }
+    return orders;
   }
 
   sameOrder(p: OrderCrt): boolean {
@@ -239,6 +239,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     if (update) {
       await this.update();
     }
+    return newOrder.id;
   }
 
   static fromProd(

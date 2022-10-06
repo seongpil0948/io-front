@@ -2,7 +2,9 @@ import { iostore } from "@/plugin/firebase";
 import { getIoCollection, getIoCollectionGroup, IoCollection } from "@/util";
 import {
   doc,
+  getDoc,
   getDocs,
+  updateDoc,
   onSnapshot,
   query,
   QueryConstraint,
@@ -16,12 +18,20 @@ import { Ref } from "vue";
 import {
   GarmentOrder,
   IO_PAY_DB,
+  OrderCancel,
   OrderDB,
   ORDER_STATE,
   ProdOrder,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 
+const cancelTargetState = [
+  "BEFORE_ORDER",
+  "BEFORE_APPROVE",
+  "BEFORE_PAYMENT",
+  "BEFORE_READY",
+  "BEFORE_PICKUP_REQ",
+];
 async function getOrders(constraints: QueryConstraint[]) {
   const orders: GarmentOrder[] = [];
   const docs = await getDocs(
@@ -465,14 +475,26 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     snapShot.forEach((doc) => orderIds.add(doc.id));
     return orderIds;
   },
-  batchRead: async function (orderDbIds: string[]): Promise<GarmentOrder[]> {
+  batchRead: async function (
+    orderDbIds: string[],
+    constraints?: QueryConstraint[]
+  ): Promise<GarmentOrder[]> {
     const orders: GarmentOrder[] = [];
     while (orderDbIds.length) {
       const batchIds = orderDbIds.splice(0, 10); // batch size 10
-      const constraints = [where("dbId", "in", batchIds)];
-      orders.push(...(await getOrders(constraints)));
+      orders.push(
+        ...(await getOrders([
+          where("dbId", "in", batchIds),
+          ...(constraints ?? []),
+        ]))
+      );
     }
     return orders;
+  },
+  readById: async function (shopId: string, orderDbId: string) {
+    const { getOrdRef } = getSrc();
+    const snapshot = await getDoc(doc(getOrdRef(shopId), orderDbId));
+    return snapshot.data();
   },
   returnReq: async function (
     orderDbIds: string[],
@@ -523,34 +545,94 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     throw new Error("Function not implemented.");
   },
   cancelReq: async function (
-    orderDbIds: string[],
-    prodOrderIds: string[]
+    shopId: string,
+    orderDbId: string,
+    prodOrderId: string,
+    claim: OrderCancel,
+    cancelCnt: number
   ): Promise<void> {
-    await stateModify(
-      orderDbIds,
-      prodOrderIds,
-      "RETURN_APPROVED",
-      ["RETURN_REQ"],
-      async function (o) {
-        return o;
-      },
-      async function (po) {
-        po.orderType = "RETURN";
-        return po;
+    const validate = (i: ProdOrder | undefined) => {
+      if (!i) throw new Error("주문 상품 데이터 정보가 없습니다.");
+      else if (i.orderCnt < cancelCnt)
+        throw new Error("취소개수가 주문개수보다 많습니다.");
+      else if (!cancelTargetState.includes(i.state))
+        throw new Error(
+          `취소에 허용되지 않는 주문상태(${ORDER_STATE[i.state]}) 입니다.`
+        );
+      return i!;
+    };
+
+    const { getOrdRef, converterGarment } = getSrc();
+    const order = await OrderGarmentFB.readById(shopId, orderDbId);
+    if (!order) throw new Error("주문 데이터 정보가 없습니다.");
+    const item = validate(order.items.find((x) => x.id === prodOrderId));
+
+    const processing = (i: ProdOrder, c: OrderCancel) => {
+      const paid = i.actualAmount.paid;
+      if (paid === "F") {
+        c.done = true;
+        c.canceledDate = new Date();
+        order.cancellations.push(c);
+        order.setState(i.id, "ORDER_DONE");
+      } else {
+        order.cancellations.push(c);
+        order.setState(i.id, "CANCEL");
       }
-    );
+      return updateDoc(
+        doc(getOrdRef(order.shopId), order.dbId),
+        converterGarment.toFirestore(order)
+      );
+    };
+
+    if (item.orderCnt > cancelCnt) {
+      const newId = await order.dividePartial(item.id, cancelCnt, false);
+      const itemDivided = validate(order.items.find((x) => x.id === newId));
+      claim.prodOrderId = newId;
+      return processing(itemDivided, claim);
+    } else {
+      return processing(item, claim);
+    }
   },
   cancelApprove: async function (
     orderDbIds: string[],
     prodOrderIds: string[]
   ): Promise<void> {
-    throw new Error("Function not implemented.");
+    return stateModify(
+      orderDbIds,
+      prodOrderIds,
+      "ORDER_DONE",
+      ["CANCEL"],
+      async function (order) {
+        for (let i = 0; i < order.cancellations.length; i++) {
+          const claim = order.cancellations[i];
+          if (claim.done || claim.canceledDate) continue;
+          claim.done = true;
+          claim.approved = true;
+          claim.canceledDate = new Date();
+        }
+        return order;
+      }
+    );
   },
   cancelReject: async function (
     orderDbIds: string[],
     prodOrderIds: string[]
   ): Promise<void> {
-    throw new Error("Function not implemented.");
+    return stateModify(
+      orderDbIds,
+      prodOrderIds,
+      "BEFORE_READY",
+      ["CANCEL"],
+      async function (order) {
+        for (let i = 0; i < order.cancellations.length; i++) {
+          const claim = order.cancellations[i];
+          if (claim.done || claim.canceledDate) continue;
+          claim.done = true;
+          claim.canceledDate = new Date();
+        }
+        return order;
+      }
+    );
   },
 };
 

@@ -1,3 +1,4 @@
+import { QueryConstraint } from "@firebase/firestore";
 import { Ref } from "vue";
 import {
   BOOL_M,
@@ -42,8 +43,7 @@ export type ORDER_STATE =
   | "REFUND_DONE"
   | "CHANGE"
   | "CHANGE_DONE"
-  | "CANCEL"
-  | "CANCEL_DONE"
+  | "CANCEL" // 취소 요청?
   | "ORDER_DONE";
 export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   BEFORE_ORDER: "주문전",
@@ -69,7 +69,6 @@ export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   CHANGE: "교환중",
   CHANGE_DONE: "교환완료",
   CANCEL: "취소중",
-  CANCEL_DONE: "취소완료",
   ORDER_DONE: "거래종료",
 });
 export type REASON_TYPE =
@@ -151,18 +150,20 @@ export interface ProdOrder {
 
 interface Claim {
   id: string;
-  reqDate: string;
-  state: ORDER_STATE;
-  reason: string;
-  type: REASON_TYPE;
-  done: boolean;
+  prodOrderId: string;
+  reqDate: Date;
+  state: ORDER_STATE; // 요청시 주문상태
+  reason: string; // 클레임 상세 이유
+  type: REASON_TYPE; // 클레임 이유 분류
+  done: boolean; // 처리 완료여부
+  approved: boolean; // 승인 여부
 }
 
 export interface OrderExchange extends Claim {
-  exchangedDate: string; // 교환 완료일
+  exchangedDate?: Date; // 교환 완료일
 }
 export interface OrderCancel extends Claim {
-  canceledDate: string; // 취소 완료일
+  canceledDate?: Date; // 취소 완료일
 }
 export interface ProdOrderCombined extends ProdOrder {
   shopGarment: ShopUserGarment;
@@ -244,7 +245,11 @@ export interface OrderDB<T> {
     orderState?: ORDER_STATE;
   }): Promise<void>;
   batchDelete(ords: T[]): Promise<void>;
-  batchRead(orderDbIds: string[]): Promise<T[]>;
+  batchRead(
+    orderDbIds: string[],
+    constraints?: QueryConstraint[]
+  ): Promise<T[]>;
+  readById(shopId: string, orderDbId: string): Promise<T | undefined>;
   shopReadListen(p: {
     inStates?: ORDER_STATE[];
     shopId: string;
@@ -284,7 +289,13 @@ export interface OrderDB<T> {
   returnApprove(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
   returnReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
   returnDone(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
-  cancelReq(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  cancelReq(
+    shopId: string,
+    orderDbId: string,
+    prodOrderId: string,
+    claim: OrderCancel,
+    cancelCnt: number
+  ): Promise<void>;
   cancelApprove(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
   cancelReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
 }

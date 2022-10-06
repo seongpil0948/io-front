@@ -138,9 +138,10 @@ export function useOrderTable(d: orderTableParam) {
           x.minWidth = "120";
           x.width = "120";
           x.render = (prodOrder: ProdOrderCombined) => {
-            const order = d.orders.value.find((x) => {
-              return x.getProdOrders(prodOrder.id)![0];
-            });
+            const order = d.orders.value.find(
+              (o) => o.dbId === prodOrder.orderDbId
+            );
+
             return order
               ? h(ShopOrderCnt, {
                   order,
@@ -198,7 +199,31 @@ export function useOrderTable(d: orderTableParam) {
         ]
       : [];
   });
+  const targetIds = computed(() => {
+    const itemIds = new Set<string>(
+      d.garmentOrders.value
+        .filter((x) => checkedDetailKeys.value.includes(x.id))
+        .map((y) => y.id)
+    );
+    if (selectedData.value) {
+      selectedData.value.items.forEach((z) => itemIds.add(z.id));
+    }
+    return itemIds;
+  });
+  const targetOrdDbIds = computed(() => {
+    const orderIds = new Set<string>();
+    for (let i = 0; i < d.orders.value.length; i++) {
+      const o = d.orders.value[i];
 
+      for (let j = 0; j < o.items.length; j++) {
+        const item = o.items[j];
+        if (targetIds.value.has(item.id)) {
+          orderIds.add(o.dbId);
+        }
+      }
+    }
+    return orderIds;
+  });
   return {
     tableRef,
     columns,
@@ -209,5 +234,7 @@ export function useOrderTable(d: orderTableParam) {
     onClickDetail,
     selectedData,
     checkedDetailKeys,
+    targetIds,
+    targetOrdDbIds,
   };
 }

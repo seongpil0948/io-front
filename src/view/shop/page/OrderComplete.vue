@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { ORDER_STATE, ProdOrderCombined, useOrderTable } from "@/composable";
+import CancelButton from "@/component/button/CancelButton.vue";
+import {
+  ORDER_STATE,
+  ProdOrderCombined,
+  useOrderTable,
+  OrderCancel,
+} from "@/composable";
 import { useShopOrderStore } from "@/store";
-import { computed } from "vue";
+import { computed, h } from "vue";
 
-// const msg = useMessage();
 // const u = auth.currUser;
 const inStates: ORDER_STATE[] = ["BEFORE_PAYMENT"];
 const shopOrderStore = useShopOrderStore();
@@ -17,7 +22,8 @@ const {
   byVendorCol,
   // byVendorKeys,
   selectedData, // selected
-  checkedDetailKeys, // selected Item,
+  targetIds,
+  targetOrdDbIds,
   tableCol,
 } = useOrderTable({
   garmentOrders: filteredOrders,
@@ -25,17 +31,34 @@ const {
   updateOrderCnt: true,
   useChecker: true,
 });
-// const filtered = computed(() =>
-//   garmentOrdersByVendor.value.filter((x) =>
-//     byVendorKeys.value.includes(x.vendorId)
-//   )
-// );
-const targetOrds = computed(() =>
-  filteredOrders.value.filter((x) => checkedDetailKeys.value.includes(x.id))
-);
-function cancelSelected() {
-  console.log(targetOrds.value.length, targetOrds.value);
+
+function refreshSelected() {
+  // selectedData.value =
+  //   garmentOrdersByVendor.value.find(
+  //     (x) => x.vendorId === selectedData.value?.vendorId
+  //   ) ?? null;
+  selectedData.value = null;
 }
+const columns = computed(() => [
+  ...tableCol.value,
+  {
+    key: "cancel",
+    title: "취소접수",
+    render: (prodOrder: ProdOrderCombined) =>
+      h(
+        CancelButton,
+        {
+          prodOrder,
+
+          onCancelDone: async (val: OrderCancel) => {
+            console.log("cancel claim: ", val);
+            refreshSelected();
+          },
+        },
+        { default: () => "취소요청" }
+      ),
+  },
+]);
 </script>
 <template>
   <n-space vertical justify="space-around">
@@ -63,14 +86,9 @@ function cancelSelected() {
       :bordered="false"
       :title="selectedData.vendorName"
     >
-      <template #header-extra>
-        <n-space>
-          <n-button @click="cancelSelected"> 주문취소 </n-button>
-        </n-space>
-      </template>
       <n-data-table
         :bordered="false"
-        :columns="tableCol"
+        :columns="columns"
         :data="selectedData.items"
         :rowKey="(row: ProdOrderCombined) => row.id"
       />
