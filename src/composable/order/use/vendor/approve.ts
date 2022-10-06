@@ -93,6 +93,38 @@ export function useApproveOrder(p: ApproveParam) {
   }
   // >>> Order >>>
   const orderTargets = ref<ProdOrderCombined[]>([]);
+  const targetIds = computed(() => {
+    const itemIds = new Set<string>();
+    for (let i = 0; i < p.orders.value.length; i++) {
+      const o = p.orders.value[i];
+      if (checkedShops.value.includes(o.shopId)) {
+        o.items.forEach((x) => itemIds.add(x.id));
+      }
+      for (let j = 0; j < o.items.length; j++) {
+        const item = o.items[j];
+        if (checkedOrders.value.includes(item.id) && !itemIds.has(item.id)) {
+          itemIds.add(item.id);
+        }
+      }
+    }
+    // return garmentOrders.value.filter((z) => itemIds.has(z.id));
+    return itemIds;
+  });
+  const targetOrdDbIds = computed(() => {
+    const orderIds = new Set<string>();
+    for (let i = 0; i < p.orders.value.length; i++) {
+      const o = p.orders.value[i];
+
+      for (let j = 0; j < o.items.length; j++) {
+        const item = o.items[j];
+        if (targetIds.value.has(item.id)) {
+          orderIds.add(o.dbId);
+        }
+      }
+    }
+    return orderIds;
+  });
+
   const orderReduceCoins = computed(
     () => orderTargets.value.length * IO_COSTS.APPROVE_ORDER
   );
@@ -146,37 +178,6 @@ export function useApproveOrder(p: ApproveParam) {
       });
   }
 
-  const targetIds = computed(() => {
-    const itemIds = new Set<string>();
-    for (let i = 0; i < p.orders.value.length; i++) {
-      const o = p.orders.value[i];
-      if (checkedShops.value.includes(o.shopId)) {
-        o.items.forEach((x) => itemIds.add(x.id));
-      }
-      for (let j = 0; j < o.items.length; j++) {
-        const item = o.items[j];
-        if (checkedOrders.value.includes(item.id) && !itemIds.has(item.id)) {
-          itemIds.add(item.id);
-        }
-      }
-    }
-    // return garmentOrders.value.filter((z) => itemIds.has(z.id));
-    return itemIds;
-  });
-  const targetOrdDbIds = computed(() => {
-    const orderIds = new Set<string>();
-    for (let i = 0; i < p.orders.value.length; i++) {
-      const o = p.orders.value[i];
-
-      for (let j = 0; j < o.items.length; j++) {
-        const item = o.items[j];
-        if (targetIds.value.has(item.id)) {
-          orderIds.add(o.dbId);
-        }
-      }
-    }
-    return orderIds;
-  });
   function approveSelected() {
     orderTargets.value = p.garmentOrders.value.filter((x) =>
       targetIds.value.has(x.id)
@@ -446,5 +447,7 @@ export function useApproveOrder(p: ApproveParam) {
     checkedOrders,
     returnApproved,
     returnReject,
+    targetIds,
+    targetOrdDbIds,
   };
 }

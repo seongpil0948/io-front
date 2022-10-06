@@ -106,15 +106,10 @@ export class GarmentOrder extends CommonField implements OrderCrt {
   setState(prodOrderId: string, state: ORDER_STATE) {
     const ts = this.getProdOrders(prodOrderId);
     if (ts && ts.length > 0) {
-      // this.states.splice(
-      //   this.states.findIndex((x) => ts[0].state),
-      //   1
-      // );
-      if (!ts[0].history) ts[0].history = [];
-      console.log(ts[0]);
-      ts[0].history.push(JSON.parse(JSON.stringify(ts[0])));
+      // if (!ts[0].history) ts[0].history = [];
+      // console.log(ts[0]);
+      // ts[0].history.push(JSON.parse(JSON.stringify(ts[0])));
       ts[0].state = state;
-      // this.states.push(state);
       this.states = uniqueArr(this.items.map((x) => x.state));
     } else {
       throw new Error(`prodOrderId ${prodOrderId} not exist`);

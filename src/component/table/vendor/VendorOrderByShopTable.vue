@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { ORDER_STATE, ProdOrderCombined, useApproveOrder } from "@/composable";
+import {
+  getBasicColumns,
+  ORDER_STATE,
+  ProdOrderCombined,
+  useApproveOrder,
+} from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { useAuthStore, useVendorOrderStore } from "@/store";
-import { DataTableColumns } from "naive-ui";
 import { computed, ref, watchEffect } from "vue";
 
 const props = defineProps<{
@@ -47,44 +51,7 @@ const {
 const shopTableCol = computed(() =>
   columns.value.filter((x) => x.type !== "selection")
 );
-const tableCol = computed((): DataTableColumns<ProdOrderCombined> => {
-  const cols: DataTableColumns<ProdOrderCombined> = [
-    {
-      type: "selection",
-    },
-    {
-      title: "주문상품",
-      key: "vendorGarment.vendorProdName",
-    },
-    {
-      title: "컬러",
-      key: "vendorGarment.color",
-    },
-    {
-      title: "사이즈",
-      key: "vendorGarment.size",
-    },
-    {
-      title: "재고개수",
-      key: "vendorGarment.stockCnt",
-    },
-    {
-      title: "주문수량",
-      key: "orderCnt",
-    },
-    {
-      title: "미송개수",
-      key: "pendingCnt",
-    },
-  ];
-  if (props.showPaidDate) {
-    cols.push({
-      title: "결제일",
-      key: "actualAmount.paidDate",
-    });
-  }
-  return cols;
-});
+const tableCol = computed(() => getBasicColumns(props.showPaidDate));
 const targetShops = computed(() =>
   garmentOrdersByShop.value.filter((x) =>
     detailShopIds.value.includes(x.shopId)

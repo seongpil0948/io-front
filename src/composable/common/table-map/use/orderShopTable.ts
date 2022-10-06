@@ -98,7 +98,6 @@ export function useOrderTable(d: orderTableParam) {
   const selectedData = ref<ProdOrderByVendor | null>(null);
   function onClickDetail(data: ProdOrderByVendor) {
     selectedData.value = data;
-    console.log("selectedData: ", selectedData.value);
   }
   const { columns: byVendorCol, checkedKeys: byVendorKeys } =
     useTable<ProdOrderByVendor>({

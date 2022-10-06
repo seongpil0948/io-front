@@ -68,8 +68,65 @@ export function useCancel() {
         logger.error(shopId, message);
       });
   }
+
+  async function cancelApprove(
+    shopIds: string[],
+    orderDbIds: string[],
+    prodOrderIds: string[],
+    vendorName: string,
+    vendorId: string
+  ) {
+    return ORDER_GARMENT_DB.cancelApprove(orderDbIds, prodOrderIds)
+      .then(async () => {
+        await smtp.sendAlarm({
+          toUserIds: shopIds,
+          subject: `inoutbox 주문 처리내역 알림.`,
+          body: `${vendorName} 에서 주문취소를 승인 하였습니다. `,
+          notiLoadUri: "/",
+          uriArgs: {},
+        });
+        msg.success("주문취소 완료", makeMsgOpt());
+      })
+      .catch((err) => {
+        const message = `주문취소 승인 실패 ${
+          err instanceof Error ? err.message : JSON.stringify(err)
+        }`;
+        console.error(err);
+        msg.error(message, makeMsgOpt());
+        logger.error(vendorId, message);
+      });
+  }
+  async function cancelReject(
+    shopIds: string[],
+    orderDbIds: string[],
+    prodOrderIds: string[],
+    vendorName: string,
+    vendorId: string
+  ) {
+    return ORDER_GARMENT_DB.cancelReject(orderDbIds, prodOrderIds)
+      .then(async () => {
+        await smtp.sendAlarm({
+          toUserIds: shopIds,
+          subject: `inoutbox 주문 처리내역 알림.`,
+          body: `${vendorName} 에서 주문취소를 반려 하였습니다. `,
+          notiLoadUri: "/",
+          uriArgs: {},
+        });
+        msg.success("주문취소 반려 완료", makeMsgOpt());
+      })
+      .catch((err) => {
+        const message = `주문취소 반려 실패 ${
+          err instanceof Error ? err.message : JSON.stringify(err)
+        }`;
+        console.error(err);
+        msg.error(message, makeMsgOpt());
+        logger.error(vendorId, message);
+      });
+  }
   return {
     cancelSelected,
     getCancel,
+    cancelApprove,
+    cancelReject,
   };
 }

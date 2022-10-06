@@ -168,6 +168,7 @@ declare module '@vue/runtime-core' {
     VendorLayout: typeof import('./src/view/vendor/VendorLayout.vue')['default']
     VendorOperInfo: typeof import('./src/component/form/VendorOperInfo.vue')['default']
     VendorOrderByShopTable: typeof import('./src/component/table/vendor/VendorOrderByShopTable.vue')['default']
+    VendorOrderTable: typeof import('./src/component/table/vendor/VendorOrderTable.vue')['default']
     VendorPartnerMng: typeof import('./src/view/vendor/page/VendorPartnerMng.vue')['default']
     VendorProdEditForm: typeof import('./src/component/card/vendor/VendorProdEditForm.vue')['default']
     VendorProdThum: typeof import('./src/component/card/vendor/VendorProdThum.vue')['default']

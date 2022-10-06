@@ -6,6 +6,8 @@ import { DataTableColumns, NImage, NText } from "naive-ui";
 import InfoCell from "@/component/table/InfoCell.vue";
 import { computed, h, onBeforeMount } from "vue";
 import { FilterOption } from "naive-ui/es/data-table/src/interface";
+import CancelButton from "@/component/button/CancelButton.vue";
+
 const auth = useAuthStore();
 const vendorStore = useVendorsStore();
 
@@ -73,6 +75,10 @@ const columns = computed(
         },
       },
       {
+        title: "총 주문수량",
+        key: "orderCnt",
+      },
+      {
         title: "미송수량",
         key: "pendingCnt",
       },
@@ -106,6 +112,18 @@ const columns = computed(
             {
               default: () => timeToDate(x.actualAmount.paidDate),
             }
+          ),
+      },
+      {
+        key: "cancel",
+        title: "취소접수",
+        render: (prodOrder: ProdOrderCombined) =>
+          h(
+            CancelButton,
+            {
+              prodOrder,
+            },
+            { default: () => "취소요청" }
           ),
       },
     ] as DataTableColumns<ProdOrderCombined>
