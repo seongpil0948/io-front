@@ -66,11 +66,9 @@ export function useApproveOrder(p: ApproveParam) {
               "부분승인은 개수는 주문개수 이하로 설정 되어야합니다."
             );
           }
-          // FIXME: 기존 주문건도 사라지는 게 있음, 수동으로 주문개수하지말고, setOrderCnt 이용해서 하고 update 함수 사용도 지양
-          item.activeCnt = numOfAllow.value;
-          item.pendingCnt = item.orderCnt - numOfAllow.value;
+          const newId = await o.dividePartial(item.id, numOfAllow.value, false);
           o.update().then(() =>
-            ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [item.id])
+            ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [newId])
               .then(() => {
                 msg.success("부분승인 완료", makeMsgOpt());
               })
