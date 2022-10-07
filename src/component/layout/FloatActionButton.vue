@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { WalletOutline, PersonCircleOutline } from "@vicons/ionicons5";
 import { CloudLogging } from "@vicons/carbon";
-import { ref } from "vue";
+import { ref, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/store";
+
+const auth = useAuthStore();
+auth.$onAction(() => {
+  handleWalletClose();
+  handlePersonalClose();
+  handleUserLogClose();
+});
 
 const walletShow = ref(false);
 const handleWalletClose = () => (walletShow.value = false);
