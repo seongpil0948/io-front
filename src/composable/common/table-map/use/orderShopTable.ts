@@ -6,14 +6,7 @@ import {
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import {
-  DataTableColumns,
-  DataTableRowKey,
-  NButton,
-  NImage,
-  useMessage,
-  NText,
-} from "naive-ui";
+import { DataTableColumns, NButton, NImage, useMessage, NText } from "naive-ui";
 import { computed, h, Ref, ref } from "vue";
 import { useTable } from "./table";
 import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";

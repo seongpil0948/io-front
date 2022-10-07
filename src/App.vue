@@ -54,6 +54,9 @@ body {
   margin-top: 12px;
   margin-bottom: 12px;
 }
+
+.n-card > .n-card__content,
+.n-card > .n-card__footer,
 .n-card-header {
   overflow: auto;
 }
