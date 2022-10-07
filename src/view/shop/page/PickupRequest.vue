@@ -6,6 +6,7 @@ import {
   IoUser,
   ORDER_GARMENT_DB,
   useAlarm,
+  ProdOrderCombined,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { useMessage } from "naive-ui";
@@ -32,7 +33,15 @@ const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 const orders = shopOrderStore.getOrders(inStates);
 const garmentOrdersByVendor =
   shopOrderStore.getGarmentOrdersByVendor(filteredOrders);
-const { tableRef, byVendorCol, byVendorKeys } = useOrderTable({
+const {
+  tableRef,
+  byVendorCol,
+  byVendorKeys,
+  selectedData, // selected
+  targetIds,
+  targetOrdDbIds,
+  tableCol,
+} = useOrderTable({
   garmentOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
@@ -45,37 +54,23 @@ async function pickupRequest() {
     (x) => x.userInfo.userId === targetUncleId.value
   )!;
   if (!uncle) return msg.error("엉클을 선택 해주세요");
-  else if (byVendorKeys.value.length < 1) {
+  else if (targetIds.value.size < 1 || targetOrdDbIds.value.size < 1) {
     return msg.error("주문을 선택 해주세요");
   }
-  const filtered = garmentOrdersByVendor.value.filter((x) =>
-    byVendorKeys.value.includes(x.vendorId)
-  );
-  const prodOrderIds = filtered.flatMap((x) => x.items).map((y) => y.id);
-  const orderIds: string[] = [];
-  orders.value.forEach((x) => {
-    if (x.itemIds.some((y) => prodOrderIds.includes(y))) {
-      orderIds.push(x.dbId);
-    }
-  });
 
-  if (orderIds.length > 0) {
-    await ORDER_GARMENT_DB.reqPickup(
-      orderIds,
-      prodOrderIds,
-      uncle.userInfo.userId
-    );
-    msg.success("픽업 요청 성공!");
-    await smtp.sendAlarm({
-      toUserIds: [uncle.userInfo.userId],
-      subject: `inoutbox 주문 처리내역 알림.`,
-      body: `${uncle.name} 으로부터 픽업요청이 도착하였습니다. `,
-      notiLoadUri: "/",
-      uriArgs: {},
-    });
-  } else {
-    msg.success("픽업 요청 실패!");
-  }
+  await ORDER_GARMENT_DB.reqPickup(
+    [...targetOrdDbIds.value],
+    [...targetIds.value],
+    uncle.userInfo.userId
+  );
+  msg.success("픽업 요청 성공!");
+  await smtp.sendAlarm({
+    toUserIds: [uncle.userInfo.userId],
+    subject: `inoutbox 주문 처리내역 알림.`,
+    body: `${uncle.name} 으로부터 픽업요청이 도착하였습니다. `,
+    notiLoadUri: "/",
+    uriArgs: {},
+  });
 }
 </script>
 
@@ -106,6 +101,18 @@ async function pickupRequest() {
           'page-sizes': [5, 10, 25, 50, 100],
         }"
         :bordered="false"
+      />
+    </n-card>
+    <n-card
+      v-if="selectedData"
+      :bordered="false"
+      :title="selectedData.vendorName"
+    >
+      <n-data-table
+        :bordered="false"
+        :columns="tableCol"
+        :data="selectedData.items"
+        :rowKey="(row: ProdOrderCombined) => row.id"
       />
     </n-card>
   </n-space>

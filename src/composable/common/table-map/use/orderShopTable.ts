@@ -196,7 +196,11 @@ export function useOrderTable(d: orderTableParam) {
   const targetIds = computed(() => {
     const itemIds = new Set<string>(
       d.garmentOrders.value
-        .filter((x) => checkedDetailKeys.value.includes(x.id))
+        .filter(
+          (x) =>
+            checkedDetailKeys.value.includes(x.id) ||
+            byVendorKeys.value.includes(x.vendorId)
+        )
         .map((y) => y.id)
     );
     if (selectedData.value) {
