@@ -1,23 +1,23 @@
 <template>
   <n-card content-style="padding: 0;">
     <n-space vertical justify="start" style="margin: 0">
-      <n-carousel
-        ref="inst"
-        autoplay
-        show-arrow
-        :show-dots="false"
-        trigger="hover"
-        direction="horizontal"
-        mousewheel
-        :style="`width: ${width}${unit}; height: ${height}${unit};`"
-      >
-        <img
-          class="carousel-img"
-          v-for="(url, j) in imgUrls"
-          :key="j"
-          :src="url"
-        />
-      </n-carousel>
+      <div :style="`width: ${width}${unit}; height: ${height}${unit};`">
+        <n-carousel
+          ref="inst"
+          autoplay
+          show-arrow
+          :show-dots="false"
+          trigger="click"
+          direction="horizontal"
+        >
+          <img
+            class="carousel-img"
+            v-for="(url, j) in imgUrls"
+            :key="j"
+            :src="url"
+          />
+        </n-carousel>
+      </div>
       <n-space inline>
         <img
           v-for="(url, i) in imgUrls"

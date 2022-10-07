@@ -109,7 +109,7 @@ function onCheck(val: string) {
         :height="30"
         unit="vw"
       />
-      <n-space vertical style="max-height: 50vh; overflow: auto; width: 35vw">
+      <n-space vertical style="width: 35vw">
         <n-space justify="space-between" v-if="getUserLocate(prod)">
           <n-button text>
             <template #icon>
@@ -125,25 +125,27 @@ function onCheck(val: string) {
           >
         </n-space>
         <n-divider style="width: 100%" />
-        <n-h2>{{ prod.vendorProdName }}</n-h2>
+        <n-h2 style="padding-top: 0px">{{ prod.vendorProdName }}</n-h2>
 
-        <n-h2>{{ prod.vendorPrice }}원</n-h2>
-        <n-space
-          inline
-          justify="space-between"
-          align="center"
-          style="border: grey solid 1px; padding: 10px; width: 25vw"
-          v-for="(opt, i) in prodOpts"
-          :key="i"
-        >
-          <n-h4 style="margin: 0">{{ opt.label }}</n-h4>
-          <logo-checker
-            :size="1"
-            :checked="selectedProdIds.includes(opt.value)"
-            @onClick="onCheck(opt.value)"
-            style="margin-right: 20px"
-          />
-        </n-space>
+        <n-h2 style="padding-top: 0px">{{ prod.vendorPrice }}원</n-h2>
+        <div style="max-height: 20vw; overflow: auto">
+          <n-space
+            inline
+            justify="space-between"
+            align="center"
+            style="border: grey solid 1px; padding: 10px; width: 25vw"
+            v-for="(opt, i) in prodOpts"
+            :key="i"
+          >
+            <n-h4 style="margin: 0">{{ opt.label }}</n-h4>
+            <logo-checker
+              :size="1"
+              :checked="selectedProdIds.includes(opt.value)"
+              @onClick="onCheck(opt.value)"
+              style="margin-right: 20px"
+            />
+          </n-space>
+        </div>
       </n-space>
     </n-space>
 
