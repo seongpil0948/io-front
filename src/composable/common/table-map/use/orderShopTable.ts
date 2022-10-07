@@ -17,6 +17,7 @@ interface orderTableParam {
   orders: Ref<GarmentOrder[]>;
   updateOrderCnt: boolean;
   useChecker?: boolean;
+  useAccountStr?: boolean;
 }
 export function useOrderTable(d: orderTableParam) {
   const auth = useAuthStore();
@@ -56,23 +57,24 @@ export function useOrderTable(d: orderTableParam) {
         }
       ),
   });
-  byVendorColKeys.push({
-    key: "accountStr",
-    cellRender: (row: ProdOrderByVendor) =>
-      h(
-        NButton,
-        {
-          text: true,
-          onClick: () => {
-            if (row.accountStr) {
-              write(row.accountStr);
-              msg.info("복사완료");
-            }
+  if (d.useAccountStr === undefined || d.useAccountStr === true)
+    byVendorColKeys.push({
+      key: "accountStr",
+      cellRender: (row: ProdOrderByVendor) =>
+        h(
+          NButton,
+          {
+            text: true,
+            onClick: () => {
+              if (row.accountStr) {
+                write(row.accountStr);
+                msg.info("복사완료");
+              }
+            },
           },
-        },
-        { default: () => row.accountStr }
-      ),
-  });
+          { default: () => row.accountStr }
+        ),
+    });
   byVendorColKeys.push({
     key: "id",
     cellRender: (row: ProdOrderByVendor) =>

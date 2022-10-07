@@ -36,6 +36,7 @@ const { tableRef, byVendorCol, byVendorKeys } = useOrderTable({
   garmentOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
+  useAccountStr: false,
 });
 
 const targetUncleId = ref<string | null>(null);
