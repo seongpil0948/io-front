@@ -25,6 +25,17 @@ export function extractGarmentOrd(
         shopGarment,
         vendorGarment,
       });
+      // 2. set pending cnt
+      item.pendingCnt = GarmentOrder.getPendingCnt(
+        vendorGarment.stockCnt,
+        item.orderCnt,
+        vendorGarment.allowPending
+      );
+      // 3. set active cnt
+      item.activeCnt = GarmentOrder.getActiveCnt(
+        item.orderCnt,
+        item.pendingCnt
+      );
       garmentOrders.push(item);
     }
   });
