@@ -20,7 +20,7 @@ const u = auth.currUser;
 const store = useVendorOrderStore();
 const orders = store.getOrders(props.inStates ?? []);
 const garmentOrders = store.getFilteredOrder(props.inStates ?? []);
-const { columns, checkedOrders, targetIds, targetOrdDbIds } = useApproveOrder({
+const { checkedOrders, targetIds, targetOrdDbIds } = useApproveOrder({
   garmentOrders,
   orders,
   vendorId: u.userInfo.userId,
@@ -36,9 +36,6 @@ function onClickOrder(keys: string[]) {
 const { cancelApprove, cancelReject } = useCancel();
 const tarOrders = computed(() =>
   orders.value.filter((x) => targetOrdDbIds.value.has(x.dbId))
-);
-const tarPrdOrders = computed(() =>
-  garmentOrders.value.filter((x) => targetIds.value.has(x.id))
 );
 async function approveCancel() {
   await cancelApprove(

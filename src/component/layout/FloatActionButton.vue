@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { WalletOutline, PersonCircleOutline } from "@vicons/ionicons5";
 import { CloudLogging } from "@vicons/carbon";
-import { ref, onBeforeUnmount } from "vue";
+// eslint-disable-next-line
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store";
 

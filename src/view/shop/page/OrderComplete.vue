@@ -22,8 +22,6 @@ const {
   byVendorCol,
   // byVendorKeys,
   selectedData, // selected
-  targetIds,
-  targetOrdDbIds,
   tableCol,
 } = useOrderTable({
   garmentOrders: filteredOrders,

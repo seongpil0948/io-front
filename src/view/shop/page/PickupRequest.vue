@@ -5,7 +5,7 @@ import {
   USER_DB,
   IoUser,
   ORDER_GARMENT_DB,
-  useAlarm,
+  useAlarm, // eslint-disable-next-line
   ProdOrderCombined,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
@@ -36,7 +36,6 @@ const garmentOrdersByVendor =
 const {
   tableRef,
   byVendorCol,
-  byVendorKeys,
   selectedData, // selected
   targetIds,
   targetOrdDbIds,

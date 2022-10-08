@@ -14,7 +14,7 @@ const shipLocates = computed(() =>
   auth.currUser.uncleInfo ? auth.currUser.uncleInfo.shipLocates : []
 );
 
-const selectedArea = ref({
+const selectedArea = ref<{ [k: string]: number | string | null }>({
   city: null,
   county: null,
   town: null,
@@ -22,11 +22,11 @@ const selectedArea = ref({
 });
 async function addShipArea() {
   const v = selectedArea.value;
+
+  if (!v.county) v.county = "";
+  if (!v.town) v.town = "";
   const target = shipAreas.find(
-    (x) =>
-      (x.city === v.city && x.county) ??
-      ("" === v.county && x.town) ??
-      "" === v.town
+    (x) => x.city === v.city && x.county === v.county && x.town === v.town
   );
   if (!target) {
     msg.error("올바르게 지역을 선택 해주세요.");
@@ -45,11 +45,11 @@ async function addShipArea() {
           alias: target.town,
           country: "",
           locateType: "ETC",
-          city: v.city!,
-          county: v.county ?? "",
-          town: v.town ?? "",
+          city: v.city as string,
+          county: v.county as string,
+          town: v.town as string,
         }),
-        amount: v.amount,
+        amount: v.amount as number,
       };
       u.uncleInfo!.shipLocates.push(locate);
       await u.update();

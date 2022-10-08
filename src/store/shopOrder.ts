@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { extractGarmentOrd } from "@/util";
 import {
   ORDER_GARMENT_DB,

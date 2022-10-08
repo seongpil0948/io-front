@@ -13,7 +13,7 @@ const selectedArea = ref({
   alias: null,
   amount: 10000,
 });
-const { addPickArea, locates } = usePickArea(selectedArea);
+const { addPickArea } = usePickArea(selectedArea);
 
 async function onClickAdd() {
   const locate = addPickArea();
@@ -22,7 +22,7 @@ async function onClickAdd() {
     locate,
     amount: selectedArea.value.amount,
   };
-  if (u.uncleInfo!.shipLocates.some((x) => x.locate.code === locate.code)) {
+  if (u.uncleInfo!.pickupLocates.some((x) => x.locate.code === locate.code)) {
     msg.error("이미 추가한 지역입니다.");
   } else {
     u.uncleInfo!.pickupLocates.push(lAmount);
