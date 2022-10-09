@@ -45,11 +45,14 @@ export class Locate implements LocateCRT {
   locateType: LocateType;
 
   get toStr() {
+    return Locate.toStr(this);
+  }
+  static toStr(l: LocateCRT) {
     let str = " ";
-    if (this.city) str += this.city + " ";
-    if (this.county) str += this.county + " ";
-    if (this.town) str += this.town + " ";
-    if (this.alias) str += this.alias + " ";
+    if (l.city) str += l.city + " ";
+    if (l.county) str += l.county + " ";
+    if (l.town) str += l.town + " ";
+    if (l.alias) str += l.alias + " ";
     return str;
   }
   constructor(p: LocateCRT) {

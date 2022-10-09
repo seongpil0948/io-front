@@ -1,33 +1,33 @@
 <script setup lang="ts">
 import {
+  Locate,
   ProdOrderByShop,
   ProdOrderCombined,
   SHIPMENT_DB,
+  ShipOrder,
   useAlarm,
+  useShipmentUncle,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
-import { useAuthStore, useUncleOrderStore } from "@/store";
+import { useAuthStore } from "@/store";
 import { makeMsgOpt, uniqueArr } from "@/util";
-import {
-  DataTableRowKey,
-  DataTableColumns,
-  NButton,
-  useMessage,
-} from "naive-ui";
+import { DataTableColumns, NButton, useMessage } from "naive-ui";
 import { computed, h, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const smtp = useAlarm();
-const ordStore = useUncleOrderStore();
-const garmentOrders = ordStore.getFilteredOrder(["BEFORE_APPROVE_PICKUP"]);
-const garmentOrdersByShop = ordStore.getGarmentOrdersByShop(garmentOrders);
-const checkedKeys = ref<DataTableRowKey[]>([]);
-function onClickRow(keys: DataTableRowKey[]) {
-  checkedKeys.value = keys;
-}
+const {
+  orders,
+  checkedKeys,
+  garmentOrdersByShop,
+  garmentOrders,
+  onCheckDetailRow,
+  checkedDetailKeys,
+} = useShipmentUncle(["BEFORE_APPROVE_PICKUP"]);
+
+const selectedData = ref<ProdOrderByShop | null>(null);
 function onClickDetail(data: ProdOrderByShop) {
-  // TODO
-  console.log("onClickDetail data:", data);
+  selectedData.value = data;
 }
 const columns = computed(() => {
   const cols = [
@@ -76,6 +76,50 @@ const columns = computed(() => {
     return x;
   });
 });
+
+const columnsDetail = computed(() => {
+  const cols = [
+    {
+      type: "selection",
+    },
+    {
+      title: "도매매처명",
+      key: "vendorName",
+      render: (row) =>
+        row.vendorGarment.userInfo.displayName ??
+        row.vendorGarment.userInfo.userName,
+    },
+    {
+      title: "도매처 주소",
+      key: "vendor locate",
+      render: (row) =>
+        row.vendorGarment.companyInfo &&
+        row.vendorGarment.companyInfo.shipLocate
+          ? Locate.toStr(row.vendorGarment.companyInfo.shipLocate)
+          : null,
+    },
+    {
+      title: "상세 주소",
+      key: "vendor locate",
+      render: (row) =>
+        row.vendorGarment.companyInfo &&
+        row.vendorGarment.companyInfo.shipLocate
+          ? row.vendorGarment.companyInfo.shipLocate.detailLocate
+          : null,
+    },
+
+    {
+      title: "픽업수량",
+      key: "activeCnt",
+    },
+  ] as DataTableColumns<ProdOrderCombined>;
+  return cols.map((x: any) => {
+    if (!["selection", "expand"].includes(x.type)) {
+      x.sorter = "default";
+    }
+    return x;
+  });
+});
 const showApprovePickup = ref(false);
 const orderTargets = ref<ProdOrderCombined[]>([]);
 function updateReqOrderShow(val: boolean) {
@@ -89,9 +133,11 @@ const expectedReduceCoin = computed(
   () => IO_COSTS.APPROVE_PICKUP * orderTargets.value.length
 );
 const u = auth.currUser;
+
 async function onReqOrderConfirm() {
+  // prodOrderIds
   const ids = orderTargets.value.map((x) => x.id);
-  const targetOrd = ordStore.orders.filter((y) =>
+  const targetOrd = orders.filter((y) =>
     y.items.some((item) => ids.includes(item.id))
   );
   return Promise.all(
@@ -123,8 +169,8 @@ async function onReqOrderConfirm() {
 }
 const targetIds = computed(() => {
   const itemIds = new Set<string>();
-  for (let i = 0; i < ordStore.orders.length; i++) {
-    const o = ordStore.orders[i];
+  for (let i = 0; i < orders.length; i++) {
+    const o = orders[i];
     if (checkedKeys.value.includes(o.shopId)) {
       o.items.forEach((x) => itemIds.add(x.id));
     }
@@ -139,20 +185,6 @@ const targetIds = computed(() => {
   return itemIds;
 });
 
-// const targetOrderIds = computed(() => {
-//   const orderIds = new Set<string>();
-//   for (let i = 0; i < ordStore.orders.length; i++) {
-//     const o = ordStore.orders[i];
-
-//     for (let j = 0; j < o.items.length; j++) {
-//       const item = o.items[j];
-//       if (targetIds.value.has(item.id)) {
-//         orderIds.add(o.dbId);
-//       }
-//     }
-//   }
-//   return orderIds;
-// });
 function approveSelected() {
   orderTargets.value = garmentOrders.value.filter((x) =>
     targetIds.value.has(x.id)
@@ -172,7 +204,7 @@ function approveSelected() {
       :columns="columns"
       :data="garmentOrdersByShop"
       :rowKey="(row: ProdOrderByShop) => row.shopId"
-      @update:checked-row-keys="onClickRow"
+      @update:checked-row-keys="onClickDetail"
     />
     <coin-reduce-confirm-modal
       v-if="garmentOrdersByShop.length > 0"
@@ -186,5 +218,14 @@ function approveSelected() {
         픽업 승인 완료처리가 되면 품목별 1코인이 소모됩니다.
       </template>
     </coin-reduce-confirm-modal>
+  </n-card>
+  <n-card v-if="selectedData" :bordered="false" :title="selectedData.shopName">
+    <n-data-table
+      :bordered="false"
+      :columns="columnsDetail"
+      :data="selectedData.items"
+      :rowKey="(row: ShipOrder) => row.id"
+      @update:checked-row-keys="onCheckDetailRow"
+    />
   </n-card>
 </template>
