@@ -39,7 +39,7 @@ async function onSelectWorker(val: IoUser) {
   if (selectedData.value && item) {
     const shipment = IoShipment.fromJson(item);
     shipment.uncleId = val.userInfo.userId;
-    const order = orders.find((x) => x.dbId === shipment.orderDbId);
+    const order = orders.value.find((x) => x.dbId === shipment.orderDbId);
     if (!order) throw new Error("order not exist");
     order.setState(item.id, "BEFORE_PICKUP");
     return Promise.all([order.update(), shipment.update()]).then(async () => {

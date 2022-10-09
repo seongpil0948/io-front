@@ -22,6 +22,7 @@ const {
   garmentOrdersByShop,
   garmentOrders,
   onCheckDetailRow,
+  onCheckRow,
   checkedDetailKeys,
 } = useShipmentUncle(["BEFORE_APPROVE_PICKUP"]);
 
@@ -29,6 +30,79 @@ const selectedData = ref<ProdOrderByShop | null>(null);
 function onClickDetail(data: ProdOrderByShop) {
   selectedData.value = data;
 }
+
+const showApprovePickup = ref(false);
+const orderTargets = ref<ProdOrderCombined[]>([]);
+function updateReqOrderShow(val: boolean) {
+  if (!val) orderTargets.value = [];
+  showApprovePickup.value = val;
+}
+const msg = useMessage();
+const log = useLogger();
+const auth = useAuthStore();
+const expectedReduceCoin = computed(
+  () => IO_COSTS.APPROVE_PICKUP * orderTargets.value.length
+);
+const u = auth.currUser;
+
+async function onReqOrderConfirm() {
+  // prodOrderIds
+  const ids = orderTargets.value.map((x) => x.id);
+  const targetOrd = orders.value.filter((y) =>
+    y.items.some((item) => ids.includes(item.id))
+  );
+  return Promise.all(
+    targetOrd.map((t) => SHIPMENT_DB.approvePickUp(t, expectedReduceCoin.value))
+  )
+    .then(async () => {
+      msg.success("픽업 승인완료.", makeMsgOpt());
+      await smtp.sendAlarm({
+        toUserIds: [
+          ...targetOrd.map((x) => x.shopId),
+          ...targetOrd.flatMap((x) => x.vendorIds),
+          u.userInfo.userId,
+        ],
+        subject: `inoutbox 주문 처리내역 알림.`,
+        body: `${targetOrd.length} 건의  픽업승인이 완료되었습니다. `,
+        notiLoadUri: "/",
+        uriArgs: {},
+      });
+    })
+    .catch((err) => {
+      const message = err instanceof Error ? err.message : JSON.stringify(err);
+      msg.error(`픽업 승인 실패. ${message}`, makeMsgOpt());
+      log.error(u.userInfo.userId, `픽업 승인 실패. ${message}`);
+    })
+    .finally(() => {
+      orderTargets.value = [];
+      showApprovePickup.value = false;
+    });
+}
+
+const targetIds = computed(() => {
+  const itemIds = new Set<string>();
+  for (let i = 0; i < orders.value.length; i++) {
+    const o = orders.value[i];
+    if (checkedKeys.value.includes(o.shopId)) {
+      o.items.forEach((x) => itemIds.add(x.id));
+    }
+    for (let j = 0; j < o.items.length; j++) {
+      const item = o.items[j];
+      if (checkedDetailKeys.value.includes(item.id)) {
+        itemIds.add(item.id);
+      }
+    }
+  }
+  // return garmentOrders.value.filter((z) => itemIds.has(z.id));
+  return itemIds;
+});
+function approveSelected() {
+  orderTargets.value = garmentOrders.value.filter((x) =>
+    targetIds.value.has(x.id)
+  );
+  showApprovePickup.value = true;
+}
+
 const columns = computed(() => {
   const cols = [
     {
@@ -120,77 +194,6 @@ const columnsDetail = computed(() => {
     return x;
   });
 });
-const showApprovePickup = ref(false);
-const orderTargets = ref<ProdOrderCombined[]>([]);
-function updateReqOrderShow(val: boolean) {
-  if (!val) orderTargets.value = [];
-  showApprovePickup.value = val;
-}
-const msg = useMessage();
-const log = useLogger();
-const auth = useAuthStore();
-const expectedReduceCoin = computed(
-  () => IO_COSTS.APPROVE_PICKUP * orderTargets.value.length
-);
-const u = auth.currUser;
-
-async function onReqOrderConfirm() {
-  // prodOrderIds
-  const ids = orderTargets.value.map((x) => x.id);
-  const targetOrd = orders.filter((y) =>
-    y.items.some((item) => ids.includes(item.id))
-  );
-  return Promise.all(
-    targetOrd.map((t) => SHIPMENT_DB.approvePickUp(t, expectedReduceCoin.value))
-  )
-    .then(async () => {
-      msg.success("픽업 승인완료.", makeMsgOpt());
-      await smtp.sendAlarm({
-        toUserIds: [
-          ...targetOrd.map((x) => x.shopId),
-          ...targetOrd.flatMap((x) => x.vendorIds),
-          u.userInfo.userId,
-        ],
-        subject: `inoutbox 주문 처리내역 알림.`,
-        body: `${targetOrd.length} 건의  픽업승인이 완료되었습니다. `,
-        notiLoadUri: "/",
-        uriArgs: {},
-      });
-    })
-    .catch((err) => {
-      const message = err instanceof Error ? err.message : JSON.stringify(err);
-      msg.error(`픽업 승인 실패. ${message}`, makeMsgOpt());
-      log.error(u.userInfo.userId, `픽업 승인 실패. ${message}`);
-    })
-    .finally(() => {
-      orderTargets.value = [];
-      showApprovePickup.value = false;
-    });
-}
-const targetIds = computed(() => {
-  const itemIds = new Set<string>();
-  for (let i = 0; i < orders.length; i++) {
-    const o = orders[i];
-    if (checkedKeys.value.includes(o.shopId)) {
-      o.items.forEach((x) => itemIds.add(x.id));
-    }
-    for (let j = 0; j < o.items.length; j++) {
-      const item = o.items[j];
-      if (checkedKeys.value.includes(item.id) && !itemIds.has(item.id)) {
-        itemIds.add(item.id);
-      }
-    }
-  }
-  // return garmentOrders.value.filter((z) => itemIds.has(z.id));
-  return itemIds;
-});
-
-function approveSelected() {
-  orderTargets.value = garmentOrders.value.filter((x) =>
-    targetIds.value.has(x.id)
-  );
-  showApprovePickup.value = true;
-}
 </script>
 <template>
   <n-card>
@@ -204,7 +207,7 @@ function approveSelected() {
       :columns="columns"
       :data="garmentOrdersByShop"
       :rowKey="(row: ProdOrderByShop) => row.shopId"
-      @update:checked-row-keys="onClickDetail"
+      @update:checked-row-keys="onCheckRow"
     />
     <coin-reduce-confirm-modal
       v-if="garmentOrdersByShop.length > 0"

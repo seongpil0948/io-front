@@ -84,7 +84,13 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
           );
         }
         const pickLocateCode = isReturn ? shopLocate.code : vendorLocate.code;
+        const pickLocateStr = isReturn
+          ? shopLocate.detailLocate
+          : vendorLocate.detailLocate;
         const shipLocateCode = isReturn ? vendorLocate.code : shopLocate.code;
+        const shipLocateStr = isReturn
+          ? vendorLocate.detailLocate
+          : shopLocate.detailLocate;
         const ship = uncle.uncleInfo!.shipLocates;
         const pick = uncle.uncleInfo!.pickupLocates;
         const shipLocate = isReturn
@@ -94,9 +100,10 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
           ? ship.find((x) => x.locate.code === pickLocateCode)!
           : pick.find((x) => x.locate.code === pickLocateCode)!;
 
-        if (!isReturn && !shipLocate) throw new Error("배송불가 지역입니다.");
+        if (!isReturn && !shipLocate)
+          throw new Error(`${shipLocateStr}은 배송불가 지역입니다.`);
         else if (!isReturn && !pickLocate)
-          throw new Error("픽업불가 지역입니다.");
+          throw new Error(`${pickLocateStr}은 픽업불가 지역입니다.`);
         const shipment = new IoShipment({
           shippingId: uuidv4(),
           orderDbId: ord.dbId,
