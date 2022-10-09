@@ -1,6 +1,6 @@
 import { CommonField } from "@/composable/common";
 // import { GarmentOrder } from "./order";
-import { Locate, ShipmentCrt, SHIP_METHOD } from "@/composable";
+import { Locate, LocateCRT, ShipmentCrt, SHIP_METHOD } from "@/composable";
 import {
   FirestoreDataConverter,
   DocumentSnapshot,
@@ -71,9 +71,9 @@ export class IoShipment extends CommonField implements ShipmentCrt {
   amountByWeight?: number;
   shipFeeBasic: number;
   pickupFeeBasic: number;
-  returnAddress: Locate;
-  startAddress: Locate;
-  receiveAddress: Locate;
+  returnAddress: Locate | LocateCRT;
+  startAddress: Locate | LocateCRT;
+  receiveAddress: Locate | LocateCRT;
   wishedDeliveryTime: Date;
   managerId: string; // 엉클관리자 아이디
   constructor(d: ShipmentCrt) {

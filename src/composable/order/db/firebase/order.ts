@@ -529,9 +529,8 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         const o = orders[i];
         for (let j = 0; j < o.items.length; j++) {
           const item = o.items[j];
-          const rollback = item.history.pop()!;
           if (prodOrderIds.includes(item.id)) {
-            o.setState(item.id, rollback.state);
+            o.setState(item.id, item.beforeState ?? "BEFORE_PICKUP");
             transaction.update(
               doc(getOrdRef(o.shopId), o.dbId),
               converterGarment.toFirestore(o)

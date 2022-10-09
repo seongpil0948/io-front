@@ -288,6 +288,7 @@ export function useApproveOrder(p: ApproveParam) {
           err instanceof Error ? err.message : JSON.stringify(err)
         }`;
         msg.error(message, makeMsgOpt());
+        console.error(message);
         logger.error(p.vendorId, message);
       });
   }

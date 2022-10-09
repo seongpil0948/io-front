@@ -56,6 +56,7 @@ async function onReqOrderConfirm() {
   )
     .then(async () => {
       msg.success("픽업 승인완료.", makeMsgOpt());
+      selectedData.value = null;
       await smtp.sendAlarm({
         toUserIds: [
           ...targetOrd.map((x) => x.shopId),
@@ -163,21 +164,26 @@ const columnsDetail = computed(() => {
         row.vendorGarment.userInfo.displayName ??
         row.vendorGarment.userInfo.userName,
     },
-    {
-      title: "도매처 주소",
-      key: "vendor locate",
-      render: (row) =>
-        row.vendorGarment.companyInfo &&
-        row.vendorGarment.companyInfo.shipLocate
-          ? Locate.toStr(row.vendorGarment.companyInfo.shipLocate)
-          : null,
-    },
+    // {
+    //   title: "도매처 주소",
+    //   key: "vendor locate",
+    //   render: (row) =>
+    //     row.vendorGarment.companyInfo &&
+    //     row.vendorGarment.companyInfo.shipLocate
+    //       ? Locate.toStr(row.vendorGarment.companyInfo.shipLocate)
+    //       : null,
+    // },
     {
       title: "상세 주소",
       key: "vendor locate",
       render: (row) =>
-        row.vendorGarment.companyInfo &&
-        row.vendorGarment.companyInfo.shipLocate
+        row.orderType === "RETURN"
+          ? row.shopGarment.companyInfo &&
+            row.shopGarment.companyInfo.shipLocate
+            ? row.shopGarment.companyInfo.shipLocate.detailLocate
+            : null
+          : row.vendorGarment.companyInfo &&
+            row.vendorGarment.companyInfo.shipLocate
           ? row.vendorGarment.companyInfo.shipLocate.detailLocate
           : null,
     },

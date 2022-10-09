@@ -63,6 +63,7 @@ async function pickupRequest() {
     uncle.userInfo.userId
   );
   msg.success("픽업 요청 성공!");
+  selectedData.value = null;
   await smtp.sendAlarm({
     toUserIds: [uncle.userInfo.userId],
     subject: `inoutbox 주문 처리내역 알림.`,

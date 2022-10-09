@@ -1,3 +1,4 @@
+import { LocateCRT } from "@/composable";
 import { QueryConstraint } from "@firebase/firestore";
 import { Ref } from "vue";
 import {
@@ -141,6 +142,7 @@ export interface ProdOrder {
   actualAmount: OrderAmount;
   initialAmount: OrderAmount;
   state: ORDER_STATE;
+  beforeState?: ORDER_STATE;
   shipmentId?: string;
   shopId: string;
   orderDbId: string;
@@ -230,9 +232,9 @@ export interface ShipmentCrt {
   amountByWeight?: number;
   shipFeeBasic: number; // 지역별 기본 배송료
   pickupFeeBasic: number; // 지역별 기본 픽업료
-  returnAddress: Locate; // 출발지
-  startAddress: Locate; // 도매
-  receiveAddress: Locate; // 소매
+  returnAddress: Locate | LocateCRT; // 출발지
+  startAddress: Locate | LocateCRT; // 도매
+  receiveAddress: Locate | LocateCRT; // 소매
   wishedDeliveryTime: Date;
   managerId: string; // 엉클관리자 아이디
 }

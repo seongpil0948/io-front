@@ -109,6 +109,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       // if (!ts[0].history) ts[0].history = [];
       // console.log(ts[0]);
       // ts[0].history.push(JSON.parse(JSON.stringify(ts[0])));
+      ts[0].beforeState = ts[0].state;
       ts[0].state = state;
       this.states = uniqueArr(this.items.map((x) => x.state));
     } else {
@@ -236,7 +237,14 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     }
     return newOrder.id;
   }
-
+  static isShipping(po: ProdOrder) {
+    return [
+      "SHIPPING",
+      "SHIPPING_PENDING",
+      "SHIPPING_WAIT",
+      "SHIPPING_COMPLETE",
+    ].includes(po.state);
+  }
   static fromProd(
     p: ShopUserGarment,
     orderIds: string[],

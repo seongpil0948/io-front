@@ -194,12 +194,13 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
         key: "vendorGarment.userInfo.displayName",
       },
       {
-        title: "소매주소",
-        key: "receiveAddress.toStr",
+        title: "도착지 주소",
+        key: "receiveAddress.detailLocate",
+        // render: (row) => GarmentOrder.isShipping(row) ? ,
       },
       {
-        title: "도매주소",
-        key: "startAddress.toStr",
+        title: "출발지 주소",
+        key: "startAddress.detailLocate",
       },
       {
         title: "픽업수량",

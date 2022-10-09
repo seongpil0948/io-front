@@ -83,27 +83,24 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
             `도매처 대표 배송지 정보가 없습니다. ${shop.userInfo.userId}`
           );
         }
-        const pickLocateCode = isReturn ? shopLocate.code : vendorLocate.code;
-        const pickLocateStr = isReturn
-          ? shopLocate.detailLocate
-          : vendorLocate.detailLocate;
-        const shipLocateCode = isReturn ? vendorLocate.code : shopLocate.code;
+        const pickLocate = isReturn ? shopLocate : vendorLocate;
+        const shipLocate = isReturn ? vendorLocate : shopLocate;
         const shipLocateStr = isReturn
           ? vendorLocate.detailLocate
           : shopLocate.detailLocate;
         const ship = uncle.uncleInfo!.shipLocates;
         const pick = uncle.uncleInfo!.pickupLocates;
-        const shipLocate = isReturn
-          ? pick.find((x) => x.locate.code === shipLocateCode)!
-          : ship.find((x) => x.locate.code === shipLocateCode)!;
-        const pickLocate = isReturn
-          ? ship.find((x) => x.locate.code === pickLocateCode)!
-          : pick.find((x) => x.locate.code === pickLocateCode)!;
+        const shipLocateUncle = isReturn
+          ? pick.find((x) => x.locate.code === shipLocate.code)!
+          : ship.find((x) => x.locate.code === shipLocate.code)!;
+        const pickLocateUncle = isReturn
+          ? ship.find((x) => x.locate.code === pickLocate.code)!
+          : pick.find((x) => x.locate.code === pickLocate.code)!;
 
-        if (!isReturn && !shipLocate)
+        if (!isReturn && !shipLocateUncle)
           throw new Error(`${shipLocateStr}은 배송불가 지역입니다.`);
-        else if (!isReturn && !pickLocate)
-          throw new Error(`${pickLocateStr}은 픽업불가 지역입니다.`);
+        else if (!isReturn && !pickLocateUncle)
+          throw new Error(`${pickLocate.detailLocate}은 픽업불가 지역입니다.`);
         const shipment = new IoShipment({
           shippingId: uuidv4(),
           orderDbId: ord.dbId,
@@ -111,11 +108,11 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
           shipMethod: "UNCLE",
           additionalInfo: "",
           paid: false,
-          shipFeeBasic: shipLocate.amount,
-          pickupFeeBasic: pickLocate.amount,
-          returnAddress: shipLocate.locate,
-          receiveAddress: shipLocate.locate,
-          startAddress: pickLocate.locate,
+          shipFeeBasic: shipLocateUncle.amount,
+          pickupFeeBasic: pickLocateUncle.amount,
+          returnAddress: shipLocate,
+          receiveAddress: shipLocate,
+          startAddress: pickLocate,
           wishedDeliveryTime: new Date(),
           managerId: uncle.userInfo.userId,
         });
