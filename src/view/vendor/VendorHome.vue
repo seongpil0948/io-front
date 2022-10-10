@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { commonTime } from "@/util";
+import { ORDER_STATE } from "@/composable";
 import { ref } from "vue";
 const currTab = ref<string>("BEFORE_APPROVE");
 const { currDate } = commonTime();
@@ -21,16 +22,11 @@ const { currDate } = commonTime();
           name="BEFORE_PAYMENT"
         >
           <order-by-shop-expand-table
-            :inStates="[
-              'BEFORE_PAYMENT',
-              'BEFORE_PICKUP_REQ',
-              'BEFORE_ASSIGN_PICKUP',
-              'BEFORE_PICKUP',
-              'PICKUP_COMPLETE',
-              'BEFORE_SHIP',
-              'SHIPPING',
-              'SHIPPING_COMPLETE',
-            ]"
+            :inStates="
+              Object.keys(ORDER_STATE).filter(
+                (x) => !['BEFORE_ORDER', 'BEFORE_APPROVE'].includes(x)
+              )
+            "
           />
         </n-tab-pane>
       </n-tabs>

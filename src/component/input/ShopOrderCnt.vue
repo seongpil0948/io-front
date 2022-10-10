@@ -17,13 +17,17 @@ onBeforeMount(() => {
 
 const edit = ref(false);
 const msg = useMessage();
-const stockCnt = computed(() => prodOrder.value.vendorGarment.stockCnt);
+const stockCnt = computed(() =>
+  prodOrder.value.vendorGarment ? prodOrder.value.vendorGarment.stockCnt : 0
+);
 const pendingCnt = computed(() =>
-  GarmentOrder.getPendingCnt(
-    stockCnt.value,
-    prodOrder.value.orderCnt,
-    prodOrder.value.vendorGarment.allowPending
-  )
+  prodOrder.value.vendorGarment
+    ? GarmentOrder.getPendingCnt(
+        stockCnt.value,
+        prodOrder.value.orderCnt,
+        prodOrder.value.vendorGarment.allowPending
+      )
+    : 0
 );
 const activeCnt = computed(() => prodOrder.value.activeCnt);
 
@@ -100,7 +104,7 @@ function setEditMode() {
   <n-text v-else style="color: inherit" @click="setEditMode">
     <n-tooltip trigger="hover">
       <template #trigger> {{ activeCnt }} / {{ pendingCnt }} </template>
-      <n-space vertical>
+      <n-space vertical v-if="prodOrder.vendorGarment">
         <n-text>
           주문시도 개수: {{ prodOrder.orderCnt }}, 재고 개수:
           {{ prodOrder.vendorGarment.stockCnt }}

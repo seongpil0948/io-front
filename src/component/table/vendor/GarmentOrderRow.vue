@@ -5,16 +5,10 @@ import { toRefs, computed } from "vue";
 const { timeToDate } = commonTime();
 const props = defineProps<{
   garmentOrder: GarmentOrder;
-  itemId: string;
+  prodOrder: ProdOrderCombined;
   checked: boolean;
 }>();
-const { garmentOrder, checked, itemId } = toRefs(props);
-const prodOrder = computed(
-  () =>
-    garmentOrder.value.items.find(
-      (x) => x.id === itemId.value
-    )! as ProdOrderCombined
-);
+const { garmentOrder, checked, prodOrder } = toRefs(props);
 const emits = defineEmits<{
   (e: "onClick", value: string): void;
 }>();
@@ -26,7 +20,7 @@ function onClickChecker() {
   <n-space inline v-if="prodOrder">
     <logo-checker :size="1" :checked="checked" @click="onClickChecker" />
     <div style="width: 1vw"></div>
-    <n-text>
+    <n-text v-if="prodOrder.vendorGarment">
       {{ prodOrder.vendorGarment.vendorProdName }} /
       {{ prodOrder.vendorGarment.color }} /
       {{ prodOrder.vendorGarment.size }}
