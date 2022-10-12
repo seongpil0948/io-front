@@ -77,7 +77,7 @@ function downSampleXlsx() {
 }
 </script>
 <template>
-  <drop-zone-card :listenClick="false" v-model:fileModel="fileModel">
+  <drop-zone-card :listenClick="true" v-model:fileModel="fileModel">
     <template #header>
       <n-space justify="start">
         <n-button size="small" type="primary" @click="downSampleXlsx">
