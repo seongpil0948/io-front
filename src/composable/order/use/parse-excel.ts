@@ -50,11 +50,11 @@ export function useOrderParseExcel(
               .values[0] as string[]
           );
           conditions.value.push(
-            ...mapDfToOrder(newDf, mapper.value, existIds.value, userId)
+            ...mapDfToOrder(newDf, mapper.value, existIds.value, userId, msg)
           );
         } else {
           conditions.value.push(
-            ...mapDfToOrder(inputDf, mapper.value, existIds.value, userId)
+            ...mapDfToOrder(inputDf, mapper.value, existIds.value, userId, msg)
           );
         }
       }

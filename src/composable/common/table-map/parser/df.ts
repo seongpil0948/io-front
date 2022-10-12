@@ -1,7 +1,7 @@
 import { logger } from "@/plugin/logger";
 import { uniqueArr, makeMsgOpt } from "@/util";
 import { DataFrame, Series } from "danfojs";
-import { useMessage } from "naive-ui";
+import { MessageApiInjection } from "naive-ui/es/message/src/MessageProvider";
 import { MapKey, Mapper, synonymFilter } from "..";
 import { GarmentOrderCondi } from "../../..";
 
@@ -9,15 +9,14 @@ export function mapDfToOrder(
   inputDf: DataFrame,
   mapper: Mapper,
   existIds: Set<string>,
-  userId: string
+  userId: string,
+  msg: MessageApiInjection
 ): GarmentOrderCondi[] {
   inputDf = inputDf.applyMap((x: any) =>
     typeof x === "string" ? x.toLowerCase().trim() : x
   );
-  const msg = useMessage();
   const garmentTargetCols = ["prodName", "size", "color", "orderId"];
   function getColMapper(df: DataFrame, ioColNames: MapKey[], mapper: Mapper) {
-    // console.log("df.columns: ", df.columns);
     return ioColNames.reduce((curr, colName) => {
       const synonyms = mapper.getSyno(colName, false);
       const col = df.columns.find((inputCol) =>
@@ -99,14 +98,16 @@ export function mapDfToOrder(
         }
       }
       if (!synoColor || !synoSize) {
-        let msg = `${row[idx.prodNameIdx]} 상품의 옵션 매핑에 실패 하였습니다.`;
+        let message = `${
+          row[idx.prodNameIdx]
+        } 상품의 옵션 매핑에 실패 하였습니다.`;
         if (!synoColor) {
-          msg += ` 컬러 매핑실패정보,${row[idx.colorIdx]} `;
+          message += ` 컬러 매핑실패정보,${row[idx.colorIdx]} `;
         }
         if (!synoSize) {
-          msg += ` 사이즈 매핑실패정보: ${row[idx.sizeIdx]} `;
+          message += ` 사이즈 매핑실패정보: ${row[idx.sizeIdx]} `;
         }
-        reporter[orderId] = msg;
+        reporter[orderId] = message;
         return row;
       }
       delete reporter[orderId];

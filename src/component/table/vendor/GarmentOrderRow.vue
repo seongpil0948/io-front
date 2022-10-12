@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { GarmentOrder, ORDER_STATE, ProdOrderCombined } from "@/composable";
 import { commonTime } from "@/util";
-import { toRefs, computed } from "vue";
+import { toRefs } from "vue";
 const { timeToDate } = commonTime();
 const props = defineProps<{
   garmentOrder: GarmentOrder;
