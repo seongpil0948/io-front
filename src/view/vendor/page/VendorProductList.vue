@@ -9,7 +9,7 @@ import {
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { NButton, useMessage } from "naive-ui";
-import { watchEffect, h, ref } from "vue";
+import { watchEffect, h, ref, computed } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import LogoChecker from "@/component/input/checker/LogoChecker.vue";
 import { useVendorOrderStore } from "@/store/vendorOrder";
@@ -118,14 +118,37 @@ function onShowProdEdit(row: VendorGarment | null) {
     prodEditTarget.value = row;
   }
 }
+
+const searchVal = ref<string | null>(null);
+const searchInputVal = ref<string | null>(null);
+const filteredProds = computed(() => {
+  const v = searchVal.value;
+  return v
+    ? vendorOrderGarments.value.filter((vog) => {
+        return (
+          vog.size.includes(v) ||
+          vog.color.includes(v) ||
+          vog.vendorProdName.includes(v)
+        );
+      })
+    : vendorOrderGarments.value;
+});
+function search() {
+  searchVal.value = searchInputVal.value;
+}
 </script>
 <template>
   <n-card style="width: 80%">
     <template #header> 상품목록 </template>
+    <template #header-extra>
+      <n-input v-model:value="searchInputVal" placeholder="상품검색" />
+      <n-button @click="search">검색</n-button>
+    </template>
+
     <n-data-table
       :scroll-x="1200"
       :columns="columns"
-      :data="vendorOrderGarments"
+      :data="filteredProds"
       :pagination="{
         'show-size-picker': true,
         'page-sizes': [5, 10, 25, 50, 100],

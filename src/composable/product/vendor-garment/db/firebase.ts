@@ -34,7 +34,13 @@ export const VendorGarmentFB: VendorGarmentDB = {
     const wheres =
       vendorIds.length > 0 ? [where("vendorId", "in", vendorIds)] : [];
     const unsubscribe = onSnapshot(
-      query(c, ...wheres, orderBy("createdAt", "desc")),
+      query(
+        c,
+        ...wheres,
+        orderBy("vendorProdName"),
+        orderBy("size"),
+        orderBy("color")
+      ),
       (snapshot) => {
         items.value = [];
         snapshot.forEach((d) => {
