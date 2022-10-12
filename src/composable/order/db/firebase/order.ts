@@ -174,8 +174,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       // 1. vendor pay
       const vendorPay = await IO_PAY_DB.getIoPayByUser(vendorId);
       const vReduceCoin = shopIds.length * IO_COSTS.APPROVE_ORDER;
-      if (vendorPay.availBudget < vReduceCoin) {
-        // throw new Error("vendorPay.availBudget < vReduceCoin");
+      if (vendorPay.budget < vReduceCoin) {
         throw new Error("유저 코인이 부족합니다.");
       }
       vendorPay.budget -= vReduceCoin;
@@ -221,15 +220,18 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       }
     });
   },
-  orderGarment: async function (orders: GarmentOrder[], shopId: string) {
+  orderGarment: async function (
+    orderDbIds: string[],
+    prodOrderIds: string[],
+    shopId: string
+  ) {
     const vendorStore = useVendorsStore();
     const { getOrdRef, converterGarment } = getSrc();
+    const constraints = [where("dbId", "in", orderDbIds)];
+    const orders = await getOrders(constraints);
     const userPay = await IO_PAY_DB.getIoPayByUser(shopId);
-    // console.log("userPay: ", userPay);
-    const reduceCoin = IO_COSTS.REQ_ORDER * orders.length;
-    // console.log("expectedReduceCoin: ", reduceCoin);
-    if (userPay.availBudget < reduceCoin)
-      throw new Error("보유 코인이 부족합니다.");
+    const reduceCoin = IO_COSTS.REQ_ORDER * prodOrderIds.length;
+    if (userPay.budget < reduceCoin) throw new Error("보유 코인이 부족합니다.");
 
     return runTransaction(iostore, async (transaction) => {
       const newOrds: GarmentOrder[] = [];
@@ -246,6 +248,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         if (ord.items.length < 1) continue;
         for (let j = 0; j < ord.items.length; j++) {
           const item = ord.items[j];
+          if (!prodOrderIds.includes(item.id)) continue;
           const vendor = vendorStore.vendorById[item.vendorId];
           const prod = vendorStore.vendorGarments.find(
             (g) => g.vendorProdId === item.vendorProdId

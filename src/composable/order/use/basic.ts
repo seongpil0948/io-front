@@ -32,9 +32,10 @@ export function useOrderBasic(
     const ids = orderTargets.value.map((x) => x.id);
 
     ORDER_GARMENT_DB.orderGarment(
-      orders.value.filter((y) =>
-        y.items.every((item) => ids.includes(item.id))
-      ),
+      orders.value
+        .filter((y) => y.items.some((item) => ids.includes(item.id)))
+        .map((x) => x.dbId),
+      ids,
       user.userInfo.userId
     )
       .then(async (results) => {

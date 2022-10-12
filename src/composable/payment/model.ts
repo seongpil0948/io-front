@@ -40,10 +40,6 @@ export class IoPay extends CommonField implements IoPayCRT {
     this.pendingBudget = data.pendingBudget;
     this.history = data.history;
   }
-
-  get availBudget() {
-    return this.budget - this.pendingBudget;
-  }
   static initial(userId: string) {
     return new IoPay({
       userId,

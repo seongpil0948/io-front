@@ -21,7 +21,7 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
     const { getOrdRef, converterGarment } = getSrc();
     if (!row.shipManagerId) throw new Error("shipManagerId is null");
     const userPay = await IO_PAY_DB.getIoPayByUser(row.shipManagerId);
-    if (userPay.availBudget < expectedReduceCoin)
+    if (userPay.budget < expectedReduceCoin)
       throw new Error("보유 코인이 부족합니다.");
     else if (!row.isValid) throw new Error("invalid order.");
 

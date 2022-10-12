@@ -240,7 +240,11 @@ export interface ShipmentCrt {
 }
 
 export interface OrderDB<T> {
-  orderGarment(orders: GarmentOrder[], shopId: string): Promise<T[]>;
+  orderGarment(
+    orderDbIds: string[],
+    prodOrderIds: string[],
+    shopId: string
+  ): Promise<T[]>;
   batchCreate(uid: string, orders: T[]): Promise<void>;
   batchUpdate(arg: {
     orderDbIdByShops: { [shopId: string]: string[] };

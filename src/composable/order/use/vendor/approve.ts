@@ -1,5 +1,6 @@
 import {
   GarmentOrder,
+  IoPay,
   ORDER_GARMENT_DB,
   ProdOrderByShop,
   ProdOrderCombined,
@@ -7,7 +8,7 @@ import {
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { logger } from "@/plugin/logger";
-import { makeMsgOpt, uniqueArr } from "@/util";
+import { getIoCollection, IoCollection, makeMsgOpt, uniqueArr } from "@/util";
 import {
   DataTableColumns,
   DataTableRowKey,
@@ -18,6 +19,7 @@ import {
 import { computed, h, ref, Ref, VNode } from "vue";
 import GarmentOrderRow from "@/component/table/vendor/GarmentOrderRow.vue";
 import { useAuthStore } from "@/store";
+import { doc, getDoc, updateDoc } from "@firebase/firestore";
 
 interface ApproveParam {
   garmentOrders: Ref<ProdOrderCombined[]>;
@@ -67,9 +69,18 @@ export function useApproveOrder(p: ApproveParam) {
             );
           }
           const newId = await o.dividePartial(item.id, numOfAllow.value, false);
+          const docRef = doc(
+            getIoCollection({ c: IoCollection.IO_PAY }),
+            o.shopId
+          ).withConverter(IoPay.fireConverter());
+          const docSnap = await getDoc(docRef);
+          const userPay = docSnap.data();
+          if (docSnap.exists() && userPay) {
+            updateDoc(docRef, { pendingBudget: userPay.pendingBudget + 1 });
+          }
           o.update().then(() =>
             ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [newId])
-              .then(() => {
+              .then(async () => {
                 msg.success("부분승인 완료", makeMsgOpt());
               })
               .catch((err) => {
