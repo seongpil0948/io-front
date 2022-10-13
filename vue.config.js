@@ -10,8 +10,10 @@ module.exports = defineConfig({
       .rule("vue")
       .use("vue-loader")
       .tap((options) => {
+        console.log("vue-loader tap options: ", options);
         return options;
       });
+    config.rule("js").use("babel-loader");
   },
   configureWebpack: {
     output: {

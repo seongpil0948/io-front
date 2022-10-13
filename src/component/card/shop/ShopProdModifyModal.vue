@@ -58,11 +58,11 @@ const msg = useMessage();
 const showModal = ref(false);
 watchEffect(() => {
   formModel.value.prodName =
-    userProd && userProd.value && userProd.value.prodName
+    userProd.value && userProd.value && userProd.value.prodName
       ? userProd.value.prodName
       : formModel.value.prodName;
   formModel.value.prodPrice =
-    userProd && userProd.value && userProd.value.prodPrice
+    userProd.value && userProd.value && userProd.value.prodPrice
       ? userProd.value.prodPrice
       : formModel.value.prodPrice;
 });
@@ -77,7 +77,7 @@ async function onSubmit(e: MouseEvent) {
   e.preventDefault();
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
-    if (userProd && userProd.value) {
+    if (userProd.value && userProd.value) {
       userProd.value.prodName = formModel.value.prodName;
       userProd.value.prodPrice = formModel.value.prodPrice;
       const shopProd = new ShopGarment(

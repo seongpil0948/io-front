@@ -38,7 +38,7 @@ const {
   show,
 } = toRefs(props);
 const isMapCell = mapType?.value === "cell";
-if (isMapCell && (!rowIdField || !targetVal)) {
+if (isMapCell && (!rowIdField.value || !targetVal.value)) {
   throw Error("Mapping Cell required rowIdField");
 }
 

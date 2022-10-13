@@ -1,5 +1,4 @@
 <script setup>
-import BootPay from "bootpay-js";
 import { computed, ref } from "vue";
 import { v4 as uuidv4 } from "uuid";
 import { useAuthStore } from "@/store";
@@ -7,6 +6,7 @@ import { QuestionCircleRegular } from "@vicons/fa";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
 import { IO_PAY_DB, IoPay, useUserPay } from "@/composable";
+import { Bootpay } from "@bootpay/client-js";
 
 const log = useLogger();
 const APP_ID = "62b45e0fe38c3000215aec6b";
@@ -16,113 +16,75 @@ const user = authStore.currUser;
 const { userPay } = useUserPay(user.userInfo.userId);
 
 async function reqPay() {
+  const uuid = uuidv4();
   const date = new Date();
   const price = IoPay.coinToMoney(chargeCoin.value).toString();
-  const response = BootPay.request({
-    price, //실제 결제되는 가격
-    application_id: APP_ID,
-    name: "인코인 구매", //결제창에서 보여질 이름
-    show_agree_window: 1, // 부트페이 정보 동의 창 보이기 여부
-    user_info: {
-      // TODO
-      username: user.userInfo.userName,
-      email: user.userInfo.email,
-      addr: null,
-      phone: null,
-    },
-    order_id: "charge_" + uuidv4(), //고유 주문번호로, 생성하신 값을 보내주셔야 합니다.
-    params: {
-      callback1: "그대로 콜백받을 변수 1",
-      customvar1234: "변수명도 마음대로",
-      mey: price,
-    },
-    account_expire_at: date
-      .toLocaleDateString()
-      .split(".")
-      .filter((x) => x)
-      .map((x) => x.trim())
-      .join("-"), // 가상계좌 입금기간 제한 ( yyyy-mm-dd 포멧으로 입력해주세요. 가상계좌만 적용됩니다. )
-    extra: {
-      theme: "custom", // [ red, purple(기본), custom ]
-      custom_background: "#d8b786",
-    },
-  })
-    .error(function (data) {
-      //결제 진행시 에러가 발생하면 수행됩니다.
-      log.error(user.userInfo.userId, "On Payment Error", data);
-      msg.error(`${data.action}, code: ${data.code}, message: ${data.message}`);
-    })
-    .cancel(function (data) {
-      //결제가 취소되면 수행됩니다.
-      log.debug(user.userInfo.userId, "On Payment Cancel", data);
-    })
-    .ready(function (data) {
-      // 가상계좌 입금 계좌번호가 발급되면 호출되는 함수입니다.
-      log.debug(user.userInfo.userId, "On Payment Ready", data);
-    })
-    .confirm(async function (data) {
-      //결제가 실행되기 전에 수행되며, 주로 재고를 확인하는 로직이 들어갑니다.
-      //주의 - 카드 수기결제일 경우 이 부분이 실행되지 않습니다.
-      // 예) 현대 앱카드 인증 후 최종 결제 눌렀을때 실행됌
-      // https://docs.bootpay.co.kr/rest/verify
-      log.debug(user.userInfo.userId, "On Payment Confirm", data);
-      // const http = inst?.appContext.config.globalProperties.$http;
-      // const resp = await http.get(
-      //   `/payment/verifyReceipt?price=${data.params.mey}&receiptId=${data.receipt_id}`
-      // );
-      // log.debug("/payment/verifyReceipt Response: ", resp);
-      // const enable = resp.data === "sp"; // 재고 수량 관리 로직 혹은 다른 처리
-      // if (enable) {
-      //   BootPay.transactionConfirm(data); // 조건이 맞으면 승인 처리를 한다.
-      // } else {
-      //   BootPay.removePaymentWindow(); // 조건이 맞지 않으면 결제 창을 닫고 결제를 승인하지 않는다.
-      // }
-      BootPay.transactionConfirm(data);
-    })
-    .close(function (data) {
-      // 결제창이 닫힐때 수행됩니다. (성공,실패,취소에 상관없이 모두 수행됨)
-      log.debug(user.userInfo.userId, "On Close Payment", data);
-    })
-    .done(async function (data) {
-      // Logic after transactionConfirm(data)
-      // data = {
-      //   action: "BootpayDone",
-      //   parent: 2,
-      //   receipt_id: "62b5079a2701800020be3e2d",
-      //   price: 1000,
-      //   card_no: "943135*********7",
-      //   card_code: "04",
-      //   card_name: "현대카드",
-      //   card_quota: "00",
-      //   receipt_url:
-      //     "https://iniweb.inicis.com/DefaultWebApp/mall/cr/cm/mCmReceipt_head.jsp?noTid=StdpayCARDCAEjiwob6b20220624094248093135&noMethod=1",
-      //   params: {
-      //     callback1: "그대로 콜백받을 변수 1",
-      //     callback2: "그대로 콜백받을 변수 2",
-      //     customvar1234: "변수명도 마음대로",
-      //   },
-      //   item_name: "블링블링 마스카라",
-      //   order_id: "order_id_1234",
-      //   url: "http://localhost:8080",
-      //   tax_free: 0,
-      //   payment_name: "ISP / 앱카드결제",
-      //   pg_name: "이니시스",
-      //   pg: "inicis",
-      //   method: "card",
-      //   method_name: "ISP / 앱카드결제",
-      //   payment_group: "card",
-      //   payment_group_name: "신용카드",
-      //   requested_at: "2022-06-24 09:38:50",
-      //   purchased_at: "2022-06-24 09:42:49",
-      //   status: 1,
-      // };
-      log.debug("On Payment Done", data);
-      const coin = IoPay.moneyToCoin(data.price);
-      userPay.value.budget += coin;
-      await userPay.value.update();
-      userPay.value = await IO_PAY_DB.getIoPayByUser(user.userInfo.userId);
+  try {
+    const response = await Bootpay.requestPayment({
+      price,
+      application_id: APP_ID,
+      order_name: "인코인 구매",
+      order_id: "charge_" + uuid, //고유 주문번호로, 생성하신 값을 보내주셔야 합니다
+      uuid,
+      user: {
+        username: user.userInfo.userName,
+        email: user.userInfo.email,
+        addr: null,
+        phone: null,
+      },
+      metadata: {
+        callback1: "그대로 콜백받을 변수 1",
+        customvar1234: "변수명도 마음대로",
+        mey: price,
+      },
+      extra: {
+        display_error_result: true,
+        test_deposit: true,
+        deposit_expiration: date
+          .toLocaleDateString()
+          .split(".")
+          .filter((x) => x)
+          .map((x) => x.trim())
+          .join("-"),
+      },
     });
-  log.debug(user.userInfo.userId, "REsponse data: ", response);
+    console.log("bootpay response ", response);
+    switch (response.event) {
+      case "issued":
+        console.log("in issued", response);
+        break;
+      case "done":
+        console.log("in done", response);
+        // 결제 완료 처리
+        break;
+      case "confirm": //payload.extra.separately_confirmed = true; 일 경우 승인 전 해당 이벤트가 호출됨
+        console.log("in confirm", response.receipt_id);
+        // 1. 클라이언트 승인을 하고자 할때
+        // validationQuantityFromServer(); //예시) 재고확인과 같은 내부 로직을 처리하기 한다.
+        // const confirmedData = await Bootpay.confirm(); //결제를 승인한다
+        // if (confirmedData.event === "done") {
+        //   //결제 성공
+        // } else if (confirmedData.event === "error") {
+        //   //결제 승인 실패
+        // }
+
+        // 2. 서버 승인을 하고자 할때
+        // // requestServerConfirm(); //예시) 서버 승인을 할 수 있도록  API를 호출한다. 서버에서는 재고확인과 로직 검증 후 서버승인을 요청한다.
+        // Bootpay.destroy(); //결제창을 닫는다.
+
+        break;
+    }
+  } catch (e) {
+    console.log(e);
+    switch (e.event) {
+      case "cancel": // 사용자가 결제창을 닫을때 호출
+        break;
+      case "error":
+        // 결제 승인 중 오류 발생시 호출
+        console.error(e.pg_error_code, e.error_code, e.message);
+        break;
+    }
+  }
 }
 const minCharge = IoPay.moneyToCoin(5000);
 const chargeCoin = ref(minCharge);
@@ -184,7 +146,7 @@ const chargeValidator = (x) => x % 10 === 0;
         <n-text>{{ chargeString }} </n-text>
       </div>
 
-      <n-button @click="reqPay">결제하기<coin-image size="1.6rem" /></n-button>
+      <n-button @click="reqPay">충전하기<coin-image size="1.6rem" /></n-button>
     </n-space>
   </n-space>
 </template>

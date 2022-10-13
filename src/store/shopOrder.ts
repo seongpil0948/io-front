@@ -132,6 +132,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     orderUnSub = orderUnsubscribe;
     initial = false;
     const { userProd, unsubscribe } = useShopUserGarments(shopId.value, null);
+    // eslint-disable-next-line vue/no-ref-as-operand
     shopGarments = userProd;
     shopGarmentUnSub = unsubscribe;
   }

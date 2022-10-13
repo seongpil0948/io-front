@@ -15,9 +15,9 @@ const expanded = ref(false);
   <n-card
     :bordered="false"
     :content-style="`
-    max-height: ${expanded ? '70vh' : '35vh'};
-    width: ${expanded ? '70vw' : '35vw'};
-    overflow: hidden;
+    max-height: ${expanded ? '70vh' : '40vh'};
+    width: ${expanded ? '70vw' : '40vw'};
+    overflow: auto;
     `"
     style="padding-bottom: 5%"
     header-style="
