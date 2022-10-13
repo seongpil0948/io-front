@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import {
-  PART,
-  VendorUserGarmentCombined,
-  useSearchVendorGarment,
-} from "@/composable";
-import { ref } from "vue";
-
+import { PART, VendorUserGarmentCombined } from "@/composable";
+import { useVendorsStore } from "@/store";
+import { computed, ref } from "vue";
+import { getCtgrOpts, partOpts } from "@/util";
 const selectedPart = ref<PART | "전체" | null>(null);
 const selectedCtgr = ref<string | null>(null);
 
@@ -27,7 +24,32 @@ function validProd(prod: VendorUserGarmentCombined) {
   }
   return valid;
 }
-const { prodSearchVal, filteredGarments } = useSearchVendorGarment();
+const vendorStore = useVendorsStore();
+
+const searchVal = ref<string | null>(null);
+const searchInputVal = ref<string | null>(null);
+const filteredGarments = computed(() =>
+  Object.values(vendorStore.vendorUserCombinedGarments).filter((x) => {
+    const v = searchVal.value;
+    return (
+      (v === null
+        ? true
+        : x.fabric.includes(v) ||
+          x.description.includes(v) ||
+          x.vendorProdName.includes(v)) &&
+      (part.value === null ? true : x.part === part.value) &&
+      (ctgr.value === null ? true : x.ctgr === ctgr.value)
+    );
+  })
+);
+function search() {
+  searchVal.value = searchInputVal.value;
+}
+const part = ref(null);
+const ctgr = ref(null);
+const ctgrOpts = computed(() =>
+  part.value !== null ? getCtgrOpts(part.value) : []
+);
 </script>
 <template>
   <shop-add-prod-card
@@ -36,27 +58,26 @@ const { prodSearchVal, filteredGarments } = useSearchVendorGarment();
     :prod="selectedProd"
   />
   <n-space vertical style="width: 100%">
-    <!-- ROW1 -->
-    <n-space justify="space-between">
-      <logo-image size="3rem" />
-      <!-- <n-input-group
-        style="width: 50vw; justify-content: center; padding-top: 1.2%"
-      >
-        <n-select style="width: 22%" placeholder="전체상품 검색"></n-select>
-        <n-input
-          placeholder="오늘도 신상을 잘 찾아보즈아!"
-          :style="{ width: '50%' }"
-        />
-        <n-button> 검색 </n-button>
-      </n-input-group> -->
+    <n-space justify="center">
       <n-input
-        v-model:value="prodSearchVal"
+        v-model:value="searchInputVal"
         placeholder="상품검색 - 오늘도 신상을 잘 찾아보즈아!"
         style="width: 30vw"
       />
-      <logo-image size="3rem" />
+      <n-button @click="search">검색</n-button>
+      <n-select
+        placeholder="파트선택"
+        clearable
+        v-model:value="part"
+        :options="partOpts"
+      />
+      <n-select
+        placeholder="카테고리선택"
+        clearable
+        v-model:value="ctgr"
+        :options="ctgrOpts"
+      />
     </n-space>
-    <!-- ROW2 -->
     <n-space justify="center" v-if="filteredGarments.length > 0">
       <!-- <part-ctgr-menu
         v-model:selectedPart="selectedPart"
@@ -72,9 +93,10 @@ const { prodSearchVal, filteredGarments } = useSearchVendorGarment();
         >
           <n-gi v-for="(prod, i) in filteredGarments" :key="i">
             <vendor-prod-thum
-              style="width: 200px; padding: 5%"
+              style="padding: 5%"
               v-if="validProd(prod)"
               :prod="prod"
+              :width="200"
               @onClickProd="onClickProd"
             />
           </n-gi>
