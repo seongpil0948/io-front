@@ -77,9 +77,9 @@ export function useLogin() {
         login(user.uid, {
           providerId: "GOOGLE",
           userId: user.uid,
-          userName: user.displayName ?? undefined,
-          email: user.email ?? undefined,
-          profileImg: user.photoURL ?? undefined,
+          userName: user.displayName ?? "",
+          email: user.email ?? "",
+          profileImg: user.photoURL ?? "",
         });
       })
       .catch((error) => {
