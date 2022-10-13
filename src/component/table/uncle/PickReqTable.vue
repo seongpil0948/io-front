@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {
-  Locate,
   ProdOrderByShop,
   ProdOrderCombined,
   SHIPMENT_DB,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ShipOrder,
   useAlarm,
   useShipmentUncle,

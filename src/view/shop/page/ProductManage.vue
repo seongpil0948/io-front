@@ -9,6 +9,7 @@ import { useAuthStore, useVendorsStore } from "@/store";
 import { makeMsgOpt, isMobile } from "@/util";
 import { NButton, useMessage } from "naive-ui";
 import { v4 as uuidv4 } from "uuid";
+import { computed } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const authStore = useAuthStore();
@@ -25,6 +26,9 @@ async function onCheckedDelete() {
   );
   msg.success("삭제 완료", makeMsgOpt());
 }
+const cols = computed(() =>
+  tableCols.value.filter((x) => (x as any).key !== "select")
+);
 
 async function mapperUpdate() {
   mapper.value
@@ -104,7 +108,7 @@ function updateOrderId(arr: string[]) {
       </template>
       <n-data-table
         ref="tableRef"
-        :columns="tableCols"
+        :columns="cols"
         :data="userProd"
         :pagination="{
           'show-size-picker': true,

@@ -3,15 +3,15 @@ import { computed, ref } from "vue";
 import { v4 as uuidv4 } from "uuid";
 import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
-import { useMessage } from "naive-ui";
-import { useLogger } from "vue-logger-plugin";
-import { IO_PAY_DB, IoPay, useUserPay } from "@/composable";
+// import { useMessage } from "naive-ui";
+// import { useLogger } from "vue-logger-plugin";
+import { IoPay, useUserPay } from "@/composable";
 import { Bootpay } from "@bootpay/client-js";
 
-const log = useLogger();
+// const log = useLogger();
 const APP_ID = "62b45e0fe38c3000215aec6b";
 const authStore = useAuthStore();
-const msg = useMessage();
+// const msg = useMessage();
 const user = authStore.currUser;
 const { userPay } = useUserPay(user.userInfo.userId);
 

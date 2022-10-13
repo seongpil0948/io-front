@@ -13,7 +13,7 @@ module.exports = defineConfig({
         console.log("vue-loader tap options: ", options);
         return options;
       });
-    config.rule("js").use("babel-loader");
+    config.module.rule("js").use("babel-loader");
   },
   configureWebpack: {
     output: {

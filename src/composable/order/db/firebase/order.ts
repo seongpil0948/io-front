@@ -1,5 +1,10 @@
 import { iostore } from "@/plugin/firebase";
-import { getIoCollection, getIoCollectionGroup, IoCollection } from "@/util";
+import {
+  getIoCollection,
+  getIoCollectionGroup,
+  IoCollection,
+  uniqueArr,
+} from "@/util";
 import {
   doc,
   getDoc,
@@ -121,9 +126,8 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       acc[curr] = 0;
       return acc;
     }, {} as { [shopId: string]: number });
-    return await runTransaction(iostore, async (transaction) => {
+    await runTransaction(iostore, async (transaction) => {
       const { getOrdRef, converterGarment } = getSrc();
-
       // 2. update order state, reduce shop coin
       for (let i = 0; i < orders.length; i++) {
         const o = orders[i];
@@ -142,6 +146,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           }
         }
       }
+
       const entries = Object.entries(processedShops);
       for (let k = 0; k < entries.length; k++) {
         const [shopId, cnt] = entries[k];
@@ -156,6 +161,9 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         );
       }
     });
+    await Promise.all(
+      Object.keys(processedShops).map((x) => mergeOrders("BEFORE_ORDER", x))
+    );
   },
   orderApprove: async function (
     vendorId: string,
@@ -169,7 +177,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       acc[curr] = 0;
       return acc;
     }, {} as { [shopId: string]: number });
-    return await runTransaction(iostore, async (transaction) => {
+    await runTransaction(iostore, async (transaction) => {
       const { getOrdRef, converterGarment } = getSrc();
       // 1. vendor pay
       const vendorPay = await IO_PAY_DB.getIoPayByUser(vendorId);
@@ -202,6 +210,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           }
         }
       }
+
       const entries = Object.entries(processedShops);
       for (let k = 0; k < entries.length; k++) {
         const [shopId, cnt] = entries[k];
@@ -219,6 +228,9 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         );
       }
     });
+    await Promise.all(
+      Object.keys(processedShops).map((x) => mergeOrders("BEFORE_PAYMENT", x))
+    );
   },
   orderGarment: async function (
     orderDbIds: string[],
@@ -233,7 +245,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     const reduceCoin = IO_COSTS.REQ_ORDER * prodOrderIds.length;
     if (userPay.budget < reduceCoin) throw new Error("보유 코인이 부족합니다.");
 
-    return runTransaction(iostore, async (transaction) => {
+    const result = runTransaction(iostore, async (transaction) => {
       const newOrds: GarmentOrder[] = [];
       for (let i = 0; i < orders.length; i++) {
         const order = orders[i];
@@ -285,6 +297,8 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       );
       return newOrds;
     });
+    await mergeOrders("BEFORE_APPROVE", shopId);
+    return result;
   },
   batchCreate: async function (uid: string, orders: GarmentOrder[]) {
     return await runTransaction(iostore, async (transaction) => {
@@ -292,20 +306,10 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       const ordRef = getOrdRef(uid);
       const ordNumRef = getOrderNumberRef(uid);
       const ordIds = await this.getExistOrderIds(uid);
-      const existOrders: GarmentOrder[] = [];
-      // >>> 주문요청전 주문들을 가져온다. >>>
-      const existQ = query(
-        ordRef,
+      const existOrders: GarmentOrder[] = await getOrders([
         where("shopId", "==", uid),
-        where("states", "array-contains", "BEFORE_ORDER")
-      );
-      const docs = await getDocs(existQ);
-      docs.forEach((doc) => {
-        const data = doc.data();
-        if (data) {
-          existOrders.push(data);
-        }
-      });
+        where("states", "array-contains", "BEFORE_ORDER"),
+      ]);
       // <<< 주문요청전 주문들을 가져온다. <<<
       for (let i = 0; i < orders.length; i++) {
         const order = orders[i];
@@ -323,6 +327,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
               if (existItem.state !== "BEFORE_ORDER") continue;
               else if (item.vendorProdId === existItem.vendorProdId) {
                 exist = o;
+                // 이로직을 분리하여, 모든 주문건의 상태 변경 프로세스에 대하여 적용가능하도록
                 exist.setOrderCnt(existItem.id, item.orderCnt, true);
                 order.items.splice(j, 1);
                 if (order.items.length < 1) {
@@ -526,22 +531,28 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     prodOrderIds: string[]
   ): Promise<void> {
     const { getOrdRef, converterGarment } = getSrc();
-    return await runTransaction(iostore, async (transaction) => {
+    const data: { [shopId: string]: ORDER_STATE } = {};
+    await runTransaction(iostore, async (transaction) => {
       const orders = await OrderGarmentFB.batchRead(orderDbIds);
       for (let i = 0; i < orders.length; i++) {
         const o = orders[i];
         for (let j = 0; j < o.items.length; j++) {
           const item = o.items[j];
           if (prodOrderIds.includes(item.id)) {
-            o.setState(item.id, item.beforeState ?? "BEFORE_PICKUP");
+            const state = item.beforeState ?? "BEFORE_PICKUP";
+            o.setState(item.id, state);
             transaction.update(
               doc(getOrdRef(o.shopId), o.dbId),
               converterGarment.toFirestore(o)
             );
+            data[o.shopId] = state;
           }
         }
       }
     });
+    await Promise.all(
+      Object.entries(data).map(([shopId, state]) => mergeOrders(state, shopId))
+    );
   },
   returnDone: async function (): Promise<void> {
     throw new Error("Function not implemented.");
@@ -563,13 +574,12 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         );
       return i!;
     };
-
     const { getOrdRef, converterGarment } = getSrc();
     const order = await OrderGarmentFB.readById(shopId, orderDbId);
     if (!order) throw new Error("주문 데이터 정보가 없습니다.");
     const item = validate(order.items.find((x) => x.id === prodOrderId));
 
-    const processing = (i: ProdOrder, c: OrderCancel) => {
+    const processing = async (i: ProdOrder, c: OrderCancel) => {
       const paid = i.actualAmount.paid;
       if (paid === "F") {
         c.done = true;
@@ -580,19 +590,20 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         order.cancellations.push(c);
         order.setState(i.id, "CANCEL");
       }
-      return updateDoc(
+      await updateDoc(
         doc(getOrdRef(order.shopId), order.dbId),
         converterGarment.toFirestore(order)
       );
+      mergeOrders("CANCEL", "shopId");
     };
 
     if (item.orderCnt > cancelCnt) {
       const newId = await order.dividePartial(item.id, cancelCnt, false);
       const itemDivided = validate(order.items.find((x) => x.id === newId));
       claim.prodOrderId = newId;
-      return processing(itemDivided, claim);
+      await processing(itemDivided, claim);
     } else {
-      return processing(item, claim);
+      await processing(item, claim);
     }
   },
   cancelApprove: async function (
@@ -666,9 +677,11 @@ async function stateModify(
   const orders = await OrderGarmentFB.batchRead(orderDbIds);
 
   const { getOrdRef, converterGarment } = getSrc();
-  return await runTransaction(iostore, async (transaction) => {
+  const shopIds: string[] = [];
+  await runTransaction(iostore, async (transaction) => {
     for (let i = 0; i < orders.length; i++) {
       const o = onOrder ? await onOrder(orders[i]) : orders[i];
+      if (!shopIds.includes(o.shopId)) shopIds.push(o.shopId);
       for (let j = 0; j < o.items.length; j++) {
         if (
           !beforeState ||
@@ -684,6 +697,66 @@ async function stateModify(
             doc(getOrdRef(o.shopId), o.dbId),
             converterGarment.toFirestore(o)
           );
+        }
+      }
+    }
+  });
+  await Promise.all(shopIds.map((x) => mergeOrders(afterState, x)));
+}
+
+async function mergeOrders(state: ORDER_STATE, shopId: string) {
+  return await runTransaction(iostore, async (transaction) => {
+    const { getOrdRef, converterGarment } = getSrc();
+    const ordRef = getOrdRef(shopId);
+    const orders: GarmentOrder[] = await getOrders([
+      where("shopId", "==", shopId),
+      where("states", "array-contains", state),
+    ]);
+    // <<< 주문요청전 주문들을 가져온다. <<<
+    for (let i = 0; i < orders.length; i++) {
+      const order = orders[i];
+      const vendorIds = order.vendorIds;
+      const tarOrds = orders.filter((x) =>
+        x.vendorIds.some((y) => vendorIds.includes(y))
+      );
+      for (let j = 0; j < order.items.length; j++) {
+        const item = order.items[j];
+        let exist: typeof order | null = null;
+        for (let k = 0; k < tarOrds.length; k++) {
+          const o = tarOrds[k];
+          if (order.dbId === o.dbId) continue;
+          for (let z = 0; z < o.items.length; z++) {
+            const existItem = o.items[z];
+            if (existItem.state !== state) continue;
+            else if (item.vendorProdId === existItem.vendorProdId) {
+              exist = o;
+              // 이로직을 분리하여, 모든 주문건의 상태 변경 프로세스에 대하여 적용가능하도록
+              exist.setOrderCnt(existItem.id, item.orderCnt, true);
+              order.items.splice(j, 1);
+              if (order.items.length < 1) {
+                exist.orderIds = uniqueArr([
+                  ...order.orderIds,
+                  ...exist.orderIds,
+                ]);
+                exist.itemIds = uniqueArr([...order.itemIds, ...exist.itemIds]);
+                transaction.delete(doc(ordRef, order.dbId));
+              } else {
+                transaction.update(
+                  doc(ordRef, order.dbId),
+                  converterGarment.toFirestore(
+                    order
+                  ) as WithFieldValue<GarmentOrder | null>
+                );
+              }
+              if (exist) {
+                transaction.update(
+                  doc(ordRef, exist.dbId),
+                  converterGarment.toFirestore(exist)
+                );
+              }
+              break;
+            }
+          }
         }
       }
     }
