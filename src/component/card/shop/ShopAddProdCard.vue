@@ -97,58 +97,79 @@ function onCheck(val: string) {
     preset="card"
     style="margin: 0 10%"
   >
-    <n-space
-      size="large"
-      inline
-      style="border: grey solid 1px; padding: 10px; width: 70vw"
-      justify="space-around"
-    >
-      <carousel-img-card
-        :imgUrls="imgUrls"
-        :width="30"
-        :height="30"
-        unit="vw"
-      />
-      <n-space vertical style="width: 35vw">
-        <n-space justify="space-between" v-if="getUserLocate(prod)">
-          <n-button text>
-            <template #icon>
-              <n-icon size="24" :component="HouseTwotone" />
-            </template>
-            {{ getUserLocate(prod)!.detailLocate }}</n-button
-          >
-          <n-button text>
-            <template #icon>
-              <n-icon size="24" :component="Phone20Filled" />
-            </template>
-            {{ getUserLocate(prod)!.phone }}</n-button
-          >
-        </n-space>
-        <n-divider style="width: 100%" />
-        <n-h2 style="padding-top: 0px">{{ prod.vendorProdName }}</n-h2>
-
-        <n-h2 style="padding-top: 0px">{{ prod.vendorPrice }}원</n-h2>
-        <div style="max-height: 20vw; overflow: auto">
-          <n-space
-            inline
-            justify="space-between"
-            align="center"
-            style="border: grey solid 1px; padding: 10px; width: 25vw"
-            v-for="(opt, i) in prodOpts"
-            :key="i"
-          >
-            <n-h4 style="margin: 0">{{ opt.label }}</n-h4>
-            <logo-checker
-              :size="1"
-              :checked="selectedProdIds.includes(opt.value)"
-              @onClick="onCheck(opt.value)"
-              style="margin-right: 20px"
-            />
+    <n-space vertical style="overflow: auto; max-height: 75vh">
+      <n-space
+        size="large"
+        inline
+        style="border: grey solid 1px; padding: 10px; width: 70vw"
+        justify="space-around"
+      >
+        <carousel-img-card
+          :imgUrls="imgUrls"
+          :width="30"
+          :height="30"
+          unit="vw"
+        />
+        <n-space vertical style="width: 35vw">
+          <n-space justify="space-between" v-if="getUserLocate(prod)">
+            <n-button text>
+              <template #icon>
+                <n-icon size="24" :component="HouseTwotone" />
+              </template>
+              {{ getUserLocate(prod)!.detailLocate }}</n-button
+            >
+            <n-button text>
+              <template #icon>
+                <n-icon size="24" :component="Phone20Filled" />
+              </template>
+              {{ getUserLocate(prod)!.phone }}</n-button
+            >
           </n-space>
-        </div>
-      </n-space>
-    </n-space>
+          <n-divider style="width: 100%" />
+          <n-h2 style="padding-top: 0px">{{ prod.vendorProdName }}</n-h2>
 
+          <n-h2 style="padding-top: 0px">{{ prod.vendorPrice }}원</n-h2>
+          <div style="max-height: 20vw; overflow: auto">
+            <n-space
+              inline
+              justify="space-between"
+              align="center"
+              style="border: grey solid 1px; padding: 10px; width: 25vw"
+              v-for="(opt, i) in prodOpts"
+              :key="i"
+            >
+              <n-h4 style="margin: 0">{{ opt.label }}</n-h4>
+              <logo-checker
+                :size="1"
+                :checked="selectedProdIds.includes(opt.value)"
+                @onClick="onCheck(opt.value)"
+                style="margin-right: 20px"
+              />
+            </n-space>
+          </div>
+        </n-space>
+      </n-space>
+      <n-descriptions
+        bordered
+        label-placement="left"
+        :column="4"
+        style="margin-top: 1%"
+      >
+        <template #header> <n-h2>기본정보</n-h2> </template>
+        <n-descriptions-item>
+          <template #label> 카테고리 </template>
+          {{ prod.part }} > {{ prod.ctgr }}
+        </n-descriptions-item>
+        <n-descriptions-item label="혼용률">
+          {{ prod.fabric }}
+        </n-descriptions-item>
+      </n-descriptions>
+      <n-descriptions label-placement="left" style="margin-top: 1%">
+        <template #header> <n-h2>상세정보</n-h2> </template>
+        <n-descriptions-item>{{ prod.info }}</n-descriptions-item>
+        <n-descriptions-item>{{ prod.description }}</n-descriptions-item>
+      </n-descriptions>
+    </n-space>
     <template #action>
       <n-space justify="end">
         <n-button @click="onSubmit"> 추가하기 </n-button>
