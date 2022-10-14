@@ -40,7 +40,7 @@ export function useLogin() {
 
   async function login(uid: string, params: SignupParam, toSignUp = true) {
     const user = await USER_DB.getUserById(uid);
-    log.debug("User from getUserById: ", user, "Uid: ", uid);
+    log.debug("USER_DB.getUserById: ", user, "Uid: ", uid);
     if (user) {
       const token = await IoUser.getFcmToken();
       if (token !== null && !user.userInfo.fcmTokens.includes(token)) {
@@ -56,10 +56,11 @@ export function useLogin() {
         authS.logout();
       }
     } else {
+      console.log("Signup params in login", params);
       if (toSignUp)
         router.push({
           name: "SignUp",
-          params: params as { [k: string]: any },
+          state: params as { [k: string]: any },
         });
     }
   }

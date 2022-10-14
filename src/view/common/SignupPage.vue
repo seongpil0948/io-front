@@ -36,12 +36,10 @@ const user = ref<IoUser | null>(null);
 const acceptTerms = ref(false);
 const { play, stop } = useFireWork();
 const smtp = useAlarm();
-if (!router.currentRoute.value.params.userId) {
-  log.error(
-    null,
-    "User ID not Received In SignUp Page(Landing)",
-    router.currentRoute.value.params
-  );
+console.log("state: ", window.history.state);
+const state = window.history.state;
+if (!state.userId) {
+  log.error(null, "User ID not Received In SignUp Page(Landing)", state);
   router.replace({ name: "Login" });
 }
 onMounted(() => {
@@ -239,13 +237,14 @@ async function onSignUp() {
             <div>백날 로고를 눌러도 흔들리는 기능 뿐이에요</div>
           </n-h5>
           <n-card class="form-card">
+            <!-- state -->
             <user-info-form
               ref="userInfoRef"
-              :userName="($route.params.userName as string)"
-              :profileImg="($route.params.profileImg as string)"
-              :email="($route.params.email as string)"
-              :userId="($route.params.userId as string)"
-              :providerId="($route.params.providerId as USER_PROVIDER)"
+              :userName="(state.userName as string)"
+              :profileImg="(state.profileImg as string)"
+              :email="(state.email as string)"
+              :userId="(state.userId as string)"
+              :providerId="(state.providerId as USER_PROVIDER)"
               :role="userRole"
             />
             <template #action>
@@ -266,7 +265,7 @@ async function onSignUp() {
           <n-card class="form-card">
             <company-info-form
               ref="companyInfoForm"
-              :userId="($route.params.userId as string)"
+              :userId="(state.userId as string)"
             />
             <template #action>
               <n-space justify="end">
