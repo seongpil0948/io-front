@@ -24,7 +24,6 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
     if (userPay.budget < expectedReduceCoin)
       throw new Error("보유 코인이 부족합니다.");
     else if (!row.isValid) throw new Error("invalid order.");
-
     const ordRef = getOrdRef(row.shopId);
     const ordDocRef = doc(ordRef, row.dbId).withConverter(converterGarment);
     return runTransaction(iostore, async (transaction) => {
@@ -60,17 +59,20 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
         const prod = vendorStore.vendorGarments.find(
           (g) => g.vendorProdId === item.vendorProdId
         );
-        const vendorDoc = await transaction.get(
-          doc(
-            getIoCollection({ c: IoCollection.USER }).withConverter(
-              IoUser.fireConverter()
-            ),
-            item.vendorId
-          )
-        );
+        // const vendorDoc = await transaction.get(
+        //   doc(
+        //     getIoCollection({ c: IoCollection.USER }).withConverter(
+        //       IoUser.fireConverter()
+        //     ),
+        //     item.vendorId
+        //   )
+        // );
         if (!prod)
           throw new Error(`도매처 상품이 없습니다.: ${item.vendorProdId}`);
-        const vendor = validateUser(vendorDoc.data(), item.vendorId);
+        const vendor = validateUser(
+          vendorStore.vendorById[item.vendorId],
+          item.vendorId
+        );
         const isReturn = item.orderType === "RETURN";
         const shopLocate = shop.companyInfo!.shipLocate;
         const vendorLocate = vendor.companyInfo!.shipLocate;

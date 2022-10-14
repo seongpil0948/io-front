@@ -61,8 +61,11 @@ function onTos() {
         인아웃박스(inoutbox) | 대표: 송준회 | 주소: 서울 강남구 테헤란로 6길 16,
         1동 13층 1호
         <br />
-        사업자등록번호: 720-08-02296 | 문의: inoutboxofficial@gmail.com
-        <n-button text @click="onTos"> 이용약관 </n-button>
+        사업자등록번호: 720-08-02296 | 문의: inoutboxofficial@gmail.com |
+        고객센터 번호 : 010-7727-7428
+        <n-button text @click="onTos" size="small" type="primary">
+          이용약관 보기
+        </n-button>
       </n-text>
       <n-space v-if="isTest === 'true'" justify="center">
         <n-button round type="primary" @click="toVendor">도매계정전환</n-button>

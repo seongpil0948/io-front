@@ -73,6 +73,7 @@ async function onReqOrderConfirm() {
       const message = err instanceof Error ? err.message : JSON.stringify(err);
       msg.error(`픽업 승인 실패. ${message}`, makeMsgOpt());
       log.error(u.userInfo.userId, `픽업 승인 실패. ${message}`);
+      console.error(`픽업 승인 실패. `, err);
     })
     .finally(() => {
       orderTargets.value = [];
