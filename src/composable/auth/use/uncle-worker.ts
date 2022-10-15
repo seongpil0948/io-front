@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/store";
 import { getIoCollection, IoCollection } from "@/util";
-import { getDocs, query, where } from "@firebase/firestore";
-import { onBeforeMount, ref, computed } from "vue";
+import { onSnapshot, query, where } from "@firebase/firestore";
+import { onBeforeUnmount, ref, computed } from "vue";
 import { _usersFromSnap } from "../db/firebase";
 import { IoUser } from "../model";
 
@@ -16,22 +16,20 @@ export function useUncleWorkers() {
       return acc;
     }, {} as { [uid: string]: string })
   );
-  async function getWorkers() {
-    const c = getIoCollection({ c: IoCollection.USER }).withConverter(
-      IoUser.fireConverter()
-    );
-    const snapshot = await getDocs(
-      query(
-        c,
-        where("userInfo.role", "==", "UNCLE_WORKER"),
-        where("userInfo.managerId", "==", u.userInfo.userId)
-      )
-    );
-    workers.value = _usersFromSnap(snapshot);
-  }
-  onBeforeMount(async () => {
-    await getWorkers();
-  });
+  const c = getIoCollection({ c: IoCollection.USER }).withConverter(
+    IoUser.fireConverter()
+  );
+  const unsubscribe = onSnapshot(
+    query(
+      c,
+      where("userInfo.role", "==", "UNCLE_WORKER"),
+      where("userInfo.managerId", "==", u.userInfo.userId)
+    ),
+    (snapshot) => {
+      workers.value = _usersFromSnap(snapshot);
+    }
+  );
+  onBeforeUnmount(() => unsubscribe());
   return {
     workers,
     imageById,

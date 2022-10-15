@@ -65,23 +65,24 @@ export function useLogin() {
     }
   }
 
-  async function googleLogin() {
-    signInWithPopup(auth, provider)
+  async function googleLogin(loginAfter = true) {
+    return signInWithPopup(auth, provider)
       .then((result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
         const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential?.accessToken;
         const user = result.user;
-        console.log("credential: ", credential);
-        console.log("token: ", token);
-        console.log("user: ", user);
-        login(user.uid, {
-          providerId: "GOOGLE",
-          userId: user.uid,
-          userName: user.displayName ?? "",
-          email: user.email ?? "",
-          profileImg: user.photoURL ?? "",
-        });
+        console.log("credential: ", credential, "user: ", user);
+
+        if (loginAfter) {
+          login(user.uid, {
+            providerId: "GOOGLE",
+            userId: user.uid,
+            userName: user.displayName ?? "",
+            email: user.email ?? "",
+            profileImg: user.photoURL ?? "",
+          });
+        }
+        return user;
       })
       .catch((error) => {
         logger.error(
