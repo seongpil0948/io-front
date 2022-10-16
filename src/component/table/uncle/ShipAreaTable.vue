@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LocateAmount, Locate } from "@/composable";
+import { LocateAmount, Locate, useShipAreaCols } from "@/composable";
 import { useAuthStore } from "@/store";
 import { useMessage, DataTableColumns, NText, NButton } from "naive-ui";
 import { ref, h, computed } from "vue";
@@ -57,58 +57,7 @@ async function addShipArea() {
     }
   }
 }
-const cols1: DataTableColumns<LocateAmount> = [
-  {
-    title: "도",
-    key: "locate.city",
-    sorter(rowA, rowB) {
-      return rowA.locate.city!.length - rowB.locate.city!.length;
-    },
-  },
-  {
-    title: "시",
-    key: "locate.county",
-    sorter(rowA, rowB) {
-      return rowA.locate.county!.length - rowB.locate.county!.length;
-    },
-  },
-  {
-    title: "군/구",
-    key: "locate.town",
-    sorter: "default",
-    filter: true,
-  },
-  {
-    title: "요금",
-    key: "amount",
-    render: (row) => h(NText, { type: "info" }, { default: () => row.amount }),
-  },
-  {
-    title: "삭제",
-    key: "delete",
-    render: (row) =>
-      h(
-        NButton,
-        {
-          type: "error",
-          onClick: async () => {
-            const l = row.locate;
-            const idx = u.uncleInfo!.shipLocates.findIndex(
-              (e) =>
-                l.city === e.locate.city &&
-                l.county === e.locate.county &&
-                l.town === e.locate.town
-            );
-            console.log("idx:", idx);
-            u.uncleInfo!.shipLocates.splice(idx, 1);
-            await u.update();
-            msg.success("삭제완료.");
-          },
-        },
-        { default: () => "삭제" }
-      ),
-  },
-];
+const { shipAreaCols } = useShipAreaCols();
 </script>
 <template>
   <n-space style="margin-top: 2.5%; margin-bottom: 2.5%">
@@ -122,7 +71,7 @@ const cols1: DataTableColumns<LocateAmount> = [
     <n-button @click="addShipArea">추가</n-button>
   </n-space>
   <n-data-table
-    :columns="cols1"
+    :columns="shipAreaCols"
     :data="shipLocates"
     :pagination="{ pageSize: 5 }"
   />

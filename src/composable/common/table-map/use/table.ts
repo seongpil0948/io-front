@@ -142,7 +142,6 @@ export function useTable<T extends MapperFields>(
       });
     }
     if (onSelect) {
-      console.log("onSelect:", onSelect);
       columns.value.push({
         title: "선택",
         key: "select",

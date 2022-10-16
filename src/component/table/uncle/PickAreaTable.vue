@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { LocateAmount, usePickArea } from "@/composable";
+import { LocateAmount, usePickArea, usePickAreaCols } from "@/composable";
 import { useAuthStore } from "@/store";
-import { useMessage, DataTableColumns, NText, NButton } from "naive-ui";
-import { ref, h } from "vue";
+import { useMessage } from "naive-ui";
+import { ref } from "vue";
 
 const msg = useMessage();
 const auth = useAuthStore();
@@ -31,60 +31,7 @@ async function onClickAdd() {
       .catch((err) => msg.error(err instanceof Error ? err.message : "실패!"));
   }
 }
-
-const cols1: DataTableColumns<LocateAmount> = [
-  {
-    title: "도",
-    key: "locate.city",
-    sorter(rowA, rowB) {
-      return rowA.locate.city!.length - rowB.locate.city!.length;
-    },
-  },
-  {
-    title: "시",
-    key: "locate.county",
-    sorter(rowA, rowB) {
-      return rowA.locate.county!.length - rowB.locate.county!.length;
-    },
-  },
-  {
-    title: "군/구",
-    key: "locate.town",
-    sorter: "default",
-    filter: true,
-  },
-  {
-    title: "건물",
-    key: "locate.alias",
-    sorter: "default",
-    filter: true,
-  },
-  {
-    title: "요금",
-    key: "amount",
-    render: (row) => h(NText, { type: "info" }, { default: () => row.amount }),
-  },
-  {
-    title: "삭제",
-    key: "delete",
-    render: (row) =>
-      h(
-        NButton,
-        {
-          type: "error",
-          onClick: () => {
-            const l = row.locate;
-            const idx = u.uncleInfo!.pickupLocates.findIndex(
-              (e) => l.city === e.locate.city && l.alias === e.locate.alias
-            );
-            // console.log("idx: ", idx, l);
-            u.uncleInfo!.pickupLocates.splice(idx, 1);
-          },
-        },
-        { default: () => "삭제" }
-      ),
-  },
-];
+const { pickAreaCols } = usePickAreaCols();
 </script>
 <template>
   <n-space style="margin-top: 2.5%; margin-bottom: 2.5%">
@@ -98,7 +45,7 @@ const cols1: DataTableColumns<LocateAmount> = [
     <n-button @click="onClickAdd">추가</n-button>
   </n-space>
   <n-data-table
-    :columns="cols1"
+    :columns="pickAreaCols"
     :data="u.uncleInfo ? u.uncleInfo.pickupLocates : []"
     :pagination="{ pageSize: 5 }"
   />

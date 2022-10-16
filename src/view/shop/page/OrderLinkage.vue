@@ -3,7 +3,6 @@ import {
   useCafeAuth,
   getCafeOrders,
   LINKAGE_DB,
-  ApiToken,
   useOrderParseCafe,
   useMapper,
   ORDER_GARMENT_DB,
@@ -14,25 +13,20 @@ import {
   MatchGarment,
   ShopGarment,
   useShopGarmentTable,
+  useApiTokenCols,
+  getMatchCols,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
-import { dateRanges, commonTime } from "@/util";
-import {
-  useMessage,
-  NButton,
-  DataTableColumns,
-  NDropdown,
-  DropdownOption,
-  NText,
-} from "naive-ui";
-import { h, onBeforeUnmount, computed, ref } from "vue";
+import { dateRanges } from "@/util";
+import { useMessage, NButton } from "naive-ui";
+import { onBeforeUnmount, computed, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { storeToRefs } from "pinia";
 
 const msg = useMessage();
 const log = useLogger();
 const auth = useAuthStore();
-const { timeToDate } = commonTime();
+const { apiTokenCol } = useApiTokenCols();
 const uid = computed(() => auth.currUser.userInfo.userId);
 const { tokens, unsubscribe } = LINKAGE_DB.getTokensByIdListen(uid.value);
 onBeforeUnmount(() => unsubscribe());
@@ -64,82 +58,23 @@ function goAuthorizeCafe() {
 }
 
 const matchData = ref<MatchGarment[]>([]);
-const matchCols = computed(() => [
-  {
-    title: "서비스",
-    key: "service",
-    sorter: "default",
-  },
-  {
-    title: "주문개수",
-    key: "orderCnt",
-  },
-  {
-    title: "ID",
-    key: "ID",
-    children: [
-      {
-        title: "매칭된ID",
-        key: "id",
-        render: (row: MatchGarment) =>
-          h(
-            NButton,
-            {
-              type: row.id ? "primary" : "error",
-              text: row.id !== undefined,
-              onClick: async () => {
-                console.info(`Play ${JSON.stringify(row)}`);
-                selectFunc.value = async (s) => {
-                  const g = ShopGarment.fromJson(s);
-                  if (g) {
-                    g.cafeProdId = row.inputId;
-                    g.update().then(() => {
-                      row.id = g.shopProdId;
-                      row.color = g.color;
-                      row.size = g.size;
-                      row.prodName = g.prodName;
-                    });
-                  }
-                };
-                openSelectList.value = true;
-              },
-            },
-            { default: () => row.id ?? "상품선택" }
-          ),
-      },
-      {
-        title: "외부ID",
-        key: "inputId",
-      },
-    ],
-  },
-  {
-    title: "상품명",
-    key: "prodNameParent",
-    children: [
-      {
-        title: "매칭된상품명",
-        key: "prodName",
-      },
-      {
-        title: "외부상품명",
-        key: "inputProdName",
-      },
-    ],
-  },
-  {
-    title: "입력옵션",
-    key: "optionValue",
-  },
-  {
-    title: "컬러",
-    key: "color",
-  },
-  {
-    title: "사이즈",
-    key: "size",
-  },
-]);
+async function onClickId(row: MatchGarment) {
+  console.info(`Play ${JSON.stringify(row)}`);
+  selectFunc.value = async (s) => {
+    const g = ShopGarment.fromJson(s);
+    if (g) {
+      g.cafeProdId = row.inputId;
+      g.update().then(() => {
+        row.id = g.shopProdId;
+        row.color = g.color;
+        row.size = g.size;
+        row.prodName = g.prodName;
+      });
+    }
+  };
+  openSelectList.value = true;
+}
+const matchCols = getMatchCols(onClickId);
 const filterIsNull = ref(false);
 function switchFilter(b: boolean) {
   filterIsNull.value = b;
@@ -252,103 +187,6 @@ async function saveMatch() {
       matchData.value = [];
     });
 }
-
-const rowOpts = [
-  {
-    label: "비활성화",
-    key: "toDisable",
-    disabled: true,
-  },
-  {
-    label: "인증갱신",
-    key: "refresh",
-  },
-  {
-    label: "삭제",
-    key: "delete",
-  },
-];
-async function handleSelect(
-  row: ApiToken,
-  key: string | number,
-  option: DropdownOption
-) {
-  if (option.key === "delete") {
-    LINKAGE_DB.deleteToken(uid.value, row.dbId)
-      .then(() => msg.info("삭제 완료"))
-      .catch((err) => {
-        const message = `삭제 실패 ${
-          err instanceof Error ? err.message : JSON.stringify(err)
-        }`;
-        msg.error(message);
-        log.error(uid.value, message);
-      });
-  } else {
-    msg.info(String(key));
-  }
-}
-const cols: DataTableColumns<ApiToken> = [
-  {
-    title: "활성화 여부",
-    key: "no",
-    render(row) {
-      // const valid = row.no < 10;
-      const valid = true;
-
-      return h(
-        NButton,
-        {
-          type: valid ? "primary" : "error",
-          onClick: () => {
-            msg.info(`Play ${JSON.stringify(row)}`);
-          },
-        },
-        { default: () => (valid ? "가능" : "불가") }
-      );
-    },
-  },
-  {
-    title: "서비스",
-    key: "service",
-  },
-  {
-    title: "쇼핑몰ID",
-    key: "mallId",
-  },
-  {
-    title: "메뉴",
-    key: "actions",
-    render(row) {
-      const btn = h(NButton, {}, { default: () => "..." });
-      return h(
-        NDropdown,
-        {
-          trigger: "click",
-          options: rowOpts,
-          onSelect: (key: string | number, option: DropdownOption) =>
-            handleSelect(row, key, option),
-        },
-        {
-          default: () => btn,
-        }
-      );
-    },
-  },
-  {
-    title: "만료일",
-    key: "expireAt",
-    render: (row) =>
-      h(
-        NText,
-        {
-          primary: true,
-        },
-        {
-          default: () => timeToDate(row.expireAt, "YYYY-MM-DD HH시 mm분"),
-        }
-      ),
-  },
-];
 </script>
 
 <template>
@@ -416,7 +254,7 @@ const cols: DataTableColumns<ApiToken> = [
       </template>
     </n-card>
     <n-h2>API 계정 관리</n-h2>
-    <n-data-table :columns="cols" :data="tokens" />
+    <n-data-table :columns="apiTokenCol" :data="tokens" />
   </n-space>
   <n-modal v-model:show="openSelectList">
     <n-card title="상품선택" :bordered="false" size="large">
