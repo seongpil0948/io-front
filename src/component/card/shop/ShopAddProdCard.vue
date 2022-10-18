@@ -164,10 +164,13 @@ function onCheck(val: string) {
           {{ prod.fabric }}
         </n-descriptions-item>
       </n-descriptions>
-      <n-descriptions label-placement="left" style="margin-top: 1%">
+      <n-descriptions label-placement="top" style="margin-top: 1%">
+        <template #header> <n-h2>상품 요약</n-h2> </template>
+        <n-descriptions-item>{{ prod.description }}</n-descriptions-item>
+      </n-descriptions>
+      <n-descriptions label-placement="top" style="margin-top: 1%">
         <template #header> <n-h2>상세정보</n-h2> </template>
         <n-descriptions-item>{{ prod.info }}</n-descriptions-item>
-        <n-descriptions-item>{{ prod.description }}</n-descriptions-item>
       </n-descriptions>
     </n-space>
     <template #action>
