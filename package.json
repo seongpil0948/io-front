@@ -12,8 +12,12 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "axios": "1.1.2",
     "@bootpay/client-js": "^4.2.5",
+    "@editorjs/editorjs": "^2.25.0",
+    "@editorjs/header": "^2.6.2",
+    "@editorjs/list": "^1.7.0",
+    "@editorjs/table": "^2.0.4",
+    "axios": "1.1.2",
     "core-js": "^3.24.1",
     "danfojs": "^1.1.1",
     "firebase": "^9.8.2",

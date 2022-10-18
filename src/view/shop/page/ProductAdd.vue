@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PART, VendorUserGarmentCombined } from "@/composable";
 import { useVendorsStore } from "@/store";
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { getCtgrOpts, partOpts } from "@/util";
 const selectedPart = ref<PART | "전체" | null>(null);
 const selectedCtgr = ref<string | null>(null);
@@ -12,6 +12,11 @@ function onClickProd(prod: VendorUserGarmentCombined) {
   showAddModal.value = true;
   selectedProd.value = prod;
 }
+watchEffect(() => {
+  if (!showAddModal.value) {
+    selectedProd.value = null;
+  }
+});
 function validProd(prod: VendorUserGarmentCombined) {
   let valid = true;
   if (selectedPart.value && selectedPart.value !== "전체") {

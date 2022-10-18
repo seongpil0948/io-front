@@ -12,6 +12,7 @@ import { cloneDeep } from "lodash";
 import { useMessage, FormInst } from "naive-ui";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { ref, watchEffect } from "vue";
+import { useEditor } from "@/plugin/editor";
 
 const props = defineProps<{
   prod?: VendorGarment;
@@ -33,7 +34,6 @@ const rules = {
   titleImgs: arrLenRule(1),
   bodyImgs: arrLenRule(1),
   fabric: notNullRule, // 혼용률 / 제조국
-  info: notNullRule, // 상세정보
   description: notNullRule,
   stockCnt: biggerThanNRule(0),
 };
@@ -43,12 +43,23 @@ function onEdit() {
   formRef.value?.validate(async (errors) => {
     if (errors)
       return msg.error("상품 작성란을 올바르게 작성 해주세요", makeMsgOpt());
+    const info = await saveEditor();
+    if (info) {
+      prod.value!.info = info;
+    }
 
     await prod.value!.update();
+    clearEditor();
     emits("onSubmitProd");
   });
 }
 const auth = useAuthStore();
+const { editor, saveEditor, clearEditor } = useEditor({
+  readOnly: false,
+  elementId: "io-editor",
+  placeholder: "상품 정보 입력",
+  data: prod.value!.info,
+});
 </script>
 
 <template>
@@ -96,11 +107,12 @@ const auth = useAuthStore();
       </n-form-item-gi>
 
       <n-form-item-gi span="6" label="상품정보" path="info">
-        <n-input
+        <!-- <n-input
           v-model:value="prod.info"
           type="textarea"
           placeholder="상품 정보 입력"
-        />
+        /> -->
+        <div id="io-editor" class="io-editor-border"></div>
       </n-form-item-gi>
       <n-form-item-gi span="6" label="상품 요약" path="description">
         <n-input v-model:value="prod.description" placeholder="개요 입력" />
@@ -118,7 +130,7 @@ const auth = useAuthStore();
           :user="auth.currUser"
           size="100"
           v-model:urls="prod.titleImgs"
-          :max="5"
+          :max="1"
         >
           <add-circle-outline style="cursor: pointer" />
         </single-image-input>

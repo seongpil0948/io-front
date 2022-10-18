@@ -1,6 +1,7 @@
 // import { logger } from "@/plugin/logger";
 import { CommonField } from "@/composable/common";
 import { getIoCollection, insertById, IoCollection } from "@/util";
+import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import type { GENDER, PART, GARMENT_SIZE } from "../domain";
 import { VendorGarmentCrt } from "./domain";
@@ -20,7 +21,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   vendorProdName: string;
   titleImgs: string[];
   bodyImgs: string[];
-  info: string;
+  info: string | OutputData;
   description: string;
 
   async update() {

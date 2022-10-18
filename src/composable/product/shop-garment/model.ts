@@ -6,6 +6,7 @@ import {
 } from "@/composable";
 import { CommonField } from "@/composable/common";
 import { getIoCollection, insertById, IoCollection } from "@/util";
+import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 
 export function sameGarment(p: ShopGarmentCrt, g: GarmentOrderCondi) {
@@ -20,7 +21,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   shopId: string;
   prodPrice: number;
   prodName: string;
-  info: string;
+  info: string | OutputData;
   description: string;
   cafeProdId?: string;
 

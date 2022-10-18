@@ -1,9 +1,10 @@
 import { ProductCrt } from "@/composable";
+import { OutputData } from "@editorjs/editorjs/types/data-formats";
 
 export abstract class Product implements ProductCrt {
   createdAt?: Date | undefined;
   updatedAt?: Date | undefined;
-  info: string;
+  info: string | OutputData;
   description: string;
   constructor(d: ProductCrt) {
     this.createdAt = d.createdAt;

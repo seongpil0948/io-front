@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMessage } from "naive-ui";
-import { computed, ref, toRefs } from "vue";
+import { computed, ref, toRefs, watch } from "vue";
 import { v4 as uuidv4 } from "uuid";
 import {
   GARMENT_SIZE,
@@ -13,6 +13,8 @@ import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { HouseTwotone } from "@vicons/material";
 import { Phone20Filled } from "@vicons/fluent";
+import { useEditor } from "@/plugin/editor";
+
 const props = defineProps<{
   showAddModal: boolean;
   prod: VendorUserGarmentCombined;
@@ -85,6 +87,13 @@ function onCheck(val: string) {
     selectedProdIds.value.push(val);
   }
 }
+
+const { editor } = useEditor({
+  readOnly: true,
+  elementId: "io-editor",
+  placeholder: "상품 정보 입력",
+  data: prod.value!.info,
+});
 </script>
 
 <template>
@@ -155,22 +164,29 @@ function onCheck(val: string) {
         :column="4"
         style="margin-top: 1%"
       >
-        <template #header> <n-h2>기본정보</n-h2> </template>
+        <template #header> <n-h3>기본정보</n-h3> </template>
         <n-descriptions-item>
           <template #label> 카테고리 </template>
           {{ prod.part }} > {{ prod.ctgr }}
         </n-descriptions-item>
-        <n-descriptions-item label="혼용률">
+        <n-descriptions-item label="혼용률 / 제조국">
           {{ prod.fabric }}
         </n-descriptions-item>
       </n-descriptions>
-      <n-descriptions label-placement="top" style="margin-top: 1%">
-        <template #header> <n-h2>상품 요약</n-h2> </template>
-        <n-descriptions-item>{{ prod.description }}</n-descriptions-item>
-      </n-descriptions>
-      <n-descriptions label-placement="top" style="margin-top: 1%">
-        <template #header> <n-h2>상세정보</n-h2> </template>
-        <n-descriptions-item>{{ prod.info }}</n-descriptions-item>
+      <n-descriptions
+        :column="1"
+        bordered
+        label-placement="top"
+        style="margin-top: 1%"
+      >
+        <n-descriptions-item
+          ><template #label> <n-h3>상품 요약</n-h3> </template>
+          {{ prod.description }}</n-descriptions-item
+        >
+        <n-descriptions-item>
+          <template #label> <n-h3>상세 정보</n-h3> </template>
+          <div id="io-editor"></div
+        ></n-descriptions-item>
       </n-descriptions>
     </n-space>
     <template #action>

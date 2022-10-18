@@ -90,3 +90,17 @@ body {
 .n-select {
     min-width: 100px;
 }
+
+#io-editor {
+    width: 100%;
+    margin-top: 5%;
+    margin-bottom: 2%;
+    text-align: start;
+    max-width: 780px;
+}
+.io-editor-border {
+    border: 0.3rem solid #c3c2c7;
+    box-shadow: 0 3px 10px rgb(0 0 0 / 20%);
+    border-radius: 1rem;
+    padding-top: 3%;
+}
