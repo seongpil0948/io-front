@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { USER_DB } from "@/composable";
+import { useLogin } from "@/composable";
 import { KAKAO_CHANNEL_ID } from "@/constants";
 import { useAuthStore } from "@/store";
 import {
@@ -15,6 +15,7 @@ const inst = getCurrentInstance();
 const router = useRouter();
 const auth = useAuthStore();
 const isTest = process.env.VUE_APP_IS_TEST;
+const { login } = useLogin();
 function csChat() {
   const kakao = inst?.appContext.config.globalProperties.$kakao;
   kakao.Channel.chat({
@@ -22,19 +23,16 @@ function csChat() {
   });
 }
 async function toVendor() {
-  const realUser = await USER_DB.getUserById(getMockVendors()[0]!);
-  await auth.login(realUser!);
-  router.goHome(auth.user!);
+  const uid = getMockVendors()[0];
+  await login(uid, { providerId: "EMAIL" }, false);
 }
 async function toShop() {
-  const realUser = await USER_DB.getUserById(getMockShops()[0]!);
-  await auth.login(realUser!);
-  router.goHome(auth.user!);
+  const uid = getMockShops()[0];
+  await login(uid, { providerId: "EMAIL" }, false);
 }
 async function toUncle() {
-  const realUser = await USER_DB.getUserById(getMockUncles()[0]!);
-  await auth.login(realUser!);
-  router.goHome(auth.user!);
+  const uid = getMockUncles()[0];
+  await login(uid, { providerId: "EMAIL" }, false);
 }
 const showTos = ref(false);
 function onTos() {

@@ -44,7 +44,7 @@ export function useLogin() {
     log.debug("USER_DB.getUserById: ", user, "Uid: ", uid);
     if (user) {
       const token = await IoUser.getFcmToken();
-      const tokens = user.userInfo.fcmTokens;
+      const tokens = user.userInfo.fcmTokens ?? [];
       const newTokens: FcmToken[] = [];
       for (let i = 0; i < tokens.length; i++) {
         const t = tokens[i];
@@ -52,7 +52,7 @@ export function useLogin() {
           newTokens.push(t);
         }
       }
-      if (token !== null && !tokens.includes(token)) {
+      if (token !== null && tokens.every((t) => token.token !== t.token)) {
         newTokens.push(token);
       }
       user.userInfo.fcmTokens = newTokens;

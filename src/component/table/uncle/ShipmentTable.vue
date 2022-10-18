@@ -47,7 +47,7 @@ async function onSelectWorker(val: IoUser) {
     return Promise.all([order.update(), shipment.update()]).then(async () => {
       msg.success("담당자 배정이 완료되었습니다.");
       await smtp.sendAlarm({
-        toUserIds: [order.shopId, ...order.vendorIds],
+        toUserIds: [order.shopId, ...order.vendorIds, val.userInfo.userId],
         subject: `inoutbox 주문 처리내역 알림.`,
         body: `배송 담당자 ${val.name} 님이 배정되었습니다.`,
         notiLoadUri: "/",
