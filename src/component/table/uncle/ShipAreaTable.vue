@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { LocateAmount, Locate, useShipAreaCols } from "@/composable";
 import { useAuthStore } from "@/store";
-import { useMessage, DataTableColumns, NText, NButton } from "naive-ui";
-import { ref, h, computed } from "vue";
+import { useMessage, NButton } from "naive-ui";
+import { ref, computed } from "vue";
 import { shipAreas } from "@/asset/administrationAreas";
 import { useLogger } from "vue-logger-plugin";
 

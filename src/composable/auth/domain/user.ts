@@ -1,4 +1,4 @@
-import { IoAccount, IoUser, Locate, LocateCRT } from "@/composable";
+import { FcmToken, IoAccount, IoUser, Locate, LocateCRT } from "@/composable";
 import { UserCredential } from "firebase/auth";
 
 type USER_ROLE =
@@ -56,7 +56,7 @@ interface IoUserInfo {
   emailVerified: boolean;
   profileImg?: string;
   role: USER_ROLE;
-  fcmTokens: string[];
+  fcmTokens: FcmToken[];
   passed: boolean; // 관리자(주네)에게 허가받은 사용자 인지
   phone?: string;
   managerId?: string; // 관리자 ID 근로자일경우 not null

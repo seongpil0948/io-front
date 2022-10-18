@@ -90,7 +90,7 @@ export function dateRanges(useDefault = false) {
     endDate,
     updateDate,
     updateRangeNaive,
-    diableGenerator:
+    disableGenerator:
       ({ maxDate = 7 }) =>
       (time: any) => {
         const t = moment(time);

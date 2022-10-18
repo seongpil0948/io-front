@@ -14,7 +14,7 @@ import { IO_COSTS } from "@/constants";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { NButton, useMessage } from "naive-ui";
-import { computed, h, ref } from "vue";
+import { computed, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const smtp = useAlarm();

@@ -1,3 +1,5 @@
+import { logger } from "@/plugin/logger";
+import { FcmToken } from "./token";
 import {
   CompanyInfo,
   IoUserCRT,
@@ -104,25 +106,24 @@ export class IoUser extends CommonField implements IoUserCRT {
       vapidKey:
         "BDATZH9Zt9gMTBQqOUpt2VMWb7wX2V8t0PeyO_UVCUf46kNkJ_smqT2nx31StrXKHVD_BRq5Bqhr2wsCCXQhLPw",
     })
-      .then((currentToken) => {
-        if (currentToken) {
-          return currentToken;
+      .then((token) => {
+        if (token) {
+          console.log("get fcm token: ", token);
+          return new FcmToken({ createdAt: new Date(), token });
         } else {
-          // Show permission request UI
-          console.info(
-            null,
-            "No registration token available. Request permission to generate one."
-          );
+          const msg = "FCM 토큰흭득 실패. Request permission to generate one.";
+          logger.warn(null, msg);
+          console.info(msg);
           return null; // FIXME: 권한 요청후 실패시 null
         }
       })
       .catch((err) => {
         if (err.code === "messaging/permission-blocked") return null;
-        console.error(
-          null,
-          "An error occurred while retrieving msg token. ",
-          err instanceof Error ? err.message : JSON.stringify(err)
-        );
+        const msg =
+          "An error occurred while retrieving msg token. " +
+          (err instanceof Error ? err.message : JSON.stringify(err));
+        console.error(msg);
+        logger.error(null, msg);
         return null;
       });
   }

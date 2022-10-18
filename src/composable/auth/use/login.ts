@@ -11,8 +11,9 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
-import { IoUser, USER_DB, USER_PROVIDER } from "@/composable";
+import { FcmToken, IoUser, USER_DB, USER_PROVIDER } from "@/composable";
 import { logger } from "@/plugin/logger";
+import moment from "moment";
 
 interface SignupParam {
   providerId: USER_PROVIDER;
@@ -43,10 +44,18 @@ export function useLogin() {
     log.debug("USER_DB.getUserById: ", user, "Uid: ", uid);
     if (user) {
       const token = await IoUser.getFcmToken();
-      if (token !== null && !user.userInfo.fcmTokens.includes(token)) {
-        user.userInfo.fcmTokens.push(token);
+      const tokens = user.userInfo.fcmTokens;
+      const newTokens: FcmToken[] = [];
+      for (let i = 0; i < tokens.length; i++) {
+        const t = tokens[i];
+        if (moment().diff(moment(t.createdAt), "days") < 7) {
+          newTokens.push(t);
+        }
       }
-
+      if (token !== null && !tokens.includes(token)) {
+        newTokens.push(token);
+      }
+      user.userInfo.fcmTokens = newTokens;
       await user.update();
       if (user.userInfo.passed) {
         await authS.login(user);
