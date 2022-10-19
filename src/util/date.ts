@@ -70,16 +70,17 @@ export function loadDate(d: Date | { [x: string]: number } | string): Date {
 // }
 
 export function dateRanges(useDefault = false) {
-  const defaultEDate = getCurrDate();
-  const defaultSDate = formatDate(subDays(new Date(), 7));
+  // const defaultEDate = getCurrDate();
+  const defaultEDate = new Date();
+  const defaultSDate = subDays(new Date(), 7);
   const dateRangeTime = useDefault
     ? ref([
         defaultSDate.valueOf(), // ms
         defaultEDate.valueOf(),
       ])
     : ref(null);
-  const startDate = useDefault ? ref(defaultSDate) : ref(null);
-  const endDate = useDefault ? ref(defaultEDate) : ref(null);
+  const startDate = useDefault ? ref(formatDate(defaultSDate)) : ref(null);
+  const endDate = useDefault ? ref(formatDate(defaultEDate)) : ref(null);
 
   const updateDate = () => {
     startDate.value = dateRangeTime.value
