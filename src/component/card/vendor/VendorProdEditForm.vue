@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { VendorGarment } from "@/composable";
-import { useAuthStore } from "@/store";
+import { useAuthStore, useVendorsStore } from "@/store";
 import {
   nameLenRule,
   biggerThanNRule,
@@ -27,6 +27,7 @@ watchEffect(() => {
 
 const msg = useMessage();
 const formRef = ref<FormInst | null>(null);
+const vendorStore = useVendorsStore();
 
 const rules = {
   vendorProdName: nameLenRule,
@@ -40,21 +41,33 @@ const rules = {
 
 function onEdit() {
   if (!prod.value) return;
+  const p = prod.value!;
   formRef.value?.validate(async (errors) => {
     if (errors)
       return msg.error("상품 작성란을 올바르게 작성 해주세요", makeMsgOpt());
     const info = await saveEditor();
     if (info) {
-      prod.value!.info = info;
+      for (let i = 0; i < vendorStore.vendorGarments.length; i++) {
+        const garment = vendorStore.vendorGarments[i];
+        if (
+          garment.vendorProdId !== p.vendorProdId &&
+          garment.vendorId === p.vendorId &&
+          garment.vendorProdName === p.vendorProdName
+        ) {
+          garment.info = info;
+          await garment.update();
+        }
+      }
+      p.info = info;
     }
 
-    await prod.value!.update();
+    await p.update();
     clearEditor();
     emits("onSubmitProd");
   });
 }
 const auth = useAuthStore();
-const { editor, saveEditor, clearEditor } = useEditor({
+const { saveEditor, clearEditor } = useEditor({
   readOnly: false,
   elementId: "io-editor",
   placeholder: "상품 정보 입력",

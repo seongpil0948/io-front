@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMessage } from "naive-ui";
-import { computed, ref, toRefs, watch } from "vue";
+import { computed, ref, toRefs } from "vue";
 import { v4 as uuidv4 } from "uuid";
 import {
   GARMENT_SIZE,
