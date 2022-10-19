@@ -1,7 +1,20 @@
 import { Timestamp } from "@firebase/firestore";
-import moment from "moment";
+import { format, subDays, parseISO } from "date-fns";
+import { ko } from "date-fns/locale";
 import { ref } from "vue";
-import "moment/locale/ko";
+
+type TIME_FORMATS = "DAY" | "MIN";
+const TIME_FORMATS = Object.freeze({
+  DAY: "yyyy-MM-dd",
+  MIN: "yyyy-MM-dd HH:mm",
+});
+
+export const formatDate = (t: Date, f: TIME_FORMATS = "DAY") =>
+  format(t, TIME_FORMATS[f], { locale: ko });
+export const getCurrDate = (f: TIME_FORMATS = "DAY") =>
+  formatDate(new Date(), f);
+export const timeToDate = (t: any, f: TIME_FORMATS = "DAY") =>
+  formatDate(new Date(t), f);
 
 export function dateToTimeStamp(d: Date | undefined): Timestamp {
   if (!d) {
@@ -14,7 +27,7 @@ export function dateToTimeStamp(d: Date | undefined): Timestamp {
 export function loadDate(d: Date | { [x: string]: number } | string): Date {
   if (!d) return new Date();
   else if (d instanceof Date) return d;
-  else if (typeof d === "string") return new Date(d);
+  else if (typeof d === "string") return parseISO(d);
   // else if (d.seconds && d.constructor.name === "ut")
   // return new Date(d.seconds * 1000 + 60 * 60 * 9);
   // else if (d.seconds) return new Date(d.seconds * 1000);
@@ -24,46 +37,45 @@ export function loadDate(d: Date | { [x: string]: number } | string): Date {
   else throw Error("Fail to load Date");
 }
 
-const TimeFormat = "YYYY-MM-DD";
+// export const commonTime = () => {
+//   const currDate = moment().format(TimeFormat);
+//   const defaultDate = currDate;
+//   const defaultEDate = currDate;
+//   const defaultSDate = moment(defaultEDate, TimeFormat)
+//     .subtract(7, "days")
+//     .format(TimeFormat);
+//   return {
+//     timeToDate: (t: any, format?: string) =>
+//       moment(t).format(format ?? TimeFormat), // str -> moment
+//     timeFormat: TimeFormat,
+//     currDate,
+//     defaultDate,
+//     defaultEDate,
+//     defaultSDate,
+//   };
+// };
 
-export const commonTime = () => {
-  const currDate = moment().format(TimeFormat);
-  const defaultDate = currDate;
-  const defaultEDate = currDate;
-  const defaultSDate = moment(defaultEDate, TimeFormat)
-    .subtract(7, "days")
-    .format(TimeFormat);
-  return {
-    timeToDate: (t: any, format?: string) =>
-      moment(t).format(format ?? TimeFormat), // str -> moment
-    timeFormat: TimeFormat,
-    currDate,
-    defaultDate,
-    defaultEDate,
-    defaultSDate,
-  };
-};
-
-export function dateComposition() {
-  const { defaultDate } = commonTime();
-  const timestamp = ref(moment(defaultDate).valueOf()); // ms for v-model
-  const date = ref(moment(defaultDate).format(TimeFormat));
-  const updateDate = function (ms: any) {
-    date.value = moment(new Date(ms)).format(TimeFormat); // ms Number -> moment
-  };
-  return {
-    timestamp,
-    date,
-    updateDate,
-  };
-}
+// export function dateComposition() {
+//   const { defaultDate } = commonTime();
+//   const timestamp = ref(moment(defaultDate).valueOf()); // ms for v-model
+//   const date = ref(moment(defaultDate).format(TimeFormat));
+//   const updateDate = function (ms: any) {
+//     date.value = moment(new Date(ms)).format(TimeFormat); // ms Number -> moment
+//   };
+//   return {
+//     timestamp,
+//     date,
+//     updateDate,
+//   };
+// }
 
 export function dateRanges(useDefault = false) {
-  const { defaultSDate, defaultEDate } = commonTime();
+  const defaultEDate = getCurrDate();
+  const defaultSDate = formatDate(subDays(new Date(), 7));
   const dateRangeTime = useDefault
     ? ref([
-        moment(defaultSDate, TimeFormat).valueOf(), // ms
-        moment(defaultEDate, TimeFormat).valueOf(),
+        defaultSDate.valueOf(), // ms
+        defaultEDate.valueOf(),
       ])
     : ref(null);
   const startDate = useDefault ? ref(defaultSDate) : ref(null);
@@ -71,10 +83,10 @@ export function dateRanges(useDefault = false) {
 
   const updateDate = () => {
     startDate.value = dateRangeTime.value
-      ? commonTime().timeToDate(dateRangeTime.value[0])
+      ? timeToDate(dateRangeTime.value[0])
       : null;
     endDate.value = dateRangeTime.value
-      ? commonTime().timeToDate(dateRangeTime.value[1])
+      ? timeToDate(dateRangeTime.value[1])
       : null;
   };
 
@@ -90,25 +102,5 @@ export function dateRanges(useDefault = false) {
     endDate,
     updateDate,
     updateRangeNaive,
-    disableGenerator:
-      ({ maxDate = 7 }) =>
-      (time: any) => {
-        const t = moment(time);
-        return !(
-          !t.isAfter(moment()) && t.isAfter(moment().subtract(maxDate, "days"))
-        );
-      },
-    // Range, whatever today
-    // (time, phase, range) => {
-    //   const mmt = moment(time);
-    //   if (phase === "start" && range !== null) {
-    //     const diffD = moment(range[1]).diff(mmt, "days");
-    //     return diffD < 0 || diffD >= maxDate;
-    //   }
-    //   if (phase === "end" && range !== null) {
-    //     const diffD = mmt.diff(moment(range[0]), "days");
-    //     return diffD < 0 || diffD >= maxDate;
-    //   }
-    // },
   };
 }

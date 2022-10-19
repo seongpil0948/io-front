@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { useShopOrderStore } from "@/store";
-import { commonTime } from "@/util";
 import { computed } from "vue";
-const { currDate } = commonTime();
+import { getCurrDate } from "@/util";
 
 const shopOrderStore = useShopOrderStore();
 const { garmentOrders } = storeToRefs(shopOrderStore);
@@ -48,7 +47,7 @@ const numOfShipping = computed(
             <n-text>승인주문수</n-text>
           </template>
           <template #header-extra>
-            <n-text>{{ currDate }}</n-text>
+            <n-text>{{ getCurrDate() }}</n-text>
           </template>
           {{ numOfApprove }}건
         </n-card>

@@ -4,12 +4,11 @@ import { computed, h } from "vue";
 import InfoCell from "@/component/table/InfoCell.vue";
 import CancelButton from "@/component/button/CancelButton.vue";
 import { useVendorsStore } from "@/store";
-import { commonTime } from "@/util";
+import { timeToDate } from "@/util";
 import { FilterOption } from "naive-ui/es/data-table/src/interface";
 
 export function usePendingOrderCols() {
   const vendorStore = useVendorsStore();
-  const { timeToDate } = commonTime();
   const filterOpts = computed<FilterOption[]>(() => {
     return vendorStore.vendors.map((z) => {
       const name = z.userInfo.displayName ?? "";
@@ -109,7 +108,7 @@ export function usePendingOrderCols() {
                 primary: true,
               },
               {
-                default: () => timeToDate(x.actualAmount.paidDate),
+                default: () => timeToDate(x.actualAmount.paidDate, "MIN"),
               }
             ),
         },

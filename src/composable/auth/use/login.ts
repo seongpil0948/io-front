@@ -13,7 +13,7 @@ import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
 import { FcmToken, IoUser, USER_DB, USER_PROVIDER } from "@/composable";
 import { logger } from "@/plugin/logger";
-import moment from "moment";
+import { intervalToDuration } from "date-fns";
 
 interface SignupParam {
   providerId: USER_PROVIDER;
@@ -48,7 +48,17 @@ export function useLogin() {
       const newTokens: FcmToken[] = [];
       for (let i = 0; i < tokens.length; i++) {
         const t = tokens[i];
-        if (moment().diff(moment(t.createdAt), "days") < 7) {
+        const intervalParam = {
+          start: new Date(),
+          end:
+            t.createdAt instanceof Date ? t.createdAt : new Date(t.createdAt),
+        };
+
+        const interval = intervalToDuration(intervalParam);
+        console.log(" token interval:", interval, "param: ", intervalParam);
+
+        if (interval.days && interval.days > 7) {
+          console.log("in login pushed token");
           newTokens.push(t);
         }
       }
@@ -65,7 +75,6 @@ export function useLogin() {
         authS.logout();
       }
     } else {
-      console.log("Signup params in login", params);
       if (toSignUp)
         router.push({
           name: "SignUp",

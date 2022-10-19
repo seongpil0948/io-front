@@ -1,4 +1,4 @@
-import moment from "moment";
+import { getCurrDate } from "@/util/date";
 
 export class CommonField {
   createdAt?: Date;
@@ -31,7 +31,7 @@ export class CommonField {
 }
 
 function dateToJson(data: string | Date | undefined): string {
-  if (!data) return moment(new Date()).format();
+  if (!data) return getCurrDate();
   else if (typeof data === "string") {
     return data;
   } else if (data instanceof Date) {

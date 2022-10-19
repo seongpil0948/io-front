@@ -153,6 +153,7 @@ export class IoUser extends CommonField implements IoUserCRT {
     const userInfo: IoUserInfo = data.userInfo;
     userInfo.createdAt = loadDate(userInfo.createdAt ?? new Date());
     userInfo.updatedAt = loadDate(userInfo.updatedAt ?? new Date());
+
     return data
       ? new IoUser({
           userInfo,

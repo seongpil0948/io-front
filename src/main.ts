@@ -2,7 +2,6 @@ import { createApp } from "vue";
 import router from "./plugin/router";
 import _axios from "./plugin/axios";
 import { ioFire } from "./plugin/firebase";
-import moment from "moment";
 
 import App from "./App.vue";
 import vueKakao from "./plugin/kakao";
@@ -23,7 +22,7 @@ logger.debug(
   process.env
 );
 Date.prototype.toJSON = function () {
-  return moment(this).format();
+  return this.toISOString();
 };
 
 const app = createApp(App);

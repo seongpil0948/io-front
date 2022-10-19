@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { GarmentOrder, ORDER_STATE, ProdOrderCombined } from "@/composable";
-import { commonTime } from "@/util";
+import { timeToDate } from "@/util";
 import { toRefs } from "vue";
-const { timeToDate } = commonTime();
 const props = defineProps<{
   garmentOrder: GarmentOrder;
   prodOrder: ProdOrderCombined;
@@ -32,7 +31,7 @@ function onClickChecker() {
     <shop-order-cnt :order="garmentOrder" :prodOrder="prodOrder" />
     <n-text>, 주문상태: {{ ORDER_STATE[prodOrder.state] }} </n-text>
     <n-text v-if="prodOrder.actualAmount.paidDate"
-      >, 결제일: {{ timeToDate(prodOrder.actualAmount.paidDate) }}
+      >, 결제일: {{ timeToDate(prodOrder.actualAmount.paidDate, "MIN") }}
     </n-text>
   </n-space>
 </template>

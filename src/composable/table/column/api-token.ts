@@ -1,6 +1,6 @@
 import { ApiToken, LINKAGE_DB } from "@/composable/linkage";
 import { useAuthStore } from "@/store";
-import { commonTime } from "@/util";
+import { timeToDate } from "@/util";
 import {
   DataTableColumns,
   NButton,
@@ -54,7 +54,6 @@ export function useApiTokenCols() {
     },
   ];
 
-  const { timeToDate } = commonTime();
   const apiTokenCol = computed(
     () =>
       [
@@ -114,7 +113,7 @@ export function useApiTokenCols() {
                 primary: true,
               },
               {
-                default: () => timeToDate(row.expireAt, "YYYY-MM-DD HH시 mm분"),
+                default: () => timeToDate(row.expireAt, "MIN"),
               }
             ),
         },

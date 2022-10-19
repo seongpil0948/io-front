@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { commonTime } from "@/util";
+import { getCurrDate } from "@/util";
 import { ORDER_STATE } from "@/composable";
 import { ref } from "vue";
 const currTab = ref<string>("BEFORE_APPROVE");
-const { currDate } = commonTime();
 </script>
 <template>
   <n-space vertical align="center">
@@ -44,7 +43,7 @@ const { currDate } = commonTime();
             <n-text>요청주문수</n-text>
           </template>
           <template #header-extra>
-            <n-text>{{ currDate }}</n-text>
+            <n-text>{{ getCurrDate() }}</n-text>
           </template>
           0건
         </n-card>

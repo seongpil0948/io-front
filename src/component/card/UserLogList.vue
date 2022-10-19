@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { IoLog, useReadLogger } from "@/plugin/logger";
 import { useAuthStore } from "@/store";
-import { isObject, commonTime } from "@/util";
+import { isObject, timeToDate } from "@/util";
 import { computed, Ref } from "vue";
-
 const authStore = useAuthStore();
-const { timeToDate } = commonTime();
 
 const { userLogs: errLogs } = useReadLogger({
   uids: [authStore.currUser.userInfo.userId],
@@ -35,7 +33,7 @@ const getLogs = (l: Ref<IoLog[]>) =>
     };
     l.value.forEach((x) => {
       txts.push([
-        `[${timeToDate(x.createdAt, "YYYY-MM-DD HH시 mm분")}]`,
+        `[${timeToDate(x.createdAt, "MIN")}]`,
         `${parseTxts(x.txts)} `,
       ]);
     });
