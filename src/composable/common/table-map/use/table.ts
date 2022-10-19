@@ -1,4 +1,4 @@
-import { NCheckbox, NGradientText, NButton } from "naive-ui";
+import { NCheckbox, NGradientText, NButton, NText } from "naive-ui";
 import {
   TableBaseColumn,
   ColumnKey,
@@ -111,7 +111,12 @@ export function useTable<T extends MapperFields>(
       }
       return inner;
     });
-    columns.value.forEach((x) => (x.align = "center"));
+    columns.value.forEach((x) => {
+      x.align = "center";
+      if (!x.width) {
+        x.width = 150;
+      }
+    });
     columns.value = makeTableCols(innerOpts);
     if (p.useChecker && p.keyField) {
       columns.value.unshift({
@@ -207,6 +212,18 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
       ).includes(col.key)
     ) {
       col.sorter = "default";
+    } else if ((["createdAt", "updatedAt"] as any[]).includes(col.key)) {
+      col.width = 200;
+      col.render = (row: any) =>
+        h(
+          NText,
+          {},
+          {
+            default: () => {
+              return row[col.key]?.toLocaleString();
+            },
+          }
+        );
     }
     if (opt.cellRender) {
       col.render = opt.cellRender;

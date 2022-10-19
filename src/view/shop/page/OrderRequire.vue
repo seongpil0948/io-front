@@ -57,8 +57,6 @@ const {
       </n-space>
       <n-data-table
         ref="tableRef"
-        :table-layout="'fixed'"
-        :scroll-x="800"
         :columns="tableCol"
         :data="filteredOrders"
         :pagination="{

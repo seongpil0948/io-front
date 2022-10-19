@@ -104,3 +104,9 @@ body {
     border-radius: 1rem;
     padding-top: 3%;
 }
+
+table td,
+table th {
+    padding: 0;
+    overflow: auto;
+}

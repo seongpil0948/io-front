@@ -246,6 +246,8 @@ async function saveMatch() {
           'page-sizes': [5, 10, 25, 50, 100],
         }"
         :bordered="false"
+        :table-layout="'fixed'"
+        :scroll-x="800"
       />
       <template #action>
         <n-space justify="end">

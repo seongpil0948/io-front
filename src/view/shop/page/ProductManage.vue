@@ -116,7 +116,7 @@ function updateOrderId(arr: string[]) {
         }"
         :bordered="false"
         :table-layout="'fixed'"
-        :scroll-x="1200"
+        :scroll-x="1500"
       />
     </n-card>
     <n-card>
