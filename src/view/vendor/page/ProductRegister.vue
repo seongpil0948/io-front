@@ -300,7 +300,7 @@ const { saveEditor, clearEditor } = useEditor({
             :user="currUser"
             v-model:urls="prodModel.bodyImgs"
             size="100"
-            :max="5"
+            :max="20"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>
