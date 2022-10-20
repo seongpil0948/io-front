@@ -11,8 +11,7 @@ import {
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { HouseTwotone } from "@vicons/material";
-import { Phone20Filled } from "@vicons/fluent";
+import { Home24Filled, Phone20Filled } from "@vicons/fluent";
 import { useEditor } from "@/plugin/editor";
 
 const props = defineProps<{
@@ -88,7 +87,7 @@ function onCheck(val: string) {
   }
 }
 
-const { editor } = useEditor({
+useEditor({
   readOnly: true,
   elementId: "io-editor",
   placeholder: "상품 정보 입력",
@@ -107,57 +106,60 @@ const { editor } = useEditor({
     style="margin: 0 10%"
   >
     <n-space vertical style="overflow: auto; max-height: 75vh">
-      <n-space
-        size="large"
-        inline
-        style="border: grey solid 1px; padding: 10px; width: 70vw"
-        justify="space-around"
-      >
-        <carousel-img-card
-          :imgUrls="imgUrls"
-          :width="30"
-          :height="30"
-          unit="vw"
-        />
-        <n-space vertical style="width: 35vw">
-          <n-space justify="space-between" v-if="getUserLocate(prod)">
-            <n-button text>
-              <template #icon>
-                <n-icon size="24" :component="HouseTwotone" />
-              </template>
-              {{ getUserLocate(prod)!.detailLocate }}</n-button
-            >
-            <n-button text>
-              <template #icon>
-                <n-icon size="24" :component="Phone20Filled" />
-              </template>
-              {{ getUserLocate(prod)!.phone }}</n-button
-            >
-          </n-space>
-          <n-divider style="width: 100%" />
-          <n-h2 style="padding-top: 0px">{{ prod.vendorProdName }}</n-h2>
-
-          <n-h2 style="padding-top: 0px">{{ prod.vendorPrice }}원</n-h2>
-          <div style="max-height: 20vw; overflow: auto">
-            <n-space
-              inline
-              justify="space-between"
-              align="center"
-              style="border: grey solid 1px; padding: 10px; width: 25vw"
-              v-for="(opt, i) in prodOpts"
-              :key="i"
-            >
-              <n-h4 style="margin: 0">{{ opt.label }}</n-h4>
-              <logo-checker
-                :size="1"
-                :checked="selectedProdIds.includes(opt.value)"
-                @onClick="onCheck(opt.value)"
-                style="margin-right: 20px"
-              />
+      <n-card>
+        <n-space size="large" inline justify="space-between" style="width: 98%">
+          <carousel-img-card
+            :imgUrls="imgUrls"
+            :width="30"
+            :height="30"
+            unit="vw"
+          />
+          <n-space vertical style="width: 35vw">
+            <n-space justify="space-between" v-if="getUserLocate(prod)">
+              <n-button text>
+                <template #icon>
+                  <n-icon size="24" :component="Home24Filled" />
+                </template>
+                {{ getUserLocate(prod)!.detailLocate }}</n-button
+              >
+              <n-button text>
+                <template #icon>
+                  <n-icon size="24" :component="Phone20Filled" />
+                </template>
+                {{ getUserLocate(prod)!.phone }}</n-button
+              >
             </n-space>
-          </div>
+            <n-divider style="width: 100%" />
+            <n-h2 style="padding-top: 0px">{{ prod.vendorProdName }}</n-h2>
+
+            <n-h2 style="padding-top: 0px">{{ prod.vendorPrice }}원</n-h2>
+            <div style="max-height: 20vw; overflow: auto; padding: 2%">
+              <n-card
+                v-for="(opt, i) in prodOpts"
+                :key="i"
+                style="width: 25vw; margin: auto; margin-bottom: 10px"
+                content-style="
+                  padding: 10px;
+                  display: inline-flex;
+                  flex-flow: row wrap;
+                  justify-content: space-between;
+                    align-items: center;
+                "
+              >
+                <n-h4 style="margin: 0; padding-bottom: 3%">{{
+                  opt.label
+                }}</n-h4>
+                <logo-checker
+                  :size="1"
+                  :checked="selectedProdIds.includes(opt.value)"
+                  @onClick="onCheck(opt.value)"
+                  style="margin-right: 20px"
+                />
+              </n-card>
+            </div>
+          </n-space>
         </n-space>
-      </n-space>
+      </n-card>
       <n-descriptions
         bordered
         label-placement="left"

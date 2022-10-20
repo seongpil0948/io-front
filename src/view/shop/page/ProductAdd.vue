@@ -62,7 +62,7 @@ const ctgrOpts = computed(() =>
     v-model:showAddModal="showAddModal"
     :prod="selectedProd"
   />
-  <n-space vertical style="width: 100%">
+  <n-space vertical style="width: 100%" item-style="width: 100%">
     <n-space justify="center">
       <n-input
         v-model:value="searchInputVal"
@@ -83,7 +83,12 @@ const ctgrOpts = computed(() =>
         :options="ctgrOpts"
       />
     </n-space>
-    <n-space justify="center" v-if="filteredGarments.length > 0">
+    <n-space
+      justify="center"
+      v-if="filteredGarments.length > 0"
+      style="width: 100%"
+      item-style="width: 100%"
+    >
       <!-- <part-ctgr-menu
         v-model:selectedPart="selectedPart"
         v-model:selectedCtgr="selectedCtgr"
@@ -93,7 +98,7 @@ const ctgrOpts = computed(() =>
         <n-grid
           x-gap="12"
           y-gap="12"
-          cols="1 s:2 m:3 l:4 xl:5 2xl:6"
+          cols="1 s:2 m:3 l:4 xl:6 2xl:9"
           responsive="screen"
         >
           <n-gi v-for="(prod, i) in filteredGarments" :key="i">
@@ -101,7 +106,7 @@ const ctgrOpts = computed(() =>
               style="padding: 5%"
               v-if="validProd(prod)"
               :prod="prod"
-              :width="200"
+              :width="250"
               @onClickProd="onClickProd"
             />
           </n-gi>

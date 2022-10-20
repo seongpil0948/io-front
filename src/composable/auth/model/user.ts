@@ -151,8 +151,8 @@ export class IoUser extends CommonField implements IoUserCRT {
   }
   static fromJson(data: { [x: string]: any }): IoUser | null {
     const userInfo: IoUserInfo = data.userInfo;
-    userInfo.createdAt = loadDate(userInfo.createdAt ?? new Date());
-    userInfo.updatedAt = loadDate(userInfo.updatedAt ?? new Date());
+    userInfo.createdAt = loadDate(userInfo.createdAt);
+    userInfo.updatedAt = loadDate(userInfo.updatedAt);
 
     return data
       ? new IoUser({

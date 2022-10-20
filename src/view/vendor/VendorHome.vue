@@ -20,13 +20,7 @@ const currTab = ref<string>("BEFORE_APPROVE");
           tab="승인 완료된 주문"
           name="BEFORE_PAYMENT"
         >
-          <order-by-shop-expand-table
-            :inStates="
-              Object.keys(ORDER_STATE).filter(
-                (x) => !['BEFORE_ORDER', 'BEFORE_APPROVE'].includes(x)
-              )
-            "
-          />
+          <order-by-shop-expand-table :inStates="['BEFORE_PAYMENT']" />
         </n-tab-pane>
       </n-tabs>
     </n-card>

@@ -60,6 +60,8 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   static fromJson(data: { [x: string]: any }): ShopGarment | null {
     if (data && data.vendorProdId) {
       return new ShopGarment({
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
         size: data.size,
         color: data.color,
         vendorId: data.vendorId,

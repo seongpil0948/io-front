@@ -24,7 +24,9 @@ export function dateToTimeStamp(d: Date | undefined): Timestamp {
   }
   return Timestamp.fromDate(d);
 }
-export function loadDate(d: Date | { [x: string]: number } | string): Date {
+export function loadDate(
+  d: Date | { [x: string]: number } | string | undefined
+): Date {
   if (!d) return new Date();
   else if (d instanceof Date) return d;
   else if (typeof d === "string") return parseISO(d);

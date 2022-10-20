@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useLogin } from "@/composable";
 import { KAKAO_CHANNEL_ID } from "@/constants";
-import { useAuthStore } from "@/store";
 import {
   getMockShops,
   getMockVendors,
@@ -13,7 +12,6 @@ import { useRouter } from "vue-router";
 
 const inst = getCurrentInstance();
 const router = useRouter();
-const auth = useAuthStore();
 const isTest = process.env.VUE_APP_IS_TEST;
 const { login } = useLogin();
 function csChat() {

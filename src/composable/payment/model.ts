@@ -65,8 +65,8 @@ export class IoPay extends CommonField implements IoPayCRT {
   }
 
   static fromJson(data: { [x: string]: any }): IoPay | null {
-    data.createdAt = loadDate(data.createdAt ?? new Date());
-    data.updatedAt = loadDate(data.updatedAt ?? new Date());
+    data.createdAt = loadDate(data.createdAt);
+    data.updatedAt = loadDate(data.updatedAt);
     return data ? new IoPay(data as IoPayCRT) : null;
   }
 

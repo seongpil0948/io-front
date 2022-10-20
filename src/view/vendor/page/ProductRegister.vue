@@ -153,7 +153,7 @@ async function onRegister() {
     }
   });
 }
-const { editor, saveEditor, clearEditor } = useEditor({
+const { saveEditor, clearEditor } = useEditor({
   readOnly: false,
   elementId: "io-editor",
   placeholder: "상품 정보 입력",

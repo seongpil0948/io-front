@@ -86,6 +86,7 @@ async function onSubmit(e: MouseEvent) {
           prodPrice: formModel.value.prodPrice,
         })
       );
+      shopProd.updatedAt = new Date();
       await shopProd.update();
       emits("update:userProd", shopProd);
       showModal.value = false;

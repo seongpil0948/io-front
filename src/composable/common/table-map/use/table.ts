@@ -9,6 +9,7 @@ import { colKoMapper } from "./colDict";
 import { useMapper } from "./mapper";
 import MapperSaver from "@/component/input/MapperSaver.vue";
 import LogoChecker from "@/component/input/checker/LogoChecker.vue";
+import { formatDate, loadDate } from "@/util";
 
 interface useTableParam {
   userId: string;
@@ -220,7 +221,7 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
           {},
           {
             default: () => {
-              return row[col.key]?.toLocaleString();
+              return formatDate(loadDate(row[col.key]), "MIN");
             },
           }
         );
