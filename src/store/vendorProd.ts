@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import cloneDeep from "lodash.clonedeep";
 import {
   IoUser,
   StockCntObj,
@@ -46,7 +45,7 @@ export const useVendorsStore = defineStore(
       }>((acc, curr) => {
         const combineId = VendorGarment.combineId(curr);
         if (!acc[combineId]) {
-          acc[combineId] = Object.assign(cloneDeep(curr), {
+          acc[combineId] = Object.assign({}, curr, {
             allStockCnt: 0,
             colors: [],
             sizes: [],

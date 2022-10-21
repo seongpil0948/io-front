@@ -140,7 +140,7 @@ function search() {
 }
 </script>
 <template>
-  <n-card style="width: 80%">
+  <n-card style="width: 100%">
     <template #header> 상품목록 </template>
     <template #header-extra>
       <n-input v-model:value="searchInputVal" placeholder="상품검색" />

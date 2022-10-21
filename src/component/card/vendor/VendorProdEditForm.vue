@@ -55,6 +55,11 @@ function onEdit() {
           garment.vendorProdName === p.vendorProdName
         ) {
           garment.info = info;
+          garment.vendorProdName = p.vendorProdName;
+          garment.vendorPrice = p.vendorPrice;
+          garment.allowPending = p.allowPending;
+          garment.titleImgs = p.titleImgs;
+          garment.bodyImgs = p.bodyImgs;
           await garment.update();
         }
       }
@@ -158,7 +163,7 @@ const { saveEditor, clearEditor } = useEditor({
           :user="auth.currUser"
           v-model:urls="prod.bodyImgs"
           size="100"
-          :max="5"
+          :max="20"
         >
           <add-circle-outline style="cursor: pointer" />
         </single-image-input>

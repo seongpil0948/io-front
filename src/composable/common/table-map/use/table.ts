@@ -215,6 +215,7 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
       col.sorter = "default";
     } else if ((["createdAt", "updatedAt"] as any[]).includes(col.key)) {
       col.width = 200;
+      col.sorter = "default";
       col.render = (row: any) =>
         h(
           NText,
