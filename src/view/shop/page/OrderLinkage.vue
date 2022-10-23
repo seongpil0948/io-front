@@ -209,15 +209,15 @@ async function saveMatch() {
         </n-space>
 
         <n-space>
-          <n-button class="big" @click="() => onGetOrder(false, true)">
+          <n-button @click="() => onGetOrder(false, true)">
             활성 서비스 매핑 취합
           </n-button>
-          <n-button class="big" @click="() => onGetOrder(true, false)">
+          <n-button @click="() => onGetOrder(true, false)">
             활성 서비스 수동 취합
           </n-button>
           <n-popover trigger="click">
             <template #trigger>
-              <n-button class="big"> 카페24 연동 </n-button>
+              <n-button> 카페24 연동 </n-button>
             </template>
             <n-h5 style="width: 100%; text-align: start">쇼핑몰 ID 입력</n-h5>
             <n-space vertical align="end">
@@ -275,10 +275,3 @@ async function saveMatch() {
     </n-card>
   </n-modal>
 </template>
-
-<style scoped>
-.big {
-  width: 20vw;
-  height: 10vw;
-}
-</style>

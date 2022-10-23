@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { getCurrDate } from "@/util";
-import { ORDER_STATE } from "@/composable";
 import { ref } from "vue";
 const currTab = ref<string>("BEFORE_APPROVE");
 </script>
 <template>
-  <n-space vertical align="center">
-    <n-card style="width: 65vw">
+  <n-space vertical align="center" item-style="width: 100%">
+    <n-card>
       <n-tabs v-model:value="currTab">
         <n-tab-pane
           display-directive="show:lazy"
@@ -25,7 +24,6 @@ const currTab = ref<string>("BEFORE_APPROVE");
       </n-tabs>
     </n-card>
     <n-grid
-      style="width: 65vw"
       cols="1 s:2 m:2 l:4 xl:4 2xl:4"
       x-gap="24"
       y-gap="12"

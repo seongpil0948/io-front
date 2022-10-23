@@ -13,12 +13,11 @@ const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 const orders = shopOrderStore.getOrders(inStates);
 </script>
 <template>
-  <n-card>
+  <n-card v-if="orders && orders.length > 0">
     <n-space vertical align="center">
       <n-h2>미송 주문 조회</n-h2>
       <n-data-table
         ref="tableRef"
-        v-if="orders && orders.length > 0"
         :table-layout="'fixed'"
         :scroll-x="800"
         :columns="pendingOrderCols"
@@ -31,4 +30,10 @@ const orders = shopOrderStore.getOrders(inStates);
       />
     </n-space>
   </n-card>
+  <n-result
+    v-else
+    style="margin-top: 30%"
+    status="error"
+    title="데이터가 없습니다"
+  />
 </template>

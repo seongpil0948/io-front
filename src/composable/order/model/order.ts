@@ -455,7 +455,8 @@ export function mergeOrderAmount(origin: OrderAmount, y: OrderAmount) {
   origin.tax += y.tax;
   origin.paidAmount += y.paidAmount;
   origin.paid = y.paid;
-  (origin.pureAmount += y.pureAmount), (origin.orderAmount += y.orderAmount);
+  origin.pureAmount += y.pureAmount;
+  origin.orderAmount += y.orderAmount;
   origin.paymentConfirm = y.paymentConfirm;
   origin.paymentMethod = y.paymentMethod;
 }
