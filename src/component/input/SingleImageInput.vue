@@ -54,7 +54,7 @@ function closeFile(src: string) {
 }
 </script>
 <template>
-  <n-space inline justify="space-around">
+  <n-space inline justify="start">
     <div
       v-for="(src, i) in urls"
       :key="i"

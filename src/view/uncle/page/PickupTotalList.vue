@@ -4,8 +4,8 @@ import { ref } from "vue";
 const currTab = ref<string>("BEFORE_APPROVE_PICKUP");
 </script>
 <template>
-  <n-space vertical align="center">
-    <n-card>
+  <n-space vertical align="center" item-style="width: 100%">
+    <n-card style="width: 100%">
       <n-tabs v-model:value="currTab">
         <n-tab-pane
           display-directive="show:lazy"

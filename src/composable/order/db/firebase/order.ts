@@ -107,7 +107,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
           throw new Error(`vendor prod ${po.vendorProdId} is not exist`);
         else if (garment.stockCnt < po.orderCnt)
           throw new Error(
-            `재고개수(${garment.stockCnt}) 가 주문개수(${po.orderCnt}) 보다 적습니다.`
+            `${garment.vendorProdName}상품의 재고개수(${garment.stockCnt})가 주문개수(${po.orderCnt}) 보다 적습니다.`
           );
         else {
           garment.stockCnt -= po.orderCnt;
