@@ -93,7 +93,7 @@ const numOfShipping = computed(
       </n-grid-item>
       <n-grid-item>
         <n-card
-          @click="router.push({ name: 'PendingOrderList' })"
+          @click="router.push({ name: 'PayHistory' })"
           class="button-card"
           style="border-color: #e88080"
         >
