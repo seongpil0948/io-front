@@ -65,6 +65,7 @@ export function useEditor(c: IoEditorParam) {
 
 export function getEditor(c: IoEditorParam) {
   const _editor = new EditorJS({
+    // TODO: data: c.data && c.data.blocks.length > 0 ? c.data : undefined,
     data: c.data,
     readOnly: c.readOnly,
     holder: c.elementId,
