@@ -117,6 +117,8 @@ interface IoUserCRT {
   preferDark?: boolean;
   shopInfo?: ShopInfo;
   workerInfo?: WorkerInfo;
+  workState?: string;
+  connectState?: string;
 }
 export type UserFields = CompanyInfo &
   IoUserInfo &

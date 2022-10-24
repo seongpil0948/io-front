@@ -36,6 +36,12 @@ export class IoUser extends CommonField implements IoUserCRT {
   uncleInfo?: UncleInfo;
   shopInfo?: ShopInfo;
   workerInfo?: WorkerInfo;
+  workState?: string;
+  connectState?: string;
+
+  get inWork() {
+    return this.workState != null && this.workState == "active";
+  }
 
   get locate() {
     return getUserLocate(this);
@@ -70,6 +76,9 @@ export class IoUser extends CommonField implements IoUserCRT {
     this.preferDark = c.preferDark ?? true;
     this.shopInfo = c.shopInfo;
     this.workerInfo = c.workerInfo;
+    this.workState = c.workState;
+    this.connectState = c.connectState;
+
     if (this.userInfo.role === "UNCLE" && !this.uncleInfo) {
       this.uncleInfo = {
         pickupLocates: [],
@@ -163,6 +172,8 @@ export class IoUser extends CommonField implements IoUserCRT {
           uncleInfo: data.uncleInfo,
           workerInfo: data.workerInfo,
           shopInfo: data.shopInfo,
+          workState: data.workState,
+          connectState: data.connectState,
         })
       : null;
   }

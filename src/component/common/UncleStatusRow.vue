@@ -23,7 +23,7 @@ const { worker } = toRefs(props);
     "
     @click="$emit('worker:click')"
   >
-    <uncle-status-icon status="grey" />
+    <uncle-status-icon :status="worker.inWork ? 'green' : 'grey'" />
     <n-avatar
       round
       size="small"
