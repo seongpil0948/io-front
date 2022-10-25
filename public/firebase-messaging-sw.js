@@ -1,10 +1,16 @@
 /* eslint-disable no-undef */
 importScripts(
-  "https://www.gstatic.com/firebasejs/9.8.2/firebase-app-compat.js"
+  "https://www.gstatic.com/firebasejs/9.10.0/firebase-app-compat.js"
 );
 importScripts(
-  "https://www.gstatic.com/firebasejs/9.8.2/firebase-messaging-compat.js"
+  "https://www.gstatic.com/firebasejs/9.10.0/firebase-messaging-compat.js"
 );
+// importScripts(
+//   "https://www.gstatic.com/firebasejs/9.8.2/firebase-app-compat.js"
+// );
+// importScripts(
+//   "https://www.gstatic.com/firebasejs/9.8.2/firebase-messaging-compat.js"
+// );
 // https://stackoverflow.com/questions/62204987/cant-get-click-action-to-work-on-fcm-notifications-with-web-app-pwa
 
 console.log("init In Firebase Service Worker");

@@ -1,4 +1,4 @@
-import { NCheckbox, NGradientText, NButton } from "naive-ui";
+import { NCheckbox, NGradientText, NButton, NText } from "naive-ui";
 import {
   TableBaseColumn,
   ColumnKey,
@@ -9,6 +9,7 @@ import { colKoMapper } from "./colDict";
 import { useMapper } from "./mapper";
 import MapperSaver from "@/component/input/MapperSaver.vue";
 import LogoChecker from "@/component/input/checker/LogoChecker.vue";
+import { formatDate, loadDate } from "@/util";
 
 interface useTableParam {
   userId: string;
@@ -111,7 +112,12 @@ export function useTable<T extends MapperFields>(
       }
       return inner;
     });
-    columns.value.forEach((x) => (x.align = "center"));
+    columns.value.forEach((x) => {
+      x.align = "center";
+      if (!x.width) {
+        x.width = 150;
+      }
+    });
     columns.value = makeTableCols(innerOpts);
     if (p.useChecker && p.keyField) {
       columns.value.unshift({
@@ -142,7 +148,6 @@ export function useTable<T extends MapperFields>(
       });
     }
     if (onSelect) {
-      console.log("onSelect:", onSelect);
       columns.value.push({
         title: "선택",
         key: "select",
@@ -208,6 +213,19 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
       ).includes(col.key)
     ) {
       col.sorter = "default";
+    } else if ((["createdAt", "updatedAt"] as any[]).includes(col.key)) {
+      col.width = 200;
+      col.sorter = "default";
+      col.render = (row: any) =>
+        h(
+          NText,
+          {},
+          {
+            default: () => {
+              return formatDate(loadDate(row[col.key]), "MIN");
+            },
+          }
+        );
     }
     if (opt.cellRender) {
       col.render = opt.cellRender;

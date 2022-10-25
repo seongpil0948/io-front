@@ -1,11 +1,11 @@
 import { NIcon } from "naive-ui";
-import { type Component, h } from "vue";
+import { type Component, h, VNode } from "vue";
 import { RouterLink } from "vue-router";
 
 function renderIcon(icon: Component) {
   return () => h(NIcon, null, { default: () => h(icon) });
 }
-function renderRoute(label: string, key: string) {
+function renderRoute(label: string | VNode, key: string) {
   return h(
     RouterLink,
     {

@@ -97,7 +97,7 @@ function setEditMode() {
     v-if="edit"
     v-model:value="editVal"
     :show-button="false"
-    style="min-width: 100px"
+    style="width: 100%"
     :min="1"
     @blur="onBlur"
   />

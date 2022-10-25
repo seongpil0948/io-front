@@ -74,8 +74,8 @@ export const shipMethodOpt = computed(() =>
 );
 
 export const locateTypeOpt = computed(() =>
-  Object.keys(LocateType).map((l) => {
-    return { label: LocateType[l], value: l };
+  Object.keys(LocateType).map((l: string) => {
+    return { label: LocateType[l as LocateType], value: l };
   })
 );
 

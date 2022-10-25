@@ -7,11 +7,11 @@ import {
 } from "@firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 export type LocateType = "SHOP" | "STORAGE" | "ETC";
-export const LocateType: { [key: string]: LocateType } = {
-  SHOP: "SHOP",
-  STORAGE: "STORAGE",
-  ETC: "ETC",
-};
+export const LocateType: { [key in LocateType]: string } = Object.freeze({
+  SHOP: "사무실",
+  STORAGE: "매장",
+  ETC: "기타",
+});
 export interface LocateCRT {
   code?: string;
   alias: string;

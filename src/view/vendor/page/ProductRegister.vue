@@ -23,6 +23,7 @@ import {
   partOpts,
   genderOpts,
 } from "@/util";
+import { useEditor } from "@/plugin/editor";
 
 const log = useLogger();
 const msg = useMessage();
@@ -93,7 +94,7 @@ watchEffect(
 function changePart() {
   prodModel.value.ctgr = ctgrOpts.value[0].value;
 }
-function onRegister() {
+async function onRegister() {
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
     else if (!stockCnts.value) return;
@@ -102,6 +103,7 @@ function onRegister() {
     const v = prodModel.value;
     const allowPending = v.allowPending[0] === "받기" ? true : false;
     let valid = true;
+    const info = await saveEditor();
     prodModel.value.sizes.forEach((size) => {
       prodModel.value.colors.forEach((color) => {
         if (stockCnts.value![size][color] < 1) {
@@ -115,6 +117,7 @@ function onRegister() {
               vendorProdName: v.name,
               size,
               color,
+              info,
               vendorId: currUser.userInfo.userId,
               vendorProdId: uuidv4(),
               stockCnt: stockCnts.value![size][color],
@@ -134,6 +137,7 @@ function onRegister() {
           log.debug("PRODS:", products);
           return Promise.all(products.map((p) => p.update()))
             .then(() => {
+              clearEditor();
               msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
               router.replace({ name: "VendorProductList" });
             })
@@ -149,6 +153,11 @@ function onRegister() {
     }
   });
 }
+const { saveEditor, clearEditor } = useEditor({
+  readOnly: false,
+  elementId: "io-editor",
+  placeholder: "상품 정보 입력",
+});
 </script>
 <template>
   <n-card>
@@ -247,11 +256,12 @@ function onRegister() {
           </n-space>
         </n-grid-item>
         <n-form-item-gi span="2" label="상품정보" path="info">
-          <n-input
+          <div id="io-editor" class="io-editor-border"></div>
+          <!-- <n-input
             v-model:value="prodModel.info"
             type="textarea"
             placeholder="상품 정보 입력"
-          />
+          /> -->
         </n-form-item-gi>
         <n-form-item-gi span="2" label="상품 요약" path="description">
           <n-input
@@ -275,7 +285,7 @@ function onRegister() {
             :user="currUser"
             v-model:urls="prodModel.titleImgs"
             size="100"
-            :max="5"
+            :max="1"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>
@@ -290,7 +300,7 @@ function onRegister() {
             :user="currUser"
             v-model:urls="prodModel.bodyImgs"
             size="100"
-            :max="5"
+            :max="20"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>

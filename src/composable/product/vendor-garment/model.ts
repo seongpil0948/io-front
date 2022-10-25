@@ -1,6 +1,7 @@
 // import { logger } from "@/plugin/logger";
 import { CommonField } from "@/composable/common";
 import { getIoCollection, insertById, IoCollection } from "@/util";
+import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import type { GENDER, PART, GARMENT_SIZE } from "../domain";
 import { VendorGarmentCrt } from "./domain";
@@ -20,10 +21,11 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   vendorProdName: string;
   titleImgs: string[];
   bodyImgs: string[];
-  info: string;
+  info: string | OutputData;
   description: string;
 
   async update() {
+    this.updatedAt = new Date();
     await insertById<VendorGarment>(
       this,
       getIoCollection({ c: IoCollection.VENDOR_PROD }),
@@ -52,12 +54,14 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     this.info = d.info;
     this.description = d.description;
   }
-  get combineId(): string {
-    return this.vendorId + this.vendorProdName;
+  static combineId(c: VendorGarmentCrt): string {
+    return c.vendorId + c.vendorProdName;
   }
   static fromJson(data: { [x: string]: any }): VendorGarment | null {
     if (data && data.vendorProdId) {
       return new VendorGarment({
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
         gender: data.gender,
         part: data.part,
         ctgr: data.ctgr,

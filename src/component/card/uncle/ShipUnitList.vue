@@ -1,14 +1,9 @@
 <script setup lang="ts">
+import { useShipUnitCols } from "@/composable";
 import { useAuthStore } from "@/store";
 import { strLenRule } from "@/util";
-import {
-  DataTableColumns,
-  NText,
-  NButton,
-  FormInst,
-  useMessage,
-} from "naive-ui";
-import { computed, h, ref } from "vue";
+import { NButton, FormInst, useMessage } from "naive-ui";
+import { computed, ref } from "vue";
 const props = defineProps<{
   unitKey: "amountBySize" | "amountByWeight";
 }>();
@@ -17,44 +12,7 @@ const u = auth.currUser;
 const target = u.uncleInfo![props.unitKey];
 const showModal = ref(false);
 const message = useMessage();
-const cols1: DataTableColumns<{ unit: string; amount: number }> = [
-  {
-    title: "단위",
-    key: "unit",
-  },
-  {
-    title: "단위요금",
-    key: "amount",
-    render: (row) => h(NText, { type: "info" }, { default: () => row.amount }),
-  },
-  {
-    title: () =>
-      h(
-        NButton,
-        {
-          text: true,
-          onClick: () => {
-            showModal.value = true;
-          },
-        },
-        { default: () => "추가" }
-      ),
-    key: "delete",
-    render: (row) =>
-      h(
-        NButton,
-        {
-          type: "error",
-          onClick: async () => {
-            delete target[row.unit];
-            await u.update();
-          },
-          size: "small",
-        },
-        { default: () => "삭제" }
-      ),
-  },
-];
+const { shipUnitCols } = useShipUnitCols(showModal, props.unitKey);
 const data = computed(() =>
   Object.keys(target).map((k) => {
     return { unit: k, amount: target[k] };
@@ -84,7 +42,11 @@ const rule = {
 };
 </script>
 <template>
-  <n-data-table :columns="cols1" :data="data" :pagination="{ pageSize: 5 }" />
+  <n-data-table
+    :columns="shipUnitCols"
+    :data="data"
+    :pagination="{ pageSize: 5 }"
+  />
   <n-modal
     v-model:show="showModal"
     preset="card"

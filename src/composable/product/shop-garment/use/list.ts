@@ -69,6 +69,8 @@ export function useShopGarmentTable(briefly: boolean) {
           rowIdField,
         },
         { key: "stockCnt", rowIdField },
+        { key: "createdAt", rowIdField },
+        { key: "updatedAt", rowIdField },
       ],
     },
     async (p) => {

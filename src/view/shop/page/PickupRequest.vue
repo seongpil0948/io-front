@@ -75,7 +75,7 @@ async function pickupRequest() {
 </script>
 
 <template>
-  <n-space vertical align="center">
+  <n-space vertical align="center" item-style="width: 100%">
     <n-card title="픽업 가능목록">
       <template #header-extra>
         <n-space>
@@ -92,6 +92,7 @@ async function pickupRequest() {
       </template>
       <n-data-table
         ref="tableRef"
+        style="width: 100%"
         :table-layout="'fixed'"
         :scroll-x="800"
         :columns="byVendorCol"

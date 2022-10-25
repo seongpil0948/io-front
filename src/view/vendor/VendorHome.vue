@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { commonTime } from "@/util";
-import { ORDER_STATE } from "@/composable";
+import { getCurrDate } from "@/util";
 import { ref } from "vue";
 const currTab = ref<string>("BEFORE_APPROVE");
-const { currDate } = commonTime();
 </script>
 <template>
-  <n-space vertical align="center">
-    <n-card style="width: 65vw">
+  <n-space vertical align="center" item-style="width: 100%">
+    <n-card>
       <n-tabs v-model:value="currTab">
         <n-tab-pane
           display-directive="show:lazy"
@@ -21,18 +19,11 @@ const { currDate } = commonTime();
           tab="승인 완료된 주문"
           name="BEFORE_PAYMENT"
         >
-          <order-by-shop-expand-table
-            :inStates="
-              Object.keys(ORDER_STATE).filter(
-                (x) => !['BEFORE_ORDER', 'BEFORE_APPROVE'].includes(x)
-              )
-            "
-          />
+          <order-by-shop-expand-table :inStates="['BEFORE_PAYMENT']" />
         </n-tab-pane>
       </n-tabs>
     </n-card>
     <n-grid
-      style="width: 65vw"
       cols="1 s:2 m:2 l:4 xl:4 2xl:4"
       x-gap="24"
       y-gap="12"
@@ -44,7 +35,7 @@ const { currDate } = commonTime();
             <n-text>요청주문수</n-text>
           </template>
           <template #header-extra>
-            <n-text>{{ currDate }}</n-text>
+            <n-text>{{ getCurrDate() }}</n-text>
           </template>
           0건
         </n-card>

@@ -18,7 +18,11 @@
           />
         </n-carousel>
       </div>
-      <n-space inline>
+      <n-space
+        inline
+        :style="`width: ${width}${unit}; overflow: auto;`"
+        :wrap="false"
+      >
         <img
           v-for="(url, i) in imgUrls"
           @click="onClickSubImg(i)"

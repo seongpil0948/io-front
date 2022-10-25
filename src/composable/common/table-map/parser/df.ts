@@ -65,7 +65,13 @@ export function mapDfToOrder(
 
   targetDf.apply(
     (row: Series) => {
-      const orderId = row[idx.orderIdIdx].toString();
+      const orderId: string | null = row[idx.orderIdIdx]
+        ? row[idx.orderIdIdx].toString()
+        : null;
+      if (orderId === null) {
+        reporter[""] = `주문번호 매핑실패`;
+        return row; // continue
+      }
       const matchedNameSynoIds = Object.keys(prodMapper).filter(
         (nameSynoId) => {
           const nameSyno = nameSynoId.split(" iobox ")[0].trim();

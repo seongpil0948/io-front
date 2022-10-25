@@ -54,7 +54,7 @@ function submitLocate() {
       x.town === formModel.town
   );
   if (!adminArea) {
-    msg.error("행정구역을 입력 해주십시오");
+    msg.error("주소를 입력 해주십시오");
     return;
   } else if (!formRef.value) {
     return;
@@ -109,7 +109,7 @@ function updateShow(val: boolean) {
         <n-form-item-gi label="별칭" path="alias">
           <n-input v-model:value="formModel.alias" placeholder="별칭 입력" />
         </n-form-item-gi>
-        <n-form-item-gi label="행정구역">
+        <n-form-item-gi label="주소">
           <area-selector
             style="margin-bottom: 1%; margin-top: 1%"
             v-model:area="formModel"

@@ -2,18 +2,21 @@
 import type { MenuOption } from "naive-ui";
 import { BookOutline as BookIcon } from "@vicons/ionicons5";
 import { ProductHunt, CashRegister } from "@vicons/fa";
-import { renderIcon, renderRoute, ScreenSize, getScreenSize } from "@/util";
+import { renderIcon, renderRoute, getScreenSize, isMobile } from "@/util";
 import {
   People16Regular,
   News16Regular,
   ShoppingBag20Filled,
 } from "@vicons/fluent";
 import { useAuthStore, useVendorOrderStore } from "@/store";
-import { onBeforeMount } from "vue";
+import { onBeforeMount, h } from "vue";
+import LogoImageVue from "@/component/common/LogoImage.vue";
+import { useRouter } from "vue-router";
 
 const auth = useAuthStore();
 const user = auth.currUser;
 const store = useVendorOrderStore();
+const router = useRouter();
 onBeforeMount(() => store.init(user.userInfo.userId));
 const menuOptions: MenuOption[] = [
   {
@@ -95,45 +98,60 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(CashRegister),
   },
 ];
+const mobileOpts = [
+  {
+    key: "home",
+    icon: () =>
+      h(LogoImageVue, {
+        size: "1.8rem",
+        style: { "margin-top": "23%" },
+        onclick: () => {
+          router.goHome(user);
+        },
+      }),
+  },
+  ...menuOptions,
+];
 const minHeight = "100vh";
 </script>
 <template>
-  <n-space vertical>
-    <n-layout v-if="getScreenSize() === ScreenSize.L">
-      <n-layout has-sider :style="`min-height: ${minHeight}`">
-        <io-sider
-          :style="`min-height: ${minHeight};`"
-          :menuOptions="menuOptions"
-        />
-        <n-space
-          vertical
-          justify="space-between"
-          style="padding: 2%; width: 100%"
-        >
-          <router-view />
-          <io-footer />
-        </n-space>
-      </n-layout>
-      <!-- <n-layout-footer bordered> Footer Footer Footer </n-layout-footer> -->
-    </n-layout>
-    <n-layout v-else :style="`height: ${minHeight}`">
-      <n-layout-header>
-        <n-menu
-          :collapsed-width="64"
-          :collapsed-icon-size="22"
-          :options="menuOptions"
-          mode="horizontal"
-        />
-      </n-layout-header>
+  <n-layout
+    v-if="getScreenSize() === 'S' || isMobile()"
+    :style="`height: ${minHeight}`"
+  >
+    <n-layout-header>
+      <n-menu
+        :collapsed-width="64"
+        :collapsed-icon-size="22"
+        :options="mobileOpts"
+        mode="horizontal"
+      />
+    </n-layout-header>
+    <n-space
+      vertical
+      justify="space-between"
+      align="center"
+      style="padding: 2%; width: 100%"
+    >
+      <router-view />
+      <io-footer />
+    </n-space>
+  </n-layout>
+  <n-layout v-else>
+    <n-layout has-sider :style="`min-height: ${minHeight}`">
+      <io-sider
+        :style="`min-height: ${minHeight};`"
+        :menuOptions="menuOptions"
+      />
       <n-space
         vertical
         justify="space-between"
-        align="center"
         style="padding: 2%; width: 100%"
       >
         <router-view />
         <io-footer />
       </n-space>
     </n-layout>
-  </n-space>
+    <!-- <n-layout-footer bordered> Footer Footer Footer </n-layout-footer> -->
+  </n-layout>
 </template>

@@ -313,7 +313,7 @@ export function useApproveOrder(p: ApproveParam) {
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${auth.currUser.name} 에서 출고리스트에 주문을 업로드 하였습니다.<br> 이제 배송요청이 가능합니다. `,
+          body: `${auth.currUser.name} 에서 출고리스트에 주문을 업로드 하였습니다. 이제 배송요청이 가능합니다. `,
           notiLoadUri: "/",
           uriArgs: {},
         });

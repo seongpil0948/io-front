@@ -5,6 +5,7 @@ import {
   USER_DB,
   USER_PROVIDER,
   WorkerInfo,
+  useLogin,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
@@ -29,9 +30,9 @@ function onSubmitAccount(acc: IoAccount) {
 function onSubmitWorker(acc: WorkerInfo) {
   workerInfo.value = acc;
 }
-const kakaoAuthed = ref(false);
+const authed = ref(false);
 function fail(err: any) {
-  msg.error(`카카오 로그인 에러${JSON.stringify(err)}`);
+  msg.error(`소셜 로그인 에러${JSON.stringify(err)}`);
 }
 function onKakaoAuth() {
   const kakao = inst?.appContext.config.globalProperties.$kakao;
@@ -50,7 +51,7 @@ function onKakaoAuth() {
           userId.value = uid;
           name.value = res.properties.nickname;
 
-          kakaoAuthed.value = true;
+          authed.value = true;
         },
         fail,
       });
@@ -58,9 +59,24 @@ function onKakaoAuth() {
     fail,
   });
 }
+const { googleLogin } = useLogin();
+async function onGoogleAuth() {
+  const u = (await googleLogin(false)) as any;
+  console.log("Google Login  Res: ", u);
+
+  const uid = u.uid;
+  const user = await USER_DB.getUserById(uid);
+  if (user) return msg.error("이미 존재하는 유저입니다.");
+  email.value = u.email ?? "";
+  profileImg.value = u.photoURL ?? "";
+  userId.value = uid;
+  name.value = u.displayName ?? "";
+
+  authed.value = true;
+}
 async function onSignUp() {
-  if (!kakaoAuthed.value) {
-    return msg.error("카카오 인증이 필요합니다.");
+  if (!authed.value) {
+    return msg.error("소셜 인증이 필요합니다.");
   } else if (!displayName.value) {
     return msg.error("이름을 입력해주세요.");
   } else if (!email.value) {
@@ -94,7 +110,7 @@ async function onSignUp() {
     await user.update(false);
     await auth.currUser.setWorkerId(userId.value!);
     msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
-    kakaoAuthed.value = false;
+    authed.value = false;
   }
 }
 const width = "35vw";
@@ -104,7 +120,8 @@ const width = "35vw";
   <n-space vertical align="start">
     <n-space :style="`width: ${width}`">
       <n-button @click="onKakaoAuth" type="primary"> Kakao 인증 </n-button>
-      <n-checkbox :checked="kakaoAuthed" />
+      <n-button @click="onGoogleAuth" type="primary"> Google 인증 </n-button>
+      <n-checkbox :checked="authed" />
     </n-space>
     <n-input
       :style="`width: ${width}`"

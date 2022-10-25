@@ -11,15 +11,20 @@ import {
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { HouseTwotone } from "@vicons/material";
-import { Phone20Filled } from "@vicons/fluent";
+import { Home24Filled, Phone20Filled } from "@vicons/fluent";
+import { useEditor } from "@/plugin/editor";
+
 const props = defineProps<{
   showAddModal: boolean;
   prod: VendorUserGarmentCombined;
 }>();
 
 const { prod, showAddModal } = toRefs(props);
-const imgUrls = computed(() => [...prod.value.titleImgs, prod.value.bodyImgs]);
+const imgUrls = computed(() => [
+  ...prod.value.titleImgs,
+  ...prod.value.bodyImgs,
+  ...prod.value.bodyImgs,
+]);
 const selectedProdIds = ref<string[]>([]);
 const optById: { [id: string]: { color: string; size: string } } = {};
 const prodOpts = computed<{ value: string; label: string }[]>(() => {
@@ -85,6 +90,13 @@ function onCheck(val: string) {
     selectedProdIds.value.push(val);
   }
 }
+
+useEditor({
+  readOnly: true,
+  elementId: "io-editor",
+  placeholder: "상품 정보 입력",
+  data: prod.value!.info,
+});
 </script>
 
 <template>
@@ -98,76 +110,89 @@ function onCheck(val: string) {
     style="margin: 0 10%"
   >
     <n-space vertical style="overflow: auto; max-height: 75vh">
-      <n-space
-        size="large"
-        inline
-        style="border: grey solid 1px; padding: 10px; width: 70vw"
-        justify="space-around"
-      >
-        <carousel-img-card
-          :imgUrls="imgUrls"
-          :width="30"
-          :height="30"
-          unit="vw"
-        />
-        <n-space vertical style="width: 35vw">
-          <n-space justify="space-between" v-if="getUserLocate(prod)">
-            <n-button text>
-              <template #icon>
-                <n-icon size="24" :component="HouseTwotone" />
-              </template>
-              {{ getUserLocate(prod)!.detailLocate }}</n-button
-            >
-            <n-button text>
-              <template #icon>
-                <n-icon size="24" :component="Phone20Filled" />
-              </template>
-              {{ getUserLocate(prod)!.phone }}</n-button
-            >
-          </n-space>
-          <n-divider style="width: 100%" />
-          <n-h2 style="padding-top: 0px">{{ prod.vendorProdName }}</n-h2>
-
-          <n-h2 style="padding-top: 0px">{{ prod.vendorPrice }}원</n-h2>
-          <div style="max-height: 20vw; overflow: auto">
-            <n-space
-              inline
-              justify="space-between"
-              align="center"
-              style="border: grey solid 1px; padding: 10px; width: 25vw"
-              v-for="(opt, i) in prodOpts"
-              :key="i"
-            >
-              <n-h4 style="margin: 0">{{ opt.label }}</n-h4>
-              <logo-checker
-                :size="1"
-                :checked="selectedProdIds.includes(opt.value)"
-                @onClick="onCheck(opt.value)"
-                style="margin-right: 20px"
-              />
+      <n-card>
+        <n-space size="large" inline justify="space-between" style="width: 98%">
+          <carousel-img-card
+            :imgUrls="imgUrls"
+            :width="30"
+            :height="30"
+            unit="vw"
+          />
+          <n-space vertical style="width: 35vw">
+            <n-space justify="space-between" v-if="getUserLocate(prod)">
+              <n-button text>
+                <template #icon>
+                  <n-icon size="24" :component="Home24Filled" />
+                </template>
+                {{ getUserLocate(prod)!.detailLocate }}</n-button
+              >
+              <n-button text>
+                <template #icon>
+                  <n-icon size="24" :component="Phone20Filled" />
+                </template>
+                {{ getUserLocate(prod)!.phone }}</n-button
+              >
             </n-space>
-          </div>
+            <n-divider style="width: 100%" />
+            <n-h2 style="padding-top: 0px">{{ prod.vendorProdName }}</n-h2>
+
+            <n-h2 style="padding-top: 0px">{{ prod.vendorPrice }}원</n-h2>
+            <div style="max-height: 20vw; overflow: auto; padding: 2%">
+              <n-card
+                v-for="(opt, i) in prodOpts"
+                :key="i"
+                style="width: 25vw; margin: auto; margin-bottom: 10px"
+                content-style="
+                  padding: 10px;
+                  display: inline-flex;
+                  flex-flow: row wrap;
+                  justify-content: space-between;
+                    align-items: center;
+                "
+              >
+                <n-h4 style="margin: 0; padding-bottom: 3%">{{
+                  opt.label
+                }}</n-h4>
+                <logo-checker
+                  :size="1"
+                  :checked="selectedProdIds.includes(opt.value)"
+                  @onClick="onCheck(opt.value)"
+                  style="margin-right: 20px"
+                />
+              </n-card>
+            </div>
+          </n-space>
         </n-space>
-      </n-space>
+      </n-card>
       <n-descriptions
         bordered
         label-placement="left"
         :column="4"
         style="margin-top: 1%"
       >
-        <template #header> <n-h2>기본정보</n-h2> </template>
+        <template #header> <n-h3>기본정보</n-h3> </template>
         <n-descriptions-item>
           <template #label> 카테고리 </template>
           {{ prod.part }} > {{ prod.ctgr }}
         </n-descriptions-item>
-        <n-descriptions-item label="혼용률">
+        <n-descriptions-item label="혼용률 / 제조국">
           {{ prod.fabric }}
         </n-descriptions-item>
       </n-descriptions>
-      <n-descriptions label-placement="left" style="margin-top: 1%">
-        <template #header> <n-h2>상세정보</n-h2> </template>
-        <n-descriptions-item>{{ prod.info }}</n-descriptions-item>
-        <n-descriptions-item>{{ prod.description }}</n-descriptions-item>
+      <n-descriptions
+        :column="1"
+        bordered
+        label-placement="top"
+        style="margin-top: 1%"
+      >
+        <n-descriptions-item
+          ><template #label> <n-h3>상품 요약</n-h3> </template>
+          {{ prod.description }}</n-descriptions-item
+        >
+        <n-descriptions-item>
+          <template #label> <n-h3>상세 정보</n-h3> </template>
+          <div id="io-editor"></div
+        ></n-descriptions-item>
       </n-descriptions>
     </n-space>
     <template #action>

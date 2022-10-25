@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
-import cloneDeep from "lodash.clonedeep";
 import {
   IoUser,
   StockCntObj,
   USER_DB,
+  VendorGarment,
   VendorUserGarment,
   VendorUserGarmentCombined,
   VENDOR_GARMENT_DB,
@@ -33,7 +33,7 @@ export const useVendorsStore = defineStore(
       return vendorGarments.value
         .map((p) => {
           return vendorById.value[p.vendorId]
-            ? Object.assign(p, vendorById.value[p.vendorId])
+            ? Object.assign({}, vendorById.value[p.vendorId], p)
             : null;
         })
         .filter((x) => x) as VendorUserGarment[];
@@ -43,9 +43,9 @@ export const useVendorsStore = defineStore(
       return vendorUserGarments.value.reduce<{
         [userAndProdName: string]: VendorUserGarmentCombined;
       }>((acc, curr) => {
-        const combineId = curr.combineId;
+        const combineId = VendorGarment.combineId(curr);
         if (!acc[combineId]) {
-          acc[combineId] = Object.assign(cloneDeep(curr), {
+          acc[combineId] = Object.assign({}, curr, {
             allStockCnt: 0,
             colors: [],
             sizes: [],

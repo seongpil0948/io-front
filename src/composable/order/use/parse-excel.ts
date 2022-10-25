@@ -33,29 +33,49 @@ export function useOrderParseExcel(
       if (!mapper.value) return;
       conditions.value = [];
       for (let i = 0; i < files.length; i++) {
-        const inputDf = (await readExcel(files[i], {
-          sheet: sheetIdx.value,
-        })) as DataFrame;
-        if (!inputDf) {
-          const message = `파일: ${files[i].name}에 대한 처리에 실패 하였습니다.`;
-          msg.error(message, makeMsgOpt());
-          logger.error(userId, message);
-          continue;
-        }
-        if (startRow.value > 0) {
-          // console.log("readExcel: ", inputDf);
-          const newDf = inputDf.iloc({ rows: [`${startRow.value}:`] });
-          newDf.$setColumnNames(
-            inputDf.iloc({ rows: [`${startRow.value - 1}:${startRow.value}`] })
-              .values[0] as string[]
-          );
-          conditions.value.push(
-            ...mapDfToOrder(newDf, mapper.value, existIds.value, userId, msg)
-          );
-        } else {
-          conditions.value.push(
-            ...mapDfToOrder(inputDf, mapper.value, existIds.value, userId, msg)
-          );
+        const file = files[i];
+        const errMsg = `파일: ${file.name}에 대한 처리에 실패 하였습니다.`;
+        try {
+          const inputDf = (await readExcel(file, {
+            sheet: sheetIdx.value,
+          })) as DataFrame;
+          if (!inputDf) {
+            msg.error(errMsg, makeMsgOpt());
+            logger.error(userId, errMsg);
+            continue;
+          }
+          if (startRow.value > 0) {
+            // console.log("readExcel: ", inputDf);
+            const newDf = inputDf.iloc({
+              rows: [`${startRow.value}:`],
+            });
+            newDf.$setColumnNames(
+              inputDf.iloc({
+                rows: [`${startRow.value - 1}:${startRow.value}`],
+              }).values[0] as string[]
+            );
+            conditions.value.push(
+              ...mapDfToOrder(newDf, mapper.value, existIds.value, userId, msg)
+            );
+          } else {
+            conditions.value.push(
+              ...mapDfToOrder(
+                inputDf,
+                mapper.value,
+                existIds.value,
+                userId,
+                msg
+              )
+            );
+          }
+        } catch (err) {
+          let m =
+            errMsg + (err instanceof Error ? err.message : JSON.stringify(err));
+          if (m.includes("password-protected")) {
+            m = errMsg + "엑셀파일에 비밀번호가 있습니다. ";
+          }
+          msg.error(m, makeMsgOpt());
+          logger.error(userId, m);
         }
       }
       files = [];

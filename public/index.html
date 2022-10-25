@@ -7,6 +7,13 @@
     <title>InOut-BOX</title>
   </head>
   <body>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/firebase-messaging-sw.js");
+        });
+      }
+    </script>
     <div id="app"></div>
   </body>
 </html>

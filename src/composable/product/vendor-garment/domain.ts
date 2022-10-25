@@ -21,7 +21,6 @@ export interface VendorGarmentCrt extends VendorProdCrt {
   allowPending: boolean;
   size: GARMENT_SIZE;
   fabric: string;
-  get combineId(): string;
 }
 
 export interface VendorGarmentCombined

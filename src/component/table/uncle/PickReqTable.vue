@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import {
+  getPickReqCols,
+  pickReqDetailCols,
   ProdOrderByShop,
   ProdOrderCombined,
   SHIPMENT_DB,
@@ -10,9 +12,9 @@ import {
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { useAuthStore } from "@/store";
-import { makeMsgOpt, uniqueArr } from "@/util";
-import { DataTableColumns, NButton, useMessage } from "naive-ui";
-import { computed, h, ref } from "vue";
+import { makeMsgOpt } from "@/util";
+import { NButton, useMessage } from "naive-ui";
+import { computed, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const smtp = useAlarm();
@@ -105,102 +107,7 @@ function approveSelected() {
   showApprovePickup.value = true;
 }
 
-const columns = computed(() => {
-  const cols = [
-    {
-      type: "selection",
-    },
-    {
-      title: "소매처명",
-      key: "shopName",
-    },
-    {
-      title: "도매수량",
-      render: (row) =>
-        h(
-          "div",
-          {},
-          {
-            default: () => uniqueArr(row.items.map((x) => x.vendorId)).length,
-          }
-        ),
-    },
-
-    {
-      title: "픽업수량",
-      key: "orderCnt",
-      render: (row) => row.items.reduce((acc, curr) => acc + curr.orderCnt, 0),
-    },
-    {
-      title: "상세",
-      key: "detail",
-      render: (row) =>
-        h(
-          NButton,
-          {
-            onClick: () => onClickDetail(row),
-            size: "small",
-          },
-          { default: () => "상세보기" }
-        ),
-    },
-  ] as DataTableColumns<ProdOrderByShop>;
-  return cols.map((x: any) => {
-    if (!["selection", "expand"].includes(x.type)) {
-      x.sorter = "default";
-    }
-    return x;
-  });
-});
-
-const columnsDetail = computed(() => {
-  const cols = [
-    {
-      type: "selection",
-    },
-    {
-      title: "도매매처명",
-      key: "vendorName",
-      render: (row) =>
-        row.vendorGarment.userInfo.displayName ??
-        row.vendorGarment.userInfo.userName,
-    },
-    // {
-    //   title: "도매처 주소",
-    //   key: "vendor locate",
-    //   render: (row) =>
-    //     row.vendorGarment.companyInfo &&
-    //     row.vendorGarment.companyInfo.shipLocate
-    //       ? Locate.toStr(row.vendorGarment.companyInfo.shipLocate)
-    //       : null,
-    // },
-    {
-      title: "상세 주소",
-      key: "vendor locate",
-      render: (row) =>
-        row.orderType === "RETURN"
-          ? row.shopGarment.companyInfo &&
-            row.shopGarment.companyInfo.shipLocate
-            ? row.shopGarment.companyInfo.shipLocate.detailLocate
-            : null
-          : row.vendorGarment.companyInfo &&
-            row.vendorGarment.companyInfo.shipLocate
-          ? row.vendorGarment.companyInfo.shipLocate.detailLocate
-          : null,
-    },
-
-    {
-      title: "픽업수량",
-      key: "activeCnt",
-    },
-  ] as DataTableColumns<ProdOrderCombined>;
-  return cols.map((x: any) => {
-    if (!["selection", "expand"].includes(x.type)) {
-      x.sorter = "default";
-    }
-    return x;
-  });
-});
+const reqCols = getPickReqCols(onClickDetail);
 </script>
 <template>
   <n-card>
@@ -211,7 +118,7 @@ const columnsDetail = computed(() => {
     </n-space>
     <n-data-table
       :bordered="false"
-      :columns="columns"
+      :columns="reqCols"
       :data="garmentOrdersByShop"
       :rowKey="(row: ProdOrderByShop) => row.shopId"
       @update:checked-row-keys="onCheckRow"
@@ -232,7 +139,7 @@ const columnsDetail = computed(() => {
   <n-card v-if="selectedData" :bordered="false" :title="selectedData.shopName">
     <n-data-table
       :bordered="false"
-      :columns="columnsDetail"
+      :columns="pickReqDetailCols"
       :data="selectedData.items"
       :rowKey="(row: ShipOrder) => row.id"
       @update:checked-row-keys="onCheckDetailRow"

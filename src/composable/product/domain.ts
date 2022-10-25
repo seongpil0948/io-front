@@ -1,7 +1,9 @@
+import { OutputData } from "@editorjs/editorjs/types/data-formats";
+
 export interface ProductCrt {
   createdAt?: Date;
   updatedAt?: Date;
-  info: string;
+  info: string | OutputData;
   description: string;
 }
 export interface VendorProdCrt extends ProductCrt {

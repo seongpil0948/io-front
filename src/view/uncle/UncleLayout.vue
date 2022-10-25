@@ -3,12 +3,15 @@ import { UserAvatarFilled } from "@vicons/carbon";
 import { MoneyBillWave, ExclamationTriangle } from "@vicons/fa";
 import { LocalShippingFilled } from "@vicons/material";
 import { Box24Filled } from "@vicons/fluent";
-import { renderIcon, renderRoute } from "@/util";
+import { renderIcon, renderRoute, getScreenSize, isMobile } from "@/util";
 import type { MenuOption } from "naive-ui";
 import { useAuthStore, useUncleOrderStore } from "@/store";
-import { onBeforeMount } from "vue";
+import { onBeforeMount, h } from "vue";
 import { People16Regular, News16Regular } from "@vicons/fluent";
+import LogoImageVue from "@/component/common/LogoImage.vue";
+import { useRouter } from "vue-router";
 const minHeight = "100vh";
+const router = useRouter();
 const menuOptions: MenuOption[] = [
   {
     label: "픽업관리",
@@ -108,28 +111,62 @@ const menuOptions: MenuOption[] = [
     ],
   },
 ];
-onBeforeMount(() =>
-  useUncleOrderStore().init(useAuthStore().currUser.userInfo.userId)
-);
+const user = useAuthStore().currUser;
+const mobileOpts = [
+  {
+    key: "home",
+    icon: () =>
+      h(LogoImageVue, {
+        size: "1.8rem",
+        style: { "margin-top": "23%" },
+        onclick: () => {
+          router.goHome(user);
+        },
+      }),
+  },
+  ...menuOptions,
+];
+
+onBeforeMount(() => useUncleOrderStore().init(user.userInfo.userId));
 </script>
 <template>
-  <n-space vertical>
-    <n-layout has-sider sider-placement="right">
-      <n-layout has-sider :style="`min-height: ${minHeight}`">
-        <io-sider
-          :style="`min-height: ${minHeight}`"
-          :menuOptions="menuOptions"
-        />
-        <n-space
-          vertical
-          justify="space-between"
-          style="padding: 2%; width: 100%"
-        >
-          <router-view />
-          <io-footer />
-        </n-space>
-      </n-layout>
-      <team-uncle-sider />
+  <n-layout
+    v-if="getScreenSize() === 'S' || isMobile()"
+    :style="`height: ${minHeight}`"
+  >
+    <n-layout-header>
+      <n-menu
+        :collapsed-width="64"
+        :collapsed-icon-size="22"
+        :options="mobileOpts"
+        mode="horizontal"
+      />
+    </n-layout-header>
+    <n-space
+      vertical
+      justify="space-between"
+      align="center"
+      style="padding: 2%; width: 100%"
+    >
+      <router-view />
+      <io-footer />
+    </n-space>
+  </n-layout>
+  <n-layout v-else has-sider sider-placement="right">
+    <n-layout has-sider :style="`min-height: ${minHeight}`">
+      <io-sider
+        :style="`min-height: ${minHeight}`"
+        :menuOptions="menuOptions"
+      />
+      <n-space
+        vertical
+        justify="space-between"
+        style="padding: 2%; width: 100%"
+      >
+        <router-view />
+        <io-footer />
+      </n-space>
     </n-layout>
-  </n-space>
+    <team-uncle-sider />
+  </n-layout>
 </template>

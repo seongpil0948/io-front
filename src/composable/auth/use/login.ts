@@ -11,8 +11,9 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
-import { IoUser, USER_DB, USER_PROVIDER } from "@/composable";
+import { FcmToken, IoUser, USER_DB, USER_PROVIDER } from "@/composable";
 import { logger } from "@/plugin/logger";
+import { intervalToDuration } from "date-fns";
 
 interface SignupParam {
   providerId: USER_PROVIDER;
@@ -43,10 +44,28 @@ export function useLogin() {
     log.debug("USER_DB.getUserById: ", user, "Uid: ", uid);
     if (user) {
       const token = await IoUser.getFcmToken();
-      if (token !== null && !user.userInfo.fcmTokens.includes(token)) {
-        user.userInfo.fcmTokens.push(token);
-      }
+      const tokens = user.userInfo.fcmTokens ?? [];
+      const newTokens: FcmToken[] = [];
+      for (let i = 0; i < tokens.length; i++) {
+        const t = tokens[i];
+        const intervalParam = {
+          start: new Date(),
+          end:
+            t.createdAt instanceof Date ? t.createdAt : new Date(t.createdAt),
+        };
 
+        const interval = intervalToDuration(intervalParam);
+        console.log(" token interval:", interval, "param: ", intervalParam);
+
+        if (interval.days && interval.days > 7) {
+          console.log("in login pushed token");
+          newTokens.push(t);
+        }
+      }
+      if (token !== null && tokens.every((t) => token.token !== t.token)) {
+        newTokens.push(token);
+      }
+      user.userInfo.fcmTokens = newTokens;
       await user.update();
       if (user.userInfo.passed) {
         await authS.login(user);
@@ -56,7 +75,6 @@ export function useLogin() {
         authS.logout();
       }
     } else {
-      console.log("Signup params in login", params);
       if (toSignUp)
         router.push({
           name: "SignUp",
@@ -65,23 +83,24 @@ export function useLogin() {
     }
   }
 
-  async function googleLogin() {
-    signInWithPopup(auth, provider)
+  async function googleLogin(loginAfter = true) {
+    return signInWithPopup(auth, provider)
       .then((result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
         const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential?.accessToken;
         const user = result.user;
-        console.log("credential: ", credential);
-        console.log("token: ", token);
-        console.log("user: ", user);
-        login(user.uid, {
-          providerId: "GOOGLE",
-          userId: user.uid,
-          userName: user.displayName ?? "",
-          email: user.email ?? "",
-          profileImg: user.photoURL ?? "",
-        });
+        console.log("credential: ", credential, "user: ", user);
+
+        if (loginAfter) {
+          login(user.uid, {
+            providerId: "GOOGLE",
+            userId: user.uid,
+            userName: user.displayName ?? "",
+            email: user.email ?? "",
+            profileImg: user.photoURL ?? "",
+          });
+        }
+        return user;
       })
       .catch((error) => {
         logger.error(

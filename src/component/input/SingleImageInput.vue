@@ -30,8 +30,8 @@ const msg = useMessage();
 const loading = ref(false);
 async function loadFile() {
   if (!input.value || !input.value!.files) return;
-  else if (input.value.files.length + urls.value.length > 5) {
-    return msg.error("5장까지 업로드 가능합니다.", makeMsgOpt());
+  else if (input.value.files.length + urls.value.length > max.value) {
+    return msg.error(`${max.value} 장까지 업로드 가능합니다.`, makeMsgOpt());
   } else if (input.value.files && input.value.files.length > 0) {
     loading.value = true;
     const parent = props.user
@@ -54,7 +54,7 @@ function closeFile(src: string) {
 }
 </script>
 <template>
-  <n-space inline justify="space-around">
+  <n-space inline justify="start">
     <div
       v-for="(src, i) in urls"
       :key="i"

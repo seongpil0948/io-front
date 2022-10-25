@@ -19,7 +19,7 @@ const ServerLogHook: LoggerHook = {
       const formData = new FormData();
       formData.set("logName", "io-web-app");
       formData.set("category", "client-side");
-      formData.set("txt", event.argumentArray.slice(1).join("&&"));
+      formData.set("txt", event.argumentArray.join("&&"));
       formData.set("severity", event.level);
       if (isUserLog) {
         const txts = event.argumentArray

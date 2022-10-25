@@ -78,8 +78,8 @@ function updateOrderId(arr: string[]) {
 }
 </script>
 <template>
-  <n-space vertical>
-    <n-card style="width: 80%">
+  <n-space vertical align="center" item-style="width: 80%">
+    <n-card>
       <template #header>
         <n-h4 v-if="!isMobile()">
           상품정보 변경을 위해서 옵션 선택을 이용 해주세요!
@@ -116,10 +116,10 @@ function updateOrderId(arr: string[]) {
         }"
         :bordered="false"
         :table-layout="'fixed'"
-        :scroll-x="1200"
+        :scroll-x="1500"
       />
     </n-card>
-    <n-card>
+    <n-card style="width: 100%">
       <n-h3> 주문번호 매핑</n-h3>
       <n-dynamic-tags
         :value="mapper?.getSyno('orderId')"

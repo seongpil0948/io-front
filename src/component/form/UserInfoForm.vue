@@ -6,6 +6,7 @@ import {
   USER_PROVIDER,
   USER_ROLE,
   IoAccount,
+  FcmToken,
 } from "@/composable";
 import { emailRule, nameLenRule } from "@/util";
 
@@ -41,6 +42,7 @@ async function getUserInfo(): Promise<{
 }> {
   if (!accInfo.value) return { userInfo: undefined };
   const token = await IoUser.getFcmToken();
+
   const obj: IoUserInfo = Object.assign(
     { account: accInfo.value! },
     {
@@ -49,7 +51,7 @@ async function getUserInfo(): Promise<{
       emailVerified: false,
       profileImg: props.profileImg,
       passed: false,
-      fcmTokens: auth.currentUser ? [token!] : ([] as string[]),
+      fcmTokens: auth.currentUser && token ? [token!] : ([] as FcmToken[]),
       role: props.role,
     },
     formModel

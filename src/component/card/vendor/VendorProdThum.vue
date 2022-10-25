@@ -1,7 +1,7 @@
 <template>
   <n-card
     @click="onClickProd"
-    :style="`cursor: pointer; width: ${width}px;`"
+    :style="`cursor: pointer; width: ${width}px; height: 100%`"
     content-style="padding: 0px 10px; overflow: hidden"
   >
     <template #cover>

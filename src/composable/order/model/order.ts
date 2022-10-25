@@ -1,6 +1,4 @@
 import { VendorUserGarment } from "./../../product/vendor-garment/domain";
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { CommonField } from "@/composable/common/model";
 import {
   BOOL_M,
   OrderAmount,
@@ -8,15 +6,9 @@ import {
   OrderParent,
   ProdOrder,
   ShopUserGarment,
-  SHIP_METHOD,
-  Locate,
 } from "@/composable";
-import {
-  OrderCancel,
-  ORDER_STATE,
-  ORDER_TYPE,
-  ProdOrderCombined,
-} from "../domain";
+import { OrderCancel, ORDER_STATE, ProdOrderCombined } from "../domain";
+import { CommonField } from "../../common/model";
 import {
   FirestoreDataConverter,
   DocumentSnapshot,
@@ -463,7 +455,8 @@ export function mergeOrderAmount(origin: OrderAmount, y: OrderAmount) {
   origin.tax += y.tax;
   origin.paidAmount += y.paidAmount;
   origin.paid = y.paid;
-  (origin.pureAmount += y.pureAmount), (origin.orderAmount += y.orderAmount);
+  origin.pureAmount += y.pureAmount;
+  origin.orderAmount += y.orderAmount;
   origin.paymentConfirm = y.paymentConfirm;
   origin.paymentMethod = y.paymentMethod;
 }

@@ -328,7 +328,7 @@ async function onSignUp() {
           <n-h5 style="color: dimgray"> 히힛 간지러워요! 으익 </n-h5>
           <n-card class="form-card">
             <term-of-service
-              style="width: 60vw; height: 40vh; overflow: auto"
+              style="width: 60vw; height: 40vh; overflow: auto; margin: auto"
             />
             <template #action>
               <n-space justify="end">
