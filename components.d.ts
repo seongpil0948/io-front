@@ -90,6 +90,7 @@ declare module '@vue/runtime-core' {
     NoticePage: typeof import('./src/view/common/NoticePage.vue')['default']
     NotImplemented: typeof import('./src/component/common/NotImplemented.vue')['default']
     NP: typeof import('naive-ui')['NP']
+    NPagination: typeof import('naive-ui')['NPagination']
     NPopover: typeof import('naive-ui')['NPopover']
     NRadioButton: typeof import('naive-ui')['NRadioButton']
     NRadioGroup: typeof import('naive-ui')['NRadioGroup']

@@ -5,6 +5,7 @@ import {
   VendorUserOrderGarment,
   VendorGarment,
   VENDOR_GARMENT_DB,
+  useSearch,
 } from "@/composable/";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
@@ -121,23 +122,17 @@ function onShowProdEdit(row: VendorGarment | null) {
   }
 }
 
-const searchVal = ref<string | null>(null);
-const searchInputVal = ref<string | null>(null);
-const filteredProds = computed(() => {
-  const v = searchVal.value;
-  return v
-    ? vendorOrderGarments.value.filter((vog) => {
-        return (
-          vog.size.includes(v) ||
-          vog.color.includes(v) ||
-          vog.vendorProdName.includes(v)
-        );
-      })
-    : vendorOrderGarments.value;
+const { search, searchedData, searchInputVal } = useSearch({
+  data: vendorOrderGarments,
+  filterFunc: (x, searchVal) => {
+    const v: typeof searchVal = searchVal;
+    return v === null
+      ? true
+      : x.size.includes(v) ||
+          x.color.includes(v) ||
+          x.vendorProdName.includes(v);
+  },
 });
-function search() {
-  searchVal.value = searchInputVal.value;
-}
 </script>
 <template>
   <n-card style="width: 100%">
@@ -150,7 +145,7 @@ function search() {
     <n-data-table
       :scroll-x="1200"
       :columns="columns"
-      :data="filteredProds"
+      :data="searchedData"
       :pagination="{
         'show-size-picker': true,
         'page-sizes': [5, 10, 25, 50, 100],
