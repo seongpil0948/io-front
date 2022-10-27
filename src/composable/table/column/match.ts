@@ -14,28 +14,20 @@ export function getMatchCols(onClickId: (row: MatchGarment) => Promise<void>) {
       key: "orderCnt",
     },
     {
-      title: "ID",
-      key: "ID",
-      children: [
-        {
-          title: "매칭된ID",
-          key: "id",
-          render: (row: MatchGarment) =>
-            h(
-              NButton,
-              {
-                type: row.id ? "primary" : "error",
-                text: row.id !== undefined,
-                onClick: async () => await onClickId(row),
-              },
-              { default: () => row.id ?? "상품선택" }
-            ),
-        },
-        {
-          title: "외부ID",
-          key: "inputId",
-        },
-      ],
+      title: "매칭된ID",
+      key: "id",
+      render: (row: MatchGarment) =>
+        h(
+          NButton,
+          {
+            type: row.id ? "info" : "error",
+            style: {
+              color: "white",
+            },
+            onClick: async () => await onClickId(row),
+          },
+          { default: () => (row.id ? "매칭수정" : "상품선택") }
+        ),
     },
     {
       title: "상품명",

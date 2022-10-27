@@ -15,7 +15,7 @@ import {
   DocumentData,
 } from "@firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
-import { cloneDeep } from "lodash";
+import cloneDeep from "lodash.clonedeep";
 import { insertById, getIoCollection, IoCollection, uniqueArr } from "@/util";
 import { logger } from "@/plugin/logger";
 
@@ -193,12 +193,9 @@ export class GarmentOrder extends CommonField implements OrderCrt {
       throw new Error("invalid Cnt");
     }
     const id = uuidv4();
-
-    (this.items as ProdOrderCombined[]).push(
-      Object.assign({}, item, {
-        id,
-      })
-    );
+    const newOrd = cloneDeep(item);
+    newOrd.id = id;
+    (this.items as ProdOrderCombined[]).push(newOrd);
     this.setOrderCnt(id, orderCnt, false, item.actualAmount.paid);
     const newOrder: ProdOrderCombined = (
       this.items as ProdOrderCombined[]
@@ -211,7 +208,7 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     // });
     this.setOrderCnt(
       item.id,
-      (item.orderCnt -= newOrder.orderCnt),
+      item.orderCnt - newOrder.orderCnt,
       false,
       item.actualAmount.paid
     );
@@ -219,6 +216,10 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     if (item.orderCnt < 1) {
       this.items.splice(
         this.items.findIndex((x) => x.id === item.id),
+        1
+      );
+      this.itemIds.splice(
+        this.itemIds.findIndex((x) => x === item.id),
         1
       );
     }

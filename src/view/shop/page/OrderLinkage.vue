@@ -15,6 +15,7 @@ import {
   useShopGarmentTable,
   useApiTokenCols,
   getMatchCols,
+  useSearch,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
 import { dateRanges } from "@/util";
@@ -56,10 +57,19 @@ function goAuthorizeCafe() {
   }
   return authorizeCafe();
 }
+// use select in modal
+const { search, searchedData, searchInputVal } = useSearch({
+  data: userProd,
+  filterFunc: (x, searchVal) => {
+    const v: typeof searchVal = searchVal;
+    return v === null
+      ? true
+      : x.size.includes(v) || x.color.includes(v) || x.prodName.includes(v);
+  },
+});
 
 const matchData = ref<MatchGarment[]>([]);
 async function onClickId(row: MatchGarment) {
-  console.info(`Play ${JSON.stringify(row)}`);
   selectFunc.value = async (s) => {
     const g = ShopGarment.fromJson(s);
     if (g) {
@@ -260,10 +270,14 @@ async function saveMatch() {
   </n-space>
   <n-modal v-model:show="openSelectList">
     <n-card title="상품선택" :bordered="false" size="large">
+      <template #header-extra>
+        <n-input v-model:value="searchInputVal" placeholder="상품검색" />
+        <n-button @click="search">검색</n-button>
+      </template>
       <n-data-table
         ref="tableRef"
         :columns="tableCols"
-        :data="userProd"
+        :data="searchedData"
         :pagination="{
           'show-size-picker': true,
           'page-sizes': [5, 10, 25, 50, 100],
