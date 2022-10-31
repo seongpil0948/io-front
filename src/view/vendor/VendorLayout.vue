@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MenuOption } from "naive-ui";
-import { BookOutline as BookIcon } from "@vicons/ionicons5";
+import { ShoppingCart } from "@vicons/fa";
 import { ProductHunt, CashRegister } from "@vicons/fa";
 import { renderIcon, renderRoute, getScreenSize, isMobile } from "@/util";
 import {
@@ -45,7 +45,7 @@ const menuOptions: MenuOption[] = [
   {
     label: "주문",
     key: "Order",
-    icon: renderIcon(BookIcon),
+    icon: renderIcon(ShoppingCart),
     children: [
       {
         label: () => renderRoute("거래처 요청 주문", "BeforeApproveList"),
@@ -83,8 +83,8 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(People16Regular),
   },
   {
-    label: () => renderRoute("공지사항", "NoticePage"),
-    key: "NoticePage",
+    label: () => renderRoute("고객지원", "CsHome"),
+    key: "CsHome",
     icon: renderIcon(News16Regular),
   },
   {

@@ -126,12 +126,15 @@ function downSampleXlsx() {
       :columns="tableCol"
       :data="filteredOrders"
       :pagination="
-        showSizes
-          ? {
-              'show-size-picker': true,
-              'page-sizes': [5, 10, 25, 50, 100],
-            }
-          : false
+        Object.assign(
+          { pageSize: 5 },
+          showSizes
+            ? {
+                'show-size-picker': true,
+                'page-sizes': [5, 10, 25, 50, 100],
+              }
+            : {}
+        )
       "
       :bordered="false"
     />

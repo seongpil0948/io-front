@@ -114,8 +114,8 @@ const menuOptions: MenuOption[] = [
     ],
   },
   {
-    label: () => renderRoute("공지사항", "NoticePage"),
-    key: "NoticePage",
+    label: () => renderRoute("고객지원", "CsHome"),
+    key: "CsHome",
     icon: renderIcon(News16Regular),
   },
 ];

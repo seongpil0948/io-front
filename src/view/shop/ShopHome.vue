@@ -104,5 +104,6 @@ const numOfShipping = computed(
         </n-card>
       </n-grid-item>
     </n-grid>
+    <notice-faq-tab />
   </n-space>
 </template>

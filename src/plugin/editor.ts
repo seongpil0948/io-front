@@ -1,6 +1,5 @@
 import { onMounted } from "vue";
 import { ref, onBeforeUnmount } from "vue";
-import { logger } from "./logger";
 import EditorJS, { API } from "@editorjs/editorjs";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -11,19 +10,11 @@ import List from "@editorjs/list";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import Table from "@editorjs/table";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import YoutubeEmbed from "editorjs-youtube-embed";
 
-// _editor.isReady
-//   .then(() => {
-//     const msg = "Editor.js is ready to work!";
-//     logger.debug(null, msg);
-//     console.log(null, msg);
-//   })
-//   .catch((reason) => {
-//     const msg = `Editor.js initialization failed because of ${reason}`;
-//     logger.error(null, msg);
-//     console.error(null, msg);
-//   });
-interface IoEditorParam {
+export interface IoEditorParam {
   readOnly: boolean;
   elementId: string;
   onChange?: (api: API, event: CustomEvent<any>) => void;
@@ -37,14 +28,6 @@ export function useEditor(c: IoEditorParam) {
   onMounted(() => {
     editor.value = getEditor(c);
   });
-
-  onBeforeUnmount(() => {
-    if (editor.value) {
-      editor.value.clear();
-      editor.value.destroy();
-      // editor.value.off();
-    }
-  });
   function clearEditor() {
     if (editor.value) {
       editor.value.clear();
@@ -53,20 +36,21 @@ export function useEditor(c: IoEditorParam) {
   async function saveEditor() {
     try {
       if (editor.value) {
-        return await editor.value.save();
+        const info = await editor.value.save();
+        return info.blocks.length > 0 ? info : undefined;
       }
     } catch (error) {
-      logger.error(null, "fail to saving editorJs, error:", error);
+      console.error(null, "fail to saving editorJs, error:", error);
     }
   }
 
-  return { editor, saveEditor, clearEditor };
+  return { editor, saveEditor, clearEditor, getEditor };
 }
 
 export function getEditor(c: IoEditorParam) {
+  console.log("editor param", c);
   const _editor = new EditorJS({
-    // TODO: data: c.data && c.data.blocks.length > 0 ? c.data : undefined,
-    data: c.data,
+    data: c.data && c.data.blocks.length > 0 ? c.data : undefined,
     readOnly: c.readOnly,
     holder: c.elementId,
     placeholder: c.placeholder,
@@ -76,6 +60,7 @@ export function getEditor(c: IoEditorParam) {
       list: List,
       table: Table,
       header: Header,
+      youtubeEmbed: YoutubeEmbed,
     },
   });
   return _editor;

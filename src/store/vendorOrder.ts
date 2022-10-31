@@ -19,6 +19,7 @@ import { ref, computed, watch } from "vue";
 import { useVendorsStore, useAuthStore } from "./";
 
 export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
+  console.log(`=== called useVendorOrderStore === `);
   // >>> state >>>
   const authStore = useAuthStore();
   const vendorStore = useVendorsStore();
@@ -134,6 +135,9 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
 
   // >>> action >>>
   function init(vendorUserId: string) {
+    console.log(
+      `=== init useVendorOrderStore === vendorUserId: ${vendorUserId}`
+    );
     if (!initial || !vendorUserId || vendorUserId === vendorId.value) return;
     vendorId.value = vendorUserId;
 
@@ -150,6 +154,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     initial = false;
   }
   function discard() {
+    console.log(`=== discard useVendorOrderStore ===`);
     unsubscribeAuth();
     if (orderUnSub) {
       orderUnSub();

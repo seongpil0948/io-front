@@ -18,7 +18,7 @@ import { logger } from "@/plugin/logger";
 
 export const useShopOrderStore = defineStore("shopOrderStore", () => {
   // >>> state >>>
-  logger.debug("=== initiate shopOrderStore ===");
+  logger.debug("=== called shopOrderStore ===");
   const authStore = useAuthStore();
   const inStates = ref<ORDER_STATE[]>([]);
   const shopId = ref<string | null>(null);
@@ -122,6 +122,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   });
   // >>> action >>>
   function init(shopUserId: string) {
+    logger.debug(`=== init shopOrderStore === shopUserId: ${shopUserId}`);
     if (!initial || !shopUserId || shopUserId === shopId.value) return;
     shopId.value = shopUserId;
     const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.shopReadListen({
@@ -138,6 +139,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   }
 
   function discard() {
+    console.log(`=== discard shopOrderStore === `);
     if (orderUnSub) {
       orderUnSub();
     }

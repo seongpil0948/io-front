@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useLogin } from "@/composable";
-import { KAKAO_CHANNEL_ID } from "@/constants";
 import {
   getMockShops,
   getMockVendors,
@@ -10,16 +9,9 @@ import {
 import { getCurrentInstance, ref } from "vue";
 import { useRouter } from "vue-router";
 
-const inst = getCurrentInstance();
 const router = useRouter();
 const isTest = process.env.VUE_APP_IS_TEST;
 const { login } = useLogin();
-function csChat() {
-  const kakao = inst?.appContext.config.globalProperties.$kakao;
-  kakao.Channel.chat({
-    channelPublicId: KAKAO_CHANNEL_ID,
-  });
-}
 async function toVendor() {
   const uid = getMockVendors()[0];
   await login(uid, { providerId: "EMAIL" }, false);
@@ -68,7 +60,6 @@ function onTos() {
         <n-button round type="primary" @click="toShop">소매계정전환</n-button>
         <n-button round type="primary" @click="toUncle">엉클계정전환</n-button>
         <!-- <<< TEMP <<< -->
-        <n-button round type="primary" @click="csChat">채팅 상담</n-button>
         <n-button
           round
           type="primary"

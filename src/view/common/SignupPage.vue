@@ -36,7 +36,6 @@ const user = ref<IoUser | null>(null);
 const acceptTerms = ref(false);
 const { play, stop } = useFireWork();
 const smtp = useAlarm();
-console.log("state: ", window.history.state);
 const state = window.history.state;
 if (!state.userId) {
   log.error(null, "User ID not Received In SignUp Page(Landing)", state);
