@@ -28,11 +28,61 @@ function bankToKo(b: IO_BANKS) {
     case "HANA":
       return "하나";
     case "CITY":
-      return "씨티";
+      return "한국씨티";
     case "SC_JAIL":
       return "제일";
     case "KB_STAR":
       return "국민";
+    case "KAKAO":
+      return "카카오뱅크";
+    case "IBK":
+      return "기업";
+    case "KDB":
+      return "산업";
+    case "WOORI":
+      return "우리";
+    case "BNK":
+      return "경남";
+    case "KJ":
+      return "광주";
+    case "DGB":
+      return "대구";
+    case "Deutsche":
+      return "도이치";
+    case "BANK_OF_AMERICA":
+      return "뱅크오브아메리카";
+    case "BUSAN":
+      return "부산";
+    case "SANRIM":
+      return "산림조합중앙회";
+    case "MG":
+      return "새마을금고";
+    case "SUHYUP":
+      return "수협";
+    case "SINHYUP":
+      return "신협중앙회";
+    case "WOOCHE":
+      return "우체국";
+    case "JB_BANK":
+      return "전북";
+    case "JEJU":
+      return "제주";
+    case "CCB":
+      return "중국건설";
+    case "ICBC":
+      return "중국공상";
+    case "CHINA":
+      return "중국";
+    case "BNP":
+      return "BNP파리바";
+    case "HSBC":
+      return "HSBC";
+    case "JP":
+      return "모간체이스";
+    case "K_BANK":
+      return "케이뱅크";
+    case "TOSS":
+      return "토스뱅크";
   }
 }
 const bankOpts = computed(() =>

@@ -6,7 +6,7 @@ import {
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { DataTableColumns, NButton, NImage, useMessage, NText } from "naive-ui";
+import { DataTableColumns, NButton, NImage, useMessage } from "naive-ui";
 import { computed, h, Ref, ref } from "vue";
 import { useTable } from "./table";
 import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
@@ -38,25 +38,6 @@ export function useOrderTable(d: orderTableParam) {
       return { key: c } as IoColOpt;
     }
   );
-  byVendorColKeys.push({
-    key: "orderAmount",
-    cellRender: (row: ProdOrderByVendor) =>
-      h(
-        NText,
-        {
-          type: "info",
-        },
-        {
-          default: () =>
-            row.items.reduce(
-              (acc, curr) =>
-                acc +
-                (curr.actualAmount.orderAmount - curr.actualAmount.paidAmount),
-              0
-            ),
-        }
-      ),
-  });
   if (d.useAccountStr === undefined || d.useAccountStr === true)
     byVendorColKeys.push({
       key: "accountStr",

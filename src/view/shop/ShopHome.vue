@@ -52,6 +52,7 @@ const numOfShipping = computed(
       x-gap="24"
       y-gap="12"
       responsive="screen"
+      style="margin-bottom: 2%"
     >
       <n-grid-item>
         <n-card

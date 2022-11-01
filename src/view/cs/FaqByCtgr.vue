@@ -17,31 +17,40 @@ if (!state.ctgr || !state.postType) {
   router.back();
 }
 const { faqByCtgr } = storeToRefs(csStore);
-const currPostType = ref(state.postType);
+const currPostType = ref(state.ctgr);
 </script>
 <template>
-  <n-space justify="start">
-    <n-button @click="router.replace({ name: 'CsHome' })">
-      <template #icon>
-        <n-icon>
-          <ArrowBack />
-        </n-icon>
-      </template>
-      홈으로
-    </n-button>
+  <n-space
+    vertical
+    justify="space-around"
+    item-style="width: 100%; height: 100%"
+    style="margin-top: 1%"
+  >
+    <n-space justify="start">
+      <n-button @click="router.replace({ name: 'CsHome' })">
+        <template #icon>
+          <n-icon>
+            <ArrowBack />
+          </n-icon>
+        </template>
+        홈으로
+      </n-button>
+    </n-space>
+    <n-card>
+      <n-tabs v-model:value="currPostType">
+        <n-tab-pane
+          v-for="(ctgr, i) in faqCtgrList"
+          :key="i"
+          display-directive="show:lazy"
+          :tab="ctgr.showName"
+          :name="ctgr.value"
+        >
+          <cs-post-table
+            :title="postTypeToKo('FAQ')"
+            :posts="faqByCtgr[ctgr.value] ?? []"
+          />
+        </n-tab-pane>
+      </n-tabs>
+    </n-card>
   </n-space>
-  <n-tabs v-model:value="currPostType">
-    <n-tab-pane
-      v-for="(ctgr, i) in faqCtgrList"
-      :key="i"
-      display-directive="show:lazy"
-      :tab="ctgr.showName"
-      :name="ctgr.value"
-    >
-      <cs-post-table
-        :title="postTypeToKo('FAQ')"
-        :posts="faqByCtgr[ctgr.value] ?? []"
-      />
-    </n-tab-pane>
-  </n-tabs>
 </template>
