@@ -53,8 +53,6 @@ const rules = {
   allowPending: notNullRule,
   gender: notNullRule,
   vendorPrice: biggerThanNRule(999),
-  titleImgs: arrLenRule(1),
-  bodyImgs: arrLenRule(1),
   colors: arrLenRule(1),
   sizes: arrLenRule(1),
   fabric: notNullRule, // 혼용률 / 제조국

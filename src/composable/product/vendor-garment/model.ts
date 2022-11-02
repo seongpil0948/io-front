@@ -57,6 +57,12 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   static combineId(c: VendorGarmentCrt): string {
     return c.vendorId + c.vendorProdName;
   }
+  toJson(): { [x: string]: Partial<unknown> } {
+    const j = super.toJson();
+    j.titleImgs = saveImgs(j.titleImgs);
+    j.bodyImgs = saveImgs(j.bodyImgs);
+    return j;
+  }
   static fromJson(data: { [x: string]: any }): VendorGarment | null {
     if (data && data.vendorProdId) {
       return new VendorGarment({
@@ -100,11 +106,19 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     };
   }
 }
+const defaultImgs = ["/img/no_image.jpeg"];
 function loadImgs(imgs: any) {
-  const defaultImgs = ["/img/no_image.jpeg"];
-  if (!Array.isArray(defaultImgs) || imgs.length < 1) {
+  if (!Array.isArray(imgs) || imgs.length < 1) {
     return defaultImgs;
   } else {
     return imgs;
+  }
+}
+
+function saveImgs(imgs: any) {
+  if (!Array.isArray(imgs) || imgs.length < 1) {
+    return [];
+  } else {
+    return imgs.filter((x) => !defaultImgs.includes(x));
   }
 }
