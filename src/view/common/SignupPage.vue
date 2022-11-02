@@ -413,7 +413,7 @@ async function onSignUp() {
 }
 .role-btn {
   width: 30vw;
-  height: 15vh;
+  height: 20vh;
 }
 #signup-page-container {
   justify-content: center !important;

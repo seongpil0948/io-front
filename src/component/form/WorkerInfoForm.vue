@@ -69,8 +69,9 @@ const rules = {
     </n-form-item>
     <n-form-item label="근로계약서" path="payday">
       <single-image-input
+        svc="USER"
         elementId="empContract"
-        :user="u"
+        :userId="u.userInfo.userId"
         v-model:urls="workerInfo.empContract"
         size="100"
         :max="3"

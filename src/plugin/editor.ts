@@ -1,5 +1,5 @@
 import { onMounted } from "vue";
-import { ref, onBeforeUnmount } from "vue";
+import { ref } from "vue";
 import EditorJS, { API } from "@editorjs/editorjs";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -50,7 +50,8 @@ export function useEditor(c: IoEditorParam) {
 export function getEditor(c: IoEditorParam) {
   console.log("editor param", c);
   const _editor = new EditorJS({
-    data: c.data && c.data.blocks.length > 0 ? c.data : undefined,
+    data:
+      c.data && c.data.blocks && c.data.blocks.length > 0 ? c.data : undefined,
     readOnly: c.readOnly,
     holder: c.elementId,
     placeholder: c.placeholder,

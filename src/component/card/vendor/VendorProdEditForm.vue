@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { VendorGarment } from "@/composable";
 import { useAuthStore, useVendorsStore } from "@/store";
-import {
-  nameLenRule,
-  biggerThanNRule,
-  arrLenRule,
-  notNullRule,
-  makeMsgOpt,
-} from "@/util";
+import { nameLenRule, biggerThanNRule, notNullRule, makeMsgOpt } from "@/util";
 import { cloneDeep } from "lodash";
 import { useMessage, FormInst } from "naive-ui";
 import { AddCircleOutline } from "@vicons/ionicons5";
@@ -32,8 +26,6 @@ const vendorStore = useVendorsStore();
 const rules = {
   vendorProdName: nameLenRule,
   vendorPrice: biggerThanNRule(999),
-  titleImgs: arrLenRule(1),
-  bodyImgs: arrLenRule(1),
   fabric: notNullRule, // 혼용률 / 제조국
   description: notNullRule,
   stockCnt: biggerThanNRule(0),
@@ -145,10 +137,12 @@ const { saveEditor, clearEditor } = useEditor({
       >
         <single-image-input
           elementId="titleImgs"
-          :user="auth.currUser"
           size="100"
           v-model:urls="prod.titleImgs"
           :max="1"
+          svc="VENDOR_PRODUCT"
+          :userId="auth.currUser.userInfo.userId"
+          :role="auth.currUserRole"
         >
           <add-circle-outline style="cursor: pointer" />
         </single-image-input>
@@ -160,10 +154,12 @@ const { saveEditor, clearEditor } = useEditor({
       >
         <single-image-input
           elementId="bodyImgs"
-          :user="auth.currUser"
-          v-model:urls="prod.bodyImgs"
           size="100"
+          v-model:urls="prod.bodyImgs"
           :max="20"
+          svc="VENDOR_PRODUCT"
+          :userId="auth.currUser.userInfo.userId"
+          :role="auth.currUserRole"
         >
           <add-circle-outline style="cursor: pointer" />
         </single-image-input>

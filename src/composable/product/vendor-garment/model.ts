@@ -49,8 +49,8 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     this.vendorPrice = d.vendorPrice;
     this.stockCnt = d.stockCnt;
     this.vendorProdName = d.vendorProdName;
-    this.titleImgs = d.titleImgs;
-    this.bodyImgs = d.bodyImgs;
+    this.titleImgs = loadImgs(d.titleImgs);
+    this.bodyImgs = loadImgs(d.bodyImgs);
     this.info = d.info;
     this.description = d.description;
   }
@@ -74,8 +74,8 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
         vendorPrice: data.vendorPrice,
         stockCnt: data.stockCnt,
         vendorProdName: data.vendorProdName,
-        titleImgs: data.titleImgs,
-        bodyImgs: data.bodyImgs,
+        titleImgs: loadImgs(data.titleImgs),
+        bodyImgs: loadImgs(data.bodyImgs),
         info: data.info,
         description: data.description,
       });
@@ -98,5 +98,13 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
         return data ? VendorGarment.fromJson(data) : null;
       },
     };
+  }
+}
+function loadImgs(imgs: any) {
+  const defaultImgs = ["/img/no_image.jpeg"];
+  if (!Array.isArray(defaultImgs) || imgs.length < 1) {
+    return defaultImgs;
+  } else {
+    return imgs;
   }
 }

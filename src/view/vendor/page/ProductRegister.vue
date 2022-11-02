@@ -5,13 +5,7 @@ import { AddCircleOutline } from "@vicons/ionicons5";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "vue-router";
 import { useLogger } from "vue-logger-plugin";
-import {
-  GARMENT_SIZE,
-  GENDER,
-  getCurrUser,
-  PART,
-  VendorGarment,
-} from "@/composable";
+import { GARMENT_SIZE, GENDER, PART, VendorGarment } from "@/composable";
 import {
   getCtgrOpts,
   getSizeOpts,
@@ -24,12 +18,13 @@ import {
   genderOpts,
 } from "@/util";
 import { useEditor } from "@/plugin/editor";
+import { useAuthStore } from "@/store";
 
 const log = useLogger();
 const msg = useMessage();
 const dialog = useDialog();
 const formRef = ref<FormInst | null>(null);
-const currUser = getCurrUser();
+const auth = useAuthStore();
 const router = useRouter();
 
 const prodModel = ref({
@@ -118,7 +113,7 @@ async function onRegister() {
               size,
               color,
               info,
-              vendorId: currUser.userInfo.userId,
+              vendorId: auth.currUser.userInfo.userId,
               vendorProdId: uuidv4(),
               stockCnt: stockCnts.value![size][color],
             })
@@ -146,7 +141,7 @@ async function onRegister() {
                 err instanceof Error ? err.message : JSON.stringify(err)
               }`;
               msg.error(message, makeMsgOpt());
-              log.error(currUser.userInfo.userId, message, products);
+              log.error(auth.currUser.userInfo.userId, message, products);
             });
         },
       });
@@ -282,10 +277,12 @@ const { saveEditor, clearEditor } = useEditor({
         >
           <single-image-input
             elementId="titleImgs"
-            :user="currUser"
-            v-model:urls="prodModel.titleImgs"
             size="100"
+            v-model:urls="prodModel.titleImgs"
             :max="1"
+            svc="VENDOR_PRODUCT"
+            :userId="auth.currUser.userInfo.userId"
+            :role="auth.currUserRole"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>
@@ -297,10 +294,12 @@ const { saveEditor, clearEditor } = useEditor({
         >
           <single-image-input
             elementId="bodyImgs"
-            :user="currUser"
-            v-model:urls="prodModel.bodyImgs"
             size="100"
+            v-model:urls="prodModel.bodyImgs"
             :max="20"
+            svc="VENDOR_PRODUCT"
+            :userId="auth.currUser.userInfo.userId"
+            :role="auth.currUserRole"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>

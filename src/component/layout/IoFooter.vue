@@ -6,7 +6,7 @@ import {
   getMockUncles,
 } from "../../../tests/e2e/fixtures/users";
 
-import { getCurrentInstance, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
