@@ -60,17 +60,17 @@ export function useApiTokenCols() {
         {
           title: "활성화 여부",
           key: "no",
-          render(row) {
+          render() {
             // const valid = row.no < 10;
             const valid = true;
 
             return h(
-              NButton,
+              NText,
               {
-                type: valid ? "primary" : "error",
-                onClick: () => {
-                  msg.info(`Play ${JSON.stringify(row)}`);
-                },
+                type: valid ? "info" : "error",
+                // onClick: () => {
+                //   msg.info(`Play ${JSON.stringify(row)}`);
+                // },
               },
               { default: () => (valid ? "가능" : "불가") }
             );

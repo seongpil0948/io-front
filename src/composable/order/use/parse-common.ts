@@ -1,6 +1,9 @@
+import { Ref } from "vue";
 import {
   GarmentOrder,
   GarmentOrderCondi,
+  MatchGarment,
+  ORDER_GARMENT_DB,
   sameGarment,
   ShopUserGarment,
   VendorUserGarment,
@@ -52,4 +55,31 @@ export function garmentOrderFromCondi(
     acc.push(order);
     return acc;
   }, [] as GarmentOrder[]);
+}
+
+export async function saveMatch(
+  matchData: MatchGarment[],
+  userProd: ShopUserGarment[],
+  vendorUserGarments: VendorUserGarment[],
+  userId: string,
+  existOrderIds: Ref<Set<string>>
+) {
+  const orders: GarmentOrder[] = [];
+  for (let i = 0; i < matchData.length; i++) {
+    const data = matchData[i];
+    if (!data.id) continue;
+    const g = userProd.find((x) => x.shopProdId === data.id);
+    if (!g) throw new Error("소매처 상품이 없습니다.");
+    const vendorProd = vendorUserGarments.find(
+      (x) => x.vendorProdId === g?.vendorProdId
+    );
+    if (!vendorProd) throw new Error("도매처 상품이 없습니다.");
+    orders.push(
+      GarmentOrder.fromProd(g, [data.orderId], data.orderCnt, vendorProd)
+    );
+  }
+  await ORDER_GARMENT_DB.batchCreate(userId, orders);
+  orders?.forEach((ord) => {
+    ord.orderIds.forEach((id) => existOrderIds.value.add(id));
+  });
 }

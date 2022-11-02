@@ -3,19 +3,19 @@ import {
   useCafeAuth,
   getCafeOrders,
   LINKAGE_DB,
-  useOrderParseCafe,
   useMapper,
   ORDER_GARMENT_DB,
   API_SERVICE_EX,
   GarmentOrder,
-  TryStr,
-  TryNum,
   MatchGarment,
   ShopGarment,
   useShopGarmentTable,
   useApiTokenCols,
   getMatchCols,
   useSearch,
+  matchCafeOrder,
+  useMappingOrderCafe,
+  saveMatch,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
 import { dateRanges } from "@/util";
@@ -44,7 +44,11 @@ const { mapper } = useMapper(uid.value);
 const shopOrderStore = useShopOrderStore();
 const vendorStore = useVendorsStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
-const { parseCafeOrder } = useOrderParseCafe(mapper, uid.value, existOrderIds);
+const { parseCafeOrder } = useMappingOrderCafe(
+  mapper,
+  uid.value,
+  existOrderIds
+);
 const { selectFunc, userProd, tableCols, openSelectList } =
   useShopGarmentTable(true);
 function goAuthorizeCafe() {
@@ -94,6 +98,7 @@ const filteredMatchData = computed(() =>
     ? matchData.value.filter((x) => x.id === undefined || x.id === null)
     : matchData.value
 );
+
 async function onGetOrder(useMatching = true, useMapping = true) {
   if (!startDate.value || !endDate.value)
     return msg.error("일자가 입력되지 않았습니다.");
@@ -112,37 +117,12 @@ async function onGetOrder(useMatching = true, useMapping = true) {
         if (useMapping) {
           orders = parseCafeOrder(cafeOrds);
         } else if (useMatching) {
-          matchData.value = [];
-          for (let i = 0; i < cafeOrds.length; i++) {
-            const order = cafeOrds[i];
-            const orderId = order.order_id;
-            if (existOrderIds.value.has(orderId)) continue;
-            else if (order.canceled === "T") continue;
-            else if (order.paid !== "T") continue;
-            for (let i = 0; i < order.items.length; i++) {
-              const item = order.items[i];
-              const inputProdName: TryStr =
-                item.product_name ?? item.product_name_default;
-              const orderCnt: TryNum = item.quantity;
-              const prodId: TryStr = token.mallId + item.product_code;
-              const garment = userProd.value.find(
-                (x) => x.cafeProdId && x.cafeProdId === prodId
-              );
-              const missing = garment === null || garment === undefined;
-              matchData.value.push({
-                service: "CAFE",
-                orderCnt: orderCnt ?? 1,
-                id: missing ? undefined : garment!.shopProdId,
-                inputId: prodId!,
-                color: missing ? undefined : garment!.color,
-                size: missing ? undefined : garment!.size,
-                prodName: missing ? undefined : garment!.prodName,
-                inputProdName: inputProdName!,
-                optionValue: item.option_value,
-                orderId,
-              });
-            }
-          }
+          matchData.value = matchCafeOrder(
+            cafeOrds,
+            token,
+            existOrderIds.value,
+            userProd.value
+          );
         }
         if ((!orders || orders.length < 1) && matchData.value.length < 1) {
           msg.error(`주문이 없습니다~`);
@@ -171,31 +151,15 @@ async function onGetOrder(useMatching = true, useMapping = true) {
     }
   }
 }
-async function saveMatch() {
-  const orders: GarmentOrder[] = [];
-  for (let i = 0; i < matchData.value.length; i++) {
-    const data = matchData.value[i];
-    if (!data.id) continue;
-    const g = userProd.value.find((x) => x.shopProdId === data.id);
-    if (!g) return msg.error("소매처 상품이 없습ㄴ디ㅏ.");
-    const vendorProd = vendorStore.vendorUserGarments.find(
-      (x) => x.vendorProdId === g?.vendorProdId
-    );
-    if (!vendorProd) return msg.error("도매처 상품이 없습니다.");
-    orders.push(
-      GarmentOrder.fromProd(g, [data.orderId], data.orderCnt, vendorProd)
-    );
-  }
-  ORDER_GARMENT_DB.batchCreate(uid.value, orders)
-    .then(() => {
-      orders?.forEach((ord) => {
-        ord.orderIds.forEach((id) => existOrderIds.value.add(id));
-      });
-      msg.success(`${orders?.length} 주문 건 성공`);
-    })
-    .finally(() => {
-      matchData.value = [];
-    });
+async function onSaveMatch() {
+  await saveMatch(
+    matchData.value,
+    userProd.value,
+    vendorStore.vendorUserGarments,
+    uid.value,
+    existOrderIds
+  );
+  matchData.value = [];
 }
 </script>
 
@@ -220,10 +184,10 @@ async function saveMatch() {
 
         <n-space>
           <n-button @click="() => onGetOrder(false, true)">
-            활성 서비스 매핑 취합
+            매핑 취합
           </n-button>
           <n-button @click="() => onGetOrder(true, false)">
-            활성 서비스 수동 취합
+            수동 매칭 취합
           </n-button>
           <n-popover trigger="click">
             <template #trigger>
@@ -261,7 +225,7 @@ async function saveMatch() {
       />
       <template #action>
         <n-space justify="end">
-          <n-button @click="saveMatch">주문데이터로 넘기기</n-button>
+          <n-button @click="onSaveMatch">주문데이터로 넘기기</n-button>
         </n-space>
       </template>
     </n-card>
