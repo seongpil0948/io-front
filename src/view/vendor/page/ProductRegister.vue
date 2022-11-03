@@ -26,7 +26,7 @@ const dialog = useDialog();
 const formRef = ref<FormInst | null>(null);
 const auth = useAuthStore();
 const router = useRouter();
-
+const vendorProdId = uuidv4();
 const prodModel = ref({
   part: PART.TOP,
   ctgr: getCtgrOpts(PART.TOP)[0].value,
@@ -112,7 +112,7 @@ async function onRegister() {
               color,
               info,
               vendorId: auth.currUser.userInfo.userId,
-              vendorProdId: uuidv4(),
+              vendorProdId: vendorProdId,
               stockCnt: stockCnts.value![size][color],
             })
           )
@@ -281,6 +281,7 @@ const { saveEditor, clearEditor } = useEditor({
             svc="VENDOR_PRODUCT"
             :userId="auth.currUser.userInfo.userId"
             :role="auth.currUserRole"
+            :parentId="vendorProdId"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>
@@ -298,6 +299,7 @@ const { saveEditor, clearEditor } = useEditor({
             svc="VENDOR_PRODUCT"
             :userId="auth.currUser.userInfo.userId"
             :role="auth.currUserRole"
+            :parentId="vendorProdId"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>

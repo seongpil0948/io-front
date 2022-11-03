@@ -141,6 +141,7 @@ const { saveEditor, clearEditor } = useEditor({
           v-model:urls="prod.titleImgs"
           :max="1"
           svc="VENDOR_PRODUCT"
+          :parentId="prod.vendorProdId"
           :userId="auth.currUser.userInfo.userId"
           :role="auth.currUserRole"
         >
