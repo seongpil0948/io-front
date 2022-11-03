@@ -21,6 +21,9 @@ export function getUrlRef(url: string) {
   console.log("refer:", refer);
   return refer;
 }
+function getUserPath(userId: string) {
+  return `users/${userId}`;
+}
 
 export function getParentRef(p: {
   svc: STORAGE_SVC;
@@ -28,10 +31,14 @@ export function getParentRef(p: {
   parentId?: string;
 }) {
   if (p.svc === "USER") {
-    return ref(ioStorage, `userId/${p.userId}`);
+    return ref(ioStorage, getUserPath(p.userId));
   } else if (p.svc === "VENDOR_PRODUCT") {
     if (!p.parentId) throw new Error("parentId is required in getParentRef");
-    return ref(ioStorage, `${p.userId}/VENDOR_PRODUCT/${p.parentId}`);
+    // parentId: vendorProdId
+    return ref(
+      ioStorage,
+      `${getUserPath(p.userId)}/VENDOR_PRODUCT/${p.parentId}`
+    );
   } else {
     throw new Error("not matched in getParentRef");
   }
