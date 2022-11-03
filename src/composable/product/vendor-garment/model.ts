@@ -106,7 +106,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     };
   }
 }
-const defaultImgs = ["/img/no_image.jpeg"];
+const defaultImgs = ["/img/no_image.png"];
 function loadImgs(imgs: any) {
   if (!Array.isArray(imgs) || imgs.length < 1) {
     return defaultImgs;
