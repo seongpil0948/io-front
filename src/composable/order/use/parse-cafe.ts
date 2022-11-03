@@ -3,7 +3,7 @@ import {
   useShopUserGarments,
   Mapper,
   garmentOrderFromCondi,
-  CafeOrder,
+  AnyOrder,
   synonymFilter,
   TryNum,
   TryStr,
@@ -18,7 +18,7 @@ import { useMessage } from "naive-ui";
 import { Ref, ref } from "vue";
 
 export function matchCafeOrder(
-  cafeOrds: CafeOrder[],
+  cafeOrds: AnyOrder[],
   token: ApiToken,
   existOrderIds: Set<string>,
   userProd: ShopUserGarment[]
@@ -67,7 +67,7 @@ export function useMappingOrderCafe(
   const { userProd } = useShopUserGarments(userId, conditions);
   const msg = useMessage();
 
-  function parseCafeOrder(cafeOrders: CafeOrder[]) {
+  function parseCafeOrder(cafeOrders: AnyOrder[]) {
     conditions.value = [];
     const reporter = [] as any[];
     if (!mapper.value) return;
@@ -101,7 +101,7 @@ export function useMappingOrderCafe(
 }
 
 function mapCafeOrder(
-  order: CafeOrder,
+  order: AnyOrder,
   mapper: Mapper,
   existIds: Set<string>
 ): GarmentOrderCondi[] {

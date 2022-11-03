@@ -14,7 +14,7 @@ export function getMatchCols(onClickId: (row: MatchGarment) => Promise<void>) {
       key: "orderCnt",
     },
     {
-      title: "매칭된ID",
+      title: "매칭",
       key: "id",
       render: (row: MatchGarment) =>
         h(

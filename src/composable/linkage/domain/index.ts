@@ -11,17 +11,19 @@ export const API_SERVICE_EX: { [key in API_SERVICE_EX]: API_SERVICE_EX } =
 
 export interface ApiTokenCrt {
   dbId: string;
-  clientId: string;
+  clientId?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  expireAt: Date;
-  refreshExpireAt: Date;
-  mallId: string;
-  scopes: string[];
+  expireAt?: Date;
+  refreshExpireAt?: Date;
+  mallId?: string;
+  scopes?: string[];
   service: API_SERVICE_EX;
-  serviceId?: string;
   shopNo?: string;
   userId: string;
+  alias: string;
+  accessKey?: string;
+  secretKey?: string;
 }
 
 export interface LinkageDB {

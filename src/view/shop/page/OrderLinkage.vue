@@ -23,6 +23,7 @@ import { useMessage, NButton } from "naive-ui";
 import { onBeforeUnmount, computed, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { storeToRefs } from "pinia";
+import { matchZigzagOrder } from "@/composable/order/use/parse-zigzag";
 
 const msg = useMessage();
 const log = useLogger();
@@ -77,7 +78,14 @@ async function onClickId(row: MatchGarment) {
   selectFunc.value = async (s) => {
     const g = ShopGarment.fromJson(s);
     if (g) {
-      g.cafeProdId = row.inputId;
+      if (row.service === "CAFE") {
+        g.cafeProdId = row.inputId;
+      } else if (row.service === "ZIGZAG") {
+        g.zigzagProdId = row.inputId;
+      } else {
+        return log.error(`not matched api service: ${row.service}`);
+      }
+
       g.update().then(() => {
         row.id = g.shopProdId;
         row.color = g.color;
@@ -111,7 +119,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
           endDate.value,
           token.dbId,
           auth.currUser.userInfo.userId,
-          token.mallId
+          token.mallId!
         );
         let orders: GarmentOrder[] | undefined = undefined;
         if (useMapping) {
@@ -142,6 +150,11 @@ async function onGetOrder(useMatching = true, useMapping = true) {
               log.error(uid.value, message);
             });
         }
+      } else if (token.service === "ZIGZAG") {
+        // FIXME
+        matchData.value.push(
+          ...matchZigzagOrder([], existOrderIds.value, "", "", userProd.value)
+        );
       }
     } catch (err) {
       console.error(err);
@@ -198,6 +211,12 @@ async function onSaveMatch() {
               <n-input v-model:value="mallId" />
               <n-button @click="goAuthorizeCafe">연동하기</n-button>
             </n-space>
+          </n-popover>
+          <n-popover trigger="click">
+            <template #trigger>
+              <n-button> 카페24 연동 </n-button>
+            </template>
+            <zigzag-register-api-form />
           </n-popover>
         </n-space>
       </n-space>
