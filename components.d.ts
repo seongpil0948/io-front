@@ -186,5 +186,6 @@ declare module '@vue/runtime-core' {
     WorkerInfoForm: typeof import('./src/component/form/WorkerInfoForm.vue')['default']
     WorkerRegister: typeof import('./src/view/uncle/page/WorkerRegister.vue')['default']
     YesOrNoRadio: typeof import('./src/component/input/checker/YesOrNoRadio.vue')['default']
+    ZigzagRegisterApiForm: typeof import('./src/component/form/ZigzagRegisterApiForm.vue')['default']
   }
 }

@@ -214,7 +214,7 @@ async function onSaveMatch() {
           </n-popover>
           <n-popover trigger="click">
             <template #trigger>
-              <n-button> 카페24 연동 </n-button>
+              <n-button> 지그재그 연동 </n-button>
             </template>
             <zigzag-register-api-form />
           </n-popover>

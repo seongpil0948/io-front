@@ -10,6 +10,7 @@ import {
   query,
   where,
   deleteDoc,
+  getCountFromServer,
 } from "@firebase/firestore";
 import { ref } from "vue";
 
@@ -57,6 +58,14 @@ export const VendorGarmentFB: VendorGarmentDB = {
     const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
       VendorGarment.fireConverter()
     );
+    const query_ = query(
+      getIoCollection({ c: "SHOP_PROD" }),
+      where("vendorProdId", "==", prodId)
+    );
+    // https://firebase.google.com/docs/firestore/query-data/aggregation-queries
+    const snapshot = await getCountFromServer(query_);
+    const cnt = snapshot.data().count;
+    if (cnt > 0) throw new Error("소매처와 거래중인 상품입니다.");
     await deleteDoc(doc(c, prodId));
   },
 };
