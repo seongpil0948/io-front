@@ -5,7 +5,13 @@ import { AddCircleOutline } from "@vicons/ionicons5";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "vue-router";
 import { useLogger } from "vue-logger-plugin";
-import { GARMENT_SIZE, GENDER, PART, VendorGarment } from "@/composable";
+import {
+  GARMENT_SIZE,
+  GENDER,
+  PART,
+  useBatchVendorProd,
+  VendorGarment,
+} from "@/composable";
 import {
   getCtgrOpts,
   getSizeOpts,
@@ -151,9 +157,27 @@ const { saveEditor, clearEditor } = useEditor({
   elementId: "io-editor",
   placeholder: "상품 정보 입력",
 });
+const { fileModel, excelInputRef, onBtnClick } = useBatchVendorProd();
+
+function handleFileChange(evt: Event) {
+  const element = evt.currentTarget as HTMLInputElement;
+  fileModel.value = element.files;
+}
 </script>
 <template>
   <n-card>
+    <n-space>
+      <n-button @click="onBtnClick">
+        <input
+          ref="excelInputRef"
+          style="display: none"
+          id="customFile"
+          type="file"
+          @change="handleFileChange"
+        />
+        엑셀 일괄 등록
+      </n-button>
+    </n-space>
     <n-form
       ref="formRef"
       :model="prodModel"
