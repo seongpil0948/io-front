@@ -6,6 +6,7 @@ import {
   checkInRange,
   checkNotNull,
   okNullPassword,
+  lengthEqual,
 } from "./validators";
 
 export const nameLenRule = {
@@ -19,7 +20,15 @@ export const strLenRule = (len: number) => {
     validator: (rule: FormRules, value: string) => lenValidator(value, len),
     required: true,
     trigger: ["blur", "input"],
-    message: "필수 입력 사항 입니다.",
+    message: `${len} 이상의 길이여야 합니다.`,
+  };
+};
+export const strLenEqualRule = (len: number) => {
+  return {
+    validator: (rule: FormRules, value: string) => lengthEqual(value, len),
+    required: true,
+    trigger: ["blur", "input"],
+    message: `${len} 길이여야 합니다.`,
   };
 };
 export const pwRule = {

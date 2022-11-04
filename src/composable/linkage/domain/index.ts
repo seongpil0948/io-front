@@ -32,4 +32,5 @@ export interface LinkageDB {
     unsubscribe: Unsubscribe;
   };
   deleteToken(uid: string, tokenDbId: string): Promise<void>;
+  createToken(token: ApiTokenCrt): Promise<void>;
 }

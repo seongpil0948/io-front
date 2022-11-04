@@ -51,7 +51,7 @@ export class ApiToken extends CommonField implements ApiTokenCrt {
           service: data.service,
           shopNo: data.shopNo,
           userId: data.userId,
-          alias: data.alias,
+          alias: data.alias ?? "",
           accessKey: data.accessKey,
         })
       : null;

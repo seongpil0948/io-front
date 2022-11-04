@@ -1,5 +1,5 @@
 import _axios from "@/plugin/axios";
-export type AnyOrder = { [k: string]: any };
+import { AnyOrder } from ".";
 export async function getCafeOrders(
   startDate: string,
   endDate: string,
@@ -14,7 +14,6 @@ export async function getCafeOrders(
   formData.set("endDate", endDate);
   formData.set("tokenId", tokenId);
   const res = await _axios.post(`/linkage/getCafeOrders`, formData);
-  console.log("getCafeOrdersRes: ", res);
   if (
     res.status === 200 &&
     res.data &&

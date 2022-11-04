@@ -16,6 +16,7 @@ import {
   matchCafeOrder,
   useMappingOrderCafe,
   saveMatch,
+  getZigzagOrders,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
 import { dateRanges } from "@/util";
@@ -33,6 +34,10 @@ const uid = computed(() => auth.currUser.userInfo.userId);
 const { tokens, unsubscribe } = LINKAGE_DB.getTokensByIdListen(uid.value);
 onBeforeUnmount(() => unsubscribe());
 // cafe - order module
+const showRegitZig = ref(false);
+function onZigSubmit() {
+  showRegitZig.value = false;
+}
 const timeFormat = "yyyy-MM-dd";
 const {
   dateRangeTime: range,
@@ -118,7 +123,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
           startDate.value,
           endDate.value,
           token.dbId,
-          auth.currUser.userInfo.userId,
+          uid.value,
           token.mallId!
         );
         let orders: GarmentOrder[] | undefined = undefined;
@@ -133,7 +138,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
           );
         }
         if ((!orders || orders.length < 1) && matchData.value.length < 1) {
-          msg.error(`주문이 없습니다~`);
+          continue;
         } else if (orders) {
           ORDER_GARMENT_DB.batchCreate(uid.value, orders)
             .then(() => {
@@ -151,15 +156,29 @@ async function onGetOrder(useMatching = true, useMapping = true) {
             });
         }
       } else if (token.service === "ZIGZAG") {
-        // FIXME
-        matchData.value.push(
-          ...matchZigzagOrder([], existOrderIds.value, "", "", userProd.value)
+        const zigOrds = await getZigzagOrders(
+          startDate.value,
+          endDate.value,
+          token.dbId,
+          uid.value
         );
+        if (useMatching) {
+          matchData.value.push(
+            ...matchZigzagOrder(
+              zigOrds,
+              existOrderIds.value,
+              token.alias,
+              userProd.value
+            )
+          );
+        }
       }
     } catch (err) {
       console.error(err);
       return msg.error(
-        `${token.service} ${token.mallId}  주문을 받아오는 과정에서 실패하였습니다. 상세: ${err}`
+        `${token.service} ${
+          token.alias ?? token.mallId
+        }  주문을 받아오는 과정에서 실패하였습니다. 상세: ${err}`
       );
     }
   }
@@ -182,7 +201,7 @@ async function onSaveMatch() {
       <n-space vertical>
         <n-space>
           <n-h5 style="text-align: start"
-            >주문내역 일자 범위선택 (3개월이내)</n-h5
+            >주문내역 일자 범위선택 (1개월이내)</n-h5
           >
           <n-date-picker
             v-model:value="range"
@@ -212,16 +231,16 @@ async function onSaveMatch() {
               <n-button @click="goAuthorizeCafe">연동하기</n-button>
             </n-space>
           </n-popover>
-          <n-popover trigger="click">
+          <n-popover v-model:show="showRegitZig" trigger="click">
             <template #trigger>
               <n-button> 지그재그 연동 </n-button>
             </template>
-            <zigzag-register-api-form />
+            <zigzag-register-api-form @submitToken="onZigSubmit" />
           </n-popover>
         </n-space>
       </n-space>
     </n-card>
-    <n-card title="수동매칭관리">
+    <n-card title="수동매칭관리" v-if="matchData.length > 0">
       <n-space style="margin-bottom: 10px" justify="end">
         <n-button v-if="filterIsNull" @click="() => switchFilter(false)"
           >전체보기</n-button
