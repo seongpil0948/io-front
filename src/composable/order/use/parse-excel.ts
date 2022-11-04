@@ -6,6 +6,7 @@ import {
   garmentOrderFromCondi,
   MapKey,
   synonymFilter,
+  catchExcelError,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { useVendorsStore } from "@/store";
@@ -71,13 +72,7 @@ export function useMappingOrderExcel(
             );
           }
         } catch (err) {
-          let m =
-            errMsg + (err instanceof Error ? err.message : JSON.stringify(err));
-          if (m.includes("password-protected")) {
-            m = errMsg + "엑셀파일에 비밀번호가 있습니다. ";
-          }
-          msg.error(m, makeMsgOpt());
-          logger.error(userId, m);
+          catchExcelError({ err });
         }
       }
       files = [];

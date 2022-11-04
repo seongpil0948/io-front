@@ -178,7 +178,7 @@ export function useApproveOrder(p: ApproveParam) {
         const message = `주문승인 실패 ${
           err instanceof Error ? err.message : JSON.stringify(err)
         }`;
-        msg.success(message, makeMsgOpt());
+        msg.error(message, makeMsgOpt());
         logger.error(p.vendorId, message);
       })
       .finally(() => {
