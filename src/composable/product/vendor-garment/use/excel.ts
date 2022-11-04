@@ -71,7 +71,8 @@ export function useBatchVendorProd() {
     });
 
     console.log("vendorGarments:", vendorGarments);
-    return vendorGarments.splice(-1);
+    vendorGarments.pop();
+    return vendorGarments;
   }
 
   function onBtnClick() {
