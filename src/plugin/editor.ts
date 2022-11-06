@@ -12,7 +12,7 @@ import List from "@editorjs/list";
 import Table from "@editorjs/table";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import YoutubeEmbed from "editorjs-youtube-embed";
+import Embed from "@editorjs/embed";
 
 export interface IoEditorParam {
   readOnly: boolean;
@@ -61,7 +61,16 @@ export function getEditor(c: IoEditorParam) {
       list: List,
       table: Table,
       header: Header,
-      youtubeEmbed: YoutubeEmbed,
+      embed: {
+        class: Embed,
+        inlineToolbar: true,
+        // config: {
+        //   services: {
+        //     youtube: true,
+        //     coub: true,
+        //   },
+        // },
+      },
     },
   });
   return _editor;
