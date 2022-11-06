@@ -78,7 +78,12 @@ function updateOrderId(arr: string[]) {
 }
 </script>
 <template>
-  <n-space vertical align="center" item-style="width: 100%">
+  <n-space
+    vertical
+    align="center"
+    item-style="width: 100%;"
+    style="overflow: auto"
+  >
     <n-card>
       <template #header>
         <n-h4 v-if="!isMobile()">
@@ -116,7 +121,7 @@ function updateOrderId(arr: string[]) {
         }"
         :bordered="false"
         :table-layout="'fixed'"
-        :scroll-x="1500"
+        :scroll-x="800"
       />
     </n-card>
     <n-card style="width: 100%">

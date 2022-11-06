@@ -167,7 +167,7 @@ const mobileOpts = [
       <n-space
         vertical
         justify="space-between"
-        style="padding: 2%; width: 100%"
+        style="padding: 2%; width: 100%; overflow: auto"
       >
         <router-view />
         <io-footer />

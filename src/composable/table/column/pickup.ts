@@ -154,10 +154,13 @@ export const pickReqDetailCols = computed(() => {
           ? row.vendorGarment.companyInfo.shipLocate.detailLocate
           : null,
     },
-
+    {
+      title: "상품명",
+      key: "vendorGarment.vendorProdName",
+    },
     {
       title: "픽업수량",
-      key: "activeCnt",
+      key: "orderCnt",
     },
   ] as DataTableColumns<ProdOrderCombined>;
   return cols.map((x: any) => {

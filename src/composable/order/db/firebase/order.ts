@@ -683,21 +683,25 @@ async function stateModify(
       const o = onOrder ? await onOrder(orders[i]) : orders[i];
       if (!shopIds.includes(o.shopId)) shopIds.push(o.shopId);
       for (let j = 0; j < o.items.length; j++) {
-        if (
-          !beforeState ||
-          (prodOrderIds.includes(o.items[j].id) &&
-            beforeState.includes(o.items[j].state))
+        if (!beforeState && !prodOrderIds.includes(o.items[j].id)) continue;
+        else if (
+          beforeState &&
+          (!beforeState.includes(o.items[j].state) ||
+            !prodOrderIds.includes(o.items[j].id))
         ) {
-          const item = onProdOrder ? await onProdOrder(o.items[j]) : o.items[j];
-          o.setState(item.id, afterState);
-          if (setTotalAmount) {
-            o.setTotalAmount();
-          }
-          transaction.update(
-            doc(getOrdRef(o.shopId), o.dbId),
-            converterGarment.toFirestore(o)
-          );
+          continue;
         }
+        console.log("passed state modify item: ", o.items[j]);
+
+        const item = onProdOrder ? await onProdOrder(o.items[j]) : o.items[j];
+        o.setState(item.id, afterState);
+        if (setTotalAmount) {
+          o.setTotalAmount();
+        }
+        transaction.update(
+          doc(getOrdRef(o.shopId), o.dbId),
+          converterGarment.toFirestore(o)
+        );
       }
     }
   });

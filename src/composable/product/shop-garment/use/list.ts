@@ -102,6 +102,8 @@ export function useShopGarmentTable(briefly: boolean) {
     columns.value.forEach((x) => {
       if (["vendorProdName", "prodName"].includes(x.key.toString())) {
         x.width = 150;
+      } else {
+        x.minWidth = 100;
       }
     });
     return !briefly
