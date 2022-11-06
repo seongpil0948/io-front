@@ -10,6 +10,7 @@ import {
   GENDER,
   PART,
   useBatchVendorProd,
+  useVendorProdCols,
   VendorGarment,
 } from "@/composable";
 import {
@@ -157,7 +158,17 @@ const { saveEditor, clearEditor } = useEditor({
   elementId: "io-editor",
   placeholder: "상품 정보 입력",
 });
-const { fileModel, excelInputRef, onBtnClick } = useBatchVendorProd();
+const {
+  fileModel,
+  excelInputRef,
+  onBtnClick,
+  openPreviewModal,
+  parsedGarments,
+  onPreviewConfirm,
+  onPreviewCancel,
+} = useBatchVendorProd();
+
+const { columns } = useVendorProdCols(false);
 
 function handleFileChange(evt: Event) {
   const element = evt.currentTarget as HTMLInputElement;
@@ -165,8 +176,35 @@ function handleFileChange(evt: Event) {
 }
 </script>
 <template>
-  <n-card>
-    <n-space>
+  <n-modal
+    :show="openPreviewModal"
+    :on-update:show="onPreviewCancel"
+    :mask-closable="false"
+    close-on-esc
+    size="huge"
+    preset="card"
+    style="margin: 0 10%"
+  >
+    <template #header>
+      엑셀 파싱 결과 ({{ parsedGarments.length }} 건)
+    </template>
+    <template #header-extra>
+      <n-button @click="onPreviewConfirm">저장</n-button>
+    </template>
+
+    <n-data-table
+      :scroll-x="1200"
+      :columns="columns"
+      :data="parsedGarments"
+      :pagination="{
+        'show-size-picker': true,
+        'page-sizes': [5, 10, 25, 50, 100],
+      }"
+      :bordered="false"
+    />
+  </n-modal>
+  <n-card title="도매 상품 등록">
+    <template #header-extra>
       <n-button @click="onBtnClick">
         <input
           ref="excelInputRef"
@@ -177,7 +215,8 @@ function handleFileChange(evt: Event) {
         />
         엑셀 일괄 등록
       </n-button>
-    </n-space>
+    </template>
+
     <n-form
       ref="formRef"
       :model="prodModel"

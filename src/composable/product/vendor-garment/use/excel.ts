@@ -9,25 +9,46 @@ import { useAuthStore } from "@/store";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { ref, watch } from "vue";
 import { v4 as uuidv4 } from "uuid";
+import { useRouter } from "vue-router";
+
 export function useBatchVendorProd() {
   const fileModel = ref<FileList | null>();
   const excelInputRef = ref<null | HTMLInputElement>(null);
   const authStore = useAuthStore();
   const u = authStore.currUser;
   const msg = useMessage();
+  const router = useRouter();
+
+  const openPreviewModal = ref(false);
+  const parsedGarments = ref<VendorGarment[]>([]);
+  async function onPreviewConfirm() {
+    if (parsedGarments.value.length < 1) {
+      return msg.error("상품이 없습니다.");
+    }
+    await VENDOR_GARMENT_DB.batchCreate(parsedGarments.value);
+    msg.success(`${parsedGarments.value.length}건 추가완료`);
+    parsedGarments.value = [];
+    openPreviewModal.value = false;
+    router.replace({ name: "VendorProductList" });
+  }
+  async function onPreviewCancel() {
+    parsedGarments.value = [];
+    openPreviewModal.value = false;
+  }
+
   watch(
     () => fileModel.value,
     async (files) => {
       try {
-        console.log("fileModel in  watch", files);
         if (files && files.length > 0) {
           const file = files[0];
           const inputDf = await readExcel(file);
           if (inputDf) {
-            console.log("inputDf: ", inputDf);
-            const vendorGarments = parseDf(inputDf as DataFrame);
-            await VENDOR_GARMENT_DB.batchCreate(vendorGarments);
-            msg.success(`${vendorGarments.length}건 추가완료`);
+            parsedGarments.value = parseDf(inputDf as DataFrame);
+            if (parsedGarments.value.length < 1) {
+              return msg.warning("상품이 없습니다.");
+            }
+            openPreviewModal.value = true;
           }
         }
       } catch (err) {
@@ -81,5 +102,13 @@ export function useBatchVendorProd() {
     }
   }
 
-  return { fileModel, excelInputRef, onBtnClick };
+  return {
+    fileModel,
+    excelInputRef,
+    onBtnClick,
+    openPreviewModal,
+    parsedGarments,
+    onPreviewConfirm,
+    onPreviewCancel,
+  };
 }
