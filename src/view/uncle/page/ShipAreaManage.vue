@@ -1,9 +1,12 @@
 <script setup lang="ts">
 // import { useAuthStore } from "@/store";
+import { useAuthStore } from "@/store";
 import { ref } from "vue";
 // const auth = useAuthStore();
 // const u = auth.currUser;
 const currTab = ref<string>("SHIP_AREA");
+const authStore = useAuthStore();
+const u = authStore.currUser;
 </script>
 <template>
   <n-card>
@@ -31,10 +34,10 @@ const currTab = ref<string>("SHIP_AREA");
         >
           <n-space vertical>
             <n-h2>사이즈별 비용</n-h2>
-            <ship-unit-list unitKey="amountBySize" />
+            <ship-unit-list :u="u" :edit="true" unitKey="amountBySize" />
             <div style="height: 1vh"></div>
             <n-h2>중량별 비용</n-h2>
-            <ship-unit-list unitKey="amountByWeight" />
+            <ship-unit-list :u="u" :edit="true" unitKey="amountByWeight" />
           </n-space>
         </n-tab-pane>
       </n-tabs>

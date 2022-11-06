@@ -78,7 +78,7 @@ function updateOrderId(arr: string[]) {
 }
 </script>
 <template>
-  <n-space vertical align="center" item-style="width: 80%">
+  <n-space vertical align="center" item-style="width: 100%">
     <n-card>
       <template #header>
         <n-h4 v-if="!isMobile()">
