@@ -2,14 +2,18 @@
 # https://github.com/firebase/firebase-tools
 
 name: Deploy to Firebase Hosting on DEV PR
+run-name: ${{ github.actor }} has request DEV PR
 "on":
   pull_request:
+    types: [opened, reopened]
     branches:
       - dev
       - development
+      - dev/**
+
 jobs:
   build_and_preview:
-    if: "${{ github.event.pull_request.head.repo.full_name == github.repository }}"
+    if: "${{ github.event.pull_request.head.repo.full_name == github.repository }} && ${{startsWith(github.head_ref, 'dev')}}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
