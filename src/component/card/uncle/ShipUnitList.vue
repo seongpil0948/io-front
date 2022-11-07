@@ -27,9 +27,13 @@ const { shipUnitCols } = useShipUnitCols(
   u.value
 );
 const data = computed(() =>
-  Object.keys(target).map((k) => {
-    return { unit: k, amount: target[k] };
-  })
+  Object.keys(target)
+    .map((k) => {
+      return { unit: k, amount: target[k] };
+    })
+    .sort(function (a, b) {
+      return a.amount - b.amount;
+    })
 );
 
 async function onAdd() {

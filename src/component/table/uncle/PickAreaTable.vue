@@ -2,7 +2,7 @@
 import { LocateAmount, usePickArea, usePickAreaCols } from "@/composable";
 import { useAuthStore } from "@/store";
 import { useMessage } from "naive-ui";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 const msg = useMessage();
 const auth = useAuthStore();
@@ -32,6 +32,11 @@ async function onClickAdd() {
   }
 }
 const { pickAreaCols } = usePickAreaCols();
+const data = computed(() =>
+  (u.uncleInfo ? u.uncleInfo.pickupLocates : []).sort(function (a, b) {
+    return a.amount - b.amount;
+  })
+);
 </script>
 <template>
   <n-space style="margin-top: 2.5%; margin-bottom: 2.5%">
@@ -46,7 +51,7 @@ const { pickAreaCols } = usePickAreaCols();
   </n-space>
   <n-data-table
     :columns="pickAreaCols"
-    :data="u.uncleInfo ? u.uncleInfo.pickupLocates : []"
+    :data="data"
     :pagination="{ pageSize: 5 }"
   />
 </template>
