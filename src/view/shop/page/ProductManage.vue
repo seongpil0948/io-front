@@ -7,7 +7,7 @@ import {
 } from "@/composable";
 import { useAuthStore, useVendorsStore } from "@/store";
 import { makeMsgOpt, isMobile } from "@/util";
-import { NButton, useMessage } from "naive-ui";
+import { NButton, useMessage, useDialog } from "naive-ui";
 import { v4 as uuidv4 } from "uuid";
 import { computed } from "vue";
 import { useLogger } from "vue-logger-plugin";
@@ -17,14 +17,18 @@ const msg = useMessage();
 
 const log = useLogger();
 const vendorStore = useVendorsStore();
-const { tableCols, mapper, checkedKeys, userProd, popVal, selectedRow } =
-  useShopGarmentTable(false);
+const {
+  tableCols,
+  mapper,
+  checkedKeys,
+  userProd,
+  popVal,
+  selectedRow,
+  deleteGarments,
+} = useShopGarmentTable(false);
+
 async function onCheckedDelete() {
-  await SHOP_GARMENT_DB.deleteShopGarments(
-    authStore.currUser.userInfo.userId,
-    checkedKeys.value
-  );
-  msg.success("삭제 완료", makeMsgOpt());
+  await deleteGarments(authStore.currUser.userInfo.userId, checkedKeys.value);
 }
 const cols = computed(() =>
   tableCols.value.filter((x) => (x as any).key !== "select")
