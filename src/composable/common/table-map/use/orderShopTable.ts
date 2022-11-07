@@ -60,6 +60,7 @@ export function useOrderTable(d: orderTableParam) {
     });
   byVendorColKeys.push({
     key: "id",
+    colRender: () => h(NText, {}, { default: () => "주문내역" }),
     cellRender: (row: ProdOrderByVendor) =>
       h(
         NButton,

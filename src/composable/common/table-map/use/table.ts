@@ -37,10 +37,11 @@ export function useTable<T extends MapperFields>(
       const inner: IoColOptInner<T> = {
         key: opt.key,
         cellRender: opt.cellRender,
+        colRender: opt.colRender,
       };
 
       if (opt.titleMapping) {
-        inner.colRendor = () =>
+        inner.colRender = () =>
           h(
             MapperSaver,
             {
@@ -179,7 +180,7 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
     if (!opt.key) throw Error("Column Key must not Null!!!!");
     const col: TableBaseColumn<T> = {
       key: opt.key as ColumnKey,
-      title: opt.colRendor ?? colKoMapper[opt.key] ?? opt.key,
+      title: opt.colRender ?? colKoMapper[opt.key] ?? opt.key,
     };
     if (opt.key === "allowPending") {
       col.filterOptions = [
