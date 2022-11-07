@@ -23,7 +23,8 @@ async function onClickAdd() {
     amount: selectedArea.value.amount,
   };
   if (u.uncleInfo!.pickupLocates.some((x) => x.locate.code === locate.code)) {
-    msg.error("이미 추가한 지역입니다.");
+    console.log(`${locate.alias}는 이미 추가한 지역입니다.`, locate);
+    msg.error(`${locate.alias}는 이미 추가한 지역입니다.`);
   } else {
     u.uncleInfo!.pickupLocates.push(lAmount);
     u.update()
