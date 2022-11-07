@@ -10,7 +10,7 @@ import { useShopOrderStore } from "@/store";
 import { computed, h } from "vue";
 
 // const u = auth.currUser;
-const inStates: ORDER_STATE[] = ["BEFORE_PAYMENT"];
+const inStates: ORDER_STATE[] = ["BEFORE_PAYMENT", "BEFORE_APPROVE"];
 const shopOrderStore = useShopOrderStore();
 
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
@@ -28,6 +28,7 @@ const {
   orders,
   updateOrderCnt: true,
   useChecker: true,
+  useState: true,
 });
 
 function refreshSelected() {

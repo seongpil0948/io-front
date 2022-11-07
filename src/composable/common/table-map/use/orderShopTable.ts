@@ -1,12 +1,13 @@
 import {
   GarmentOrder,
   IoColOpt,
+  ORDER_STATE,
   ProdOrderByVendor,
   ProdOrderCombined,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { DataTableColumns, NButton, NImage, useMessage } from "naive-ui";
+import { DataTableColumns, NButton, NImage, useMessage, NText } from "naive-ui";
 import { computed, h, Ref, ref } from "vue";
 import { useTable } from "./table";
 import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
@@ -18,6 +19,7 @@ interface orderTableParam {
   updateOrderCnt: boolean;
   useChecker?: boolean;
   useAccountStr?: boolean;
+  useState?: boolean;
 }
 export function useOrderTable(d: orderTableParam) {
   const auth = useAuthStore();
@@ -138,8 +140,21 @@ export function useOrderTable(d: orderTableParam) {
         }
       });
     }
+    if (d.useState) {
+      columns.value.push({
+        key: "state",
+        sorter: "default",
+        title: "주문상태",
+        render: (row) =>
+          h(
+            NText,
+            {},
+            { default: () => ORDER_STATE[row.state as ORDER_STATE] }
+          ),
+      });
+    }
 
-    return columns.value.length > 0
+    return columns.value.length > 1
       ? [
           columns.value[0],
           {
@@ -170,6 +185,7 @@ export function useOrderTable(d: orderTableParam) {
                 {}
               ),
           },
+
           ...columns.value.slice(1),
         ]
       : [];
