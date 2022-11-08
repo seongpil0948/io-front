@@ -16,13 +16,13 @@ export function extractGarmentOrd(
       const sId = order.items[i].shopProdId;
       const shopGarment = shopGarments.find((j) => j.shopProdId === sId);
       if (!shopGarment) {
-        console.warn(`not matched order(${order.dbId}) shop garment(${sId})`);
+        // console.warn(`not matched order(${order.dbId}) shop garment(${sId})`);
         continue;
       }
       const vId = order.items[i].vendorProdId;
       const vendorGarment = vendorGarments.find((k) => k.vendorProdId === vId);
       if (!vendorGarment) {
-        console.warn(`not matched order(${order.dbId}) vendor garment(${vId})`);
+        // console.warn(`not matched order(${order.dbId}) vendor garment(${vId})`);
         continue;
       }
       const item: ProdOrderCombined = Object.assign({}, order.items[i], {

@@ -116,7 +116,6 @@ export class IoUser extends CommonField implements IoUserCRT {
     })
       .then((token) => {
         if (token) {
-          console.log("get fcm token: ", token);
           return new FcmToken({ createdAt: new Date(), token });
         } else {
           const msg = "FCM 토큰흭득 실패. Request permission to generate one.";

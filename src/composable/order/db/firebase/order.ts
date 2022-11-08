@@ -691,14 +691,13 @@ async function stateModify(
         ) {
           continue;
         }
-        console.log("passed state modify item: ", o.items[j]);
 
         const item = onProdOrder ? await onProdOrder(o.items[j]) : o.items[j];
         o.setState(item.id, afterState);
         if (setTotalAmount) {
           o.setTotalAmount();
         }
-        transaction.update(
+        transaction.set(
           doc(getOrdRef(o.shopId), o.dbId),
           converterGarment.toFirestore(o)
         );
@@ -734,7 +733,8 @@ async function mergeOrders(state: ORDER_STATE, shopId: string) {
             if (existItem.state !== state) continue;
             else if (
               item.vendorProdId === existItem.vendorProdId &&
-              item.shopProdId === existItem.shopProdId
+              item.shopProdId === existItem.shopProdId &&
+              item.orderType !== existItem.orderType
             ) {
               exist = o;
               // 이로직을 분리하여, 모든 주문건의 상태 변경 프로세스에 대하여 적용가능하도록

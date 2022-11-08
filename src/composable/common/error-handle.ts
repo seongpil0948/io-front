@@ -8,10 +8,14 @@ interface CatchParam {
   msg?: MessageApiInjection;
   opt?: MessageOptions;
   userId?: string;
+  prefix?: string;
 }
 
 export function catchError(p: CatchParam) {
-  const message = errToStr(p.err);
+  let message = errToStr(p.err);
+  if (p.prefix) {
+    message = `${p.prefix} ${message}`;
+  }
   expressErr(message, p);
   return message;
 }
