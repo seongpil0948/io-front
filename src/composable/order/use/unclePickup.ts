@@ -74,7 +74,8 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
         return acc;
       } else {
         exist.items.push(curr);
-        exist.uncleImgs.push(imageById.value[curr.uncleId!]);
+        const url = imageById.value[curr.uncleId!];
+        if (!exist.uncleImgs.includes(url)) exist.uncleImgs.push(url);
       }
 
       return acc;
