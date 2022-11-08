@@ -8,11 +8,13 @@ import {
   SHOP_GARMENT_DB,
   VendorUserGarmentCombined,
   getUserLocate,
+  ShopUserGarment,
 } from "@/composable";
-import { useAuthStore } from "@/store";
+import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { Home24Filled, Phone20Filled } from "@vicons/fluent";
 import { useEditor } from "@/plugin/editor";
+import { useLogger } from "vue-logger-plugin";
 
 const props = defineProps<{
   showAddModal: boolean;
@@ -47,16 +49,16 @@ const emits = defineEmits(["update:showAddModal"]);
 
 const auth = useAuthStore();
 const msg = useMessage();
+const shopOrdStore = useShopOrderStore();
+const vendorStore = useVendorsStore();
+const log = useLogger();
+const uid = auth.currUser.userInfo.userId;
+
 async function onSubmit() {
   let addCnt = selectedProdIds.value.length;
   for (let i = 0; i < selectedProdIds.value.length; i++) {
     const vendorProdId = selectedProdIds.value[i];
-    if (
-      await SHOP_GARMENT_DB.shopGarmentExist(
-        vendorProdId,
-        auth.currUser.userInfo.userId
-      )
-    ) {
+    if (await SHOP_GARMENT_DB.shopGarmentExist(vendorProdId, uid)) {
       msg.error(
         `컬러 ${optById[vendorProdId].color}, 사이즈: ${optById[vendorProdId].size} 상품은 이미 추가 되었습니다.`,
         makeMsgOpt()
@@ -69,7 +71,7 @@ async function onSubmit() {
       vendorId: prod.value.vendorId,
       vendorProdId,
       shopProdId: uuidv4(),
-      shopId: auth.currUser.userInfo.userId,
+      shopId: uid,
       prodPrice: prod.value.vendorPrice,
       prodName: prod.value.vendorProdName,
       info: prod.value.info,
@@ -78,6 +80,33 @@ async function onSubmit() {
       color: optById[vendorProdId].color,
     });
     await shopProd.update();
+    if (
+      !shopOrdStore.shopGarments.find(
+        (x) => x.shopProdId == shopProd.shopProdId
+      )
+    ) {
+      const vendorUnit = vendorStore.vendorUserGarments.find(
+        (y) => y.vendorProdId === vendorProdId
+      );
+      if (!vendorUnit) {
+        log.error(
+          uid,
+          `vendor store contain vendorProdId(${vendorProdId}) in shop add card`
+        );
+      } else {
+        const userGarment: ShopUserGarment = Object.assign(
+          {},
+          vendorUnit,
+          shopProd
+        );
+        shopOrdStore.$patch({
+          shopGarments: [
+            ...shopOrdStore.shopGarments,
+            userGarment,
+          ] as ShopUserGarment[],
+        });
+      }
+    }
   }
   msg.success(`${addCnt}개의 상품 추가완료!`);
   selectedProdIds.value = [];
