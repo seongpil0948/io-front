@@ -13,14 +13,18 @@ export function extractGarmentOrd(
   const garmentOrders: ProdOrderCombined[] = [];
   orders.forEach((order) => {
     for (let i = 0; i < order.items.length; i++) {
-      const shopGarment = shopGarments.find(
-        (j) => j.shopProdId === order.items[i].shopProdId
-      );
-      if (!shopGarment) continue;
-      const vendorGarment = vendorGarments.find(
-        (k) => k.vendorProdId === order.items[i].vendorProdId
-      );
-      if (!vendorGarment) continue;
+      const sId = order.items[i].shopProdId;
+      const shopGarment = shopGarments.find((j) => j.shopProdId === sId);
+      if (!shopGarment) {
+        console.warn(`not matched order(${order.dbId}) shop garment(${sId})`);
+        continue;
+      }
+      const vId = order.items[i].vendorProdId;
+      const vendorGarment = vendorGarments.find((k) => k.vendorProdId === vId);
+      if (!vendorGarment) {
+        console.warn(`not matched order(${order.dbId}) vendor garment(${vId})`);
+        continue;
+      }
       const item: ProdOrderCombined = Object.assign({}, order.items[i], {
         shopGarment,
         vendorGarment,

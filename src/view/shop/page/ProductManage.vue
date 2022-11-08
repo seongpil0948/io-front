@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import {
-  SHOP_GARMENT_DB,
   ORDER_GARMENT_DB,
   GarmentOrder,
   useShopGarmentTable,
 } from "@/composable";
 import { useAuthStore, useVendorsStore } from "@/store";
 import { makeMsgOpt, isMobile } from "@/util";
-import { NButton, useMessage, useDialog } from "naive-ui";
+import { NButton, useMessage } from "naive-ui";
 import { v4 as uuidv4 } from "uuid";
 import { computed } from "vue";
 import { useLogger } from "vue-logger-plugin";

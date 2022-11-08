@@ -732,7 +732,10 @@ async function mergeOrders(state: ORDER_STATE, shopId: string) {
           for (let z = 0; z < o.items.length; z++) {
             const existItem = o.items[z];
             if (existItem.state !== state) continue;
-            else if (item.vendorProdId === existItem.vendorProdId) {
+            else if (
+              item.vendorProdId === existItem.vendorProdId &&
+              item.shopProdId === existItem.shopProdId
+            ) {
               exist = o;
               // 이로직을 분리하여, 모든 주문건의 상태 변경 프로세스에 대하여 적용가능하도록
               exist.setOrderCnt(existItem.id, item.orderCnt, true);
