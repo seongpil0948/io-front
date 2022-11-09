@@ -38,11 +38,15 @@ function callCsChat() {
       justify="space-around"
     >
       <n-space align="center">
-        <logo-image @click="router.goHome(auth.currUser)" size="2.0rem" />
+        <logo-image
+          style="margin-top: 47%"
+          @click="router.goHome(auth.currUser)"
+          size="2.0rem"
+        />
         <n-h2 style="margin: auto; text-align: center"> 자주 묻는 질문 </n-h2>
       </n-space>
 
-      <n-space>
+      <n-space align="center" justify="center">
         <n-button
           v-for="ctgr in faqCtgrList"
           :key="ctgr.value"
