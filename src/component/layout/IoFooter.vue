@@ -8,6 +8,7 @@ import {
 
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { enableStoreNet, disableStoreNet } from "@/plugin/firebase/io-fire";
 
 const router = useRouter();
 const isTest = process.env.VUE_APP_IS_TEST;
@@ -56,16 +57,15 @@ function onTos() {
         </n-button>
       </n-text>
       <n-space v-if="isTest === 'true'" justify="center">
-        <n-button round type="primary" @click="toVendor">도매계정전환</n-button>
-        <n-button round type="primary" @click="toShop">소매계정전환</n-button>
-        <n-button round type="primary" @click="toUncle">엉클계정전환</n-button>
+        <n-button @click="toVendor">도매계정전환</n-button>
+        <n-button @click="toShop">소매계정전환</n-button>
+        <n-button @click="toUncle">엉클계정전환</n-button>
         <!-- <<< TEMP <<< -->
-        <n-button
-          round
-          type="primary"
-          @click="router.push({ name: 'OrderLinkage' })"
-          >주문연동</n-button
-        >
+        <n-button @click="router.push({ name: 'PlayGround' })">
+          PlayGround
+        </n-button>
+        <n-button @click="enableStoreNet">enableStoreNet</n-button>
+        <n-button @click="disableStoreNet">disableStoreNet</n-button>
       </n-space>
     </n-space>
     <n-modal

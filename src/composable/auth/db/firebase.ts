@@ -56,7 +56,7 @@ export const UserFB: UserDB = {
 
 export function _usersFromSnap(snap: QuerySnapshot<IoUser | null>): IoUser[] {
   const users: IoUser[] = [];
-
+  console.log("users snap from cache " + snap.metadata.fromCache);
   snap.docs.forEach((d) => {
     const data = d.data();
     if (data) {

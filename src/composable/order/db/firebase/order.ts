@@ -47,6 +47,7 @@ async function getOrders(constraints: QueryConstraint[]) {
       ...constraints
     )
   );
+  console.log("order snap from cache " + docs.metadata.fromCache);
   docs.forEach((doc) => {
     const data = doc.data();
     if (data) {
@@ -81,7 +82,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       ["BEFORE_PAYMENT"],
       undefined,
       async function (po) {
-        // TODO: test required
         po.actualAmount.paidDate = new Date();
         po.actualAmount.paidAmount = po.actualAmount.orderAmount;
         po.actualAmount.paid = "T";
@@ -406,6 +406,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       p.orders.value = [];
+      console.log("shop order snap from cache " + snapshot.metadata.fromCache);
       snapshot.forEach((s) => {
         const data = s.data();
         if (data) {
@@ -428,6 +429,9 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     );
     const unsubscribe = onSnapshot(orderQ, (snapshot) => {
       p.orders.value = [];
+      console.log(
+        "vendor order snap from cache " + snapshot.metadata.fromCache
+      );
       snapshot.forEach((doc) => {
         const data = doc.data();
         if (p.inStates) {
@@ -457,6 +461,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     );
     const unsubscribe = onSnapshot(orderQ, (snapshot) => {
       p.orders.value = [];
+      console.log("uncle order snap from cache " + snapshot.metadata.fromCache);
       snapshot.forEach((doc) => {
         const data = doc.data();
         if (p.inStates) {
