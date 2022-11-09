@@ -126,8 +126,8 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   );
 
   function init(uncleUserId: string) {
-    console.log(`=== init useUncleOrderStore === uncleUserId: ${uncleUserId}`);
     if (!initial || !uncleUserId || uncleUserId === uncleId.value) return;
+    console.log(`=== init useUncleOrderStore === uncleUserId: ${uncleUserId}`);
     uncleId.value = uncleUserId;
 
     const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.uncleReadListen({

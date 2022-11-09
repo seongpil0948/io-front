@@ -122,8 +122,8 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   });
   // >>> action >>>
   function init(shopUserId: string) {
-    logger.debug(`=== init shopOrderStore === shopUserId: ${shopUserId}`);
     if (!initial || !shopUserId || shopUserId === shopId.value) return;
+    logger.debug(`=== init shopOrderStore === shopUserId: ${shopUserId}`);
     shopId.value = shopUserId;
     const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.shopReadListen({
       shopId: shopId.value,

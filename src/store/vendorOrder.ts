@@ -135,10 +135,10 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
 
   // >>> action >>>
   function init(vendorUserId: string) {
+    if (!initial || !vendorUserId || vendorUserId === vendorId.value) return;
     console.log(
       `=== init useVendorOrderStore === vendorUserId: ${vendorUserId}`
     );
-    if (!initial || !vendorUserId || vendorUserId === vendorId.value) return;
     vendorId.value = vendorUserId;
 
     const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.vendorReadListen(
