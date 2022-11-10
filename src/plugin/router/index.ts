@@ -3,6 +3,8 @@ import { routes } from "./routes";
 import { useAuthStore, useCommonStore } from "@/store";
 import { logger } from "../logger";
 import { IoUser, USER_ROLE } from "@/composable";
+import { analytics } from "../firebase";
+import { logEvent } from "firebase/analytics";
 export const notAuthName = ["Login", "SignUp", "PlayGround", "OrderLinkage"];
 
 const router = createRouter({
@@ -35,6 +37,28 @@ router.beforeEach(async (to) => {
       });
       return { name: getHomeName(authStore.currUser.userInfo.role) };
     }
+  }
+});
+
+// router.beforeResolve(async (to) => {
+//   // https://router.vuejs.org/guide/advanced/navigation-guards.html#global-resolve-guards
+//   // after all in-component guards and async route components are resolved.
+//   console.log("beforeResolve: ", to);
+//   try {
+//     // await askForCameraPermission();
+//   } catch (err) {
+//     catchError({ err });
+//   }
+// });
+
+router.afterEach((to, from, failure) => {
+  if (!failure) {
+    // sendToAnalytics(to.fullPath);
+    logEvent(analytics, "screen_view", {
+      firebase_screen: to.name?.toString() ?? to.path,
+      firebase_screen_class: to.fullPath ?? "",
+    });
+    analytics;
   }
 });
 
