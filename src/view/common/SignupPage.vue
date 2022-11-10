@@ -24,6 +24,8 @@ import UserInfoForm from "@/component/form/UserInfoForm.vue";
 import CompanyInfoForm from "@/component/form/CompanyInfoForm.vue";
 import ShopOperInfoVue from "@/component/form/ShopOperInfo.vue";
 import VendorOperInfoVue from "@/component/form/VendorOperInfo.vue";
+import { analytics } from "@/plugin/firebase";
+import { logEvent } from "@firebase/analytics";
 
 const log = useLogger();
 const inst = getCurrentInstance();
@@ -173,6 +175,10 @@ async function onSignUp() {
   }
   log.debug(user.value);
   await user.value!.update();
+  logEvent(analytics, "sign_up", {
+    method: user.value?.userInfo.providerId,
+    userRole: user.value?.userInfo.role,
+  });
   msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
   await smtp.sendAlarm({
     toUserIds: [user.value!.userInfo.userId],
