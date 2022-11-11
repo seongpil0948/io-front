@@ -24,6 +24,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   info: string | OutputData;
   description: string;
   cafeProdId?: string;
+  zigzagProdId?: string;
 
   isSameWithVendor(p: VendorGarmentCrt) {
     return (
@@ -56,6 +57,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
     this.info = d.info;
     this.description = d.description;
     this.cafeProdId = d.cafeProdId;
+    this.zigzagProdId = d.zigzagProdId;
   }
   static fromJson(data: { [x: string]: any }): ShopGarment | null {
     if (data && data.vendorProdId) {
@@ -73,6 +75,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
         info: data.info,
         description: data.description,
         cafeProdId: data.cafeProdId,
+        zigzagProdId: data.zigzagProdId,
       });
     } else {
       //   logger.error(null, "vendor product from json return null, data: ", data);

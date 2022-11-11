@@ -24,6 +24,8 @@ import UserInfoForm from "@/component/form/UserInfoForm.vue";
 import CompanyInfoForm from "@/component/form/CompanyInfoForm.vue";
 import ShopOperInfoVue from "@/component/form/ShopOperInfo.vue";
 import VendorOperInfoVue from "@/component/form/VendorOperInfo.vue";
+import { analytics } from "@/plugin/firebase";
+import { logEvent } from "@firebase/analytics";
 
 const log = useLogger();
 const inst = getCurrentInstance();
@@ -36,7 +38,6 @@ const user = ref<IoUser | null>(null);
 const acceptTerms = ref(false);
 const { play, stop } = useFireWork();
 const smtp = useAlarm();
-console.log("state: ", window.history.state);
 const state = window.history.state;
 if (!state.userId) {
   log.error(null, "User ID not Received In SignUp Page(Landing)", state);
@@ -174,6 +175,10 @@ async function onSignUp() {
   }
   log.debug(user.value);
   await user.value!.update();
+  logEvent(analytics, "sign_up", {
+    method: user.value?.userInfo.providerId,
+    userRole: user.value?.userInfo.role,
+  });
   msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
   await smtp.sendAlarm({
     toUserIds: [user.value!.userInfo.userId],
@@ -414,7 +419,7 @@ async function onSignUp() {
 }
 .role-btn {
   width: 30vw;
-  height: 15vh;
+  height: 20vh;
 }
 #signup-page-container {
   justify-content: center !important;

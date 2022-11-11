@@ -71,8 +71,8 @@ const menuOptions: MenuOption[] = [
     ],
   },
   {
-    label: () => renderRoute("공지사항", "NoticePage"),
-    key: "NoticePage",
+    label: () => renderRoute("고객지원", "CsHome"),
+    key: "CsHome",
     icon: renderIcon(News16Regular),
   },
   {
@@ -161,7 +161,7 @@ onBeforeMount(() => useUncleOrderStore().init(user.userInfo.userId));
       <n-space
         vertical
         justify="space-between"
-        style="padding: 2%; width: 100%"
+        style="padding: 2%; width: 100%; overflow: auto"
       >
         <router-view />
         <io-footer />

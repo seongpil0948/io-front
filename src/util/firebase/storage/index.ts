@@ -1,6 +1,6 @@
-import { USER_ROLE } from "@/composable";
 import { ioStorage } from "@/plugin/firebase";
 import {
+  deleteObject,
   getDownloadURL,
   ref,
   uploadBytes,
@@ -15,17 +15,46 @@ export const STORAGE_SVC: { [key in STORAGE_SVC]: STORAGE_SVC } = Object.freeze(
   }
 );
 
-function refByRoleSvc(
-  role: USER_ROLE,
-  svc: STORAGE_SVC,
-  userId: string
-): StorageReference {
-  return ref(ioStorage, `${role}/${svc}/${userId}`);
+export function getUrlRef(url: string) {
+  // https://firebase.google.com/docs/storage/web/download-files?hl=ko#create_a_reference
+  const refer = ref(ioStorage, url);
+  console.log("refer:", refer);
+  return refer;
+}
+function getUserPath(userId: string) {
+  return `users/${userId}`;
 }
 
-export function refByUid(userId: string) {
-  return ref(ioStorage, `userId/${userId}`);
+export function getParentRef(p: {
+  svc: STORAGE_SVC;
+  userId: string;
+  parentId?: string;
+}) {
+  if (p.svc === "USER") {
+    return ref(ioStorage, getUserPath(p.userId));
+  } else if (p.svc === "VENDOR_PRODUCT") {
+    if (!p.parentId) throw new Error("parentId is required in getParentRef");
+    // parentId: vendorProdId
+    return ref(
+      ioStorage,
+      `${getUserPath(p.userId)}/VENDOR_PRODUCT/${p.parentId}`
+    );
+  } else {
+    throw new Error("not matched in getParentRef");
+  }
 }
+
+// function refByRoleSvc(
+//   role: USER_ROLE,
+//   svc: STORAGE_SVC,
+//   userId: string
+// ): StorageReference {
+//   return ref(ioStorage, `${role}/${svc}/${userId}`);
+// }
+
+// export function refByUid(userId: string) {
+//   return ref(ioStorage, `userId/${userId}`);
+// }
 
 function completeRef(
   filename: string,
@@ -34,7 +63,7 @@ function completeRef(
   return ref(parent, filename);
 }
 
-async function uploadFile(
+export async function uploadFile(
   parent: StorageReference,
   fs: FileList
 ): Promise<string[]> {
@@ -49,7 +78,10 @@ async function uploadFile(
     const result = await uploadBytes(refers[j], fs[j]);
     urls.push(await getDownloadURL(result.ref));
   }
+  console.log(urls);
   return urls;
 }
 
-export { refByRoleSvc, completeRef, uploadFile, ioStorage };
+export function deleteCdnObj(refers: StorageReference[]) {
+  return Promise.all(refers.map((refer) => deleteObject(refer)));
+}

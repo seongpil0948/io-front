@@ -37,7 +37,7 @@ const {
   >
     <template #header>
       <n-space justify="center">
-        <n-h2> 주문 해야할 상품 </n-h2>
+        <n-h2> 주문 해야할 주문 </n-h2>
       </n-space>
     </template>
     <n-space vertical>

@@ -15,11 +15,36 @@ export const routes: Array<RouteRecordRaw> = [
       import(/* webpackChunkName: "common" */ "@/view/common/SignupPage.vue"),
   },
   {
-    path: "/notice",
-    name: "NoticePage",
-
+    path: "/cs",
+    name: "Cs",
     component: () =>
-      import(/* webpackChunkName: "common" */ "@/view/common/NoticePage.vue"),
+      import(/* webpackChunkName: "cs" */ "@/view/cs/CsLayout.vue"),
+    children: [
+      {
+        path: "",
+        name: "CsHome",
+        component: () =>
+          import(/* webpackChunkName: "cs" */ "@/view/cs/CsHome.vue"),
+      },
+      {
+        path: "home",
+        name: "CsHome",
+        component: () =>
+          import(/* webpackChunkName: "cs" */ "@/view/cs/CsHome.vue"),
+      },
+      {
+        path: "faqByCtgr",
+        name: "FaqByCtgr", // FaqByCategory
+        component: () =>
+          import(/* webpackChunkName: "cs" */ "@/view/cs/FaqByCtgr.vue"),
+      },
+      {
+        path: "detail",
+        name: "CsDetail",
+        component: () =>
+          import(/* webpackChunkName: "cs" */ "@/view/cs/CsDetail.vue"),
+      },
+    ],
   },
   {
     path: "/vendor",
@@ -42,7 +67,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/vendorproductlist",
+        path: "vendorproductlist",
         name: "VendorProductList",
         component: () =>
           import(
@@ -53,7 +78,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/productregister",
+        path: "productregister",
         name: "ProductRegister",
         component: () =>
           import(
@@ -64,7 +89,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/productFillUpMng",
+        path: "productFillUpMng",
         name: "ProductFillUpMng",
         component: () =>
           import(
@@ -75,7 +100,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/marketingMng",
+        path: "marketingMng",
         name: "MarketingMng",
         component: () =>
           import(
@@ -86,7 +111,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/samplemanage",
+        path: "samplemanage",
         name: "SampleManage",
         component: () =>
           import(
@@ -97,7 +122,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/beforeApproveList",
+        path: "beforeApproveList",
         name: "BeforeApproveList",
         component: () =>
           import(
@@ -108,7 +133,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/afterApproveList",
+        path: "afterApproveList",
         name: "AfterApproveList",
         component: () =>
           import(
@@ -119,7 +144,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/paidOrder",
+        path: "paidOrder",
         name: "PaidOrder",
         component: () =>
           import(
@@ -130,7 +155,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/pendingOrderMng",
+        path: "pendingOrderMng",
         name: "PendingOrderMng",
         component: () =>
           import(
@@ -141,7 +166,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/returnExchange",
+        path: "returnExchange",
         name: "ReturnExchange",
         component: () =>
           import(
@@ -152,7 +177,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/payMng",
+        path: "payMng",
         name: "PayMng",
         component: () =>
           import(
@@ -163,7 +188,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/vendorPartnerMng",
+        path: "vendorPartnerMng",
         name: "VendorPartnerMng",
         component: () =>
           import(
@@ -174,7 +199,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/packingList",
+        path: "packingList",
         name: "PackingList",
         component: () =>
           import(
@@ -185,7 +210,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/buildingPosMng",
+        path: "buildingPosMng",
         name: "BuildingPosMng",
         component: () =>
           import(
@@ -213,7 +238,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/prodadd",
+        path: "prodadd",
         name: "ProductAdd",
         component: () =>
           import(
@@ -224,7 +249,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/prodmng",
+        path: "prodmng",
         name: "ProductManage",
         component: () =>
           import(
@@ -235,7 +260,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/mapmng",
+        path: "mapmng",
         name: "MappingManage",
         component: () =>
           import(
@@ -246,7 +271,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/orderrequire",
+        path: "orderrequire",
         name: "OrderRequire",
         component: () =>
           import(
@@ -257,7 +282,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/ordercomplete",
+        path: "ordercomplete",
         name: "OrderComplete",
         component: () =>
           import(
@@ -268,7 +293,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/pendingOrderList",
+        path: "pendingOrderList",
         name: "PendingOrderList",
         component: () =>
           import(
@@ -279,7 +304,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/shopReturnExchange",
+        path: "shopReturnExchange",
         name: "ShopReturnExchange",
         component: () =>
           import(
@@ -290,7 +315,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/sampleReq",
+        path: "sampleReq",
         name: "SampleReq",
         component: () =>
           import(
@@ -301,7 +326,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/payHistory",
+        path: "payHistory",
         name: "PayHistory",
         component: () =>
           import(
@@ -312,7 +337,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/pickuprequest",
+        path: "pickuprequest",
         name: "PickupRequest",
         component: () =>
           import(
@@ -323,7 +348,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/orderlinkage",
+        path: "orderlinkage",
         name: "OrderLinkage",
         component: () =>
           import(
@@ -334,7 +359,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/shopUncleManage",
+        path: "shopUncleManage",
         name: "ShopUncleManage",
         component: () =>
           import(
@@ -345,7 +370,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/uncleStatus",
+        path: "uncleStatus",
         name: "UncleStatus",
         component: () =>
           import(
@@ -356,7 +381,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/ioFast",
+        path: "ioFast",
         name: "IoFast",
         component: () =>
           import(/* webpackChunkName: "shop" */ "@/view/shop/page/IoFast.vue"),
@@ -365,7 +390,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/shopUncleManage",
+        path: "shopUncleManage",
         name: "ShopUncleManage",
         component: () =>
           import(
@@ -376,7 +401,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/followPartner",
+        path: "followPartner",
         name: "FollowPartner",
         component: () =>
           import(
@@ -387,7 +412,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/taxReport",
+        path: "taxReport",
         name: "TaxReport",
         component: () =>
           import(
@@ -398,7 +423,7 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "/orderHistory",
+        path: "orderHistory",
         name: "OrderHistory",
         component: () =>
           import(

@@ -3,18 +3,20 @@ import {
   useCafeAuth,
   getCafeOrders,
   LINKAGE_DB,
-  useOrderParseCafe,
   useMapper,
   ORDER_GARMENT_DB,
   API_SERVICE_EX,
   GarmentOrder,
-  TryStr,
-  TryNum,
   MatchGarment,
   ShopGarment,
   useShopGarmentTable,
   useApiTokenCols,
   getMatchCols,
+  useSearch,
+  matchCafeOrder,
+  useMappingOrderCafe,
+  saveMatch,
+  getZigzagOrders,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
 import { dateRanges } from "@/util";
@@ -22,6 +24,7 @@ import { useMessage, NButton } from "naive-ui";
 import { onBeforeUnmount, computed, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { storeToRefs } from "pinia";
+import { matchZigzagOrder } from "@/composable/order/use/parse-zigzag";
 
 const msg = useMessage();
 const log = useLogger();
@@ -31,6 +34,10 @@ const uid = computed(() => auth.currUser.userInfo.userId);
 const { tokens, unsubscribe } = LINKAGE_DB.getTokensByIdListen(uid.value);
 onBeforeUnmount(() => unsubscribe());
 // cafe - order module
+const showRegitZig = ref(false);
+function onZigSubmit() {
+  showRegitZig.value = false;
+}
 const timeFormat = "yyyy-MM-dd";
 const {
   dateRangeTime: range,
@@ -43,7 +50,11 @@ const { mapper } = useMapper(uid.value);
 const shopOrderStore = useShopOrderStore();
 const vendorStore = useVendorsStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
-const { parseCafeOrder } = useOrderParseCafe(mapper, uid.value, existOrderIds);
+const { parseCafeOrder } = useMappingOrderCafe(
+  mapper,
+  uid.value,
+  existOrderIds
+);
 const { selectFunc, userProd, tableCols, openSelectList } =
   useShopGarmentTable(true);
 function goAuthorizeCafe() {
@@ -56,14 +67,30 @@ function goAuthorizeCafe() {
   }
   return authorizeCafe();
 }
+// use select in modal
+const { search, searchedData, searchInputVal } = useSearch({
+  data: userProd,
+  filterFunc: (x, searchVal) => {
+    const v: typeof searchVal = searchVal;
+    return v === null
+      ? true
+      : x.size.includes(v) || x.color.includes(v) || x.prodName.includes(v);
+  },
+});
 
 const matchData = ref<MatchGarment[]>([]);
 async function onClickId(row: MatchGarment) {
-  console.info(`Play ${JSON.stringify(row)}`);
   selectFunc.value = async (s) => {
     const g = ShopGarment.fromJson(s);
     if (g) {
-      g.cafeProdId = row.inputId;
+      if (row.service === "CAFE") {
+        g.cafeProdId = row.inputId;
+      } else if (row.service === "ZIGZAG") {
+        g.zigzagProdId = row.inputId;
+      } else {
+        return log.error(`not matched api service: ${row.service}`);
+      }
+
       g.update().then(() => {
         row.id = g.shopProdId;
         row.color = g.color;
@@ -84,6 +111,7 @@ const filteredMatchData = computed(() =>
     ? matchData.value.filter((x) => x.id === undefined || x.id === null)
     : matchData.value
 );
+
 async function onGetOrder(useMatching = true, useMapping = true) {
   if (!startDate.value || !endDate.value)
     return msg.error("일자가 입력되지 않았습니다.");
@@ -95,47 +123,22 @@ async function onGetOrder(useMatching = true, useMapping = true) {
           startDate.value,
           endDate.value,
           token.dbId,
-          auth.currUser.userInfo.userId,
-          token.mallId
+          uid.value,
+          token.mallId!
         );
         let orders: GarmentOrder[] | undefined = undefined;
         if (useMapping) {
           orders = parseCafeOrder(cafeOrds);
         } else if (useMatching) {
-          matchData.value = [];
-          for (let i = 0; i < cafeOrds.length; i++) {
-            const order = cafeOrds[i];
-            const orderId = order.order_id;
-            if (existOrderIds.value.has(orderId)) continue;
-            else if (order.canceled === "T") continue;
-            else if (order.paid !== "T") continue;
-            for (let i = 0; i < order.items.length; i++) {
-              const item = order.items[i];
-              const inputProdName: TryStr =
-                item.product_name ?? item.product_name_default;
-              const orderCnt: TryNum = item.quantity;
-              const prodId: TryStr = token.mallId + item.product_code;
-              const garment = userProd.value.find(
-                (x) => x.cafeProdId && x.cafeProdId === prodId
-              );
-              const missing = garment === null || garment === undefined;
-              matchData.value.push({
-                service: "CAFE",
-                orderCnt: orderCnt ?? 1,
-                id: missing ? undefined : garment!.shopProdId,
-                inputId: prodId!,
-                color: missing ? undefined : garment!.color,
-                size: missing ? undefined : garment!.size,
-                prodName: missing ? undefined : garment!.prodName,
-                inputProdName: inputProdName!,
-                optionValue: item.option_value,
-                orderId,
-              });
-            }
-          }
+          matchData.value = matchCafeOrder(
+            cafeOrds,
+            token,
+            existOrderIds.value,
+            userProd.value
+          );
         }
         if ((!orders || orders.length < 1) && matchData.value.length < 1) {
-          msg.error(`주문이 없습니다~`);
+          continue;
         } else if (orders) {
           ORDER_GARMENT_DB.batchCreate(uid.value, orders)
             .then(() => {
@@ -152,40 +155,43 @@ async function onGetOrder(useMatching = true, useMapping = true) {
               log.error(uid.value, message);
             });
         }
+      } else if (token.service === "ZIGZAG") {
+        const zigOrds = await getZigzagOrders(
+          startDate.value,
+          endDate.value,
+          token.dbId,
+          uid.value
+        );
+        if (useMatching) {
+          matchData.value.push(
+            ...matchZigzagOrder(
+              zigOrds,
+              existOrderIds.value,
+              token.alias,
+              userProd.value
+            )
+          );
+        }
       }
     } catch (err) {
       console.error(err);
       return msg.error(
-        `${token.service} ${token.mallId}  주문을 받아오는 과정에서 실패하였습니다. 상세: ${err}`
+        `${token.service} ${
+          token.alias ?? token.mallId
+        }  주문을 받아오는 과정에서 실패하였습니다. 상세: ${err}`
       );
     }
   }
 }
-async function saveMatch() {
-  const orders: GarmentOrder[] = [];
-  for (let i = 0; i < matchData.value.length; i++) {
-    const data = matchData.value[i];
-    if (!data.id) continue;
-    const g = userProd.value.find((x) => x.shopProdId === data.id);
-    if (!g) return msg.error("소매처 상품이 없습ㄴ디ㅏ.");
-    const vendorProd = vendorStore.vendorUserGarments.find(
-      (x) => x.vendorProdId === g?.vendorProdId
-    );
-    if (!vendorProd) return msg.error("도매처 상품이 없습니다.");
-    orders.push(
-      GarmentOrder.fromProd(g, [data.orderId], data.orderCnt, vendorProd)
-    );
-  }
-  ORDER_GARMENT_DB.batchCreate(uid.value, orders)
-    .then(() => {
-      orders?.forEach((ord) => {
-        ord.orderIds.forEach((id) => existOrderIds.value.add(id));
-      });
-      msg.success(`${orders?.length} 주문 건 성공`);
-    })
-    .finally(() => {
-      matchData.value = [];
-    });
+async function onSaveMatch() {
+  await saveMatch(
+    matchData.value,
+    userProd.value,
+    vendorStore.vendorUserGarments,
+    uid.value,
+    existOrderIds
+  );
+  matchData.value = [];
 }
 </script>
 
@@ -195,7 +201,7 @@ async function saveMatch() {
       <n-space vertical>
         <n-space>
           <n-h5 style="text-align: start"
-            >주문내역 일자 범위선택 (3개월이내)</n-h5
+            >주문내역 일자 범위선택 (1개월이내)</n-h5
           >
           <n-date-picker
             v-model:value="range"
@@ -210,10 +216,10 @@ async function saveMatch() {
 
         <n-space>
           <n-button @click="() => onGetOrder(false, true)">
-            활성 서비스 매핑 취합
+            매핑 취합
           </n-button>
           <n-button @click="() => onGetOrder(true, false)">
-            활성 서비스 수동 취합
+            수동 매칭 취합
           </n-button>
           <n-popover trigger="click">
             <template #trigger>
@@ -225,10 +231,16 @@ async function saveMatch() {
               <n-button @click="goAuthorizeCafe">연동하기</n-button>
             </n-space>
           </n-popover>
+          <n-popover v-model:show="showRegitZig" trigger="click">
+            <template #trigger>
+              <n-button> 지그재그 연동 </n-button>
+            </template>
+            <zigzag-register-api-form @submitToken="onZigSubmit" />
+          </n-popover>
         </n-space>
       </n-space>
     </n-card>
-    <n-card title="수동매칭관리">
+    <n-card title="수동매칭관리" v-if="matchData.length > 0">
       <n-space style="margin-bottom: 10px" justify="end">
         <n-button v-if="filterIsNull" @click="() => switchFilter(false)"
           >전체보기</n-button
@@ -251,7 +263,7 @@ async function saveMatch() {
       />
       <template #action>
         <n-space justify="end">
-          <n-button @click="saveMatch">주문데이터로 넘기기</n-button>
+          <n-button @click="onSaveMatch">주문데이터로 넘기기</n-button>
         </n-space>
       </template>
     </n-card>
@@ -260,10 +272,14 @@ async function saveMatch() {
   </n-space>
   <n-modal v-model:show="openSelectList">
     <n-card title="상품선택" :bordered="false" size="large">
+      <template #header-extra>
+        <n-input v-model:value="searchInputVal" placeholder="상품검색" />
+        <n-button @click="search">검색</n-button>
+      </template>
       <n-data-table
         ref="tableRef"
         :columns="tableCols"
-        :data="userProd"
+        :data="searchedData"
         :pagination="{
           'show-size-picker': true,
           'page-sizes': [5, 10, 25, 50, 100],

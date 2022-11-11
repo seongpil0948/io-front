@@ -1,22 +1,39 @@
 <script setup lang="ts">
-import { useShipUnitCols } from "@/composable";
-import { useAuthStore } from "@/store";
+import { IoUser, useShipUnitCols } from "@/composable";
 import { strLenRule } from "@/util";
 import { NButton, FormInst, useMessage } from "naive-ui";
-import { computed, ref } from "vue";
+import { computed, ref, toRefs } from "vue";
+import { useLogger } from "vue-logger-plugin";
+
+const logger = useLogger();
 const props = defineProps<{
   unitKey: "amountBySize" | "amountByWeight";
+  edit: boolean;
+  u: IoUser;
 }>();
-const auth = useAuthStore();
-const u = auth.currUser;
-const target = u.uncleInfo![props.unitKey];
+const { u } = toRefs(props);
+if (!u.value.uncleInfo) {
+  const err = `${u.value.userInfo.userId} ${u.value.name}, uncleInfo field is undefined in ShipUnitList`;
+  logger.error(u.value.userInfo.userId, err);
+}
+
+const target = u.value.uncleInfo![props.unitKey];
 const showModal = ref(false);
 const message = useMessage();
-const { shipUnitCols } = useShipUnitCols(showModal, props.unitKey);
+const { shipUnitCols } = useShipUnitCols(
+  showModal,
+  props.unitKey,
+  props.edit,
+  u.value
+);
 const data = computed(() =>
-  Object.keys(target).map((k) => {
-    return { unit: k, amount: target[k] };
-  })
+  Object.keys(target)
+    .map((k) => {
+      return { unit: k, amount: target[k] };
+    })
+    .sort(function (a, b) {
+      return a.amount - b.amount;
+    })
 );
 
 async function onAdd() {
@@ -24,7 +41,7 @@ async function onAdd() {
     if (!errors) {
       const val = formValue.value;
       target[val.unit] = val.amount;
-      await u.update();
+      await u.value.update();
       message.success("추가완료 ");
       showModal.value = false;
     } else {

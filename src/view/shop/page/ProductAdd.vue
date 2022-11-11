@@ -108,7 +108,7 @@ const ctgrOpts = computed(() =>
         >
           <n-gi v-for="(prod, i) in paginatedData" :key="i">
             <vendor-prod-thum
-              style="padding: 5%"
+              style="padding: 5%; margin: auto"
               v-if="validProd(prod)"
               :prod="prod"
               :width="250"

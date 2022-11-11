@@ -16,6 +16,7 @@ import { useAuthStore } from "./auth";
 import { useVendorsStore } from "./vendorProd";
 
 export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
+  console.log(`=== called useUncleOrderStore ===`);
   const authStore = useAuthStore();
   const vendorStore = useVendorsStore();
   const inStates = ref<ORDER_STATE[]>([]);
@@ -126,6 +127,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
 
   function init(uncleUserId: string) {
     if (!initial || !uncleUserId || uncleUserId === uncleId.value) return;
+    console.log(`=== init useUncleOrderStore === uncleUserId: ${uncleUserId}`);
     uncleId.value = uncleUserId;
 
     const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.uncleReadListen({
@@ -139,6 +141,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
     initial = false;
   }
   function discard() {
+    console.log(`=== discard useUncleOrderStore ===`);
     unsubscribeAuth();
     if (orderUnSub) {
       orderUnSub();

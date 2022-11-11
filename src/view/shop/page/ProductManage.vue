@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  SHOP_GARMENT_DB,
   ORDER_GARMENT_DB,
   GarmentOrder,
   useShopGarmentTable,
@@ -17,14 +16,18 @@ const msg = useMessage();
 
 const log = useLogger();
 const vendorStore = useVendorsStore();
-const { tableCols, mapper, checkedKeys, userProd, popVal, selectedRow } =
-  useShopGarmentTable(false);
+const {
+  tableCols,
+  mapper,
+  checkedKeys,
+  userProd,
+  popVal,
+  selectedRow,
+  deleteGarments,
+} = useShopGarmentTable(false);
+
 async function onCheckedDelete() {
-  await SHOP_GARMENT_DB.deleteShopGarments(
-    authStore.currUser.userInfo.userId,
-    checkedKeys.value
-  );
-  msg.success("삭제 완료", makeMsgOpt());
+  await deleteGarments(authStore.currUser.userInfo.userId, checkedKeys.value);
 }
 const cols = computed(() =>
   tableCols.value.filter((x) => (x as any).key !== "select")
@@ -78,7 +81,12 @@ function updateOrderId(arr: string[]) {
 }
 </script>
 <template>
-  <n-space vertical align="center" item-style="width: 80%">
+  <n-space
+    vertical
+    align="center"
+    item-style="width: 100%;"
+    style="overflow: auto"
+  >
     <n-card>
       <template #header>
         <n-h4 v-if="!isMobile()">
@@ -116,7 +124,7 @@ function updateOrderId(arr: string[]) {
         }"
         :bordered="false"
         :table-layout="'fixed'"
-        :scroll-x="1500"
+        :scroll-x="800"
       />
     </n-card>
     <n-card style="width: 100%">

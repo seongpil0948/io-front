@@ -42,11 +42,11 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(ShoppingCart),
     children: [
       {
-        label: () => renderRoute("주문 해야할 상품", "OrderRequire"),
+        label: () => renderRoute("주문 해야할 주문", "OrderRequire"),
         key: "OrderRequire",
       },
       {
-        label: () => renderRoute("승인 완료된 상품", "OrderComplete"),
+        label: () => renderRoute("승인 완료된 주문", "OrderComplete"),
         key: "OrderComplete",
       },
       {
@@ -114,8 +114,8 @@ const menuOptions: MenuOption[] = [
     ],
   },
   {
-    label: () => renderRoute("공지사항", "NoticePage"),
-    key: "NoticePage",
+    label: () => renderRoute("고객지원", "CsHome"),
+    key: "CsHome",
     icon: renderIcon(News16Regular),
   },
 ];
@@ -167,7 +167,7 @@ const mobileOpts = [
       <n-space
         vertical
         justify="space-between"
-        style="padding: 2%; width: 100%"
+        style="padding: 2%; width: 100%; overflow: auto"
       >
         <router-view />
         <io-footer />

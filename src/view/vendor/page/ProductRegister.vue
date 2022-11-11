@@ -8,8 +8,9 @@ import { useLogger } from "vue-logger-plugin";
 import {
   GARMENT_SIZE,
   GENDER,
-  getCurrUser,
   PART,
+  useBatchVendorProd,
+  useVendorProdCols,
   VendorGarment,
 } from "@/composable";
 import {
@@ -24,14 +25,15 @@ import {
   genderOpts,
 } from "@/util";
 import { useEditor } from "@/plugin/editor";
+import { useAuthStore } from "@/store";
 
 const log = useLogger();
 const msg = useMessage();
 const dialog = useDialog();
 const formRef = ref<FormInst | null>(null);
-const currUser = getCurrUser();
+const auth = useAuthStore();
 const router = useRouter();
-
+const vendorProdId = uuidv4();
 const prodModel = ref({
   part: PART.TOP,
   ctgr: getCtgrOpts(PART.TOP)[0].value,
@@ -58,8 +60,6 @@ const rules = {
   allowPending: notNullRule,
   gender: notNullRule,
   vendorPrice: biggerThanNRule(999),
-  titleImgs: arrLenRule(1),
-  bodyImgs: arrLenRule(1),
   colors: arrLenRule(1),
   sizes: arrLenRule(1),
   fabric: notNullRule, // 혼용률 / 제조국
@@ -118,8 +118,8 @@ async function onRegister() {
               size,
               color,
               info,
-              vendorId: currUser.userInfo.userId,
-              vendorProdId: uuidv4(),
+              vendorId: auth.currUser.userInfo.userId,
+              vendorProdId: vendorProdId,
               stockCnt: stockCnts.value![size][color],
             })
           )
@@ -146,7 +146,7 @@ async function onRegister() {
                 err instanceof Error ? err.message : JSON.stringify(err)
               }`;
               msg.error(message, makeMsgOpt());
-              log.error(currUser.userInfo.userId, message, products);
+              log.error(auth.currUser.userInfo.userId, message, products);
             });
         },
       });
@@ -158,9 +158,65 @@ const { saveEditor, clearEditor } = useEditor({
   elementId: "io-editor",
   placeholder: "상품 정보 입력",
 });
+const {
+  fileModel,
+  excelInputRef,
+  onBtnClick,
+  openPreviewModal,
+  parsedGarments,
+  onPreviewConfirm,
+  onPreviewCancel,
+} = useBatchVendorProd();
+
+const { columns } = useVendorProdCols(false);
+
+function handleFileChange(evt: Event) {
+  const element = evt.currentTarget as HTMLInputElement;
+  fileModel.value = element.files;
+}
 </script>
 <template>
-  <n-card>
+  <n-modal
+    :show="openPreviewModal"
+    :on-update:show="onPreviewCancel"
+    :mask-closable="false"
+    close-on-esc
+    size="huge"
+    preset="card"
+    style="margin: 0 10%"
+  >
+    <template #header>
+      엑셀 파싱 결과 ({{ parsedGarments.length }} 건)
+    </template>
+    <template #header-extra>
+      <n-button @click="onPreviewConfirm">저장</n-button>
+    </template>
+
+    <n-data-table
+      :scroll-x="1200"
+      :columns="columns"
+      :data="parsedGarments"
+      :pagination="{
+        'show-size-picker': true,
+        'page-sizes': [5, 10, 25, 50, 100],
+      }"
+      :bordered="false"
+    />
+  </n-modal>
+  <n-card title="도매 상품 등록">
+    <template #header-extra>
+      <n-button @click="onBtnClick">
+        <input
+          ref="excelInputRef"
+          style="display: none"
+          id="customFile"
+          type="file"
+          @change="handleFileChange"
+        />
+        엑셀 일괄 등록
+      </n-button>
+    </template>
+
     <n-form
       ref="formRef"
       :model="prodModel"
@@ -282,10 +338,13 @@ const { saveEditor, clearEditor } = useEditor({
         >
           <single-image-input
             elementId="titleImgs"
-            :user="currUser"
-            v-model:urls="prodModel.titleImgs"
             size="100"
+            v-model:urls="prodModel.titleImgs"
             :max="1"
+            svc="VENDOR_PRODUCT"
+            :userId="auth.currUser.userInfo.userId"
+            :role="auth.currUserRole"
+            :parentId="vendorProdId"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>
@@ -297,10 +356,13 @@ const { saveEditor, clearEditor } = useEditor({
         >
           <single-image-input
             elementId="bodyImgs"
-            :user="currUser"
-            v-model:urls="prodModel.bodyImgs"
             size="100"
+            v-model:urls="prodModel.bodyImgs"
             :max="20"
+            svc="VENDOR_PRODUCT"
+            :userId="auth.currUser.userInfo.userId"
+            :role="auth.currUserRole"
+            :parentId="vendorProdId"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>

@@ -2,26 +2,17 @@
 import { toRefs, ref } from "vue";
 import { useMessage } from "naive-ui";
 import { CloseCircle } from "@vicons/ionicons5";
-import { IoUser } from "@/composable";
-import {
-  makeMsgOpt,
-  refByRoleSvc,
-  STORAGE_SVC,
-  refByUid,
-  uploadFile,
-} from "@/util";
+import { makeMsgOpt, STORAGE_SVC, uploadFile, getParentRef } from "@/util";
+
 const props = defineProps<{
+  svc: STORAGE_SVC;
   urls: string[];
-  user?: IoUser;
-  userId?: string;
+  userId: string;
+  parentId?: string;
   elementId: string;
   size: string;
   max: number;
 }>();
-if (!props.userId && !props.user) {
-  const msg = "Single Image Input Component Require Whether User ID or  User";
-  throw new Error(msg);
-}
 
 const { urls, size, max, elementId } = toRefs(props);
 const emits = defineEmits(["update:urls"]);
@@ -34,19 +25,20 @@ async function loadFile() {
     return msg.error(`${max.value} 장까지 업로드 가능합니다.`, makeMsgOpt());
   } else if (input.value.files && input.value.files.length > 0) {
     loading.value = true;
-    const parent = props.user
-      ? refByRoleSvc(
-          props.user.userInfo.role,
-          STORAGE_SVC.VENDOR_PRODUCT,
-          props.user.userInfo.userId
-        )
-      : refByUid(props.userId!);
+    const parent = getParentRef({
+      svc: props.svc,
+      parentId: props.parentId,
+      userId: props.userId,
+    });
+
     const imgs = await uploadFile(parent, input.value.files);
     emits("update:urls", [...urls.value, ...imgs]);
     loading.value = false;
   }
 }
-function closeFile(src: string) {
+async function closeFile(src: string) {
+  // const refer = getUrlRef(src);
+  // await deleteCdnObj([refer]);
   emits(
     "update:urls",
     urls.value.filter((x) => x !== src)

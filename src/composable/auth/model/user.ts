@@ -22,7 +22,6 @@ import {
   DocumentSnapshot,
   FirestoreDataConverter,
 } from "firebase/firestore";
-import { useRouter } from "vue-router";
 
 export const getUserLocate = (u: IoUserCRT) => {
   if (!u.companyInfo || u.companyInfo.locations.length < 1) return null;
@@ -117,7 +116,6 @@ export class IoUser extends CommonField implements IoUserCRT {
     })
       .then((token) => {
         if (token) {
-          console.log("get fcm token: ", token);
           return new FcmToken({ createdAt: new Date(), token });
         } else {
           const msg = "FCM 토큰흭득 실패. Request permission to generate one.";
@@ -202,14 +200,4 @@ export class IoUser extends CommonField implements IoUserCRT {
     }
     await this.update();
   }
-}
-
-export function getCurrUser(replace = true): IoUser {
-  const authStore = useAuthStore();
-  const router = useRouter();
-  const user = authStore.user;
-  if (!user && replace) {
-    router.replace({ name: "Login" });
-  }
-  return user!;
 }

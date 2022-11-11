@@ -49,13 +49,19 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     this.vendorPrice = d.vendorPrice;
     this.stockCnt = d.stockCnt;
     this.vendorProdName = d.vendorProdName;
-    this.titleImgs = d.titleImgs;
-    this.bodyImgs = d.bodyImgs;
+    this.titleImgs = loadImgs(d.titleImgs);
+    this.bodyImgs = loadImgs(d.bodyImgs);
     this.info = d.info;
     this.description = d.description;
   }
   static combineId(c: VendorGarmentCrt): string {
     return c.vendorId + c.vendorProdName;
+  }
+  toJson(): { [x: string]: Partial<unknown> } {
+    const j = super.toJson();
+    j.titleImgs = saveImgs(j.titleImgs);
+    j.bodyImgs = saveImgs(j.bodyImgs);
+    return j;
   }
   static fromJson(data: { [x: string]: any }): VendorGarment | null {
     if (data && data.vendorProdId) {
@@ -74,8 +80,8 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
         vendorPrice: data.vendorPrice,
         stockCnt: data.stockCnt,
         vendorProdName: data.vendorProdName,
-        titleImgs: data.titleImgs,
-        bodyImgs: data.bodyImgs,
+        titleImgs: loadImgs(data.titleImgs),
+        bodyImgs: loadImgs(data.bodyImgs),
         info: data.info,
         description: data.description,
       });
@@ -98,5 +104,21 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
         return data ? VendorGarment.fromJson(data) : null;
       },
     };
+  }
+}
+const defaultImgs = ["/img/no_image.png"];
+function loadImgs(imgs: any) {
+  if (!Array.isArray(imgs) || imgs.length < 1) {
+    return defaultImgs;
+  } else {
+    return imgs;
+  }
+}
+
+function saveImgs(imgs: any) {
+  if (!Array.isArray(imgs) || imgs.length < 1) {
+    return [];
+  } else {
+    return imgs.filter((x) => !defaultImgs.includes(x));
   }
 }

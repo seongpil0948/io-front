@@ -9,15 +9,17 @@ import { ApiTokenCrt, API_SERVICE_EX } from "..";
 
 export class ApiToken extends CommonField implements ApiTokenCrt {
   dbId: string;
-  clientId: string;
-  expireAt: Date;
-  refreshExpireAt: Date;
-  mallId: string;
-  scopes: string[];
+  clientId?: string;
+  expireAt?: Date;
+  refreshExpireAt?: Date;
+  mallId?: string;
+  scopes?: string[];
   service: API_SERVICE_EX;
-  serviceId?: string;
-  shopNo?: string | undefined;
+  shopNo?: string;
   userId: string;
+  alias: string;
+  accessKey?: string;
+  secretKey?: string;
   constructor(c: ApiTokenCrt) {
     super(c.createdAt, c.updatedAt);
     this.dbId = c.dbId;
@@ -29,23 +31,28 @@ export class ApiToken extends CommonField implements ApiTokenCrt {
     this.service = c.service;
     this.shopNo = c.shopNo;
     this.userId = c.userId;
-    this.serviceId = c.serviceId;
+    this.alias = c.alias;
+    this.accessKey = c.accessKey;
+    this.secretKey = c.secretKey;
   }
   static fromJson(data: { [x: string]: any }, dbId: string): ApiToken | null {
     return data
       ? new ApiToken({
           dbId,
-          createdAt: loadDate(data.createdAt),
-          updatedAt: loadDate(data.updatedAt),
-          expireAt: loadDate(data.expireAt),
-          refreshExpireAt: loadDate(data.refreshExpireAt),
+          createdAt: data.createdAt ? loadDate(data.createdAt) : undefined,
+          updatedAt: data.updatedAt ? loadDate(data.updatedAt) : undefined,
+          expireAt: data.expireAt ? loadDate(data.expireAt) : undefined,
+          refreshExpireAt: data.refreshExpireAt
+            ? loadDate(data.refreshExpireAt)
+            : undefined,
           clientId: data.clientId,
           mallId: data.mallId,
           scopes: data.scopes,
           service: data.service,
-          serviceId: data.serviceId,
           shopNo: data.shopNo,
           userId: data.userId,
+          alias: data.alias ?? "",
+          accessKey: data.accessKey,
         })
       : null;
   }

@@ -41,6 +41,7 @@ const {
   detailShopIds,
   columns,
   checkedOrders,
+  targetIds,
 } = useApproveOrder({
   garmentOrders,
   orders,

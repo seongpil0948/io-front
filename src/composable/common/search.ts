@@ -1,3 +1,5 @@
+import { analytics } from "@/plugin/firebase";
+import { logEvent } from "@firebase/analytics";
 import { ref, Ref, computed } from "vue";
 
 interface IoSearchParam<T> {
@@ -14,6 +16,9 @@ export function useSearch<T>(p: IoSearchParam<T>) {
   );
   function search() {
     searchVal.value = searchInputVal.value;
+    if (searchVal.value && searchVal.value.length > 1) {
+      logEvent(analytics, "search", { search_term: searchVal.value });
+    }
   }
 
   return { searchedData, search, searchInputVal };

@@ -4,7 +4,6 @@ import { ref } from "vue";
 
 const rightCollapsed = ref(false);
 const width = 360;
-const minHeight = "100vh";
 const { workers } = useUncleWorkers();
 </script>
 <template>
@@ -16,20 +15,14 @@ const { workers } = useUncleWorkers();
     :width="width"
     :native-scrollbar="false"
     v-model:collapsed="rightCollapsed"
-    :style="`min-height: ${minHeight}; height: 100%;`"
+    style="z-index: 0"
   >
     <n-space
       v-if="!rightCollapsed"
       size="large"
       vertical
       align="start"
-      style="
-        width: 100%;
-        padding-top: 2vh;
-        padding-left: 1vw;
-        overflow-y: auto;
-        max-height: 90vh;
-      "
+      style="width: 100%; padding-top: 2vh; padding-left: 1vw; overflow-y: auto"
     >
       <n-space
         inline

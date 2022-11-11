@@ -52,7 +52,10 @@ function onDetail() {
   >
     <n-space vertical align="start">
       <n-text type="info">픽업건물</n-text>
-      <locate-amount-list :locates="uInfo.pickupLocates" />
+      <locate-amount-list
+        style="padding-bottom: 5%"
+        :locates="uInfo.pickupLocates"
+      />
       <n-space justify="space-between">
         <n-text type="info">기본 배송료: </n-text>
         <n-text>{{ shipAmount }}</n-text>

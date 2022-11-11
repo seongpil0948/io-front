@@ -1,6 +1,7 @@
 import {
   GarmentOrder,
   IoColOpt,
+  ORDER_STATE,
   ProdOrderByVendor,
   ProdOrderCombined,
 } from "@/composable";
@@ -18,6 +19,7 @@ interface orderTableParam {
   updateOrderCnt: boolean;
   useChecker?: boolean;
   useAccountStr?: boolean;
+  useState?: boolean;
 }
 export function useOrderTable(d: orderTableParam) {
   const auth = useAuthStore();
@@ -38,25 +40,6 @@ export function useOrderTable(d: orderTableParam) {
       return { key: c } as IoColOpt;
     }
   );
-  byVendorColKeys.push({
-    key: "orderAmount",
-    cellRender: (row: ProdOrderByVendor) =>
-      h(
-        NText,
-        {
-          type: "info",
-        },
-        {
-          default: () =>
-            row.items.reduce(
-              (acc, curr) =>
-                acc +
-                (curr.actualAmount.orderAmount - curr.actualAmount.paidAmount),
-              0
-            ),
-        }
-      ),
-  });
   if (d.useAccountStr === undefined || d.useAccountStr === true)
     byVendorColKeys.push({
       key: "accountStr",
@@ -77,6 +60,7 @@ export function useOrderTable(d: orderTableParam) {
     });
   byVendorColKeys.push({
     key: "id",
+    colRender: () => h(NText, {}, { default: () => "주문내역" }),
     cellRender: (row: ProdOrderByVendor) =>
       h(
         NButton,
@@ -157,8 +141,21 @@ export function useOrderTable(d: orderTableParam) {
         }
       });
     }
+    if (d.useState) {
+      columns.value.push({
+        key: "state",
+        sorter: "default",
+        title: "주문상태",
+        render: (row) =>
+          h(
+            NText,
+            {},
+            { default: () => ORDER_STATE[row.state as ORDER_STATE] }
+          ),
+      });
+    }
 
-    return columns.value.length > 0
+    return columns.value.length > 1
       ? [
           columns.value[0],
           {
@@ -189,6 +186,7 @@ export function useOrderTable(d: orderTableParam) {
                 {}
               ),
           },
+
           ...columns.value.slice(1),
         ]
       : [];

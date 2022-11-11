@@ -10,7 +10,7 @@ import { useShopOrderStore } from "@/store";
 import { computed, h } from "vue";
 
 // const u = auth.currUser;
-const inStates: ORDER_STATE[] = ["BEFORE_PAYMENT"];
+const inStates: ORDER_STATE[] = ["BEFORE_PAYMENT", "BEFORE_APPROVE"];
 const shopOrderStore = useShopOrderStore();
 
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
@@ -28,6 +28,7 @@ const {
   orders,
   updateOrderCnt: true,
   useChecker: true,
+  useState: true,
 });
 
 function refreshSelected() {
@@ -59,39 +60,44 @@ const columns = computed(() => [
 ]);
 </script>
 <template>
-  <n-space vertical justify="space-around">
-    <n-data-table
-      v-if="garmentOrdersByVendor.length > 0"
-      ref="tableRef"
-      :table-layout="'fixed'"
-      :scroll-x="800"
-      :columns="byVendorCol"
-      :data="garmentOrdersByVendor"
-      :pagination="{
-        'show-size-picker': true,
-        'page-sizes': [5, 10, 25, 50, 100],
-      }"
-      :bordered="false"
-    />
-    <n-result
-      v-else
-      style="margin-top: 30%"
-      status="error"
-      title="주문 완료 및 결제 대상 데이터가 없습니다"
-    />
-    <n-card
-      v-if="selectedData"
-      :bordered="false"
-      :title="selectedData.vendorName"
-    >
+  <n-card>
+    <n-space vertical justify="space-around">
+      <n-space justify="center">
+        <n-h2> 승인 완료된 주문 </n-h2>
+      </n-space>
       <n-data-table
+        v-if="garmentOrdersByVendor.length > 0"
+        ref="tableRef"
+        :table-layout="'fixed'"
+        :scroll-x="800"
+        :columns="byVendorCol"
+        :data="garmentOrdersByVendor"
+        :pagination="{
+          'show-size-picker': true,
+          'page-sizes': [5, 10, 25, 50, 100],
+        }"
         :bordered="false"
-        :columns="columns"
-        :data="selectedData.items"
-        :rowKey="(row: ProdOrderCombined) => row.id"
       />
-    </n-card>
-  </n-space>
+      <n-result
+        v-else
+        style="margin-top: 30%"
+        status="error"
+        title="주문 완료 및 결제 대상 데이터가 없습니다"
+      />
+      <n-card
+        v-if="selectedData"
+        :bordered="false"
+        :title="selectedData.vendorName"
+      >
+        <n-data-table
+          :bordered="false"
+          :columns="columns"
+          :data="selectedData.items"
+          :rowKey="(row: ProdOrderCombined) => row.id"
+        />
+      </n-card>
+    </n-space>
+  </n-card>
 </template>
 
 <style scoped></style>

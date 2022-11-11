@@ -2,7 +2,7 @@
 import {
   ORDER_STATE,
   ORDER_GARMENT_DB,
-  useOrderParseExcel,
+  useMappingOrderExcel,
   useOrderBasic,
   useOrderTable,
 } from "@/composable";
@@ -10,6 +10,7 @@ import { useAuthStore, useShopOrderStore } from "@/store";
 import { ref } from "vue";
 import { IO_COSTS } from "@/constants";
 import { storeToRefs } from "pinia";
+import { useMessage } from "naive-ui";
 interface Props {
   inStates?: ORDER_STATE[];
   showSizes: boolean;
@@ -19,6 +20,7 @@ const props = defineProps<Props>();
 const auth = useAuthStore();
 const user = auth.currUser;
 const fileModel = ref<File[]>([]);
+const msg = useMessage();
 
 const shopOrderStore = useShopOrderStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
@@ -43,7 +45,7 @@ const {
 
 const sheetIdx = ref(0);
 const startRow = ref(0);
-useOrderParseExcel(
+useMappingOrderExcel(
   mapper,
   user.userInfo.userId,
   fileModel,
@@ -53,6 +55,7 @@ useOrderParseExcel(
       newOrders.forEach((ord) => {
         ord.orderIds.forEach((id) => existOrderIds.value.add(id));
       });
+      msg.success(`${newOrders.length} 개 주문건 추가 완료.`);
     });
   },
   sheetIdx,
@@ -126,12 +129,15 @@ function downSampleXlsx() {
       :columns="tableCol"
       :data="filteredOrders"
       :pagination="
-        showSizes
-          ? {
-              'show-size-picker': true,
-              'page-sizes': [5, 10, 25, 50, 100],
-            }
-          : false
+        Object.assign(
+          { pageSize: 5 },
+          showSizes
+            ? {
+                'show-size-picker': true,
+                'page-sizes': [5, 10, 25, 50, 100],
+              }
+            : {}
+        )
       "
       :bordered="false"
     />

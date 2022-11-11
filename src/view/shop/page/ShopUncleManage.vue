@@ -78,8 +78,49 @@ const showModal = ref(false);
     size="huge"
     :segmented="segmented"
   >
-    <template #header-extra> Oops! </template>
-    Content
+    <n-space
+      v-if="
+        selectedUser &&
+        selectedUser.uncleInfo &&
+        selectedUser.uncleInfo.pickupLocates
+      "
+      vertical
+    >
+      <n-text type="info">픽업건물</n-text>
+      <locate-amount-list
+        style="padding-bottom: 5%"
+        :locates="selectedUser.uncleInfo.pickupLocates"
+      />
+      <n-text type="info">배송건물</n-text>
+      <locate-amount-list
+        style="padding-bottom: 5%"
+        :locates="selectedUser.uncleInfo.shipLocates"
+      />
+    </n-space>
+    <div
+      style="margin-top: 1vh"
+      v-if="
+        selectedUser &&
+        selectedUser.uncleInfo &&
+        selectedUser.uncleInfo.amountBySize
+      "
+    >
+      <ship-unit-list :u="selectedUser" :edit="false" unitKey="amountBySize" />
+    </div>
+    <div
+      v-if="
+        selectedUser &&
+        selectedUser.uncleInfo &&
+        selectedUser.uncleInfo.amountByWeight
+      "
+    >
+      <ship-unit-list
+        :u="selectedUser"
+        :edit="false"
+        unitKey="amountByWeight"
+      />
+    </div>
+
     <template #action>
       <n-space justify="space-around">
         <n-button @click="onClose">닫기</n-button>

@@ -58,19 +58,23 @@ export function useApiTokenCols() {
     () =>
       [
         {
+          title: "별칭",
+          key: "alias",
+        },
+        {
           title: "활성화 여부",
           key: "no",
-          render(row) {
+          render() {
             // const valid = row.no < 10;
             const valid = true;
 
             return h(
-              NButton,
+              NText,
               {
-                type: valid ? "primary" : "error",
-                onClick: () => {
-                  msg.info(`Play ${JSON.stringify(row)}`);
-                },
+                type: valid ? "info" : "error",
+                // onClick: () => {
+                //   msg.info(`Play ${JSON.stringify(row)}`);
+                // },
               },
               { default: () => (valid ? "가능" : "불가") }
             );
@@ -93,7 +97,10 @@ export function useApiTokenCols() {
               NDropdown,
               {
                 trigger: "click",
-                options: rowOpts,
+                options:
+                  row.service === "ZIGZAG"
+                    ? rowOpts.filter((x) => x.key === "delete")
+                    : rowOpts,
                 onSelect: (key: string | number, option: DropdownOption) =>
                   handleSelect(row, key, option),
               },
@@ -113,7 +120,8 @@ export function useApiTokenCols() {
                 primary: true,
               },
               {
-                default: () => timeToDate(row.expireAt, "MIN"),
+                default: () =>
+                  row.expireAt ? timeToDate(row.expireAt, "MIN") : "-",
               }
             ),
         },

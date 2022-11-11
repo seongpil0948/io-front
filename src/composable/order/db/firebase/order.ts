@@ -47,6 +47,7 @@ async function getOrders(constraints: QueryConstraint[]) {
       ...constraints
     )
   );
+  console.log("order snap from cache " + docs.metadata.fromCache);
   docs.forEach((doc) => {
     const data = doc.data();
     if (data) {
@@ -81,7 +82,6 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       ["BEFORE_PAYMENT"],
       undefined,
       async function (po) {
-        // TODO: test required
         po.actualAmount.paidDate = new Date();
         po.actualAmount.paidAmount = po.actualAmount.orderAmount;
         po.actualAmount.paid = "T";
@@ -406,6 +406,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       p.orders.value = [];
+      console.log("shop order snap from cache " + snapshot.metadata.fromCache);
       snapshot.forEach((s) => {
         const data = s.data();
         if (data) {
@@ -428,6 +429,9 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     );
     const unsubscribe = onSnapshot(orderQ, (snapshot) => {
       p.orders.value = [];
+      console.log(
+        "vendor order snap from cache " + snapshot.metadata.fromCache
+      );
       snapshot.forEach((doc) => {
         const data = doc.data();
         if (p.inStates) {
@@ -457,6 +461,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
     );
     const unsubscribe = onSnapshot(orderQ, (snapshot) => {
       p.orders.value = [];
+      console.log("uncle order snap from cache " + snapshot.metadata.fromCache);
       snapshot.forEach((doc) => {
         const data = doc.data();
         if (p.inStates) {
@@ -683,21 +688,24 @@ async function stateModify(
       const o = onOrder ? await onOrder(orders[i]) : orders[i];
       if (!shopIds.includes(o.shopId)) shopIds.push(o.shopId);
       for (let j = 0; j < o.items.length; j++) {
-        if (
-          !beforeState ||
-          (prodOrderIds.includes(o.items[j].id) &&
-            beforeState.includes(o.items[j].state))
+        if (!beforeState && !prodOrderIds.includes(o.items[j].id)) continue;
+        else if (
+          beforeState &&
+          (!beforeState.includes(o.items[j].state) ||
+            !prodOrderIds.includes(o.items[j].id))
         ) {
-          const item = onProdOrder ? await onProdOrder(o.items[j]) : o.items[j];
-          o.setState(item.id, afterState);
-          if (setTotalAmount) {
-            o.setTotalAmount();
-          }
-          transaction.update(
-            doc(getOrdRef(o.shopId), o.dbId),
-            converterGarment.toFirestore(o)
-          );
+          continue;
         }
+
+        const item = onProdOrder ? await onProdOrder(o.items[j]) : o.items[j];
+        o.setState(item.id, afterState);
+        if (setTotalAmount) {
+          o.setTotalAmount();
+        }
+        transaction.set(
+          doc(getOrdRef(o.shopId), o.dbId),
+          converterGarment.toFirestore(o)
+        );
       }
     }
   });
@@ -728,7 +736,11 @@ async function mergeOrders(state: ORDER_STATE, shopId: string) {
           for (let z = 0; z < o.items.length; z++) {
             const existItem = o.items[z];
             if (existItem.state !== state) continue;
-            else if (item.vendorProdId === existItem.vendorProdId) {
+            else if (
+              item.vendorProdId === existItem.vendorProdId &&
+              item.shopProdId === existItem.shopProdId &&
+              item.orderType !== existItem.orderType
+            ) {
               exist = o;
               // 이로직을 분리하여, 모든 주문건의 상태 변경 프로세스에 대하여 적용가능하도록
               exist.setOrderCnt(existItem.id, item.orderCnt, true);

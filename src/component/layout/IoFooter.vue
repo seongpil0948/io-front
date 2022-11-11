@@ -1,25 +1,18 @@
 <script setup lang="ts">
 import { useLogin } from "@/composable";
-import { KAKAO_CHANNEL_ID } from "@/constants";
 import {
   getMockShops,
   getMockVendors,
   getMockUncles,
 } from "../../../tests/e2e/fixtures/users";
 
-import { getCurrentInstance, ref } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { enableStoreNet, disableStoreNet } from "@/plugin/firebase/io-fire";
 
-const inst = getCurrentInstance();
 const router = useRouter();
 const isTest = process.env.VUE_APP_IS_TEST;
 const { login } = useLogin();
-function csChat() {
-  const kakao = inst?.appContext.config.globalProperties.$kakao;
-  kakao.Channel.chat({
-    channelPublicId: KAKAO_CHANNEL_ID,
-  });
-}
 async function toVendor() {
   const uid = getMockVendors()[0];
   await login(uid, { providerId: "EMAIL" }, false);
@@ -64,17 +57,15 @@ function onTos() {
         </n-button>
       </n-text>
       <n-space v-if="isTest === 'true'" justify="center">
-        <n-button round type="primary" @click="toVendor">도매계정전환</n-button>
-        <n-button round type="primary" @click="toShop">소매계정전환</n-button>
-        <n-button round type="primary" @click="toUncle">엉클계정전환</n-button>
+        <n-button @click="toVendor">도매계정전환</n-button>
+        <n-button @click="toShop">소매계정전환</n-button>
+        <n-button @click="toUncle">엉클계정전환</n-button>
         <!-- <<< TEMP <<< -->
-        <n-button round type="primary" @click="csChat">채팅 상담</n-button>
-        <n-button
-          round
-          type="primary"
-          @click="router.push({ name: 'OrderLinkage' })"
-          >주문연동</n-button
-        >
+        <n-button @click="router.push({ name: 'PlayGround' })">
+          PlayGround
+        </n-button>
+        <n-button @click="enableStoreNet">enableStoreNet</n-button>
+        <n-button @click="disableStoreNet">disableStoreNet</n-button>
       </n-space>
     </n-space>
     <n-modal

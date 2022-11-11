@@ -46,12 +46,13 @@ export interface IoColOpt {
   cellMapping?: boolean;
   imgField?: boolean;
   cellRender?: (rowData: any, rowIndex: number) => VNodeChild;
+  colRender?: TableColumnTitle;
 }
 
 export interface IoColOptInner<T> {
   key: keyof IoColName<T>;
   cellRender?: (rowData: T, rowIndex: number) => VNodeChild;
-  colRendor?: TableColumnTitle;
+  colRender?: TableColumnTitle;
 }
 
 export type IoColName<T> = { [n in MapKey]: IoColOptInner<T> };

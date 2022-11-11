@@ -14,6 +14,8 @@ import { useLogger } from "vue-logger-plugin";
 import { FcmToken, IoUser, USER_DB, USER_PROVIDER } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { intervalToDuration } from "date-fns";
+import { analytics } from "@/plugin/firebase";
+import { logEvent } from "@firebase/analytics";
 
 interface SignupParam {
   providerId: USER_PROVIDER;
@@ -55,10 +57,7 @@ export function useLogin() {
         };
 
         const interval = intervalToDuration(intervalParam);
-        console.log(" token interval:", interval, "param: ", intervalParam);
-
         if (interval.days && interval.days > 7) {
-          console.log("in login pushed token");
           newTokens.push(t);
         }
       }
@@ -88,6 +87,7 @@ export function useLogin() {
       .then((result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
         const credential = GoogleAuthProvider.credentialFromResult(result);
+        logEvent(analytics, "login", { method: USER_PROVIDER.GOOGLE });
         const user = result.user;
         console.log("credential: ", credential, "user: ", user);
 
@@ -137,6 +137,8 @@ export function useLogin() {
             const customRes = await http.get(`/auth/customToken/${res.id}`); // kakao id
             signInWithCustomToken(auth, customRes.data.token)
               .then(async (uc) => {
+                logEvent(analytics, "login", { method: USER_PROVIDER.KAKAO });
+
                 kakao.API.request({
                   url: "/v1/api/talk/channels",
                   success: function (res: any) {

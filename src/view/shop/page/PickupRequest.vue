@@ -2,33 +2,19 @@
 import {
   useOrderTable,
   ORDER_STATE,
-  USER_DB,
-  IoUser,
   ORDER_GARMENT_DB,
   useAlarm, // eslint-disable-next-line
   ProdOrderCombined,
+  useContactUncle,
 } from "@/composable";
-import { useAuthStore, useShopOrderStore } from "@/store";
+import { useShopOrderStore } from "@/store";
 import { useMessage } from "naive-ui";
-import { onBeforeMount, ref, computed } from "vue";
 
 const msg = useMessage();
-const auth = useAuthStore();
-const u = auth.currUser;
 const inStates: ORDER_STATE[] = ["BEFORE_PICKUP_REQ"];
 const shopOrderStore = useShopOrderStore();
 const smtp = useAlarm();
-const contractUncles = ref<IoUser[]>([]);
-onBeforeMount(async () => {
-  shopOrderStore.init(auth.currUser.userInfo.userId);
-  const uids = u.shopInfo!.uncleUserIds;
-  contractUncles.value = await USER_DB.getUserByIds(uids);
-});
-const opts = computed(() =>
-  contractUncles.value.map((x) => {
-    return { value: x.userInfo.userId, label: x.name };
-  })
-);
+
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 const orders = shopOrderStore.getOrders(inStates);
 const garmentOrdersByVendor =
@@ -46,8 +32,7 @@ const {
   updateOrderCnt: true,
   useAccountStr: false,
 });
-
-const targetUncleId = ref<string | null>(null);
+const { targetUncleId, contactUncleOpts, contractUncles } = useContactUncle();
 async function pickupRequest() {
   const uncle = contractUncles.value.find(
     (x) => x.userInfo.userId === targetUncleId.value
@@ -83,7 +68,7 @@ async function pickupRequest() {
             style="width: 10vw"
             placeholder="엉클 선택"
             v-model:value="targetUncleId"
-            :options="opts"
+            :options="contactUncleOpts"
           />
           <n-button size="small" type="primary" @click="pickupRequest">
             픽업 요청

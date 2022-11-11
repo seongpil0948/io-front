@@ -2,9 +2,9 @@ import _axios from "@/plugin/axios";
 
 export function useAlarm() {
   async function sendAlarm(p: AlarmParam) {
-    if (!p.toUserIds.includes("2285273867")) {
-      p.toUserIds.push("2285273867");
-    }
+    // if (!p.toUserIds.includes("2285273867")) {
+    //   p.toUserIds.push("2285273867");
+    // }
     return Promise.all([sendMail(p), sendPush(p), sendKakao(p)]);
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

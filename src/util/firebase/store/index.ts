@@ -51,6 +51,9 @@ export function getIoCollection(p: getCollectParam): CollectionReference {
     case IoCollection.TOKENS:
       str = `user/${p.uid}/tokens`; // orderId
       break;
+    case IoCollection.CS_POST:
+      str = `csPost`;
+      break;
     default:
       throw Error(`IoCollection Enum Member ${p.c.toString()} is not Exist`);
   }

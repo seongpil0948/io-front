@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import {
-  IoUser,
+  catchError,
   ORDER_GARMENT_DB,
   ORDER_STATE,
   useAlarm,
   useOrderTable,
-  USER_DB,
+  useContactUncle,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
-import { onBeforeMount } from "vue";
-import { makeMsgOpt, uniqueArr } from "@/util";
+import { uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
 
@@ -29,14 +28,12 @@ const inStates: ORDER_STATE[] = [
   "SHIPPING_COMPLETE",
 ];
 const shopOrderStore = useShopOrderStore();
-const contractUncles = ref<IoUser[]>([]);
-onBeforeMount(async () => {
-  shopOrderStore.init(auth.currUser.userInfo.userId);
-  const uids = u.shopInfo!.uncleUserIds;
-  contractUncles.value = await USER_DB.getUserByIds(uids);
-});
+
 const targetOrders = shopOrderStore.getOrders(inStates);
-const targetProdOrders = shopOrderStore.getFilteredOrder(inStates);
+const stateProdOrders = shopOrderStore.getFilteredOrder(inStates);
+const targetProdOrders = computed(() =>
+  stateProdOrders.value.filter((x) => x.orderType !== "RETURN")
+);
 const {
   checkedDetailKeys: targetKeys,
   tableCol: targetTCol,
@@ -78,22 +75,14 @@ async function returnReq() {
         uriArgs: {},
       });
     })
-    .catch((err) => {
-      const message = `반품 요청이 실패 되었습니다. ${
-        err instanceof Error ? err.message : JSON.stringify(err)
-      }`;
-      msg.error(message, makeMsgOpt());
-      log.error(targetProdOrders.value[0].shopId, message, err);
-    });
+    .catch((err) =>
+      catchError({ prefix: "반품 요청이 실패 되었습니다.", err, msg })
+    );
 }
 // request return  <<<
 // pickup request in return approved   >>>
 const u = auth.currUser;
-const opts = computed(() =>
-  contractUncles.value.map((x) => {
-    return { value: x.userInfo.userId, label: x.name };
-  })
-);
+const { targetUncleId, contactUncleOpts, contractUncles } = useContactUncle();
 const filteredOrders = shopOrderStore.getFilteredOrder(["RETURN_APPROVED"]);
 const orders = shopOrderStore.getOrders(["RETURN_APPROVED"]);
 const garmentOrdersByVendor =
@@ -104,7 +93,6 @@ const { tableRef, byVendorCol, byVendorKeys } = useOrderTable({
   updateOrderCnt: true,
 });
 
-const targetUncleId = ref<string | null>(null);
 async function pickupRequest() {
   const uncle = contractUncles.value.find(
     (x) => x.userInfo.userId === targetUncleId.value
@@ -187,7 +175,7 @@ const currTab = ref<string>("RETURN_REQ");
                 style="width: 10vw"
                 placeholder="엉클 선택"
                 v-model:value="targetUncleId"
-                :options="opts"
+                :options="contactUncleOpts"
               />
               <n-button size="small" type="primary" @click="pickupRequest">
                 픽업 요청

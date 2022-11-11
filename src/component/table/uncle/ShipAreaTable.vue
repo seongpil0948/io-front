@@ -11,7 +11,11 @@ const msg = useMessage();
 const auth = useAuthStore();
 const u = auth.currUser;
 const shipLocates = computed(() =>
-  auth.currUser.uncleInfo ? auth.currUser.uncleInfo.shipLocates : []
+  (auth.currUser.uncleInfo ? auth.currUser.uncleInfo.shipLocates : []).sort(
+    function (a, b) {
+      return a.amount - b.amount;
+    }
+  )
 );
 
 const selectedArea = ref<{ [k: string]: number | string | null }>({

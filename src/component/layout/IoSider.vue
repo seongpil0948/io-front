@@ -30,7 +30,6 @@ async function admLogin() {
     :width="240"
     :native-scrollbar="false"
     v-model:collapsed="collapsed"
-    style="height: 100%"
   >
     <n-space justify="center" align="center">
       <logo-image @click="router.goHome(u)" size="3.5rem" />

@@ -11,6 +11,8 @@ export const okNullPassword = (str: string) => {
 
 export const length = (str: string | Array<string | number>, len = 1) =>
   str ? str.length >= len : false;
+export const lengthEqual = (str: string | Array<string | number>, len = 1) =>
+  str ? str.length === len : false;
 
 export const checkInRange = (x: number, min: number, max: number) =>
   x !== null && x >= min && x <= max;

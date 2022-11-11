@@ -19,6 +19,7 @@ import { ref, computed, watch } from "vue";
 import { useVendorsStore, useAuthStore } from "./";
 
 export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
+  console.log(`=== called useVendorOrderStore === `);
   // >>> state >>>
   const authStore = useAuthStore();
   const vendorStore = useVendorsStore();
@@ -135,6 +136,9 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   // >>> action >>>
   function init(vendorUserId: string) {
     if (!initial || !vendorUserId || vendorUserId === vendorId.value) return;
+    console.log(
+      `=== init useVendorOrderStore === vendorUserId: ${vendorUserId}`
+    );
     vendorId.value = vendorUserId;
 
     const { unsubscribe: orderUnsubscribe } = ORDER_GARMENT_DB.vendorReadListen(
@@ -150,6 +154,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     initial = false;
   }
   function discard() {
+    console.log(`=== discard useVendorOrderStore ===`);
     unsubscribeAuth();
     if (orderUnSub) {
       orderUnSub();

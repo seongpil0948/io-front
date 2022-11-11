@@ -1,14 +1,14 @@
-import { LocateAmount } from "@/composable";
+import { LocateAmount, IoUser } from "@/composable";
 import { useAuthStore } from "@/store";
 import { DataTableColumns, NText, NButton, useMessage } from "naive-ui";
 import { Ref, h } from "vue";
 
 export function useShipUnitCols(
   showModal: Ref<boolean>,
-  unitKey: "amountBySize" | "amountByWeight"
+  unitKey: "amountBySize" | "amountByWeight",
+  edit = true,
+  u: IoUser
 ) {
-  const auth = useAuthStore();
-  const u = auth.currUser;
   const target = u.uncleInfo![unitKey];
   const shipUnitCols: DataTableColumns<{ unit: string; amount: number }> = [
     {
@@ -19,9 +19,15 @@ export function useShipUnitCols(
       title: "단위요금",
       key: "amount",
       render: (row) =>
-        h(NText, { type: "info" }, { default: () => row.amount }),
+        h(
+          NText,
+          { type: "info" },
+          { default: () => row.amount.toLocaleString() }
+        ),
     },
-    {
+  ];
+  if (edit) {
+    shipUnitCols.push({
       title: () =>
         h(
           NButton,
@@ -47,8 +53,8 @@ export function useShipUnitCols(
           },
           { default: () => "삭제" }
         ),
-    },
-  ];
+    });
+  }
   return {
     shipUnitCols,
   };

@@ -2,7 +2,13 @@ import { SHOP_GARMENT_DB } from "@/composable";
 import { useTable } from "@/composable/common";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { DataTableColumns, NPopselect, NButton, useMessage } from "naive-ui";
+import {
+  DataTableColumns,
+  NPopselect,
+  NButton,
+  useMessage,
+  useDialog,
+} from "naive-ui";
 import { ref, computed, h, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { ShopUserGarment } from "../domain";
@@ -12,6 +18,7 @@ export function useShopGarmentTable(briefly: boolean) {
   const msg = useMessage();
   const authStore = useAuthStore();
   const tableRef = ref<any>(null);
+  const dialog = useDialog();
   const openSelectList = ref(false);
   const { rowIdField, userProd } = useShopUserGarments(
     authStore.currUser.userInfo.userId,
@@ -19,6 +26,27 @@ export function useShopGarmentTable(briefly: boolean) {
   );
   const selectFunc = ref<((s: ShopUserGarment) => Promise<void>) | null>(null);
   const logger = useLogger();
+
+  async function deleteGarments(userId: string, prodIds: string[]) {
+    dialog.warning({
+      title: "상품 삭제",
+      content: "거래중인 상품일 수 있습니다. 그래도 삭제하시겠나요?",
+      positiveText: "삭제",
+      negativeText: "취소",
+      onPositiveClick: async () => {
+        SHOP_GARMENT_DB.deleteShopGarments(userId, prodIds)
+          .then(() => msg.success("삭제 완료", makeMsgOpt()))
+          .catch((err) => {
+            const message = `삭제 실패 ${
+              err instanceof Error ? err.message : JSON.stringify(err)
+            }`;
+            logger.error(authStore.currUser.userInfo.userId, message);
+            msg.error(message, makeMsgOpt());
+          });
+      },
+    });
+  }
+
   const { columns, mapper, checkedKeys } = useTable<
     Omit<ShopUserGarment, "account">
   >(
@@ -83,18 +111,9 @@ export function useShopGarmentTable(briefly: boolean) {
   const popVal = ref("");
   watchEffect(async () => {
     if (popVal.value === "Delete" && selectedRow.value) {
-      await SHOP_GARMENT_DB.deleteShopGarments(
-        authStore.currUser.userInfo.userId,
-        [selectedRow.value.shopProdId]
-      )
-        .then(() => msg.success("삭제 완료", makeMsgOpt()))
-        .catch((err) => {
-          const message = `삭제 실패 ${
-            err instanceof Error ? err.message : JSON.stringify(err)
-          }`;
-          logger.error(authStore.currUser.userInfo.userId, message);
-          msg.error(message, makeMsgOpt());
-        });
+      await deleteGarments(authStore.currUser.userInfo.userId, [
+        selectedRow.value.shopProdId,
+      ]);
     }
   });
   const tableCols = computed((): DataTableColumns<ShopUserGarment> => {
@@ -102,6 +121,8 @@ export function useShopGarmentTable(briefly: boolean) {
     columns.value.forEach((x) => {
       if (["vendorProdName", "prodName"].includes(x.key.toString())) {
         x.width = 150;
+      } else {
+        x.minWidth = 100;
       }
     });
     return !briefly
@@ -158,5 +179,6 @@ export function useShopGarmentTable(briefly: boolean) {
     selectedRow,
     selectFunc,
     openSelectList,
+    deleteGarments,
   };
 }
