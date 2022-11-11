@@ -7,8 +7,10 @@
     "serve-local": "vue-cli-service serve --port 8090 --mode local",
     "build": "vue-cli-service build",
     "build-dev": "vue-cli-service build --mode development",
-    "test:e2e": "vue-cli-service test:e2e --url https://io-box--dev-pcug7p0p.web.app/",
-    "test:e2e-headless": "vue-cli-service test:e2e --url https://io-box--dev-pcug7p0p.web.app/ --headless",
+    "test:e2e-dev": "vue-cli-service test:e2e --url https://io-box--dev-pcug7p0p.web.app/",
+    "test:e2e-dev-headless": "vue-cli-service test:e2e --url https://io-box--dev-pcug7p0p.web.app/ --headless",
+    "test:e2e-prod": "vue-cli-service test:e2e --url https://inout-box.com/",
+    "test:e2e-prod-headless": "vue-cli-service test:e2e --url https://inout-box.com/ --headless",
     "cypress:open": "cypress open",
     "lint": "vue-cli-service lint"
   },
