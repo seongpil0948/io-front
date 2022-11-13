@@ -51,8 +51,10 @@ export default {
       callback?: () => void;
     }
   ) {
+    //https://devtalk.kakao.com/t/javascript-sdk-v1-notice-change-on-the-download-link-for-javascript-sdk-v1/125629
     const scriptUrl =
-      options.scriptUrl ?? "https://developers.kakao.com/sdk/js/kakao.js";
+      options.scriptUrl ??
+      "https://t1.kakaocdn.net/kakao_js_sdk/v1/kakao.min.js";
     const scriptId = options.scriptId ?? "kakao_script";
     const callback = options.callback ?? null;
     const initializedScript = initialized();

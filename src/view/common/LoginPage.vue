@@ -29,8 +29,8 @@ const { onKakaoLogin, googleLogin } = useLogin();
       >
         다른계정으로 로그인
       </n-button>
-      <io-footer />
     </n-space>
+    <io-footer />
   </n-config-provider>
 </template>
 
