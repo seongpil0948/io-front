@@ -1,3 +1,4 @@
+import { onFirestoreErr, onFirestoreCompletion } from "@/composable/common";
 import { getIoCollection, IoCollection } from "@/util";
 import {
   doc,
@@ -13,22 +14,34 @@ export const IopayFB: PaymentDB = {
   getIoPayByUserListen: function (uid: string) {
     const userPay = ref<IoPay | null>(null);
     const docRef = getDocRef(uid);
-    onSnapshot(docRef, async (docData) => {
-      userPay.value = await getPayFromDoc(docData, uid);
-    });
+    const name = "getIoPayByUserListen snapshot";
+    onSnapshot(
+      docRef,
+      async (docData) => {
+        userPay.value = await getPayFromDoc(docData, uid);
+      },
+      async (err) => await onFirestoreErr(name, err),
+      () => onFirestoreCompletion(name)
+    );
     return userPay;
   },
   getIoPaysListen: function () {
     const usersPay = ref<IoPay[]>([]);
-    onSnapshot(getPayCollection(), async (snapshot) => {
-      usersPay.value = [];
-      snapshot.forEach((s) => {
-        const data = s.data();
-        if (data) {
-          usersPay.value.push(data);
-        }
-      });
-    });
+    const name = "getIoPaysListen snapshot";
+    onSnapshot(
+      getPayCollection(),
+      async (snapshot) => {
+        usersPay.value = [];
+        snapshot.forEach((s) => {
+          const data = s.data();
+          if (data) {
+            usersPay.value.push(data);
+          }
+        });
+      },
+      async (err) => await onFirestoreErr(name, err),
+      () => onFirestoreCompletion(name)
+    );
     return usersPay;
   },
   getIoPayByUser: async function (uid: string) {

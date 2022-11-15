@@ -178,7 +178,7 @@ async function onSignUp() {
     return msg.error("이용약관에 동의 해주세요", makeMsgOpt());
   } else if (!u) {
     log.error(null, "Signup step done, but user value is null");
-    return msg.error("오류 유저정보가 없습니다.", makeMsgOpt());
+    return msg.error("(오류) 유저정보가 없습니다.", makeMsgOpt());
   } else if (u.userInfo.providerId === "EMAIL") {
     if (!u.userInfo.email)
       return msg.error("(오류) 이메일이 없습니다.", makeMsgOpt());
@@ -189,15 +189,13 @@ async function onSignUp() {
         state.password
       );
       console.log("credential: ", credential);
-      return msg.success(
-        `${credential.user.uid}, ${credential.user.email} 회원가입이 되었습니다.`
-      );
+      log.info(null, "sign-up", credential);
     } catch (e: any) {
       if (typeof e.code === "string") {
         if (e.code.includes("email-already-in-use")) {
           log.warn(
             u.userInfo.userId,
-            "proccessed signup page but already signed up in firebase auth"
+            "processed signup page but already signed up in firebase auth"
           );
         } else {
           throw e;

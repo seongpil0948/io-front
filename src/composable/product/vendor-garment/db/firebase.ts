@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { VendorGarment, VendorGarmentDB } from "@/composable";
+import {
+  onFirestoreCompletion,
+  onFirestoreErr,
+  VendorGarment,
+  VendorGarmentDB,
+} from "@/composable";
 import { getIoStore } from "@io-boxies/js-lib";
 import { getIoCollection, IoCollection } from "@/util";
 import {
@@ -46,6 +51,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
     );
     const wheres =
       vendorIds.length > 0 ? [where("vendorId", "in", vendorIds)] : [];
+    const name = "batchReadListen snapshot";
     const unsubscribe = onSnapshot(
       query(c, ...wheres, orderBy("createdAt", "desc")),
       // query(
@@ -63,7 +69,9 @@ export const VendorGarmentFB: VendorGarmentDB = {
             items.value.push(data);
           }
         });
-      }
+      },
+      async (err) => await onFirestoreErr(name, err),
+      () => onFirestoreCompletion(name)
     );
     return { items, unsubscribe };
   },

@@ -1,5 +1,7 @@
 import {
   Mapper,
+  onFirestoreCompletion,
+  onFirestoreErr,
   ShopGarment,
   ShopGarmentDB,
   ShopUserGarment,
@@ -38,6 +40,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
     condi: (prod: ShopGarment) => boolean
   ): { shopProds: Ref<ShopGarment[]>; unsubscribe: Unsubscribe } {
     const shopProds = ref<ShopGarment[]>([]);
+    const name = "useGetShopGarments snapshot";
     const unsubscribe = onSnapshot(
       query(
         getIoCollection({ c: IoCollection.SHOP_PROD }).withConverter(
@@ -53,7 +56,9 @@ export const ShopGarmentFB: ShopGarmentDB = {
             shopProds.value.push(prod);
           }
         });
-      }
+      },
+      async (err) => await onFirestoreErr(name, err),
+      () => onFirestoreCompletion(name)
     );
 
     return { shopProds, unsubscribe };

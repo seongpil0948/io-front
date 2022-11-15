@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LocateCRT, IoAccount, FcmToken } from "@/composable";
+import { LocateCRT, IoAccount } from "@/composable";
 import { emailRule, nameLenRule } from "@/util";
 
 import { getAuth } from "@firebase/auth";
@@ -8,6 +8,7 @@ import {
   USER_ROLE,
   IoUserInfo,
   getFcmToken,
+  FcmToken,
 } from "@io-boxies/js-lib";
 import { FormInst, useMessage } from "naive-ui";
 import { reactive, ref } from "vue";

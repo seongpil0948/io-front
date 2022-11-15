@@ -23,6 +23,8 @@ import { Ref } from "vue";
 import {
   GarmentOrder,
   IO_PAY_DB,
+  onFirestoreCompletion,
+  onFirestoreErr,
   OrderCancel,
   OrderDB,
   ORDER_STATE,
@@ -403,17 +405,24 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       ),
       ...constraints
     );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      p.orders.value = [];
-      console.log("shop order snap from cache " + snapshot.metadata.fromCache);
-      snapshot.forEach((s) => {
-        const data = s.data();
-        if (data) {
-          p.orders.value.push(data);
-        }
-      });
-    });
+    const name = "shopReadOrder snapshot";
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        p.orders.value = [];
+        console.log(
+          "shop order snap from cache " + snapshot.metadata.fromCache
+        );
+        snapshot.forEach((s) => {
+          const data = s.data();
+          if (data) {
+            p.orders.value.push(data);
+          }
+        });
+      },
+      async (err) => await onFirestoreErr(name, err),
+      () => onFirestoreCompletion(name)
+    );
     return { unsubscribe };
   },
   vendorReadListen: function (p: {
@@ -427,24 +436,30 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       ),
       where("vendorIds", "array-contains", p.vendorId)
     );
-    const unsubscribe = onSnapshot(orderQ, (snapshot) => {
-      p.orders.value = [];
-      console.log(
-        "vendor order snap from cache " + snapshot.metadata.fromCache
-      );
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        if (p.inStates) {
-          if (data && data.states.some((x) => p.inStates!.includes(x))) {
-            p.orders.value.push(data);
+    const name = "vendorReadListen snapshot";
+    const unsubscribe = onSnapshot(
+      orderQ,
+      (snapshot) => {
+        p.orders.value = [];
+        console.log(
+          "vendor order snap from cache " + snapshot.metadata.fromCache
+        );
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (p.inStates) {
+            if (data && data.states.some((x) => p.inStates!.includes(x))) {
+              p.orders.value.push(data);
+            }
+          } else {
+            if (data) {
+              p.orders.value.push(data);
+            }
           }
-        } else {
-          if (data) {
-            p.orders.value.push(data);
-          }
-        }
-      });
-    });
+        });
+      },
+      async (err) => await onFirestoreErr(name, err),
+      () => onFirestoreCompletion(name)
+    );
 
     return { unsubscribe };
   },
@@ -459,22 +474,30 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       ),
       where("shipManagerId", "==", p.uncleId)
     );
-    const unsubscribe = onSnapshot(orderQ, (snapshot) => {
-      p.orders.value = [];
-      console.log("uncle order snap from cache " + snapshot.metadata.fromCache);
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        if (p.inStates) {
-          if (data && data.states.some((x) => p.inStates!.includes(x))) {
-            p.orders.value.push(data);
+    const name = "uncleReadListen snapshot";
+    const unsubscribe = onSnapshot(
+      orderQ,
+      (snapshot) => {
+        p.orders.value = [];
+        console.log(
+          "uncle order snap from cache " + snapshot.metadata.fromCache
+        );
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (p.inStates) {
+            if (data && data.states.some((x) => p.inStates!.includes(x))) {
+              p.orders.value.push(data);
+            }
+          } else {
+            if (data) {
+              p.orders.value.push(data);
+            }
           }
-        } else {
-          if (data) {
-            p.orders.value.push(data);
-          }
-        }
-      });
-    });
+        });
+      },
+      async (err) => await onFirestoreErr(name, err),
+      () => onFirestoreCompletion(name)
+    );
 
     return { unsubscribe };
   },

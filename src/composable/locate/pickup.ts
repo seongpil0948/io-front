@@ -4,6 +4,7 @@ import { computed, ref, Ref } from "vue";
 import { Locate } from ".";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
+import { onFirestoreErr, onFirestoreCompletion } from "../common";
 
 export interface CA {
   code: string | null;
@@ -33,16 +34,21 @@ export function usePickArea(model: Ref<CA>) {
   const locateCollection = getIoCollection({
     c: "PICKUP_LOCATES",
   }).withConverter(Locate.fireConverter());
-
-  onSnapshot(locateCollection, (snapshot) => {
-    locates.value = [];
-    snapshot.forEach((s) => {
-      const data = s.data();
-      if (data) {
-        locates.value.push(data);
-      }
-    });
-  });
+  const name = "pickupArea snapshot";
+  onSnapshot(
+    locateCollection,
+    (snapshot) => {
+      locates.value = [];
+      snapshot.forEach((s) => {
+        const data = s.data();
+        if (data) {
+          locates.value.push(data);
+        }
+      });
+    },
+    async (err) => await onFirestoreErr(name, err),
+    () => onFirestoreCompletion(name)
+  );
 
   // const getPickId = (x: CA) => `${x.code}__${x.alias}`;
   const getPickId = (x: CA) => x.alias;

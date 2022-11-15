@@ -15,6 +15,7 @@ const validRoles: USER_ROLE[] = ["SHOP", "UNCLE", "VENDOR"];
 const log = useLogger();
 
 async function onLogin(data: LoginReturn | undefined) {
+  console.log("data:", data);
   if (!data) return msg.error("no data");
   else if (data.wrongPassword) return msg.error("비밀번호가 틀렸습니다.");
   else if (data.toSignup) {
