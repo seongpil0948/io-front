@@ -63,7 +63,14 @@ router.afterEach((to, from, failure) => {
 });
 
 router.goHome = (user?: IoUser) => {
-  router.push({ name: getHomeName(user?.userInfo.role) });
+  if (!user) {
+    const authStore = useAuthStore();
+    console.log("authStore.currUserRole: ", authStore.currUserRole);
+    router.push({ name: getHomeName(authStore.currUserRole) });
+  } else {
+    console.log("user.userInfo.role: ", user.userInfo.role);
+    router.push({ name: getHomeName(user.userInfo.role) });
+  }
 };
 function getHomeName(role?: USER_ROLE) {
   if (!role) return "Login";

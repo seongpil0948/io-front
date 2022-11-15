@@ -28,6 +28,7 @@ import {
   USER_PROVIDER,
   getUserName,
 } from "@io-boxies/js-lib";
+import { createUserWithEmailAndPassword, getAuth } from "@firebase/auth";
 
 const log = useLogger();
 const inst = getCurrentInstance();
@@ -45,6 +46,7 @@ if (!state.userId) {
   log.error(null, "User ID not Received In SignUp Page(Landing)", state);
   router.replace({ name: "Login" });
 }
+console.log("state:", state);
 onMounted(() => {
   if (step.value === 0) {
     setTimeout(() => {
@@ -171,23 +173,50 @@ function onStep7() {
 }
 
 async function onSignUp() {
+  const u = user.value;
   if (!acceptTerms.value) {
     return msg.error("이용약관에 동의 해주세요", makeMsgOpt());
-  } else if (!user.value) {
+  } else if (!u) {
+    log.error(null, "Signup step done, but user value is null");
     return msg.error("오류 유저정보가 없습니다.", makeMsgOpt());
+  } else if (u.userInfo.providerId === "EMAIL") {
+    if (!u.userInfo.email)
+      return msg.error("(오류) 이메일이 없습니다.", makeMsgOpt());
+    try {
+      const credential = await createUserWithEmailAndPassword(
+        getAuth(),
+        u.userInfo.email,
+        state.password
+      );
+      console.log("credential: ", credential);
+      return msg.success(
+        `${credential.user.uid}, ${credential.user.email} 회원가입이 되었습니다.`
+      );
+    } catch (e: any) {
+      if (typeof e.code === "string") {
+        if (e.code.includes("email-already-in-use")) {
+          log.warn(
+            u.userInfo.userId,
+            "proccessed signup page but already signed up in firebase auth"
+          );
+        } else {
+          throw e;
+        }
+      }
+    }
   }
-  log.debug(user.value.userInfo.userId, "signup user: ", user.value);
-  await USER_DB.updateUser(user.value);
+  log.debug(u.userInfo.userId, "signup user: ", u);
+  await USER_DB.updateUser(u);
   logEvent(analytics, "sign_up", {
-    method: user.value?.userInfo.providerId,
-    userRole: user.value?.userInfo.role,
+    method: u.userInfo.providerId,
+    userRole: u.userInfo.role,
   });
   msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
   await smtp.sendAlarm({
-    toUserIds: [user.value!.userInfo.userId],
+    toUserIds: [u.userInfo.userId],
     subject: `inoutbox 회원가입 처리내역 알림.`,
     body: `${getUserName(
-      user.value
+      u
     )} 께서 제출하신 정보를 바탕으로 계정 검토 및 승인 후 홈페이지 및 어플 이용이 가능합니다.`,
     notiLoadUri: "/",
     uriArgs: {},
@@ -346,7 +375,6 @@ async function onSignUp() {
           </n-card>
           <n-button
             style="margin-top: 3vh; font-size: 1.1rem"
-            text
             @click.stop="onSignUp"
           >
             가입 완료!
@@ -421,8 +449,10 @@ async function onSignUp() {
   color: whitesmoke;
 }
 .role-btn {
-  width: 30vw;
-  height: 20vh;
+  width: 25vw;
+  height: 25vw;
+  max-width: 300px;
+  max-height: 300px;
 }
 #signup-page-container {
   justify-content: center !important;

@@ -1,21 +1,9 @@
 <script setup lang="ts">
-import { useLogin } from "@/composable";
-
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { enableStoreNet, disableStoreNet } from "@io-boxies/js-lib";
 const router = useRouter();
 const isTest = process.env.VUE_APP_IS_TEST;
-const { login } = useLogin();
-async function toVendor() {
-  await login("2301651985", { providerId: "EMAIL" }, false);
-}
-async function toShop() {
-  await login("2393044259", { providerId: "EMAIL" }, false);
-}
-async function toUncle() {
-  await login("2419092443", { providerId: "EMAIL" }, false);
-}
 const showTos = ref(false);
 function onTos() {
   showTos.value = true;
@@ -48,9 +36,6 @@ function onTos() {
         </n-button>
       </n-text>
       <n-space v-if="isTest === 'true'" justify="center">
-        <n-button @click="toVendor">도매계정전환</n-button>
-        <n-button @click="toShop">소매계정전환</n-button>
-        <n-button @click="toUncle">엉클계정전환</n-button>
         <!-- <<< TEMP <<< -->
         <n-button @click="router.push({ name: 'PlayGround' })">
           PlayGround

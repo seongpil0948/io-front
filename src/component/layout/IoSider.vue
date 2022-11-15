@@ -3,7 +3,6 @@ import { ref, toRefs } from "vue";
 import type { MenuOption } from "naive-ui";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store";
-import { useLogin } from "@/composable";
 const props = defineProps<{
   menuOptions: MenuOption[];
 }>();
@@ -13,12 +12,6 @@ const u = authStore.currUser;
 const { menuOptions } = toRefs(props);
 const collapsed = ref(false);
 const uidModel = ref<string | null>(null);
-const { login } = useLogin();
-async function admLogin() {
-  if (uidModel.value && uidModel.value.length > 4) {
-    await login(uidModel.value, { providerId: "EMAIL" }, false);
-  }
-}
 </script>
 
 <template>
@@ -60,7 +53,6 @@ async function admLogin() {
         type="text"
         placeholder="user id 입력"
       />
-      <n-button @click="admLogin">로그인</n-button>
     </n-space>
   </n-layout-sider>
 </template>

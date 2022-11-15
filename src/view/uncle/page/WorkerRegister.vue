@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { IoAccount, setWorkerId, useLogin } from "@/composable";
+import { IoAccount, setWorkerId } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { WorkerInfo, USER_DB, USER_PROVIDER, IoUser } from "@io-boxies/js-lib";
+import { useLogin } from "@io-boxies/vue-lib";
 import {
   NButton,
   NCheckbox,
