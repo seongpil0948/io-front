@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { WorkerInfo, FormOfEmployee } from "@/composable";
+import { WorkerInfo, FormOfEmployee } from "@io-boxies/js-lib";
 import { ref, computed } from "vue";
 import { makeMsgOpt, nameLenRule, notNullRule, arrLenRule } from "@/util";
 import { type FormInst, useMessage } from "naive-ui";

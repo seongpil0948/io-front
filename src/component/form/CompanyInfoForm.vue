@@ -3,7 +3,7 @@ import { reactive, ref } from "vue";
 import { FormInst } from "naive-ui";
 import { Certificate } from "@vicons/carbon";
 import { arrLenRule, emailRule, nameLenRule, isMobile } from "@/util";
-import { CompanyInfo } from "@/composable";
+import { CompanyInfo } from "@io-boxies/js-lib";
 
 const props = defineProps<{
   userId: string;

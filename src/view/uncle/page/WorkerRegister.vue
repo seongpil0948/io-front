@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import {
-  IoUser,
-  IoAccount,
-  USER_DB,
-  USER_PROVIDER,
-  WorkerInfo,
-  useLogin,
-} from "@/composable";
+import { IoAccount, setWorkerId, useLogin } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { useMessage } from "naive-ui";
+import { WorkerInfo, USER_DB, USER_PROVIDER, IoUser } from "@io-boxies/js-lib";
+import {
+  NButton,
+  NCheckbox,
+  NGradientText,
+  NH1,
+  NInput,
+  NSpace,
+  useMessage,
+} from "naive-ui";
 import { getCurrentInstance, ref } from "vue";
 
 const auth = useAuthStore();
@@ -87,7 +89,7 @@ async function onSignUp() {
     return msg.error("근로자 정보를 입력 및 제출해주세요.");
   } else {
     const providerId = USER_PROVIDER.KAKAO;
-    const user = new IoUser({
+    const user: IoUser = {
       userInfo: {
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -105,10 +107,10 @@ async function onSignUp() {
         managerId: auth.currUser.userInfo.userId,
         account: account.value,
       },
-    });
+    };
     console.log("Signed User: ", user);
-    await user.update(false);
-    await auth.currUser.setWorkerId(userId.value!);
+    await USER_DB.updateUser(user);
+    await setWorkerId(auth.currUser, userId.value!);
     msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
     authed.value = false;
   }

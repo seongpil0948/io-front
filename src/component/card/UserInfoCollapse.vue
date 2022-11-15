@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
 import clone from "lodash.clonedeep";
-import {
-  IoUser,
-  SALE_MANAGE,
-  ShopOperInfo,
-  VendorOperInfo,
-} from "@/composable";
+
 import { useAuthStore } from "@/store";
 import { deadOpt, shipMethodOpt } from "@/util";
+import {
+  IoUser,
+  VendorOperInfo,
+  SALE_MANAGE,
+  ShopOperInfo,
+  USER_DB,
+} from "@io-boxies/js-lib";
+
 const authStore = useAuthStore();
 const authModel = ref<IoUser | null>(null);
 onBeforeMount(() => {
@@ -25,7 +28,9 @@ onBeforeMount(() => {
 //   { immediate: false, deep: true }
 // );
 async function updateUser() {
-  await authModel.value?.update();
+  if (authModel.value) {
+    await USER_DB.updateUser(authModel.value);
+  }
 }
 </script>
 

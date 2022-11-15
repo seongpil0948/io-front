@@ -1,7 +1,6 @@
 import { createApp } from "vue";
 import router from "./plugin/router";
 import _axios from "./plugin/axios";
-import { ioFire } from "./plugin/firebase";
 
 import App from "./App.vue";
 import vueKakao from "./plugin/kakao";
@@ -37,7 +36,6 @@ app.use(router);
 app.use(logger);
 
 app.config.globalProperties.$http = _axios;
-app.config.globalProperties.$fire = ioFire;
 app.mount("#app");
 
 const messaging = getMessaging();

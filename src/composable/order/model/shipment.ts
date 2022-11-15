@@ -1,6 +1,7 @@
 import { CommonField } from "@/composable/common";
 // import { GarmentOrder } from "./order";
-import { Locate, LocateCRT, ShipmentCrt, SHIP_METHOD } from "@/composable";
+import { Locate, LocateCRT, ShipmentCrt } from "@/composable";
+import { SHIP_METHOD } from "@io-boxies/js-lib";
 import {
   FirestoreDataConverter,
   DocumentSnapshot,

@@ -4,7 +4,7 @@ import {
   DocumentSnapshot,
   DocumentData,
 } from "firebase/firestore";
-import { USER_ROLE } from "../auth";
+import { USER_ROLE } from "@io-boxies/js-lib";
 import { CsPost } from "./domain";
 
 export function csFromJson(data: { [x: string]: any }): CsPost | null {

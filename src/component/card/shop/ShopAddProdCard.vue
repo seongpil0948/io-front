@@ -7,9 +7,9 @@ import {
   ShopGarment,
   SHOP_GARMENT_DB,
   VendorUserGarmentCombined,
-  getUserLocate,
   ShopUserGarment,
 } from "@/composable";
+import { getUserLocate } from "@io-boxies/js-lib";
 import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { Home24Filled, Phone20Filled } from "@vicons/fluent";

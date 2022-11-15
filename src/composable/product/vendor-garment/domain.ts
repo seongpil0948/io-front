@@ -1,6 +1,4 @@
 import {
-  IoUserCRT,
-  IoUser,
   OrderCrt,
   GARMENT_SIZE,
   GENDER,
@@ -11,6 +9,7 @@ import {
   OrderAmount,
   ProdOrder,
 } from "@/composable";
+import { IoUser } from "@io-boxies/js-lib";
 import { Ref } from "vue";
 
 export interface VendorGarmentCrt extends VendorProdCrt {
@@ -33,9 +32,9 @@ export interface VendorGarmentCombined
   allStockCnt: number;
   stockCnt: StockCntObj;
 }
-export interface VendorUserGarment extends IoUserCRT, VendorGarmentCrt {}
+export interface VendorUserGarment extends IoUser, VendorGarmentCrt {}
 export interface VendorUserGarmentCombined
-  extends IoUserCRT,
+  extends IoUser,
     VendorGarmentCombined {}
 export interface VendorOrderGarment extends VendorGarmentCrt, OrderCrt {}
 export interface VendorUserOrderGarment

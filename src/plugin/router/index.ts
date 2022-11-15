@@ -2,9 +2,9 @@ import { createRouter, createWebHistory } from "vue-router";
 import { routes } from "./routes";
 import { useAuthStore, useCommonStore } from "@/store";
 import { logger } from "../logger";
-import { IoUser, USER_ROLE } from "@/composable";
-import { analytics } from "../firebase";
+import { analytics } from "@io-boxies/js-lib";
 import { logEvent } from "firebase/analytics";
+import { IoUser, USER_ROLE } from "@io-boxies/js-lib";
 export const notAuthName = ["Login", "SignUp", "PlayGround", "OrderLinkage"];
 
 const router = createRouter({

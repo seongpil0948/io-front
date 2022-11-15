@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { IoUser, useUncleWorkers } from "@/composable";
+import { useUncleWorkers } from "@/composable";
+import { IoUser } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
 import { computed, ref, toRefs, watchEffect } from "vue";
 

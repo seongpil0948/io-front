@@ -1,6 +1,6 @@
-import { USER_DB, IoUser } from "@/composable";
 import { ref, computed, watch } from "vue";
 import { useAuthStore } from "@/store";
+import { IoUser, USER_DB, getUserName } from "@io-boxies/js-lib";
 
 export function useContactUncle() {
   const auth = useAuthStore();
@@ -19,7 +19,7 @@ export function useContactUncle() {
 
   const contactUncleOpts = computed(() =>
     contractUncles.value.map((x) => {
-      return { value: x.userInfo.userId, label: x.name };
+      return { value: x.userInfo.userId, label: getUserName(x) };
     })
   );
 

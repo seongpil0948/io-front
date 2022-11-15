@@ -1,12 +1,12 @@
 import { LocateCRT } from "@/composable";
 import { QueryConstraint } from "@firebase/firestore";
+import { SHIP_METHOD } from "@io-boxies/js-lib";
 import { Ref } from "vue";
 import {
   BOOL_M,
   GarmentOrder,
   Locate,
   PayMethod,
-  SHIP_METHOD,
   ShopUserGarment,
   VendorUserGarment,
 } from "..";

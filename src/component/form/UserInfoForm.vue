@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import {
-  IoUser,
-  IoUserInfo,
-  LocateCRT,
-  USER_PROVIDER,
-  USER_ROLE,
-  IoAccount,
-  FcmToken,
-} from "@/composable";
+import { LocateCRT, IoAccount, FcmToken } from "@/composable";
 import { emailRule, nameLenRule } from "@/util";
 
 import { getAuth } from "@firebase/auth";
+import {
+  USER_PROVIDER,
+  USER_ROLE,
+  IoUserInfo,
+  getFcmToken,
+} from "@io-boxies/js-lib";
 import { FormInst, useMessage } from "naive-ui";
 import { reactive, ref } from "vue";
 
@@ -41,7 +39,7 @@ async function getUserInfo(): Promise<{
   userInfo?: IoUserInfo;
 }> {
   if (!accInfo.value) return { userInfo: undefined };
-  const token = await IoUser.getFcmToken();
+  const token = await getFcmToken();
 
   const obj: IoUserInfo = Object.assign(
     { account: accInfo.value! },

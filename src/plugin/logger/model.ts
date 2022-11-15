@@ -16,7 +16,7 @@ import { logger } from "@/plugin/logger";
 import { onBeforeMount, ref } from "vue";
 import { CommonField } from "@/composable/common/model";
 import { getIoCollection, IoCollection, loadDate } from "@/util";
-import { iostore } from "../firebase";
+import { iostore } from "@io-boxies/js-lib";
 export interface IoLogCRT {
   createdAt?: Date;
   uid?: string;

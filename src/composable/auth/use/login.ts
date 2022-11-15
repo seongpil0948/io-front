@@ -1,3 +1,4 @@
+import _axios from "@/plugin/axios";
 import { useEventListener } from "@/util";
 import { KAKAO_CHANNEL_ID } from "@/constants";
 import { getCurrentInstance } from "vue";
@@ -11,11 +12,16 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
-import { FcmToken, IoUser, USER_DB, USER_PROVIDER } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { intervalToDuration } from "date-fns";
-import { analytics } from "@/plugin/firebase";
 import { logEvent } from "@firebase/analytics";
+import {
+  getFcmToken,
+  USER_DB,
+  USER_PROVIDER,
+  FcmToken,
+  analytics,
+} from "@io-boxies/js-lib";
 
 interface SignupParam {
   providerId: USER_PROVIDER;
@@ -45,7 +51,7 @@ export function useLogin() {
     const user = await USER_DB.getUserById(uid);
     log.debug("USER_DB.getUserById: ", user, "Uid: ", uid);
     if (user) {
-      const token = await IoUser.getFcmToken();
+      const token = await getFcmToken();
       const tokens = user.userInfo.fcmTokens ?? [];
       const newTokens: FcmToken[] = [];
       for (let i = 0; i < tokens.length; i++) {
@@ -65,7 +71,7 @@ export function useLogin() {
         newTokens.push(token);
       }
       user.userInfo.fcmTokens = newTokens;
-      await user.update();
+      await USER_DB.updateUser(user);
       if (user.userInfo.passed) {
         await authS.login(user);
         router.goHome(user);
@@ -133,7 +139,8 @@ export function useLogin() {
         kakao.API.request({
           url: "/v2/user/me",
           success: async function (res: any) {
-            const http = inst?.appContext.config.globalProperties.$http;
+            const http =
+              inst?.appContext.config.globalProperties.$http ?? _axios;
             const customRes = await http.get(`/auth/customToken/${res.id}`); // kakao id
             signInWithCustomToken(auth, customRes.data.token)
               .then(async (uc) => {

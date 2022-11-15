@@ -1,4 +1,4 @@
-import { analytics } from "@/plugin/firebase";
+import { analytics } from "@io-boxies/js-lib";
 import { logEvent } from "@firebase/analytics";
 import { ref, Ref, computed } from "vue";
 

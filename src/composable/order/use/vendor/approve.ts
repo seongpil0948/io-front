@@ -1,3 +1,4 @@
+import { getUserName } from "@io-boxies/js-lib";
 import {
   GarmentOrder,
   IoPay,
@@ -168,7 +169,9 @@ export function useApproveOrder(p: ApproveParam) {
         await smtp.sendAlarm({
           toUserIds: shopIds,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${auth.currUser.name} 에서 주문 요청을 승인하였습니다. `,
+          body: `${getUserName(
+            auth.currUser
+          )} 에서 주문 요청을 승인하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
         });
@@ -215,7 +218,9 @@ export function useApproveOrder(p: ApproveParam) {
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${auth.currUser.name} 에서 주문 요청을 거절 하였습니다. `,
+          body: `${getUserName(
+            auth.currUser
+          )} 에서 주문 요청을 거절 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
         });
@@ -243,7 +248,7 @@ export function useApproveOrder(p: ApproveParam) {
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${auth.currUser.name} 에서 결제를 승인 하였습니다. `,
+          body: `${getUserName(auth.currUser)} 에서 결제를 승인 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
         });
@@ -266,7 +271,7 @@ export function useApproveOrder(p: ApproveParam) {
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${auth.currUser.name} 에서 반품을 승인 하였습니다. `,
+          body: `${getUserName(auth.currUser)} 에서 반품을 승인 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
         });
@@ -289,7 +294,7 @@ export function useApproveOrder(p: ApproveParam) {
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${auth.currUser.name} 에서 반품을 거절 하였습니다. `,
+          body: `${getUserName(auth.currUser)} 에서 반품을 거절 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
         });
@@ -313,7 +318,9 @@ export function useApproveOrder(p: ApproveParam) {
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${auth.currUser.name} 에서 출고리스트에 주문을 업로드 하였습니다. 이제 배송요청이 가능합니다. `,
+          body: `${getUserName(
+            auth.currUser
+          )} 에서 출고리스트에 주문을 업로드 하였습니다. 이제 배송요청이 가능합니다. `,
           notiLoadUri: "/",
           uriArgs: {},
         });

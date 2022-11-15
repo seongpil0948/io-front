@@ -1,14 +1,9 @@
-import {
-  IoShipment,
-  GarmentOrder,
-  IO_PAY_DB,
-  ShipDB,
-  IoUser,
-} from "@/composable";
-import { iostore } from "@/plugin/firebase";
+import { IoShipment, GarmentOrder, IO_PAY_DB, ShipDB } from "@/composable";
+import { iostore } from "@io-boxies/js-lib";
 import { useVendorsStore } from "@/store";
 import { getIoCollection, IoCollection } from "@/util";
 import { uuidv4 } from "@firebase/util";
+import { IoUser, userFireConverter } from "@io-boxies/js-lib";
 import { doc, runTransaction } from "firebase/firestore";
 import { getSrc } from "./order";
 // import { v4 as uuidv4 } from "uuid";
@@ -37,7 +32,7 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
       const uncleDoc = await transaction.get(
         doc(
           getIoCollection({ c: IoCollection.USER }).withConverter(
-            IoUser.fireConverter()
+            userFireConverter
           ),
           ord.shipManagerId
         )
@@ -45,7 +40,7 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
       const shopDoc = await transaction.get(
         doc(
           getIoCollection({ c: IoCollection.USER }).withConverter(
-            IoUser.fireConverter()
+            userFireConverter
           ),
           ord.shopId
         )

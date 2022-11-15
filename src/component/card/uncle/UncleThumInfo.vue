@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { IoUser } from "@/composable";
 import { useAuthStore } from "@/store";
+import { IoUser } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
 import { computed, onBeforeMount, toRefs } from "vue";
 import { useLogger } from "vue-logger-plugin";

@@ -1,5 +1,6 @@
+import { IoUser } from "@io-boxies/js-lib";
 import { Unsubscribe } from "@firebase/firestore";
-import { IoUserCRT, API_SERVICE_EX } from "@/composable";
+import { API_SERVICE_EX } from "@/composable";
 import { Ref } from "vue";
 import { ProductCrt, GARMENT_SIZE } from "../domain";
 import { ShopGarment } from "./model";
@@ -44,7 +45,7 @@ export interface ShopGarmentDB {
   getBatchShopProds(shopIds: string[]): Promise<ShopUserGarment[]>;
 }
 
-export interface ShopUserGarment extends IoUserCRT, ShopGarmentCrt {}
+export interface ShopUserGarment extends IoUser, ShopGarmentCrt {}
 
 export interface MatchGarment {
   service: API_SERVICE_EX;

@@ -1,4 +1,4 @@
-import { ioStorage } from "@/plugin/firebase";
+import { ioStorage } from "@io-boxies/js-lib";
 import {
   deleteObject,
   getDownloadURL,

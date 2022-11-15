@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve --port 8090 --mode development",
-    "serve-local": "vue-cli-service serve --port 8090 --mode local",
+    "serve": "vue-cli-service serve --port 5173 --mode development",
+    "serve-local": "vue-cli-service serve --port 5173 --mode local",
     "build": "vue-cli-service build",
     "build-dev": "vue-cli-service build --mode development",
     "test:e2e-dev": "vue-cli-service test:e2e --url https://io-box--dev-pcug7p0p.web.app/",
@@ -69,6 +69,7 @@
     "typescript": "^4.7.4",
     "unplugin-vue-components": "0.22.8",
     "vue-loader": "^17.0.0",
-    "vue-template-compiler": "^2.6.14"
+    "vue-template-compiler": "^2.6.14",
+    "@io-boxies/js-lib": "0.0.4"
   }
 }

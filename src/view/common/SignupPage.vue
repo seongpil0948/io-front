@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import {
-  IoUser,
-  ShopOperInfo,
-  USER_PROVIDER,
-  USER_ROLE,
-  VendorOperInfo,
-  useAlarm,
-} from "@/composable";
+import { useAlarm } from "@/composable";
 import { makeMsgOpt, useFireWork, isMobile } from "@/util";
 import { FormInst, useMessage, useDialog } from "naive-ui";
 import { lightTheme } from "naive-ui";
@@ -24,8 +17,17 @@ import UserInfoForm from "@/component/form/UserInfoForm.vue";
 import CompanyInfoForm from "@/component/form/CompanyInfoForm.vue";
 import ShopOperInfoVue from "@/component/form/ShopOperInfo.vue";
 import VendorOperInfoVue from "@/component/form/VendorOperInfo.vue";
-import { analytics } from "@/plugin/firebase";
+import { analytics } from "@io-boxies/js-lib";
 import { logEvent } from "@firebase/analytics";
+import {
+  IoUser,
+  USER_DB,
+  USER_ROLE,
+  ShopOperInfo,
+  VendorOperInfo,
+  USER_PROVIDER,
+  getUserName,
+} from "@io-boxies/js-lib";
 
 const log = useLogger();
 const inst = getCurrentInstance();
@@ -105,7 +107,7 @@ async function onStep5() {
     if (errors) {
       return msg.error(errorMsg, makeMsgOpt());
     } else {
-      user.value = new IoUser({ userInfo });
+      user.value = { userInfo };
       step.value = 5;
     }
     log.debug("userInfo", user.value);
@@ -170,11 +172,12 @@ function onStep7() {
 
 async function onSignUp() {
   if (!acceptTerms.value) {
-    msg.error("이용약관에 동의 해주세요", makeMsgOpt());
-    return;
+    return msg.error("이용약관에 동의 해주세요", makeMsgOpt());
+  } else if (!user.value) {
+    return msg.error("오류 유저정보가 없습니다.", makeMsgOpt());
   }
-  log.debug(user.value);
-  await user.value!.update();
+  log.debug(user.value.userInfo.userId, "signup user: ", user.value);
+  await USER_DB.updateUser(user.value);
   logEvent(analytics, "sign_up", {
     method: user.value?.userInfo.providerId,
     userRole: user.value?.userInfo.role,
@@ -183,9 +186,9 @@ async function onSignUp() {
   await smtp.sendAlarm({
     toUserIds: [user.value!.userInfo.userId],
     subject: `inoutbox 회원가입 처리내역 알림.`,
-    body: `${
-      user.value!.name
-    } 께서 제출하신 정보를 바탕으로 계정 검토 및 승인 후 홈페이지 및 어플 이용이 가능합니다.`,
+    body: `${getUserName(
+      user.value
+    )} 께서 제출하신 정보를 바탕으로 계정 검토 및 승인 후 홈페이지 및 어플 이용이 가능합니다.`,
     notiLoadUri: "/",
     uriArgs: {},
   });

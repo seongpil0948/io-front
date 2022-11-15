@@ -1,14 +1,13 @@
 import { defineStore } from "pinia";
 import {
-  IoUser,
   StockCntObj,
-  USER_DB,
   VendorGarment,
   VendorUserGarment,
   VendorUserGarmentCombined,
   VENDOR_GARMENT_DB,
 } from "@/composable";
 import { computed, ref, onBeforeMount } from "vue";
+import { IoUser, USER_DB } from "@io-boxies/js-lib";
 
 export const useVendorsStore = defineStore(
   "vendorProd",

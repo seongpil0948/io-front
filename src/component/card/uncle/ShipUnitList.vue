@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { IoUser, useShipUnitCols } from "@/composable";
+import { useShipUnitCols } from "@/composable";
 import { strLenRule } from "@/util";
+import { IoUser, getUserName, USER_DB } from "@io-boxies/js-lib";
 import { NButton, FormInst, useMessage } from "naive-ui";
 import { computed, ref, toRefs } from "vue";
 import { useLogger } from "vue-logger-plugin";
@@ -13,7 +14,9 @@ const props = defineProps<{
 }>();
 const { u } = toRefs(props);
 if (!u.value.uncleInfo) {
-  const err = `${u.value.userInfo.userId} ${u.value.name}, uncleInfo field is undefined in ShipUnitList`;
+  const err = `${u.value.userInfo.userId} ${getUserName(
+    u.value
+  )}, uncleInfo field is undefined in ShipUnitList`;
   logger.error(u.value.userInfo.userId, err);
 }
 
@@ -41,7 +44,7 @@ async function onAdd() {
     if (!errors) {
       const val = formValue.value;
       target[val.unit] = val.amount;
-      await u.value.update();
+      await USER_DB.updateUser(u.value);
       message.success("추가완료 ");
       showModal.value = false;
     } else {

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { VendorGarment, VendorGarmentDB } from "@/composable";
-import { getIoStore } from "@/plugin/firebase";
+import { getIoStore } from "@io-boxies/js-lib";
 import { getIoCollection, IoCollection } from "@/util";
 import {
   writeBatch,
