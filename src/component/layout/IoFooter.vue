@@ -1,10 +1,5 @@
 <script setup lang="ts">
 import { useLogin } from "@/composable";
-import {
-  getMockShops,
-  getMockVendors,
-  getMockUncles,
-} from "../../../tests/e2e/fixtures/users";
 
 import { ref } from "vue";
 import { useRouter } from "vue-router";
@@ -13,16 +8,13 @@ const router = useRouter();
 const isTest = process.env.VUE_APP_IS_TEST;
 const { login } = useLogin();
 async function toVendor() {
-  const uid = getMockVendors()[0];
-  await login(uid, { providerId: "EMAIL" }, false);
+  await login("2301651985", { providerId: "EMAIL" }, false);
 }
 async function toShop() {
-  const uid = getMockShops()[0];
-  await login(uid, { providerId: "EMAIL" }, false);
+  await login("2393044259", { providerId: "EMAIL" }, false);
 }
 async function toUncle() {
-  const uid = getMockUncles()[0];
-  await login(uid, { providerId: "EMAIL" }, false);
+  await login("2419092443", { providerId: "EMAIL" }, false);
 }
 const showTos = ref(false);
 function onTos() {
