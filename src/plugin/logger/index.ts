@@ -14,7 +14,7 @@ const ServerLogHook: LoggerHook = {
         console.error("not support log level : log");
         return;
       }
-      if (process.env.NODE_ENV !== "production") {
+      if (import.meta.env.MODE !== "production") {
         console.log(event.argumentArray);
       }
       const isUserLog =
@@ -54,7 +54,7 @@ const ServerLogHook: LoggerHook = {
 // create logger with options
 const logger = createLogger({
   enabled: true,
-  // consoleEnabled: process.env.NODE_ENV !== "production",
+  // consoleEnabled: import.meta.env.MODE !== "production",
   prefixFormat: ({ level, caller }) =>
     caller
       ? `[${level.toUpperCase()}] [${caller?.fileName}:${

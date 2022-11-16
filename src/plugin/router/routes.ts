@@ -4,53 +4,45 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/login",
     name: "Login",
-    component: () =>
-      import(/* webpackChunkName: "common" */ "@/view/common/LoginPage.vue"),
+    component: () => import("@/view/common/LoginPage.vue"),
   },
   {
     path: "/signup",
     name: "SignUp",
 
-    component: () =>
-      import(/* webpackChunkName: "common" */ "@/view/common/SignupPage.vue"),
+    component: () => import("@/view/common/SignupPage.vue"),
   },
   {
     path: "/cs",
     name: "Cs",
-    component: () =>
-      import(/* webpackChunkName: "cs" */ "@/view/cs/CsLayout.vue"),
+    component: () => import("@/view/cs/CsLayout.vue"),
     children: [
       {
         path: "",
         name: "CsHome",
-        component: () =>
-          import(/* webpackChunkName: "cs" */ "@/view/cs/CsHome.vue"),
+        component: () => import("@/view/cs/CsHome.vue"),
       },
       {
         path: "home",
         name: "CsHome",
-        component: () =>
-          import(/* webpackChunkName: "cs" */ "@/view/cs/CsHome.vue"),
+        component: () => import("@/view/cs/CsHome.vue"),
       },
       {
         path: "faqByCtgr",
         name: "FaqByCtgr", // FaqByCategory
-        component: () =>
-          import(/* webpackChunkName: "cs" */ "@/view/cs/FaqByCtgr.vue"),
+        component: () => import("@/view/cs/FaqByCtgr.vue"),
       },
       {
         path: "detail",
         name: "CsDetail",
-        component: () =>
-          import(/* webpackChunkName: "cs" */ "@/view/cs/CsDetail.vue"),
+        component: () => import("@/view/cs/CsDetail.vue"),
       },
     ],
   },
   {
     path: "/vendor",
     name: "VendorLayout",
-    component: () =>
-      import(/* webpackChunkName: "vendor" */ "@/view/vendor/VendorLayout.vue"),
+    component: () => import("@/view/vendor/VendorLayout.vue"),
     meta: {
       allowRoles: ["VENDOR", "ADMIN"],
     },
@@ -58,10 +50,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "",
         name: "VendorHome",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/VendorHome.vue"
-          ),
+        component: () => import("@/view/vendor/VendorHome.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -69,10 +58,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "vendorproductlist",
         name: "VendorProductList",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/VendorProductList.vue"
-          ),
+        component: () => import("@/view/vendor/page/VendorProductList.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -80,10 +66,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "productregister",
         name: "ProductRegister",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/ProductRegister.vue"
-          ),
+        component: () => import("@/view/vendor/page/ProductRegister.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -91,10 +74,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "productFillUpMng",
         name: "ProductFillUpMng",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/ProductFillUpMng.vue"
-          ),
+        component: () => import("@/view/vendor/page/ProductFillUpMng.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -102,10 +82,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "marketingMng",
         name: "MarketingMng",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/MarketingMng.vue"
-          ),
+        component: () => import("@/view/vendor/page/MarketingMng.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -113,10 +90,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "samplemanage",
         name: "SampleManage",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/SampleManage.vue"
-          ),
+        component: () => import("@/view/vendor/page/SampleManage.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -124,10 +98,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "beforeApproveList",
         name: "BeforeApproveList",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/BeforeApproveList.vue"
-          ),
+        component: () => import("@/view/vendor/page/BeforeApproveList.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -135,10 +106,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "afterApproveList",
         name: "AfterApproveList",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/AfterApproveList.vue"
-          ),
+        component: () => import("@/view/vendor/page/AfterApproveList.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -146,10 +114,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "paidOrder",
         name: "PaidOrder",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/PaidOrder.vue"
-          ),
+        component: () => import("@/view/vendor/page/PaidOrder.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -157,10 +122,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "pendingOrderMng",
         name: "PendingOrderMng",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/PendingOrderMng.vue"
-          ),
+        component: () => import("@/view/vendor/page/PendingOrderMng.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -168,10 +130,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "returnExchange",
         name: "ReturnExchange",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/ReturnExchange.vue"
-          ),
+        component: () => import("@/view/vendor/page/ReturnExchange.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -179,10 +138,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "payMng",
         name: "PayMng",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/PayMng.vue"
-          ),
+        component: () => import("@/view/vendor/page/PayMng.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -190,10 +146,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "vendorPartnerMng",
         name: "VendorPartnerMng",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/VendorPartnerMng.vue"
-          ),
+        component: () => import("@/view/vendor/page/VendorPartnerMng.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -201,10 +154,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "packingList",
         name: "PackingList",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/PackingList.vue"
-          ),
+        component: () => import("@/view/vendor/page/PackingList.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -212,10 +162,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "buildingPosMng",
         name: "BuildingPosMng",
-        component: () =>
-          import(
-            /* webpackChunkName: "vendor" */ "@/view/vendor/page/BuildingPosMng.vue"
-          ),
+        component: () => import("@/view/vendor/page/BuildingPosMng.vue"),
         meta: {
           allowRoles: ["VENDOR", "ADMIN"],
         },
@@ -225,14 +172,12 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/shop",
     name: "ShopLayout",
-    component: () =>
-      import(/* webpackChunkName: "shop" */ "@/view/shop/ShopLayout.vue"),
+    component: () => import("@/view/shop/ShopLayout.vue"),
     children: [
       {
         path: "",
         name: "ShopHome",
-        component: () =>
-          import(/* webpackChunkName: "shop" */ "@/view/shop/ShopHome.vue"),
+        component: () => import("@/view/shop/ShopHome.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -240,10 +185,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "prodadd",
         name: "ProductAdd",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/ProductAdd.vue"
-          ),
+        component: () => import("@/view/shop/page/ProductAdd.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -251,10 +193,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "prodmng",
         name: "ProductManage",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/ProductManage.vue"
-          ),
+        component: () => import("@/view/shop/page/ProductManage.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -262,10 +201,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "mapmng",
         name: "MappingManage",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/MappingManage.vue"
-          ),
+        component: () => import("@/view/shop/page/MappingManage.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -273,10 +209,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "orderrequire",
         name: "OrderRequire",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/OrderRequire.vue"
-          ),
+        component: () => import("@/view/shop/page/OrderRequire.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -284,10 +217,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "ordercomplete",
         name: "OrderComplete",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/OrderComplete.vue"
-          ),
+        component: () => import("@/view/shop/page/OrderComplete.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -295,10 +225,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "pendingOrderList",
         name: "PendingOrderList",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/PendingOrderList.vue"
-          ),
+        component: () => import("@/view/shop/page/PendingOrderList.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -306,10 +233,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "shopReturnExchange",
         name: "ShopReturnExchange",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/ShopReturnExchange.vue"
-          ),
+        component: () => import("@/view/shop/page/ShopReturnExchange.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -317,10 +241,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "sampleReq",
         name: "SampleReq",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/SampleReq.vue"
-          ),
+        component: () => import("@/view/shop/page/SampleReq.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -328,10 +249,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "payHistory",
         name: "PayHistory",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/PayHistory.vue"
-          ),
+        component: () => import("@/view/shop/page/PayHistory.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -339,10 +257,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "pickuprequest",
         name: "PickupRequest",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/PickupRequest.vue"
-          ),
+        component: () => import("@/view/shop/page/PickupRequest.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -350,10 +265,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "orderlinkage",
         name: "OrderLinkage",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/OrderLinkage.vue"
-          ),
+        component: () => import("@/view/shop/page/OrderLinkage.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -361,10 +273,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "shopUncleManage",
         name: "ShopUncleManage",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/ShopUncleManage.vue"
-          ),
+        component: () => import("@/view/shop/page/ShopUncleManage.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -372,10 +281,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "uncleStatus",
         name: "UncleStatus",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/UncleStatus.vue"
-          ),
+        component: () => import("@/view/shop/page/UncleStatus.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -383,8 +289,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "ioFast",
         name: "IoFast",
-        component: () =>
-          import(/* webpackChunkName: "shop" */ "@/view/shop/page/IoFast.vue"),
+        component: () => import("@/view/shop/page/IoFast.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -392,10 +297,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "shopUncleManage",
         name: "ShopUncleManage",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/ShopUncleManage.vue"
-          ),
+        component: () => import("@/view/shop/page/ShopUncleManage.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -403,10 +305,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "followPartner",
         name: "FollowPartner",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/FollowPartner.vue"
-          ),
+        component: () => import("@/view/shop/page/FollowPartner.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -414,10 +313,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "taxReport",
         name: "TaxReport",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/TaxReport.vue"
-          ),
+        component: () => import("@/view/shop/page/TaxReport.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -425,10 +321,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "orderHistory",
         name: "OrderHistory",
-        component: () =>
-          import(
-            /* webpackChunkName: "shop" */ "@/view/shop/page/OrderHistoryPage.vue"
-          ),
+        component: () => import("@/view/shop/page/OrderHistoryPage.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },
@@ -438,14 +331,12 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/uncle",
     name: "UncleLayout",
-    component: () =>
-      import(/* webpackChunkName: "uncle" */ "@/view/uncle/UncleLayout.vue"),
+    component: () => import("@/view/uncle/UncleLayout.vue"),
     children: [
       {
         path: "",
         name: "UncleHome",
-        component: () =>
-          import(/* webpackChunkName: "uncle" */ "@/view/uncle/UncleHome.vue"),
+        component: () => import("@/view/uncle/UncleHome.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -453,10 +344,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "pickupTotalList",
         name: "PickupTotalList",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/PickupTotalList.vue"
-          ),
+        component: () => import("@/view/uncle/page/PickupTotalList.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -464,10 +352,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "requestHistory",
         name: "RequestHistory",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/RequestHistory.vue"
-          ),
+        component: () => import("@/view/uncle/page/RequestHistory.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -475,10 +360,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "mngInCharge",
         name: "MngInCharge",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/MngInCharge.vue"
-          ),
+        component: () => import("@/view/uncle/page/MngInCharge.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -487,10 +369,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "billingManage",
         name: "BillingManage",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/BillingManage.vue"
-          ),
+        component: () => import("@/view/uncle/page/BillingManage.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -498,10 +377,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "mngSalary",
         name: "MngSalary",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/MngSalary.vue"
-          ),
+        component: () => import("@/view/uncle/page/MngSalary.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -509,10 +385,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "mngMaintainCost",
         name: "MngMaintainCost",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/MngMaintainCost.vue"
-          ),
+        component: () => import("@/view/uncle/page/MngMaintainCost.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -520,10 +393,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "vehicleManage",
         name: "VehicleManage",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/VehicleManage.vue"
-          ),
+        component: () => import("@/view/uncle/page/VehicleManage.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -531,10 +401,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "shipAreaManage",
         name: "ShipAreaManage",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/ShipAreaManage.vue"
-          ),
+        component: () => import("@/view/uncle/page/ShipAreaManage.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -542,10 +409,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "shipHistory",
         name: "ShipHistory",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/ShipHistory.vue"
-          ),
+        component: () => import("@/view/uncle/page/ShipHistory.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -553,10 +417,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "workerRegister",
         name: "WorkerRegister",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/WorkerRegister.vue"
-          ),
+        component: () => import("@/view/uncle/page/WorkerRegister.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -564,10 +425,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "workerHistory",
         name: "WorkerHistory",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/WorkerHistory.vue"
-          ),
+        component: () => import("@/view/uncle/page/WorkerHistory.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -575,10 +433,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "accidentManage",
         name: "AccidentManage",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/AccidentManage.vue"
-          ),
+        component: () => import("@/view/uncle/page/AccidentManage.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -586,10 +441,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "accidentHistory",
         name: "AccidentHistory",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/AccidentHistory.vue"
-          ),
+        component: () => import("@/view/uncle/page/AccidentHistory.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -597,10 +449,7 @@ export const routes: Array<RouteRecordRaw> = [
       {
         path: "unclePartnerManage",
         name: "UnclePartnerManage",
-        component: () =>
-          import(
-            /* webpackChunkName: "uncle" */ "@/view/uncle/page/UnclePartnerManage.vue"
-          ),
+        component: () => import("@/view/uncle/page/UnclePartnerManage.vue"),
         meta: {
           allowRoles: ["UNCLE", "ADMIN"],
         },
@@ -610,12 +459,10 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/playground",
     name: "PlayGround",
-    component: () =>
-      import(/* webpackChunkName: "common" */ "@/view/common/PlayGround.vue"),
+    component: () => import("@/view/common/PlayGround.vue"),
   },
   {
     path: "/:catchAll(.*)*",
-    component: () =>
-      import(/* webpackChunkName: "common" */ "@/view/common/UnknownPage.vue"),
+    component: () => import("@/view/common/UnknownPage.vue"),
   },
 ];

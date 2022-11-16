@@ -2,17 +2,13 @@
   "name": "io-front",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "serve": "vue-cli-service serve --port 5173 --mode development",
-    "serve-local": "vue-cli-service serve --port 5173 --mode local",
-    "build": "vue-cli-service build",
-    "build-dev": "vue-cli-service build --mode development",
-    "test:e2e-dev": "vue-cli-service test:e2e --url https://io-box--dev-pcug7p0p.web.app/",
-    "test:e2e-dev-headless": "vue-cli-service test:e2e --url https://io-box--dev-pcug7p0p.web.app/ --headless",
-    "test:e2e-prod": "vue-cli-service test:e2e --url https://inout-box.com/",
-    "test:e2e-prod-headless": "vue-cli-service test:e2e --url https://inout-box.com/ --headless",
-    "cypress:open": "cypress open",
-    "lint": "vue-cli-service lint"
+    "dev": "vite",
+    "dev-local": "vite --mode local",
+    "build": "vite build",
+    "serve": "vite preview",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src"
   },
   "dependencies": {
     "@bootpay/client-js": "^4.2.5",
@@ -22,8 +18,8 @@
     "@editorjs/list": "^1.7.0",
     "@editorjs/table": "^2.0.4",
     "axios": "1.1.2",
-    "core-js": "^3.24.1",
-    "danfojs": "^1.1.1",
+    "clipboardy": "^3.0.0",
+    "danfojs": "1.1.1",
     "date-fns": "^2.29.3",
     "firebase": "^9.8.2",
     "lodash.clonedeep": "^4.5.0",
@@ -51,13 +47,7 @@
     "@vicons/fluent": "^0.12.0",
     "@vicons/ionicons5": "^0.12.0",
     "@vicons/material": "^0.12.0",
-    "@vue/cli-plugin-babel": "~5.0.0",
-    "@vue/cli-plugin-eslint": "~5.0.0",
-    "@vue/cli-plugin-pwa": "~5.0.0",
-    "@vue/cli-plugin-router": "~5.0.0",
-    "@vue/cli-plugin-typescript": "~5.0.0",
-    "@vue/cli-service": "~5.0.0",
-    "@vue/eslint-config-typescript": "^11.0.0",
+    "@vitejs/plugin-vue": "4.0.0-alpha.0",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
@@ -65,10 +55,9 @@
     "naive-ui": "2.33.5",
     "prettier": "^2.4.1",
     "sass": "^1.53.0",
-    "sass-loader": "^13.0.0",
     "typescript": "^4.7.4",
     "unplugin-vue-components": "0.22.8",
-    "vue-loader": "^17.0.0",
-    "vue-template-compiler": "^2.6.14"
+    "vite": "^3.2.4",
+    "vue-loader": "^17.0.0"
   }
 }

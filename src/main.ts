@@ -18,7 +18,7 @@ window.onerror = function (errorMsg, url, errorObj) {
 logger.debug(
   null,
   "in-out box front(web) has Ignited, with Env: ",
-  process.env
+  import.meta.env
 );
 Date.prototype.toJSON = function () {
   return this.toISOString();

@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { enableStoreNet, disableStoreNet } from "@io-boxies/js-lib";
 const router = useRouter();
-const isTest = process.env.VUE_APP_IS_TEST;
+const isTest = import.meta.env.VITE_IS_TEST;
 const showTos = ref(false);
 function onTos() {
   showTos.value = true;

@@ -11,7 +11,6 @@ const authStore = useAuthStore();
 const u = authStore.currUser;
 const { menuOptions } = toRefs(props);
 const collapsed = ref(false);
-const uidModel = ref<string | null>(null);
 </script>
 
 <template>
@@ -41,18 +40,6 @@ const uidModel = ref<string | null>(null);
       :options="menuOptions"
     />
     <prefer-dark :text="!collapsed" />
-    <n-space
-      style="margin-top: 10px"
-      vertical
-      align="end"
-      v-if="u.userInfo.role === 'ADMIN'"
-    >
-      당신은 관리자 계정입니다.
-      <n-input
-        v-model:value="uidModel"
-        type="text"
-        placeholder="user id 입력"
-      />
-    </n-space>
+    <n-button @click="authStore.logout">로그아웃</n-button>
   </n-layout-sider>
 </template>
