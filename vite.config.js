@@ -11,6 +11,7 @@ export default defineConfig({
     // exclude: ["danfojs"],
   },
   build: {
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       manualChunks(id) {
         if (id.includes("@io-boxies/js-lib")) {
@@ -31,7 +32,40 @@ export default defineConfig({
           return "firebase/storage";
         } else if (id.includes("firebase/analytics")) {
           return "firebase/analytics";
+        } else if (id.includes("firebase/auth")) {
+          return "firebase/auth";
+        } else if (id.includes("bootpay")) {
+          return "bootpay";
+        } else if (id.includes("editorjs")) {
+          return "editorjs";
+        } else if (id.includes("lodash")) {
+          return "lodash";
+        } else if (id.includes("vicons")) {
+          return "vicons";
+        } else if (id.includes("danfojs")) {
+          return "danfojs";
+        } else if (id.includes("mathjs")) {
+          return "mathjs";
+        } else if (id.includes("table/dist")) {
+          return "table";
+        } else if (id.includes("juggle")) {
+          return "juggle";
+        } else if (id.includes("/@vue/")) {
+          return "vue";
+        } else if (id.includes("vue-logger-plugin")) {
+          return "vue-logger-plugin";
+        } else if (id.includes("tensorflow")) {
+          return "tensorflow";
+        } else if (id.includes("xlsx")) {
+          return "xlsx";
+        } else if (id.includes("babel")) {
+          return "babel";
+        } else if (id.includes("seedrandom")) {
+          return "seedrandom";
+        } else if (id.includes("firebase")) {
+          return "firebase/other";
         } else if (id.includes("node_modules")) {
+          // console.log("id: ", id);
           return "node_modules";
         }
       },

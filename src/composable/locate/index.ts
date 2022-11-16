@@ -5,7 +5,7 @@ import {
   DocumentSnapshot,
   DocumentData,
 } from "@firebase/firestore";
-import { v4 as uuidv4 } from "uuid";
+import { uuidv4 } from "@firebase/util";
 export type LocateType = "SHOP" | "STORAGE" | "ETC";
 export const LocateType: { [key in LocateType]: string } = Object.freeze({
   SHOP: "사무실",

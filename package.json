@@ -8,7 +8,7 @@
     "dev-local": "vite --mode local",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src"
+    "lint": "eslint --ext .ts,.js,.vue --ignore-path .gitignore --fix src"
   },
   "dependencies": {
     "@bootpay/client-js": "^4.2.5",
@@ -24,10 +24,8 @@
     "firebase": "^9.8.2",
     "lodash.clonedeep": "^4.5.0",
     "lodash.debounce": "^4.0.8",
-    "npm": "^8.15.1",
     "pinia": "^2.0.17",
     "register-service-worker": "^1.7.2",
-    "uuid": "9.0.0",
     "vue": "^3.2.41",
     "vue-logger-plugin": "^2.2.3",
     "vue-router": "^4.0.3",
@@ -39,7 +37,6 @@
     "@types/kakao-js-sdk": "^1.39.1",
     "@types/lodash.clonedeep": "^4.5.7",
     "@types/lodash.debounce": "^4.0.7",
-    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "@vicons/carbon": "^0.12.0",

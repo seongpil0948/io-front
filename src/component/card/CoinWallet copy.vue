@@ -1,7 +1,7 @@
 <script setup>
 import BootPay from "bootpay-js";
 import { computed, ref } from "vue";
-import { v4 as uuidv4 } from "uuid";
+import { uuidv4 } from "@firebase/util";
 import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
 import { useMessage } from "naive-ui";

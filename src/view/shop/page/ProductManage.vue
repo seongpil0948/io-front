@@ -7,7 +7,7 @@ import {
 import { useAuthStore, useVendorsStore } from "@/store";
 import { makeMsgOpt, isMobile } from "@/util";
 import { NButton, useMessage } from "naive-ui";
-import { v4 as uuidv4 } from "uuid";
+import { uuidv4 } from "@firebase/util";
 import { computed } from "vue";
 import { useLogger } from "vue-logger-plugin";
 

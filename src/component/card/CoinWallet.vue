@@ -1,12 +1,13 @@
 <script setup>
 import { computed, ref } from "vue";
-import { v4 as uuidv4 } from "uuid";
+
 import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
 // import { useMessage } from "naive-ui";
 // import { useLogger } from "vue-logger-plugin";
 import { IoPay, useUserPay } from "@/composable";
 import { Bootpay } from "@bootpay/client-js";
+import { uuidv4 } from "@firebase/util";
 
 // const log = useLogger();
 const APP_ID = "62b45e0fe38c3000215aec6b";

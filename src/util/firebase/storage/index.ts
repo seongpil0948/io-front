@@ -6,7 +6,7 @@ import {
   uploadBytes,
   type StorageReference,
 } from "firebase/storage";
-import { v4 as uuidv4 } from "uuid";
+import { uuidv4 } from "@firebase/util";
 export type STORAGE_SVC = "VENDOR_PRODUCT" | "USER";
 export const STORAGE_SVC: { [key in STORAGE_SVC]: STORAGE_SVC } = Object.freeze(
   {

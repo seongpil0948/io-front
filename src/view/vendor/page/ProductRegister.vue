@@ -2,7 +2,7 @@
 import { computed, ref, watchEffect } from "vue";
 import { type FormInst, useMessage, useDialog } from "naive-ui";
 import { AddCircleOutline } from "@vicons/ionicons5";
-import { v4 as uuidv4 } from "uuid";
+import { uuidv4 } from "@firebase/util";
 import { useRouter } from "vue-router";
 import { useLogger } from "vue-logger-plugin";
 import {

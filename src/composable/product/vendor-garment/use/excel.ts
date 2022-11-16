@@ -8,7 +8,7 @@ import {
 import { useAuthStore } from "@/store";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { ref, watch } from "vue";
-import { v4 as uuidv4 } from "uuid";
+import { uuidv4 } from "@firebase/util";
 import { useRouter } from "vue-router";
 
 export function useBatchVendorProd() {

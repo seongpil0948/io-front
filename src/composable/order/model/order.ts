@@ -14,7 +14,7 @@ import {
   DocumentSnapshot,
   DocumentData,
 } from "@firebase/firestore";
-import { v4 as uuidv4 } from "uuid";
+import { uuidv4 } from "@firebase/util";
 import cloneDeep from "lodash.clonedeep";
 import { insertById, getIoCollection, IoCollection, uniqueArr } from "@/util";
 import { logger } from "@/plugin/logger";

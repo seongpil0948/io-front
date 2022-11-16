@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useMessage } from "naive-ui";
 import { computed, ref, toRefs } from "vue";
-import { v4 as uuidv4 } from "uuid";
 import {
   GARMENT_SIZE,
   ShopGarment,
@@ -15,6 +14,7 @@ import { makeMsgOpt } from "@/util";
 import { Home24Filled, Phone20Filled } from "@vicons/fluent";
 import { useEditor } from "@/plugin/editor";
 import { useLogger } from "vue-logger-plugin";
+import { uuidv4 } from "@firebase/util";
 
 const props = defineProps<{
   showAddModal: boolean;
