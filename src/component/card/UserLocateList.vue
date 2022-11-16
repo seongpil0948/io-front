@@ -80,7 +80,7 @@ const locateKey = [
     <n-button @click="showAppendModal = true"> 추가 </n-button>
     <locate-append-modal
       v-model:showAppendModal="showAppendModal"
-      @appendLocate="onAppendLocate"
+      @append-locate="onAppendLocate"
     />
   </n-space>
 </template>

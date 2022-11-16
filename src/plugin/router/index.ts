@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { routes } from "./routes";
 import { useAuthStore, useCommonStore } from "@/store";
 import { logger } from "../logger";
-import { analytics } from "@io-boxies/js-lib";
+import { ioFire } from "@io-boxies/js-lib";
 import { logEvent } from "firebase/analytics";
 import { IoUser, USER_ROLE } from "@io-boxies/js-lib";
 export const notAuthName = ["Login", "SignUp", "PlayGround", "OrderLinkage"];
@@ -53,12 +53,10 @@ router.beforeEach(async (to) => {
 
 router.afterEach((to, from, failure) => {
   if (!failure) {
-    // sendToAnalytics(to.fullPath);
-    logEvent(analytics, "screen_view", {
+    logEvent(ioFire.analytics, "screen_view", {
       firebase_screen: to.name?.toString() ?? to.path,
       firebase_screen_class: to.fullPath ?? "",
     });
-    analytics;
   }
 });
 

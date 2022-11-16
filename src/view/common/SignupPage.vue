@@ -17,7 +17,7 @@ import UserInfoForm from "@/component/form/UserInfoForm.vue";
 import CompanyInfoForm from "@/component/form/CompanyInfoForm.vue";
 import ShopOperInfoVue from "@/component/form/ShopOperInfo.vue";
 import VendorOperInfoVue from "@/component/form/VendorOperInfo.vue";
-import { analytics } from "@io-boxies/js-lib";
+import { ioFire } from "@io-boxies/js-lib";
 import { logEvent } from "@firebase/analytics";
 import {
   IoUser,
@@ -232,7 +232,7 @@ async function onSignUp() {
       } else {
         log.debug(u.userInfo.userId, "signup user: ", u);
         await USER_DB.updateUser(u);
-        logEvent(analytics, "sign_up", {
+        logEvent(ioFire.analytics, "sign_up", {
           method: u.userInfo.providerId,
           userRole: u.userInfo.role,
         });

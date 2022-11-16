@@ -19,8 +19,8 @@ module.exports = {
     "prettier",
   ],
   rules: {
-    "no-console": "warn",
-    "no-debugger": "warn",
+    "no-console": "off",
+    "no-debugger": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-empty-function": "off",

@@ -9,7 +9,13 @@ export default defineConfig({
     alias: [{ find: "@", replacement: "/src" }],
   },
   optimizeDeps: {
-    // exclude: ["danfojs", "firebase"],
+    exclude: [
+      // 여기에 넣으면 모듈을 아예 불러오질 못함..
+      // "danfojs",
+      // "firebase",
+      // "@io-boxies/js-lib",
+      // "@io-boxies/vue-lib",
+    ],
   },
   build: {
     chunkSizeWarningLimit: 1000,
@@ -25,19 +31,7 @@ export default defineConfig({
           return "date-fns";
         } else if (id.includes("naive-ui")) {
           return "naive-ui";
-        }
-        // else if (id.includes("firebase/messaging")) {
-        //   return "firebase";
-        // } else if (id.includes("firebase/firestore")) {
-        //   return "firebase";
-        // } else if (id.includes("firebase/storage")) {
-        //   return "firebase";
-        // } else if (id.includes("firebase/analytics")) {
-        //   return "firebase";
-        // } else if (id.includes("firebase/auth")) {
-        //   return "firebase";
-        // }
-        else if (id.includes("bootpay")) {
+        } else if (id.includes("bootpay")) {
           return "bootpay";
         } else if (id.includes("editorjs")) {
           return "editorjs";
@@ -63,8 +57,6 @@ export default defineConfig({
           return "babel";
         } else if (id.includes("seedrandom")) {
           return "seedrandom";
-        } else if (id.includes("firebase")) {
-          return "firebase/other";
         } else if (id.includes("node_modules")) {
           // console.log("id: ", id);
           return "node_modules";
