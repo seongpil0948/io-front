@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { LocateAmount, Locate, useShipAreaCols } from "@/composable";
+import { Locate, useShipAreaCols } from "@/composable";
+import { LocateAmount, USER_DB } from "@io-boxies/js-lib";
 import { useAuthStore } from "@/store";
 import { useMessage, NButton } from "naive-ui";
 import { ref, computed } from "vue";
@@ -56,7 +57,7 @@ async function addShipArea() {
         amount: v.amount as number,
       };
       u.uncleInfo!.shipLocates.push(locate);
-      await u.update();
+      await USER_DB.updateUser(u);
       msg.success("지역 추가 완료");
     }
   }

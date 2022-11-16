@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { LocateAmount, usePickArea, usePickAreaCols } from "@/composable";
+import { usePickArea, usePickAreaCols } from "@/composable";
+import { LocateAmount, USER_DB } from "@io-boxies/js-lib";
 import { useAuthStore } from "@/store";
 import { useMessage } from "naive-ui";
 import { ref, computed } from "vue";
@@ -27,7 +28,7 @@ async function onClickAdd() {
     msg.error(`${locate.alias}는 이미 추가한 지역입니다.`);
   } else {
     u.uncleInfo!.pickupLocates.push(lAmount);
-    u.update()
+    USER_DB.updateUser(u)
       .then(() => msg.success("성공!"))
       .catch((err) => msg.error(err instanceof Error ? err.message : "실패!"));
   }

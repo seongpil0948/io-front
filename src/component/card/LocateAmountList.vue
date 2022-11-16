@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { LocateAmount, LocateCRT } from "@/composable";
+import { LocateCRT } from "@/composable";
+import { LocateAmount } from "@io-boxies/js-lib";
 import { toRefs } from "vue";
 
 const props = defineProps<{
