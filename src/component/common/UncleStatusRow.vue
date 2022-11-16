@@ -8,6 +8,7 @@ defineEmits<{ e: "worker:click" }>();
 const { worker } = toRefs(props);
 </script>
 <template>
+  <!-- eslint-disable vue/require-explicit-emits -->
   <n-space
     inline
     align="center"

@@ -31,7 +31,7 @@ function onTos() {
         <br />
         사업자등록번호: 720-08-02296 | 문의: inoutboxofficial@gmail.com |
         고객센터 번호 : 010-7727-7428
-        <n-button text @click="onTos" size="small" type="primary">
+        <n-button text size="small" type="primary" @click="onTos">
           이용약관 보기
         </n-button>
       </n-text>
@@ -40,8 +40,8 @@ function onTos() {
         <n-button @click="router.push({ name: 'PlayGround' })">
           PlayGround
         </n-button>
-        <n-button @click="enableStoreNet">enableStoreNet</n-button>
-        <n-button @click="disableStoreNet">disableStoreNet</n-button>
+        <n-button @click="enableStoreNet"> enableStoreNet </n-button>
+        <n-button @click="disableStoreNet"> disableStoreNet </n-button>
       </n-space>
     </n-space>
     <n-modal

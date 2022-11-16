@@ -39,8 +39,8 @@ const router = useRouter();
   >
     <div class="menu" onclick="this.classList.toggle('open')">
       <n-popover
-        display-directive="show"
         v-model:show="walletShow"
+        display-directive="show"
         trigger="manual"
       >
         <template #trigger>
@@ -54,8 +54,8 @@ const router = useRouter();
       </n-popover>
 
       <n-popover
-        display-directive="show"
         v-model:show="personalShow"
+        display-directive="show"
         trigger="manual"
       >
         <template #trigger>
@@ -69,8 +69,8 @@ const router = useRouter();
       </n-popover>
 
       <n-popover
-        display-directive="show"
         v-model:show="userLogShow"
+        display-directive="show"
         trigger="manual"
       >
         <template #trigger>

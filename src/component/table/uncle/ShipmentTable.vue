@@ -66,7 +66,7 @@ async function onSelectWorker(val: IoUser) {
       :bordered="false"
       :columns="byShopCols"
       :data="orderShipsByShop"
-      :rowKey="(row: ShipOrderByShop) => row.shopId"
+      :row-key="(row: ShipOrderByShop) => row.shopId"
       @update:checked-row-keys="onCheckRow"
     />
     <n-card
@@ -78,7 +78,7 @@ async function onSelectWorker(val: IoUser) {
         :bordered="false"
         :columns="byShopDetailCols"
         :data="selectedData.items"
-        :rowKey="(row: ShipOrder) => row.shippingId"
+        :row-key="(row: ShipOrder) => row.shippingId"
         @update:checked-row-keys="onCheckDetailRow"
       />
     </n-card>

@@ -56,24 +56,24 @@ async function closeFile(src: string) {
       <n-icon
         style="position: absolute; top: -15px; right: -15px; cursor: grabbing"
         size="25"
-        @click="closeFile(src)"
         :component="CloseCircle"
+        @click="closeFile(src)"
       />
     </div>
 
     <div v-if="urls.length < max">
       <n-card :style="`width: ${size}px; height: ${size}px; `">
         <label :for="elementId">
-          <n-spin :show="loading"><slot></slot> </n-spin
+          <n-spin :show="loading"><slot /> </n-spin
         ></label>
       </n-card>
 
       <input
+        :id="elementId"
         ref="input"
         type="file"
         multiple
         style="visibility: hidden"
-        :id="elementId"
         :name="elementId"
         accept="image/*"
         @change="loadFile"

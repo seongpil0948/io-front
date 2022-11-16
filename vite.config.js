@@ -2,13 +2,14 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { NaiveUiResolver } from "unplugin-vue-components/resolvers";
 import Components from "unplugin-vue-components/vite";
+import eslintPlugin from "vite-plugin-eslint";
 
 export default defineConfig({
   resolve: {
     alias: [{ find: "@", replacement: "/src" }],
   },
   optimizeDeps: {
-    // exclude: ["danfojs"],
+    // exclude: ["danfojs", "firebase"],
   },
   build: {
     chunkSizeWarningLimit: 1000,
@@ -24,22 +25,22 @@ export default defineConfig({
           return "date-fns";
         } else if (id.includes("naive-ui")) {
           return "naive-ui";
-        } else if (id.includes("firebase/messaging")) {
-          return "firebase/messaging";
-        } else if (id.includes("firebase/firestore")) {
-          return "firebase/firestore";
-        } else if (id.includes("firebase/storage")) {
-          return "firebase/storage";
-        } else if (id.includes("firebase/analytics")) {
-          return "firebase/analytics";
-        } else if (id.includes("firebase/auth")) {
-          return "firebase/auth";
-        } else if (id.includes("bootpay")) {
+        }
+        // else if (id.includes("firebase/messaging")) {
+        //   return "firebase";
+        // } else if (id.includes("firebase/firestore")) {
+        //   return "firebase";
+        // } else if (id.includes("firebase/storage")) {
+        //   return "firebase";
+        // } else if (id.includes("firebase/analytics")) {
+        //   return "firebase";
+        // } else if (id.includes("firebase/auth")) {
+        //   return "firebase";
+        // }
+        else if (id.includes("bootpay")) {
           return "bootpay";
         } else if (id.includes("editorjs")) {
           return "editorjs";
-        } else if (id.includes("lodash")) {
-          return "lodash";
         } else if (id.includes("vicons")) {
           return "vicons";
         } else if (id.includes("danfojs")) {
@@ -105,5 +106,6 @@ export default defineConfig({
         // }),
       ],
     }),
+    eslintPlugin(),
   ],
 });

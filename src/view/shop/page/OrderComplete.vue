@@ -93,7 +93,7 @@ const columns = computed(() => [
           :bordered="false"
           :columns="columns"
           :data="selectedData.items"
-          :rowKey="(row: ProdOrderCombined) => row.id"
+          :row-key="(row: ProdOrderCombined) => row.id"
         />
       </n-card>
     </n-space>

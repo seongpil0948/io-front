@@ -1,8 +1,8 @@
 <template>
   <n-card
-    @click="onClickProd"
     :style="`cursor: pointer; width: ${width}px; height: 100%`"
     content-style="padding: 0px 10px; overflow: hidden"
+    @click="onClickProd"
   >
     <template #cover>
       <img
@@ -17,13 +17,15 @@
       justify="start"
       align="start"
     >
-      <n-text style="font-size: 0.9rem" class="txt">{{
-        prod.vendorProdName
-      }}</n-text>
+      <n-text style="font-size: 0.9rem" class="txt">
+        {{ prod.vendorProdName }}
+      </n-text>
       <n-space inline justify="start" align="start">
-        <n-text class="txt">{{ prod.colors.length }} Color</n-text>
-        <n-text class="txt">{{ prod.vendorPrice.toLocaleString() }}</n-text>
-        <n-text class="txt">재고({{ prod.allStockCnt }})</n-text>
+        <n-text class="txt"> {{ prod.colors.length }} Color </n-text>
+        <n-text class="txt">
+          {{ prod.vendorPrice.toLocaleString() }}
+        </n-text>
+        <n-text class="txt"> 재고({{ prod.allStockCnt }}) </n-text>
       </n-space>
     </n-space>
   </n-card>

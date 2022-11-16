@@ -15,7 +15,7 @@ const { faqPosts, noticePosts } = storeToRefs(csStore);
   <n-card>
     <n-tabs>
       <template #suffix>
-        <n-button text @click="goCsHome" icon-placement="right">
+        <n-button text icon-placement="right" @click="goCsHome">
           더보기
           <template #icon>
             <n-icon>

@@ -14,12 +14,12 @@ const currTab = ref("RETURN_REQ");
         name="RETURN_REQ"
       >
         <vendor-order-by-shop-table
-          :showPaidDate="true"
-          :inStates="['RETURN_REQ']"
+          :show-paid-date="true"
+          :in-states="['RETURN_REQ']"
         />
       </n-tab-pane>
       <n-tab-pane display-directive="show:lazy" tab="취소/수정" name="CANCEL">
-        <vendor-order-table :showPaidDate="true" :inStates="['CANCEL']" />
+        <vendor-order-table :show-paid-date="true" :in-states="['CANCEL']" />
       </n-tab-pane>
     </n-tabs>
   </n-card>

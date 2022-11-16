@@ -142,30 +142,32 @@ useEditor({
       <n-card>
         <n-space size="large" inline justify="space-between" style="width: 98%">
           <carousel-img-card
-            :imgUrls="imgUrls"
+            :img-urls="imgUrls"
             :width="30"
             :height="30"
             unit="vw"
           />
           <n-space vertical style="width: 35vw">
-            <n-space justify="space-between" v-if="getUserLocate(prod)">
+            <n-space v-if="getUserLocate(prod)" justify="space-between">
               <n-button text>
                 <template #icon>
                   <n-icon size="24" :component="Home24Filled" />
                 </template>
-                {{ getUserLocate(prod)!.detailLocate }}</n-button
-              >
+                {{ getUserLocate(prod)!.detailLocate }}
+              </n-button>
               <n-button text>
                 <template #icon>
                   <n-icon size="24" :component="Phone20Filled" />
                 </template>
-                {{ getUserLocate(prod)!.phone }}</n-button
-              >
+                {{ getUserLocate(prod)!.phone }}
+              </n-button>
             </n-space>
             <n-divider style="width: 100%" />
-            <n-h2 style="padding-top: 0px">{{ prod.vendorProdName }}</n-h2>
+            <n-h2 style="padding-top: 0px">
+              {{ prod.vendorProdName }}
+            </n-h2>
 
-            <n-h2 style="padding-top: 0px">{{ prod.vendorPrice }}원</n-h2>
+            <n-h2 style="padding-top: 0px"> {{ prod.vendorPrice }}원 </n-h2>
             <div style="max-height: 20vw; overflow: auto; padding: 2%">
               <n-card
                 v-for="(opt, i) in prodOpts"
@@ -179,14 +181,14 @@ useEditor({
                     align-items: center;
                 "
               >
-                <n-h4 style="margin: 0; padding-bottom: 3%">{{
-                  opt.label
-                }}</n-h4>
+                <n-h4 style="margin: 0; padding-bottom: 3%">
+                  {{ opt.label }}
+                </n-h4>
                 <logo-checker
                   :size="1"
                   :checked="selectedProdIds.includes(opt.value)"
-                  @onClick="onCheck(opt.value)"
                   style="margin-right: 20px"
+                  @on-click="onCheck(opt.value)"
                 />
               </n-card>
             </div>
@@ -199,7 +201,9 @@ useEditor({
         :column="4"
         style="margin-top: 1%"
       >
-        <template #header> <n-h3>기본정보</n-h3> </template>
+        <template #header>
+          <n-h3>기본정보</n-h3>
+        </template>
         <n-descriptions-item>
           <template #label> 카테고리 </template>
           {{ prod.part }} > {{ prod.ctgr }}
@@ -214,14 +218,19 @@ useEditor({
         label-placement="top"
         style="margin-top: 1%"
       >
-        <n-descriptions-item
-          ><template #label> <n-h3>상품 요약</n-h3> </template>
-          {{ prod.description }}</n-descriptions-item
-        >
         <n-descriptions-item>
-          <template #label> <n-h3>상세 정보</n-h3> </template>
-          <div id="io-editor"></div
-        ></n-descriptions-item>
+          <template #label>
+            <n-h3>상품 요약</n-h3>
+          </template>
+          {{ prod.description }}
+        </n-descriptions-item>
+        <n-descriptions-item>
+          <template #label>
+            <n-h3>상세 정보</n-h3>
+          </template>
+          <div id="io-editor" />
+          />
+        </n-descriptions-item>
       </n-descriptions>
     </n-space>
     <template #action>

@@ -44,27 +44,27 @@ async function updateUser() {
     <n-collapse-item title="사업자정보" name="1">
       <n-space vertical style="width: 100%">
         <div class="io-row">
-          <n-text strong>업체명</n-text>
+          <n-text strong> 업체명 </n-text>
           <n-text>{{ authModel.companyInfo!.companyName }}</n-text>
         </div>
         <div class="io-row">
-          <n-text strong>사업자 등록번호</n-text>
+          <n-text strong> 사업자 등록번호 </n-text>
           <n-text>{{ authModel.companyInfo!.companyNo }}</n-text>
         </div>
         <div class="io-row">
-          <n-text strong>대표자명</n-text>
+          <n-text strong> 대표자명 </n-text>
           <n-text>{{ authModel.companyInfo!.ceoName }}</n-text>
         </div>
         <div class="io-row">
-          <n-text strong>대표 연락처</n-text>
+          <n-text strong> 대표 연락처 </n-text>
           <n-text>{{ authModel.companyInfo!.ceoPhone }}</n-text>
         </div>
         <n-space justify="space-between">
-          <n-text strong>주소지</n-text>
+          <n-text strong> 주소지 </n-text>
           <user-locate-list
-            style="padding: 2%"
             v-if="authModel.companyInfo"
             v-model:info="authModel.companyInfo"
+            style="padding: 2%"
             @update:info="updateUser"
           />
         </n-space>
@@ -73,80 +73,80 @@ async function updateUser() {
           rel="noopener noreferrer"
           href="https://docs.google.com/forms/d/e/1FAIpQLSfiqRLuVKfhiIvk6JwuAp-daQ7OQ2_vcQOToxgy7vGDz-4NtQ/viewform"
         >
-          정보 변경 요청하기</n-a
-        >
+          정보 변경 요청하기
+        </n-a>
       </n-space>
     </n-collapse-item>
     <n-collapse-item title="계정정보" name="2">
       <n-space vertical style="width: 100%">
         <div class="io-row">
-          <n-text strong>역할</n-text>
+          <n-text strong> 역할 </n-text>
           <n-text>{{ authModel.userInfo.role }}</n-text>
         </div>
         <div class="io-row">
-          <n-text strong>이메일</n-text>
+          <n-text strong> 이메일 </n-text>
           <n-text>{{ authModel.userInfo.email }}</n-text>
         </div>
         <div class="io-row">
-          <n-text strong>쇼핑몰 명</n-text>
+          <n-text strong> 쇼핑몰 명 </n-text>
           <n-text>{{ authModel.userInfo.userName }}</n-text>
         </div>
         <div class="io-row">
-          <n-text strong>닉네임</n-text>
+          <n-text strong> 닉네임 </n-text>
           <n-text>{{ authModel.userInfo.displayName }}</n-text>
         </div>
         <div class="io-row">
-          <n-text strong>운영링크</n-text>
+          <n-text strong> 운영링크 </n-text>
           <n-text>{{ authModel.companyInfo?.shopLink }}</n-text>
         </div>
       </n-space>
     </n-collapse-item>
     <n-collapse-item title="운영정보" name="3">
       <n-space
+        v-if="authModel.userInfo.role === 'SHOP'"
         vertical
         style="width: 100%"
-        v-if="authModel.userInfo.role === 'SHOP'"
       >
         <div class="io-row">
-          <n-text strong>현재사입방식</n-text>
+          <n-text strong> 현재사입방식 </n-text>
           <n-select
             v-model:value="(authModel.operInfo as ShopOperInfo).purchaseMethod"
-            @update:value="updateUser"
             :options="shipMethodOpt"
+            @update:value="updateUser"
           />
         </div>
       </n-space>
       <n-space
+        v-if="authModel.userInfo.role === 'VENDOR'"
         vertical
         style="width: 100%"
-        v-if="authModel.userInfo.role === 'VENDOR'"
       >
         <div class="io-row">
-          <n-text strong>주문 자동 승인</n-text>
+          <n-text strong> 주문 자동 승인 </n-text>
           <yes-or-no-radio
             v-model:value="(authModel.operInfo as VendorOperInfo).autoOrderApprove"
+            :yes-val="true"
+            :no-val="false"
             @update:value="updateUser"
-            :yesVal="true"
-            :noVal="false"
           />
         </div>
         <div class="io-row">
-          <n-text strong>장기 종류</n-text>
+          <n-text strong> 장기 종류 </n-text>
           <yes-or-no-radio
             v-model:value="(authModel.operInfo as VendorOperInfo).saleManageType"
+            :yes-val="SALE_MANAGE.HAND_WRITE"
+            yes-label="수기"
+            :no-val="SALE_MANAGE.ONLINE"
+            no-label="포스&온라인"
             @update:value="updateUser"
-            :yesVal="SALE_MANAGE.HAND_WRITE"
-            yesLabel="수기"
-            :noVal="SALE_MANAGE.ONLINE"
-            noLabel="포스&온라인"
           />
         </div>
         <div class="io-row">
-          <n-text strong>월 세금계산서 마감일</n-text>
+          <n-text strong> 월 세금계산서 마감일 </n-text>
           <n-select
             v-model:value="(authModel.operInfo as VendorOperInfo).taxDeadlineDay"
-            @update:value="updateUser"
             :options="deadOpt"
+            @update:value="updateUser"
           />
         </div>
       </n-space>

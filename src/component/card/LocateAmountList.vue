@@ -19,17 +19,23 @@ const locateKey = [
 
 <template>
   <n-space v-if="locates.length > 0" style="overflow-x: auto" :wrap="false">
-    <n-tooltip trigger="hover" v-for="(i, idx) in locates" :key="idx">
+    <n-tooltip v-for="(i, idx) in locates" :key="idx" trigger="hover">
       <template #trigger>
-        <n-tag round> {{ i.locate.alias }}</n-tag>
+        <n-tag round>
+          {{ i.locate.alias }}
+        </n-tag>
       </template>
       <n-card style="width: 25vw" title="주소지 정보">
         <template #header-extra>
           <n-text>가격(원): {{ i.amount.toLocaleString() }}</n-text>
         </template>
         <n-space v-for="(j, idx2) in locateKey" :key="idx2 + '2'">
-          <n-text type="info">{{ j[0] }} </n-text>
-          <n-text type="primary">{{ i.locate[j[1]] }} </n-text>
+          <n-text type="info">
+            {{ j[0] }}
+          </n-text>
+          <n-text type="primary">
+            {{ i.locate[j[1]] }}
+          </n-text>
         </n-space>
       </n-card>
     </n-tooltip>

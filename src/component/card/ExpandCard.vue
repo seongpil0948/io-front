@@ -24,17 +24,21 @@ const expanded = ref(false);
         padding: 0; text-align: end; border-bottom: lightgray 1px solid;
         padding-bottom: 7px; padding-right: 10px; margin-bottom: 10px;"
   >
-    <slot></slot>
+    <slot />
     <template #header>
       <n-space justify="end" align="center">
         <n-button quaternary circle @click="expanded = !expanded">
           <template #icon>
-            <n-icon size="20"><ExpandOutline /></n-icon>
+            <n-icon size="20">
+              <ExpandOutline />
+            </n-icon>
           </template>
         </n-button>
         <n-button quaternary circle @click="clickCloseBtn">
           <template #icon>
-            <n-icon size="20"><CloseOutline /></n-icon>
+            <n-icon size="20">
+              <CloseOutline />
+            </n-icon>
           </template>
         </n-button>
         <!-- <n-button
@@ -49,8 +53,8 @@ const expanded = ref(false);
         </n-button> -->
       </n-space>
     </template>
-    <template #footer> <slot name="footer"></slot> </template>
-    <template #action> <slot name="action"></slot> </template>
+    <template #footer> <slot name="footer" /> </template>
+    <template #action> <slot name="action" /> </template>
   </n-card>
 </template>
 

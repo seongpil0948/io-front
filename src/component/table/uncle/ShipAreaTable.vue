@@ -73,7 +73,7 @@ const { shipAreaCols } = useShipAreaCols();
       placeholder="배송금액"
       :show-button="false"
     />
-    <n-button @click="addShipArea">추가</n-button>
+    <n-button @click="addShipArea"> 추가 </n-button>
   </n-space>
   <n-data-table
     :columns="shipAreaCols"

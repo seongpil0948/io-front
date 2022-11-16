@@ -26,7 +26,7 @@ const { search, searchedData, searchInputVal } = useSearch({
     <template #header> 상품목록 </template>
     <template #header-extra>
       <n-input v-model:value="searchInputVal" placeholder="상품검색" />
-      <n-button @click="search">검색</n-button>
+      <n-button @click="search"> 검색 </n-button>
     </template>
 
     <n-data-table
@@ -49,7 +49,7 @@ const { search, searchedData, searchInputVal } = useSearch({
     <vendor-prod-edit-form
       v-if="showProdEdit && prodEditTarget"
       :prod="prodEditTarget"
-      @onSubmitProd="onShowProdEdit(null)"
+      @on-submit-prod="onShowProdEdit(null)"
     />
   </n-modal>
 </template>

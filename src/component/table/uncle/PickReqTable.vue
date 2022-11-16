@@ -120,16 +120,16 @@ const reqCols = getPickReqCols(onClickDetail);
       :bordered="false"
       :columns="reqCols"
       :data="garmentOrdersByShop"
-      :rowKey="(row: ProdOrderByShop) => row.shopId"
+      :row-key="(row: ProdOrderByShop) => row.shopId"
       @update:checked-row-keys="onCheckRow"
     />
     <coin-reduce-confirm-modal
       v-if="garmentOrdersByShop.length > 0"
-      :showModal="showApprovePickup"
+      :show-modal="showApprovePickup"
+      :user-id="u.userInfo.userId"
+      :expected-reduce-coin="expectedReduceCoin"
       @update:showModal="updateReqOrderShow"
       @onConfirm="onReqOrderConfirm"
-      :userId="u.userInfo.userId"
-      :expectedReduceCoin="expectedReduceCoin"
     >
       <template #default>
         픽업 승인 완료처리가 되면 품목별 1코인이 소모됩니다.
@@ -141,7 +141,7 @@ const reqCols = getPickReqCols(onClickDetail);
       :bordered="false"
       :columns="pickReqDetailCols"
       :data="selectedData.items"
-      :rowKey="(row: ShipOrder) => row.id"
+      :row-key="(row: ShipOrder) => row.id"
       @update:checked-row-keys="onCheckDetailRow"
     />
   </n-card>

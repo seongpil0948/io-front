@@ -8,13 +8,13 @@ const { workers } = useUncleWorkers();
 </script>
 <template>
   <n-layout-sider
+    v-model:collapsed="rightCollapsed"
     bordered
     show-trigger
     collapse-mode="width"
     :collapsed-width="64"
     :width="width"
     :native-scrollbar="false"
-    v-model:collapsed="rightCollapsed"
     style="z-index: 0"
   >
     <n-space
@@ -29,7 +29,7 @@ const { workers } = useUncleWorkers();
         justify="space-between"
         :style="`width: ${width * 0.8}px;`"
       >
-        <n-h2> 팀 엉클 </n-h2> <n-button text>팀 설정</n-button>
+        <n-h2> 팀 엉클 </n-h2> <n-button text> 팀 설정 </n-button>
       </n-space>
       <n-text>인원: 100 </n-text>
       <n-space size="large" justify="space-between">
@@ -39,9 +39,9 @@ const { workers } = useUncleWorkers();
       <n-divider />
       <!-- <n-h2>디오트</n-h2> -->
       <uncle-status-row
-        :style="`width: ${width * 0.8}px;`"
         v-for="(worker, i) in workers"
         :key="i"
+        :style="`width: ${width * 0.8}px;`"
         :worker="worker"
       />
     </n-space>

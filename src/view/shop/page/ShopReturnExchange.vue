@@ -132,7 +132,7 @@ const currTab = ref<string>("RETURN_REQ");
 <template>
   <n-card>
     <template #header>
-      <n-h2 class="under-bar" style="text-align: left">교환/반품 관리</n-h2>
+      <n-h2 class="under-bar" style="text-align: left"> 교환/반품 관리 </n-h2>
     </template>
     <n-tabs v-model:value="currTab">
       <n-tab-pane
@@ -148,8 +148,8 @@ const currTab = ref<string>("RETURN_REQ");
               </n-button>
             </n-space>
             <n-data-table
-              ref="targetRef"
               v-if="targetOrders && targetOrders.length > 0"
+              ref="targetRef"
               :table-layout="'fixed'"
               :scroll-x="800"
               :columns="targetTCol"
@@ -172,9 +172,9 @@ const currTab = ref<string>("RETURN_REQ");
           <template #header-extra>
             <n-space>
               <n-select
+                v-model:value="targetUncleId"
                 style="width: 10vw"
                 placeholder="엉클 선택"
-                v-model:value="targetUncleId"
                 :options="contactUncleOpts"
               />
               <n-button size="small" type="primary" @click="pickupRequest">

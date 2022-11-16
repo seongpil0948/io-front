@@ -77,7 +77,7 @@ async function rejectCancel() {
         'page-sizes': [5, 10],
       }"
       :bordered="false"
-      :rowKey="getRowKey"
+      :row-key="getRowKey"
       @update:checked-row-keys="onClickOrder"
     />
   </n-card>

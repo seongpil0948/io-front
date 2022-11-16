@@ -15,14 +15,16 @@ async function changeDark(val: boolean) {
 
 <template>
   <n-space justify="space-around">
-    <n-text v-if="text">다크모드</n-text>
+    <n-text v-if="text"> 다크모드 </n-text>
     <n-switch
       v-if="auth.user"
-      @update:value="changeDark"
       v-model:value="auth.user.preferDark"
       size="medium"
+      @update:value="changeDark"
     >
-      <template #icon> <DarkModeOutlined /> </template>
+      <template #icon>
+        <DarkModeOutlined />
+      </template>
     </n-switch>
   </n-space>
 </template>

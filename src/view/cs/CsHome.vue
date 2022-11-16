@@ -40,8 +40,8 @@ function callCsChat() {
       <n-space align="center">
         <logo-image
           style="margin-top: 47%"
-          @click="router.goHome(auth.currUser)"
           size="2.0rem"
+          @click="router.goHome(auth.currUser)"
         />
         <n-h2 style="margin: auto; text-align: center"> 자주 묻는 질문 </n-h2>
       </n-space>
@@ -51,18 +51,18 @@ function callCsChat() {
           v-for="ctgr in faqCtgrList"
           :key="ctgr.value"
           quaternary
-          @click="() => goFaqCtgr(ctgr.value, 'FAQ')"
           style="width: 8rem; height: 6rem; padding-top: 10%"
+          @click="() => goFaqCtgr(ctgr.value, 'FAQ')"
         >
           <n-space vertical align="center" justify="space-around">
-            <n-icon :size="20" :component="ctgr.icon"> </n-icon>
+            <n-icon :size="20" :component="ctgr.icon" />
             <n-h4> {{ ctgr.showName }} </n-h4>
           </n-space>
         </n-button>
       </n-space>
-      <n-button @click="callCsChat" style="width: 16rem; margin-top: 5%"
-        >1대1 문의</n-button
-      >
+      <n-button style="width: 16rem; margin-top: 5%" @click="callCsChat">
+        1대1 문의
+      </n-button>
     </n-space>
   </n-card>
 

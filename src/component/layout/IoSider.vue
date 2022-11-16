@@ -15,22 +15,23 @@ const collapsed = ref(false);
 
 <template>
   <n-layout-sider
+    v-model:collapsed="collapsed"
     bordered
     show-trigger
     collapse-mode="width"
     :collapsed-width="64"
     :width="240"
     :native-scrollbar="false"
-    v-model:collapsed="collapsed"
   >
     <n-space justify="center" align="center">
-      <logo-image @click="router.goHome(u)" size="3.5rem" />
+      <logo-image size="3.5rem" @click="router.goHome(u)" />
       <n-h2
         :style="`${
           collapsed ? 'transform: skew(-9deg, 33deg);' : 'none'
         } ; margin-bottom: -7%`"
-        >InOut BOX</n-h2
       >
+        InOut BOX
+      </n-h2>
     </n-space>
 
     <n-divider />
@@ -40,6 +41,6 @@ const collapsed = ref(false);
       :options="menuOptions"
     />
     <prefer-dark :text="!collapsed" />
-    <n-button @click="authStore.logout">로그아웃</n-button>
+    <n-button @click="authStore.logout"> 로그아웃 </n-button>
   </n-layout-sider>
 </template>

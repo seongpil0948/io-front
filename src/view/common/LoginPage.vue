@@ -61,7 +61,7 @@ async function onLogin(data: LoginReturn | undefined) {
         kakao-img-path="/img/icon-kakao-talk.png"
         logo-img-path="/logo.png"
         @on-login="onLogin"
-      ></LoginView>
+      />
       <io-footer />
     </n-space>
   </n-config-provider>

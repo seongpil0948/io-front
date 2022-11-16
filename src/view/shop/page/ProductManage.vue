@@ -96,23 +96,23 @@ function updateOrderId(arr: string[]) {
       <template #header-extra>
         <n-button
           v-if="!isMobile()"
-          @click="onCheckedDelete"
           size="small"
           round
           type="primary"
           style="margin-right: 5px"
+          @click="onCheckedDelete"
         >
-          선택 상품 삭제</n-button
-        >
+          선택 상품 삭제
+        </n-button>
         <n-button
-          @click="onCheckedOrder"
           v-if="!isMobile()"
           size="small"
           round
           type="primary"
+          @click="onCheckedOrder"
         >
-          선택 상품 주문</n-button
-        >
+          선택 상품 주문
+        </n-button>
       </template>
       <n-data-table
         ref="tableRef"
@@ -141,6 +141,6 @@ function updateOrderId(arr: string[]) {
   <shop-prod-modify-modal
     v-if="popVal === 'Edit'"
     v-model:userProd="selectedRow"
-    @onClose="selectedRow = null"
+    @on-close="selectedRow = null"
   />
 </template>

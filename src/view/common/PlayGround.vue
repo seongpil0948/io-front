@@ -28,8 +28,8 @@ function userActLog() {
   <n-h1>Play Ground</n-h1>
   <n-card style="color: gray; background-color: gray">
     <n-space justify="space-around">
-      <n-button @click="logging">Log Click</n-button>
-      <n-button @click="userActLog">User Log Click</n-button>
+      <n-button @click="logging"> Log Click </n-button>
+      <n-button @click="userActLog"> User Log Click </n-button>
     </n-space>
   </n-card>
 </template>

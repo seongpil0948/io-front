@@ -84,7 +84,9 @@ function onClickOrder(keys: string[]) {
     />
     <n-card v-if="targetShops.length > 0" style="width: 65vw; margin-top: 5vh">
       <template #header>
-        <n-space justify="start"> <n-h2>상세보기</n-h2> </n-space>
+        <n-space justify="start">
+          <n-h2>상세보기</n-h2>
+        </n-space>
       </template>
       <template #header-extra>
         <n-space v-if="inStates?.includes('BEFORE_APPROVE')">
@@ -136,7 +138,7 @@ function onClickOrder(keys: string[]) {
               'page-sizes': [5, 10, 25, 50, 100],
             }"
             :bordered="false"
-            :rowKey="getRowKey"
+            :row-key="getRowKey"
             @update:checked-row-keys="onClickOrder"
           />
         </n-tab-pane>
@@ -145,16 +147,16 @@ function onClickOrder(keys: string[]) {
   </n-space>
   <coin-reduce-confirm-modal
     v-if="inStates?.includes('BEFORE_APPROVE')"
-    :showModal="showPartialModal"
+    :show-modal="showPartialModal"
+    :user-id="u.userInfo.userId"
+    :expected-reduce-coin="1"
     @update:showModal="onCloseModal"
     @onConfirm="approvePartial"
-    :userId="u.userInfo.userId"
-    :expectedReduceCoin="1"
   >
-    <template #title>[ 부분승인 ] </template>
+    <template #title> [ 부분승인 ] </template>
     <template #default>
       몇장만 승인 할까요?
-      <n-input-number :min="0" v-model:value="numOfAllow" />
+      <n-input-number v-model:value="numOfAllow" :min="0" />
       <br />
       나머지 개수는 미송 주문건으로 이동됩니다.
       <br />
@@ -163,18 +165,18 @@ function onClickOrder(keys: string[]) {
   </coin-reduce-confirm-modal>
   <coin-reduce-confirm-modal
     v-if="inStates?.includes('BEFORE_APPROVE')"
-    :showModal="showOrderModal"
+    :show-modal="showOrderModal"
+    :user-id="u.userInfo.userId"
+    :expected-reduce-coin="orderReduceCoins"
     @update:showModal="updateOrderModal"
     @onConfirm="approveGarments"
-    :userId="u.userInfo.userId"
-    :expectedReduceCoin="orderReduceCoins"
   >
     <template #title> 해당 주문건들을 승인 하시겠습니까? </template>
     <template #default>
       {{ orderTargets.length }} 건의 주문건을 승인 하시면
       {{ orderReduceCoins }} 코인이 소모 됩니다.
       <br />
-      승인된 주문건은 [<n-text class="under-bar"> 승인 완료된 주문</n-text>]
+      승인된 주문건은 [<n-text class="under-bar"> 승인 완료된 주문 </n-text>]
       에서 조회 가능합니다.
     </template>
   </coin-reduce-confirm-modal>

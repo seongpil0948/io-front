@@ -156,7 +156,7 @@ onBeforeMount(() => useUncleOrderStore().init(user.userInfo.userId));
     <n-layout has-sider :style="`min-height: ${minHeight}`">
       <io-sider
         :style="`min-height: ${minHeight}`"
-        :menuOptions="menuOptions"
+        :menu-options="menuOptions"
       />
       <n-space
         vertical

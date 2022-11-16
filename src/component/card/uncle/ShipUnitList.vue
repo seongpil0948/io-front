@@ -94,7 +94,7 @@ const rule = {
     </n-form>
     <template #footer>
       <n-space justify="end">
-        <n-button @click="onAdd">추가</n-button>
+        <n-button @click="onAdd"> 추가 </n-button>
       </n-space>
     </template>
   </n-modal>

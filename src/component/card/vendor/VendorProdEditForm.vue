@@ -88,9 +88,9 @@ const { saveEditor, clearEditor } = useEditor({
       </n-form-item-gi>
       <n-form-item-gi span="4" label="도매가" path="vendorPrice">
         <n-input-number
+          v-model:value="prod.vendorPrice"
           :min="1000"
           :step="1000"
-          v-model:value="prod.vendorPrice"
         >
           <template #prefix> ₩ </template>
           <template #suffix> 원 </template>
@@ -110,9 +110,9 @@ const { saveEditor, clearEditor } = useEditor({
         path="stockCnt"
       >
         <n-input-number
+          v-model:value="prod.stockCnt"
           :show-button="false"
           :min="1"
-          v-model:value="prod.stockCnt"
         />
       </n-form-item-gi>
 
@@ -122,7 +122,7 @@ const { saveEditor, clearEditor } = useEditor({
           type="textarea"
           placeholder="상품 정보 입력"
         /> -->
-        <div id="io-editor" class="io-editor-border"></div>
+        <div id="io-editor" class="io-editor-border" />
       </n-form-item-gi>
       <n-form-item-gi span="6" label="상품 요약" path="description">
         <n-input v-model:value="prod.description" placeholder="개요 입력" />
@@ -136,13 +136,13 @@ const { saveEditor, clearEditor } = useEditor({
         path="titleImgs"
       >
         <single-image-input
-          elementId="titleImgs"
-          size="100"
           v-model:urls="prod.titleImgs"
+          element-id="titleImgs"
+          size="100"
           :max="1"
           svc="VENDOR_PRODUCT"
-          :parentId="prod.vendorProdId"
-          :userId="auth.currUser.userInfo.userId"
+          :parent-id="prod.vendorProdId"
+          :user-id="auth.currUser.userInfo.userId"
           :role="auth.currUserRole"
         >
           <add-circle-outline style="cursor: pointer" />
@@ -154,12 +154,12 @@ const { saveEditor, clearEditor } = useEditor({
         path="bodyImgs"
       >
         <single-image-input
-          elementId="bodyImgs"
-          size="100"
           v-model:urls="prod.bodyImgs"
+          element-id="bodyImgs"
+          size="100"
           :max="20"
           svc="VENDOR_PRODUCT"
-          :userId="auth.currUser.userInfo.userId"
+          :user-id="auth.currUser.userInfo.userId"
           :role="auth.currUserRole"
         >
           <add-circle-outline style="cursor: pointer" />

@@ -49,7 +49,7 @@ const data = computed(() =>
       placeholder="배송금액"
       :show-button="false"
     />
-    <n-button @click="onClickAdd">추가</n-button>
+    <n-button @click="onClickAdd"> 추가 </n-button>
   </n-space>
   <n-data-table
     :columns="pickAreaCols"

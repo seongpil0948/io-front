@@ -8,8 +8,8 @@
     :segmented="segmented"
   >
     <n-form
-      ref="formRef"
       v-if="userProd"
+      ref="formRef"
       :model="formModel"
       :rules="rules"
       label-placement="left"
@@ -21,9 +21,9 @@
       </n-form-item>
       <n-form-item label="도매가" path="vendorPrice">
         <n-input-number
+          v-model:value="formModel.prodPrice"
           :step="1000"
           style="width: 100%"
-          v-model:value="formModel.prodPrice"
         >
           <template #prefix> ₩ </template>
           <template #suffix> 원 </template>
@@ -32,7 +32,7 @@
     </n-form>
     <template #footer>
       <n-space justify="end">
-        <n-button @click="onSubmit">제출</n-button>
+        <n-button @click="onSubmit"> 제출 </n-button>
       </n-space>
     </template>
   </n-modal>

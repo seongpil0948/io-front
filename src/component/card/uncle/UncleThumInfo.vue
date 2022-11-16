@@ -51,19 +51,19 @@ function onDetail() {
     }"
   >
     <n-space vertical align="start">
-      <n-text type="info">픽업건물</n-text>
+      <n-text type="info"> 픽업건물 </n-text>
       <locate-amount-list
         style="padding-bottom: 5%"
         :locates="uInfo.pickupLocates"
       />
       <n-space justify="space-between">
-        <n-text type="info">기본 배송료: </n-text>
+        <n-text type="info"> 기본 배송료: </n-text>
         <n-text>{{ shipAmount }}</n-text>
       </n-space>
     </n-space>
     <template #action>
       <n-space justify="end">
-        <n-button @click="onDetail">상세보기</n-button>
+        <n-button @click="onDetail"> 상세보기 </n-button>
       </n-space>
     </template>
   </n-card>

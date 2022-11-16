@@ -69,10 +69,10 @@ defineExpose({ companyInfo: formModel });
         path="companyCertificate"
       >
         <single-image-input
-          svc="USER"
-          elementId="companyCertificate"
-          :userId="props.userId"
           v-model:urls="formModel.companyCertificate"
+          svc="USER"
+          element-id="companyCertificate"
+          :user-id="props.userId"
           size="100"
           :max="3"
         >

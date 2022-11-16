@@ -12,14 +12,14 @@ const currTab = ref<string>("BEFORE_APPROVE");
           tab="거래처 주문 요청"
           name="BEFORE_APPROVE"
         >
-          <order-by-shop-expand-table :inStates="['BEFORE_APPROVE']" />
+          <order-by-shop-expand-table :in-states="['BEFORE_APPROVE']" />
         </n-tab-pane>
         <n-tab-pane
           display-directive="show:lazy"
           tab="승인 완료된 주문"
           name="BEFORE_PAYMENT"
         >
-          <order-by-shop-expand-table :inStates="['BEFORE_PAYMENT']" />
+          <order-by-shop-expand-table :in-states="['BEFORE_PAYMENT']" />
         </n-tab-pane>
       </n-tabs>
     </n-card>
@@ -51,7 +51,7 @@ const currTab = ref<string>("BEFORE_APPROVE");
       <n-grid-item>
         <n-card class="button-card" style="border-color: #70c0e8">
           <template #header>
-            <n-text style="font-color: #70c0e8">미결제금액</n-text>
+            <n-text style="font-color: #70c0e8"> 미결제금액 </n-text>
           </template>
           0 원
         </n-card>
@@ -59,9 +59,9 @@ const currTab = ref<string>("BEFORE_APPROVE");
       <n-grid-item>
         <n-card class="button-card" style="border-color: #e88080">
           <template #header>
-            <n-text style="font-color: #e88080">매장 주문받기</n-text>
+            <n-text style="font-color: #e88080"> 매장 주문받기 </n-text>
           </template>
-          <n-text style="font-color: #e88080">바로가기</n-text>
+          <n-text style="font-color: #e88080"> 바로가기 </n-text>
         </n-card>
       </n-grid-item>
     </n-grid>

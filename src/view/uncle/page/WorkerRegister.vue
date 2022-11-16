@@ -122,13 +122,13 @@ const width = "35vw";
   <n-h1>근로자 신규 등록</n-h1>
   <n-space vertical align="start">
     <n-space :style="`width: ${width}`">
-      <n-button @click="onKakaoAuth" type="primary"> Kakao 인증 </n-button>
-      <n-button @click="onGoogleAuth" type="primary"> Google 인증 </n-button>
+      <n-button type="primary" @click="onKakaoAuth"> Kakao 인증 </n-button>
+      <n-button type="primary" @click="onGoogleAuth"> Google 인증 </n-button>
       <n-checkbox :checked="authed" />
     </n-space>
     <n-input
-      :style="`width: ${width}`"
       v-model:value="displayName"
+      :style="`width: ${width}`"
       placeholder="실명입력"
     >
       <template #prefix>
@@ -136,8 +136,8 @@ const width = "35vw";
       </template>
     </n-input>
     <n-input
-      :style="`width: ${width}`"
       v-model:value="phone"
+      :style="`width: ${width}`"
       placeholder="휴대전화번호"
     >
       <template #prefix>
@@ -145,9 +145,11 @@ const width = "35vw";
       </template>
     </n-input>
     <bank-account-form @submit:account="onSubmitAccount" />
-    <n-checkbox :checked="account !== null">계좌 제출여부 </n-checkbox>
-    <worker-info-form @submit:workerInfo="onSubmitWorker" />
-    <n-checkbox :checked="workerInfo !== null">근로자정보 제출여부 </n-checkbox>
+    <n-checkbox :checked="account !== null"> 계좌 제출여부 </n-checkbox>
+    <worker-info-form @submit:worker-info="onSubmitWorker" />
+    <n-checkbox :checked="workerInfo !== null">
+      근로자정보 제출여부
+    </n-checkbox>
     <n-button :style="`width: ${width}`" @click="onSignUp"> 가입하기 </n-button>
   </n-space>
 </template>
