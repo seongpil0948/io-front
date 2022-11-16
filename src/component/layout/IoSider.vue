@@ -40,7 +40,7 @@ const collapsed = ref(false);
       :collapsed-icon-size="22"
       :options="menuOptions"
     />
-    <prefer-dark :text="!collapsed" />
+    <prefer-dark :text="!collapsed" style="margin-top: 5%; margin-bottom: 5%" />
     <n-button @click="authStore.logout"> 로그아웃 </n-button>
   </n-layout-sider>
 </template>

@@ -51,6 +51,7 @@ async function onCheckedOrder() {
     const prod = userProd.value.find(
       (x) => x.shopProdId === checkedKeys.value[i]
     )!;
+    if (!prod) continue;
 
     const vendorProd = vendorStore.vendorUserGarments.find(
       (y) => y.vendorProdId === prod.vendorProdId
