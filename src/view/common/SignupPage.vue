@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAlarm } from "@/composable";
+import { catchError, useAlarm } from "@/composable";
 import { makeMsgOpt, useFireWork, isMobile } from "@/util";
 import { FormInst, useMessage, useDialog } from "naive-ui";
 import { lightTheme } from "naive-ui";
@@ -28,7 +28,12 @@ import {
   USER_PROVIDER,
   getUserName,
 } from "@io-boxies/js-lib";
-import { createUserWithEmailAndPassword, getAuth } from "@firebase/auth";
+import { useLogin } from "@io-boxies/vue-lib";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  deleteUser,
+} from "@firebase/auth";
 
 const log = useLogger();
 const inst = getCurrentInstance();
@@ -42,11 +47,22 @@ const acceptTerms = ref(false);
 const { play, stop } = useFireWork();
 const smtp = useAlarm();
 const state = window.history.state;
-if (!state.userId) {
-  log.error(null, "User ID not Received In SignUp Page(Landing)", state);
-  router.replace({ name: "Login" });
-}
+
 console.log("state:", state);
+if (state.providerId === "EMAIL") {
+  if (!state.email || !state.password) {
+    log.error(null, "email, password not received in signup page", state);
+    router.replace({ name: "Login" });
+  } else if (!state.userId) {
+    state.userId = "";
+  }
+} else {
+  if (!state.userId) {
+    log.error(null, "user id not received in signup page", state);
+    router.replace({ name: "Login" });
+  }
+}
+
 onMounted(() => {
   if (step.value === 0) {
     setTimeout(() => {
@@ -112,7 +128,7 @@ async function onStep5() {
       user.value = { userInfo };
       step.value = 5;
     }
-    log.debug("userInfo", user.value);
+    log.debug(null, "userInfo", user.value);
   });
 }
 
@@ -174,6 +190,7 @@ function onStep7() {
 
 async function onSignUp() {
   const u = user.value;
+
   if (!acceptTerms.value) {
     return msg.error("이용약관에 동의 해주세요", makeMsgOpt());
   } else if (!u) {
@@ -188,39 +205,56 @@ async function onSignUp() {
         u.userInfo.email,
         state.password
       );
-      console.log("credential: ", credential);
-      log.info(null, "sign-up", credential);
+      u.userInfo.userId = credential.user.uid;
+      log.info(null, "createUserWithEmailAndPassword: ", credential);
     } catch (e: any) {
       if (typeof e.code === "string") {
         if (e.code.includes("email-already-in-use")) {
-          log.warn(
-            u.userInfo.userId,
-            "processed signup page but already signed up in firebase auth"
-          );
+          const { emailLogin } = useLogin();
+          const data = await emailLogin(u.userInfo.email, state.password);
+          log.debug(null, "Login Return in email-already-in-use", data);
+          if (data?.credential?.user) {
+            await deleteUser(data?.credential?.user);
+            const credential = await createUserWithEmailAndPassword(
+              getAuth(),
+              u.userInfo.email,
+              state.password
+            );
+            u.userInfo.userId = credential.user.uid;
+          }
         } else {
           throw e;
         }
       }
+    } finally {
+      if (!u.userInfo.userId) {
+        log.error(null, "u.userInfo.userId is null in signup");
+      } else {
+        log.debug(u.userInfo.userId, "signup user: ", u);
+        await USER_DB.updateUser(u);
+        logEvent(analytics, "sign_up", {
+          method: u.userInfo.providerId,
+          userRole: u.userInfo.role,
+        });
+        try {
+          msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
+          await smtp.sendAlarm({
+            toUserIds: [u.userInfo.userId],
+            subject: `inoutbox 회원가입 처리내역 알림.`,
+            body: `${getUserName(
+              u
+            )} 께서 제출하신 정보를 바탕으로 계정 검토 및 승인 후 홈페이지 및 어플 이용이 가능합니다.`,
+            notiLoadUri: "/",
+            uriArgs: {},
+          });
+        } catch (err) {
+          catchError({ err, msg });
+        }
+        play();
+        step.value = 9;
+      }
     }
   }
-  log.debug(u.userInfo.userId, "signup user: ", u);
-  await USER_DB.updateUser(u);
-  logEvent(analytics, "sign_up", {
-    method: u.userInfo.providerId,
-    userRole: u.userInfo.role,
-  });
-  msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
-  await smtp.sendAlarm({
-    toUserIds: [u.userInfo.userId],
-    subject: `inoutbox 회원가입 처리내역 알림.`,
-    body: `${getUserName(
-      u
-    )} 께서 제출하신 정보를 바탕으로 계정 검토 및 승인 후 홈페이지 및 어플 이용이 가능합니다.`,
-    notiLoadUri: "/",
-    uriArgs: {},
-  });
-  play();
-  step.value = 9;
 }
 </script>
 <template>
@@ -275,9 +309,9 @@ async function onSignUp() {
             <!-- state -->
             <user-info-form
               ref="userInfoRef"
-              :userName="(state.userName as string)"
-              :profileImg="(state.profileImg as string)"
-              :email="(state.email as string)"
+              :userName="(state.userName as string) ?? ''"
+              :profileImg="(state.profileImg  as string) ?? ''"
+              :email="(state.email as string) ?? ''"
               :userId="(state.userId as string)"
               :providerId="(state.providerId as USER_PROVIDER)"
               :role="userRole"

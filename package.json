@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@io-boxies/js-lib": "0.0.4",
-    "@io-boxies/vue-lib": "^0.0.4",
+    "@io-boxies/vue-lib": "^0.0.5",
     "@types/kakao-js-sdk": "^1.39.1",
     "@types/lodash.clonedeep": "^4.5.7",
     "@types/lodash.debounce": "^4.0.7",

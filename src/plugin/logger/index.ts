@@ -11,8 +11,11 @@ const ServerLogHook: LoggerHook = {
   async run(event: LogEvent) {
     if (event.level !== "debug" && event.argumentArray.length > 1) {
       if (event.level === "log") {
-        console.error("Not Support Log Level : log");
+        console.error("not support log level : log");
         return;
+      }
+      if (process.env.NODE_ENV !== "production") {
+        console.log(event.argumentArray);
       }
       const isUserLog =
         event.argumentArray[0] && typeof event.argumentArray[0] === "string";
