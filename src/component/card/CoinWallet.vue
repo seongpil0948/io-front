@@ -23,20 +23,20 @@ async function reqPay() {
   const date = new Date();
   const price = IoPay.coinToMoney(chargeCoin.value);
   const data = {
-    price: price,
+    price,
     application_id: APP_ID,
-    order_name: "order-in-coin",
+    order_name: `order-in-coin_${price}`,
     order_id: "charge_" + uuid, //고유 주문번호로, 생성하신 값을 보내주셔야 합니다
     uuid,
     user: {
+      uid,
       username: user.userInfo.userName,
       email: user.userInfo.email,
       addr: "",
       phone: user.userInfo.phone ?? "",
     },
     metadata: {
-      callback1: "그대로 콜백받을 변수 1",
-      customvar1234: "변수명도 마음대로",
+      uid,
       m: ee(price),
     },
     extra: {
@@ -75,7 +75,7 @@ async function reqPay() {
           fillCoin(confirmedResp.data);
         } else if (confirmedResp.event === "error") {
           log.error(uid, "error in confirmedResp: ", confirmedResp);
-        } else if (resp.event === "issued") {
+        } else if (confirmedResp.event === "issued") {
           log.debug(null, pre + "issued: ", confirmedResp.data);
           console.log("bank: ", confirmedResp.data.vbank_data);
         }
