@@ -1,96 +1,134 @@
-<script setup>
-import { computed, ref } from "vue";
+<script setup lang="ts">
+import { computed, getCurrentInstance, ref } from "vue";
 
 import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
-// import { useMessage } from "naive-ui";
-// import { useLogger } from "vue-logger-plugin";
 import { IoPay, useUserPay } from "@/composable";
 import { Bootpay } from "@bootpay/client-js";
 import { uuidv4 } from "@firebase/util";
+import { useLogger } from "vue-logger-plugin";
+import { useMessage } from "naive-ui";
 
-// const log = useLogger();
+const inst = getCurrentInstance();
 const APP_ID = "62b45e0fe38c3000215aec6b";
 const authStore = useAuthStore();
-// const msg = useMessage();
 const user = authStore.currUser;
 const { userPay } = useUserPay(user.userInfo.userId);
+const log = useLogger();
+const uid = user.userInfo.userId;
+const msg = useMessage();
 
 async function reqPay() {
   const uuid = uuidv4();
   const date = new Date();
-  const price = IoPay.coinToMoney(chargeCoin.value).toString();
+  const price = IoPay.coinToMoney(chargeCoin.value);
+  const data = {
+    price: price,
+    application_id: APP_ID,
+    order_name: "order-in-coin",
+    order_id: "charge_" + uuid, //고유 주문번호로, 생성하신 값을 보내주셔야 합니다
+    uuid,
+    user: {
+      username: user.userInfo.userName,
+      email: user.userInfo.email,
+      addr: "",
+      phone: user.userInfo.phone ?? "",
+    },
+    metadata: {
+      callback1: "그대로 콜백받을 변수 1",
+      customvar1234: "변수명도 마음대로",
+      m: ee(price),
+    },
+    extra: {
+      separately_confirmed: true, // 승인(done) 전 서버확인(confirm) 이벤트가 호출됨
+      display_error_result: true,
+      test_deposit: true,
+      deposit_expiration: date
+        .toLocaleDateString()
+        .split(".")
+        .filter((x) => x)
+        .map((x) => x.trim())
+        .join("-"),
+    },
+  };
   try {
-    const response = await Bootpay.requestPayment({
-      price,
-      application_id: APP_ID,
-      order_name: "인코인 구매",
-      order_id: "charge_" + uuid, //고유 주문번호로, 생성하신 값을 보내주셔야 합니다
-      uuid,
-      user: {
-        username: user.userInfo.userName,
-        email: user.userInfo.email,
-        addr: null,
-        phone: null,
-      },
-      metadata: {
-        callback1: "그대로 콜백받을 변수 1",
-        customvar1234: "변수명도 마음대로",
-        mey: price,
-      },
-      extra: {
-        display_error_result: true,
-        test_deposit: true,
-        deposit_expiration: date
-          .toLocaleDateString()
-          .split(".")
-          .filter((x) => x)
-          .map((x) => x.trim())
-          .join("-"),
-      },
-    });
-    console.log("bootpay response ", response);
-    switch (response.event) {
-      case "issued":
-        console.log("in issued", response);
-        break;
-      case "done":
-        console.log("in done", response);
-        // 결제 완료 처리
-        break;
-      case "confirm": //payload.extra.separately_confirmed = true; 일 경우 승인 전 해당 이벤트가 호출됨
-        console.log("in confirm", response.receipt_id);
-        // 1. 클라이언트 승인을 하고자 할때
-        // validationQuantityFromServer(); //예시) 재고확인과 같은 내부 로직을 처리하기 한다.
-        // const confirmedData = await Bootpay.confirm(); //결제를 승인한다
-        // if (confirmedData.event === "done") {
-        //   //결제 성공
-        // } else if (confirmedData.event === "error") {
-        //   //결제 승인 실패
-        // }
-
-        // 2. 서버 승인을 하고자 할때
-        // // requestServerConfirm(); //예시) 서버 승인을 할 수 있도록  API를 호출한다. 서버에서는 재고확인과 로직 검증 후 서버승인을 요청한다.
-        // Bootpay.destroy(); //결제창을 닫는다.
-
-        break;
+    const resp = await Bootpay.requestPayment(data);
+    console.log("bootpay resp ", resp);
+    const pre = "in Bootpay.requestPayment >";
+    if (resp.event === "issued") {
+      log.warn(uid, pre + "issued");
+    } else if (resp.event === "confirm") {
+      console.log("in confirm", resp.receipt_id, "\n", resp.order_id);
+      const http = inst?.appContext.config.globalProperties.$http;
+      if (!http) {
+        return log.error(uid, pre + "confirm, $http is null");
+      }
+      const verifyResp = await http.get(
+        `/payment/verifyReceipt?price=${data.price}&receiptId=${resp.receipt_id}&order_id=${resp.order_id}`
+      );
+      console.log(null, "/payment/verifyReceipt Response: ", verifyResp);
+      const ok = verifyResp.data === "sp"; // 재고 수량 관리 로직 혹은 다른 처리
+      if (ok) {
+        const confirmedResp = await Bootpay.confirm(); //결제를 승인한다
+        console.log("confirmedResp", confirmedResp);
+        if (confirmedResp.event === "done") {
+          fillCoin(confirmedResp.data);
+        } else if (confirmedResp.event === "error") {
+          log.error(uid, "error in confirmedResp: ", confirmedResp);
+        } else if (resp.event === "issued") {
+          log.debug(null, pre + "issued: ", confirmedResp.data);
+          console.log("bank: ", confirmedResp.data.vbank_data);
+        }
+      } else {
+        Bootpay.destroy(); //결제창을 닫는다.
+      }
+    } else {
+      console.error("unexpected response : ", resp);
     }
-  } catch (e) {
+  } catch (e: any) {
     console.log(e);
-    switch (e.event) {
-      case "cancel": // 사용자가 결제창을 닫을때 호출
-        break;
-      case "error":
-        // 결제 승인 중 오류 발생시 호출
-        console.error(e.pg_error_code, e.error_code, e.message);
-        break;
+    if (e.event === "error") {
+      // case "cancel": // 사용자가 결제창을 닫을때 호출
+      log.error(
+        null,
+        `pg_error_code: ${e.pg_error_code} \n e.error_code: ${e.error_code} \n e.message: ${e.message}`
+      );
     }
+    Bootpay.destroy(); //결제창을 닫는다.
   }
 }
+
+const fillCoin = (data: any) => {
+  const price = data.price;
+  const dPrice = dd(Number(data.metadata.m));
+  console.log("data:", data, "\n userPay: ", userPay.value);
+  console.assert(price === dPrice, "invalid price in coin");
+  const coin = IoPay.moneyToCoin(price);
+  if (!userPay.value) {
+    return log.error(
+      uid,
+      `userPay is null in fillCoin, required charge coin is: ${coin}`
+    );
+  }
+  userPay.value.budget += coin;
+  userPay.value
+    .update()
+    .then(() => {
+      msg.info("충전완료!");
+    })
+    .catch(() => {
+      msg.error("충전실패!");
+    });
+};
 const minCharge = IoPay.moneyToCoin(5000);
 const chargeCoin = ref(minCharge);
 const chargeString = computed(() => IoPay.toMoneyString(chargeCoin.value));
-const chargeValidator = (x) => x % 10 === 0;
+const chargeValidator = (x: number) => x % 10 === 0;
+
+const zz = 1224512435;
+const hh = 234567890987654;
+const ee = (p: number) => (Number(p) + zz) ^ hh;
+const dd = (p: number) => (Number(p) ^ hh) - zz;
 </script>
 <template>
   <n-space v-if="userPay" vertical style="text-align: start">
