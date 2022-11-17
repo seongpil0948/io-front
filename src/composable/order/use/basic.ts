@@ -52,8 +52,16 @@ export function useOrderBasic(
         });
       })
       .catch((err) => {
-        if (typeof err.toString && err.toString().includes("out of stock")) {
+        if (err.toString && err.toString().includes("out of stock")) {
           msg.error(`주문개수가 재고 수량보다 많습니다.`, makeMsgOpt());
+        } else if (
+          err.toString &&
+          (err.toString() as string).toLowerCase().includes("network")
+        ) {
+          log.warn(
+            user.userInfo.userId,
+            "주문실패 네트워크 에러, 유효하지 않은 이메일일 수 있습니다."
+          );
         } else {
           const message =
             err instanceof Error ? err.message : JSON.stringify(err);

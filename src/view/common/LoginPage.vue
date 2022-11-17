@@ -79,4 +79,7 @@ async function onLogin(data: LoginReturn | undefined) {
 .n-h {
   text-align: center;
 }
+.text-login-btn {
+  height: 3vw !important;
+}
 </style>

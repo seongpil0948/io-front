@@ -41,7 +41,6 @@ const {
   detailShopIds,
   columns,
   checkedOrders,
-  targetIds,
 } = useApproveOrder({
   garmentOrders,
   orders,
@@ -150,8 +149,8 @@ function onClickOrder(keys: string[]) {
     :show-modal="showPartialModal"
     :user-id="u.userInfo.userId"
     :expected-reduce-coin="1"
-    @update:showModal="onCloseModal"
-    @onConfirm="approvePartial"
+    @update:show-modal="onCloseModal"
+    @on-confirm="approvePartial"
   >
     <template #title> [ 부분승인 ] </template>
     <template #default>
@@ -168,8 +167,8 @@ function onClickOrder(keys: string[]) {
     :show-modal="showOrderModal"
     :user-id="u.userInfo.userId"
     :expected-reduce-coin="orderReduceCoins"
-    @update:showModal="updateOrderModal"
-    @onConfirm="approveGarments"
+    @update:show-modal="updateOrderModal"
+    @on-confirm="approveGarments"
   >
     <template #title> 해당 주문건들을 승인 하시겠습니까? </template>
     <template #default>

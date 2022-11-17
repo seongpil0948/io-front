@@ -31,6 +31,7 @@ const { workers } = useUncleWorkers();
       >
         <n-h2> 팀 엉클 </n-h2> <n-button text> 팀 설정 </n-button>
       </n-space>
+      <!-- TODO -->
       <n-text>인원: 100 </n-text>
       <n-space size="large" justify="space-between">
         <uncle-status-count status="green" text="업무중" :count="10" />

@@ -48,7 +48,7 @@ const router = useRouter();
             <WalletOutline />
           </n-icon>
         </template>
-        <expand-card @clickClose="handleWalletClose">
+        <expand-card @click-close="handleWalletClose">
           <coin-wallet />
         </expand-card>
       </n-popover>
@@ -63,7 +63,7 @@ const router = useRouter();
             <PersonCircleOutline />
           </n-icon>
         </template>
-        <expand-card @clickClose="handlePersonalClose">
+        <expand-card @click-close="handlePersonalClose">
           <user-info-collapse />
         </expand-card>
       </n-popover>
@@ -78,7 +78,7 @@ const router = useRouter();
             <CloudLogging />
           </n-icon>
         </template>
-        <expand-card @clickClose="handleUserLogClose">
+        <expand-card @click-close="handleUserLogClose">
           <user-log-list />
         </expand-card>
       </n-popover>

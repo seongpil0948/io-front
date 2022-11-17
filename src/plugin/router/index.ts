@@ -27,7 +27,7 @@ router.beforeEach(async (to) => {
       logger.error(
         authStore.currUser.userInfo.userId,
         "유효하지 않은 페이지 접근",
-        to
+        to.fullPath
       );
       useCommonStore().$patch((state) => {
         state.msgQueue.push({

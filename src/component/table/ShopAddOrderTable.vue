@@ -146,8 +146,8 @@ function downSampleXlsx() {
       :show-modal="showReqOrderModal"
       :user-id="user.userInfo.userId"
       :expected-reduce-coin="expectedReduceCoin"
-      @update:showModal="updateReqOrderShow"
-      @onConfirm="onReqOrderConfirm"
+      @update:show-modal="updateReqOrderShow"
+      @on-confirm="onReqOrderConfirm"
     >
       <template #title> 주문을 전송 하시겠습니까? </template>
       <template #default>

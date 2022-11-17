@@ -7,7 +7,7 @@ export function useContactUncle() {
   const u = auth.currUser;
   const targetUncleId = ref<string | null>(null);
   const contractUncles = ref<IoUser[]>([]);
-  const uncleUserIds = computed(() => u.shopInfo!.uncleUserIds);
+  const uncleUserIds = computed(() => u.shopInfo?.uncleUserIds ?? []);
   watch(
     () => uncleUserIds.value,
     async function (ids, prev) {

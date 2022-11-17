@@ -115,16 +115,6 @@ function updateShow(val: boolean) {
             style="margin-bottom: 1%; margin-top: 1%"
           />
         </n-form-item-gi>
-        <!-- <n-form-item-gi label="도시" path="city">
-          <n-input v-model:value="formModel.city" placeholder="도시 입력" />
-        </n-form-item-gi>
-        <n-form-item-gi label="구" path="county">
-          <n-input v-model:value="formModel.county" placeholder="구 입력" />
-        </n-form-item-gi>
-        <n-form-item-gi label="동" path="town">
-          <n-input v-model:value="formModel.town" placeholder="동 입력" />
-        </n-form-item-gi> -->
-
         <n-form-item-gi label="우편번호" path="postalCode">
           <n-input
             v-model:value="formModel.postalCode"

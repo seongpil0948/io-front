@@ -87,26 +87,6 @@ defineExpose({ companyInfo: formModel });
       </n-form-item-gi>
       <n-form-item-gi span="2" label="사업장 주소" path="locations">
         <user-locate-list v-model:info="formModel" />
-        <!-- <n-space justify="space-around">
-          <n-tooltip
-            trigger="hover"
-            v-for="(i, idx) in formModel.locations"
-            :key="idx"
-          >
-            <template #trigger>
-              <n-tag round closable @close="onLocateClose(i)">
-                {{ i.alias }}</n-tag
-              >
-            </template>
-            {{ locateStr(i) }}
-          </n-tooltip>
-
-          <n-button @click="showAppendModal = true">주소지 추가 </n-button>
-        </n-space>
-        <locate-append-modal
-          @appendLocate="onAppendLocate"
-          v-model:showAppendModal="showAppendModal"
-        /> -->
       </n-form-item-gi>
       <n-form-item-gi label="사업장 연락처" path="companyPhone">
         <n-input

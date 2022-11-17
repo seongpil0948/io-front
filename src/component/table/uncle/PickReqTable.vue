@@ -128,8 +128,8 @@ const reqCols = getPickReqCols(onClickDetail);
       :show-modal="showApprovePickup"
       :user-id="u.userInfo.userId"
       :expected-reduce-coin="expectedReduceCoin"
-      @update:showModal="updateReqOrderShow"
-      @onConfirm="onReqOrderConfirm"
+      @update:show-modal="updateReqOrderShow"
+      @on-confirm="onReqOrderConfirm"
     >
       <template #default>
         픽업 승인 완료처리가 되면 품목별 1코인이 소모됩니다.

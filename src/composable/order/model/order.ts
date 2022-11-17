@@ -175,12 +175,15 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     this.cancellations.push(arg);
     await this.update();
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async doneCancel(arg: any) {
     await this.update();
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async reqOrder(arg: any): Promise<void> {
     throw new Error("Method not implemented.");
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async doneOrder(arg: any): Promise<void> {
     throw new Error("Method not implemented.");
   }
