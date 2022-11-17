@@ -1,7 +1,7 @@
-import { LocateAmount } from "@/composable/auth";
 import { ProdOrderByShop, ProdOrderCombined } from "@/composable/order";
 import { useAuthStore } from "@/store";
 import { uniqueArr } from "@/util";
+import { LocateAmount, USER_DB } from "@io-boxies/js-lib";
 import { DataTableColumns, NText, NButton, useMessage } from "naive-ui";
 import { computed, h } from "vue";
 
@@ -57,7 +57,7 @@ export function usePickAreaCols() {
               );
               // console.log("idx: ", idx, l);
               u.uncleInfo!.pickupLocates.splice(idx, 1);
-              await u.update();
+              await USER_DB.updateUser(u);
               msg.success("삭제완료.");
             },
           },

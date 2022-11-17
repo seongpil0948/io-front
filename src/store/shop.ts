@@ -1,4 +1,4 @@
-import { IoUser, USER_DB } from "@/composable";
+import { IoUser, USER_DB } from "@io-boxies/js-lib";
 import { defineStore } from "pinia";
 
 interface VendorStoreInterface {

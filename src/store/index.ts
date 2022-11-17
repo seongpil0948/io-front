@@ -10,14 +10,12 @@ export * from "./cs";
 import { createPinia } from "pinia";
 import _axios from "@/plugin/axios";
 import router from "@/plugin/router";
-import { ioFire } from "@/plugin/firebase";
 import debounce from "lodash.debounce";
 import { markRaw } from "vue";
 const pinia = createPinia();
 
 pinia.use(({ options, store }) => {
   store.$router = markRaw(router);
-  store.$fire = ioFire;
   store.$http = _axios;
 
   if (options.debounce) {

@@ -17,18 +17,15 @@ function onClick() {
   <n-tooltip v-if="useTooltip" placement="top-start" trigger="hover">
     <template #trigger>
       <div
-        @click="onClick"
         :style="`width: ${size}rem; height: ${size}rem; cursor: pointer;`"
+        @click="onClick"
       >
         <img
-          :style="` width: 150%; height: 150%`"
           v-if="checked"
+          :style="` width: 150%; height: 150%`"
           src="/logo.png"
         />
-        <div
-          v-else
-          :style="`border: 1px solid; width: 100%; height: 100%`"
-        ></div>
+        <div v-else :style="`border: 1px solid; width: 100%; height: 100%`" />
       </div>
     </template>
     체크박스에 체크가 되면, 미송을 받습니다.
@@ -37,10 +34,10 @@ function onClick() {
   </n-tooltip>
   <div
     v-else
-    @click="onClick"
     :style="`width: ${size}rem; height: ${size}rem; cursor: pointer;`"
+    @click="onClick"
   >
-    <img :style="` width: 150%; height: 150%`" v-if="checked" src="/logo.png" />
-    <div v-else :style="`border: 1px solid; width: 100%; height: 100%`"></div>
+    <img v-if="checked" :style="` width: 150%; height: 150%`" src="/logo.png" />
+    <div v-else :style="`border: 1px solid; width: 100%; height: 100%`" />
   </div>
 </template>

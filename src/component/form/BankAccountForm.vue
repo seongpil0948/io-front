@@ -127,6 +127,6 @@ const rules = {
         placeholder="평생 계좌번호를 입력시 송금 받을때 문제가 생길 수 있어요."
       />
     </n-form-item>
-    <n-button @click="onSubmit">계좌정보 저장</n-button>
+    <n-button @click="onSubmit"> 계좌정보 저장 </n-button>
   </n-form>
 </template>

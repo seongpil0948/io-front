@@ -30,11 +30,11 @@ function onUpdateOffice() {
       :options="areaOpt"
     /> -->
     <n-select
+      v-model:value="area.alias"
       filterable
       placeholder="별칭 선택"
-      v-model:value="area.alias"
-      @update:value="onUpdateOffice"
       :options="officeOpt"
+      @update:value="onUpdateOffice"
     />
   </n-space>
 </template>

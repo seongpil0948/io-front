@@ -16,7 +16,8 @@ import { logger } from "@/plugin/logger";
 import { onBeforeMount, ref } from "vue";
 import { CommonField } from "@/composable/common/model";
 import { getIoCollection, IoCollection, loadDate } from "@/util";
-import { iostore } from "../firebase";
+import { iostore } from "@io-boxies/js-lib";
+import { onFirestoreErr, onFirestoreCompletion } from "@/composable";
 export interface IoLogCRT {
   createdAt?: Date;
   uid?: string;
@@ -123,17 +124,23 @@ export function useReadLogger(param: ReadLogParam) {
       ...constraints
     );
   }
-  const unsubscribe = onSnapshot(getQuery(), (snapshot) => {
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      if (data) {
-        userLogs.value.push(data);
-      }
-    });
-    const len = userLogs.value.length;
-    lastLog.value = len > 0 ? userLogs.value[len - 1] : null;
-    noMore.value = lastLog.value === null;
-  });
+  const name = "useReadLogger snapshot";
+  const unsubscribe = onSnapshot(
+    getQuery(),
+    (snapshot) => {
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data) {
+          userLogs.value.push(data);
+        }
+      });
+      const len = userLogs.value.length;
+      lastLog.value = len > 0 ? userLogs.value[len - 1] : null;
+      noMore.value = lastLog.value === null;
+    },
+    async (err) => await onFirestoreErr(name, err),
+    () => onFirestoreCompletion(name)
+  );
   async function next() {
     if (noMore.value) return;
     const len = userLogs.value.length;

@@ -1,12 +1,13 @@
 <script setup>
 import { computed, ref } from "vue";
-import { v4 as uuidv4 } from "uuid";
+
 import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
 // import { useMessage } from "naive-ui";
 // import { useLogger } from "vue-logger-plugin";
 import { IoPay, useUserPay } from "@/composable";
 import { Bootpay } from "@bootpay/client-js";
+import { uuidv4 } from "@firebase/util";
 
 // const log = useLogger();
 const APP_ID = "62b45e0fe38c3000215aec6b";
@@ -92,12 +93,12 @@ const chargeString = computed(() => IoPay.toMoneyString(chargeCoin.value));
 const chargeValidator = (x) => x % 10 === 0;
 </script>
 <template>
-  <n-space vertical style="text-align: start" v-if="userPay">
+  <n-space v-if="userPay" vertical style="text-align: start">
     <n-h2>In-Coin 월렛</n-h2>
     <n-space justify="space-between">
-      <n-text strong>코인 보유량 : </n-text>
-      <n-text type="info"> {{ userPay.budget }} 코인 </n-text></n-space
-    >
+      <n-text strong> 코인 보유량 : </n-text>
+      <n-text type="info"> {{ userPay.budget }} 코인 </n-text>
+    </n-space>
     <n-divider />
     <n-space justify="space-between">
       <div style="position: relative">
@@ -109,26 +110,26 @@ const chargeValidator = (x) => x % 10 === 0;
               </template>
             </n-button>
           </template>
-          <template #header>보류 코인이란?</template>
+          <template #header> 보류 코인이란? </template>
           샘플요청등의 사유로 담보중인 코인 으로서 샘플반납등의 담보해제 사건을
           조건으로 정상코인으로의 이전이 가능합니다.
         </n-tooltip>
-        <n-text strong>보류 코인량 : </n-text>
+        <n-text strong> 보류 코인량 : </n-text>
       </div>
-      <n-text type="info"> {{ userPay.pendingBudget }} 코인 </n-text></n-space
-    >
+      <n-text type="info"> {{ userPay.pendingBudget }} 코인 </n-text>
+    </n-space>
     <n-divider />
     <n-space justify="space-between">
-      <n-text strong>코인충전</n-text>
+      <n-text strong> 코인충전 </n-text>
       <n-input-number
         v-model:value="chargeCoin"
         :step="10"
         :validator="chargeValidator"
       />
     </n-space>
-    <n-space justify="end"
-      ><n-text depth="3"> 10코인 단위로 입력 </n-text></n-space
-    >
+    <n-space justify="end">
+      <n-text depth="3"> 10코인 단위로 입력 </n-text>
+    </n-space>
     <n-space justify="space-between">
       <n-button
         v-for="m in [100, 1000, 2000, 5000, 10000, 10000].map((x) =>
@@ -142,11 +143,13 @@ const chargeValidator = (x) => x % 10 === 0;
     </n-space>
     <n-space justify="space-between" style="line-height: 2rem">
       <div>
-        <n-text strong>결제금액 : </n-text>
+        <n-text strong> 결제금액 : </n-text>
         <n-text>{{ chargeString }} </n-text>
       </div>
 
-      <n-button @click="reqPay">충전하기<coin-image size="1.6rem" /></n-button>
+      <n-button @click="reqPay">
+        충전하기<coin-image size="1.6rem" />
+      </n-button>
     </n-space>
   </n-space>
 </template>

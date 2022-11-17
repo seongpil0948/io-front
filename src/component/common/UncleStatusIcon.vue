@@ -32,7 +32,7 @@ watchEffect(() => {
     :size="12"
     :component="Exclamation"
   />
-  <span v-else class="dot" :style="`background-color: ${statusColor}`"></span>
+  <span v-else class="dot" :style="`background-color: ${statusColor}`" />
 </template>
 
 <style scoped>

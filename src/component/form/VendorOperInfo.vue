@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SALE_MANAGE, VendorOperInfo } from "@/composable";
+import { SALE_MANAGE, VendorOperInfo } from "@io-boxies/js-lib";
 import { deadOpt, newProdQuantityOpt, notNullRule } from "@/util";
 import { FormInst } from "naive-ui";
 import { reactive, ref } from "vue";
@@ -32,17 +32,17 @@ defineExpose({ operInfo: formModel });
       <n-form-item-gi label="상품 주문 자동 승인" path="autoOrderApprove">
         <yes-or-no-radio
           v-model:value="formModel.autoOrderApprove"
-          :yesVal="true"
-          :noVal="false"
+          :yes-val="true"
+          :no-val="false"
         />
       </n-form-item-gi>
       <n-form-item-gi label="현 장기 종류" path="saleManageType">
         <yes-or-no-radio
           v-model:value="formModel.saleManageType"
-          :yesVal="SALE_MANAGE.HAND_WRITE"
-          yesLabel="수기"
-          :noVal="SALE_MANAGE.ONLINE"
-          noLabel="포스&온라인"
+          :yes-val="SALE_MANAGE.HAND_WRITE"
+          yes-label="수기"
+          :no-val="SALE_MANAGE.ONLINE"
+          no-label="포스&온라인"
         />
       </n-form-item-gi>
       <n-form-item-gi label="월 세금계산서 마감일" path="taxDeadlineDay">
@@ -53,8 +53,7 @@ defineExpose({ operInfo: formModel });
           v-model:value="formModel.expectNumProdMonthly"
           placeholder="월 신상 등록빈도가?"
           :options="newProdQuantityOpt"
-        >
-        </n-select>
+        />
       </n-form-item-gi>
     </n-grid>
   </n-form>

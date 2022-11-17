@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/require-prop-types -->
 <script setup>
 import { useMessage, NDynamicTags } from "naive-ui";
 import { computed, toRefs } from "vue";
@@ -102,15 +103,10 @@ function onUpdateShow(val) {
     :on-update:show="onUpdateShow"
     @clickoutside="emits('on-clickoutside')"
   >
-    <n-card
-      :segmented="{ footer: true }"
-      size="small"
-      content-style="padding-bottom: 5px;"
-      footer-style="padding-bottom: 0px;"
-    >
-      <n-dynamic-tags :value="synonyms" @update:value="onUpdate" />
+    <n-card :segmented="{ footer: true }" size="small">
+      <n-dynamic-tags round :value="synonyms" @update:value="onUpdate" />
       <template #footer>
-        <n-space justify="end">
+        <n-space justify="center" align="center">
           <n-button size="small" @click="onSave"> 적용 </n-button>
         </n-space>
       </template>

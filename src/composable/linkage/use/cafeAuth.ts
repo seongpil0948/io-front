@@ -1,3 +1,4 @@
+import _axios from "@/plugin/axios";
 import { useAuthStore } from "@/store";
 import { useMessage } from "naive-ui";
 import { getCurrentInstance, onBeforeMount, computed, ref } from "vue";
@@ -8,7 +9,7 @@ export function useCafeAuth() {
   const auth = useAuthStore();
   const CAFE_CLIENT_ID = "mnhAX4sDM9UmCchzOwzTAA";
   const inst = getCurrentInstance();
-  const http = inst?.appContext.config.globalProperties.$http;
+  const http = inst?.appContext.config.globalProperties.$http ?? _axios;
   onBeforeMount(async () => {
     const urlParameter = window.location.search;
     const params = new URLSearchParams(urlParameter);

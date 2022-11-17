@@ -1,11 +1,12 @@
 import {
   Mapper,
+  onFirestoreCompletion,
+  onFirestoreErr,
   ShopGarment,
   ShopGarmentDB,
   ShopUserGarment,
-  USER_DB,
 } from "@/composable";
-import { getIoStore } from "@/plugin/firebase";
+import { USER_DB, getIoStore } from "@io-boxies/js-lib";
 import { logger } from "@/plugin/logger";
 import { batchInQuery, getIoCollection, IoCollection } from "@/util";
 import {
@@ -39,6 +40,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
     condi: (prod: ShopGarment) => boolean
   ): { shopProds: Ref<ShopGarment[]>; unsubscribe: Unsubscribe } {
     const shopProds = ref<ShopGarment[]>([]);
+    const name = "useGetShopGarments snapshot";
     const unsubscribe = onSnapshot(
       query(
         getIoCollection({ c: IoCollection.SHOP_PROD }).withConverter(
@@ -54,7 +56,9 @@ export const ShopGarmentFB: ShopGarmentDB = {
             shopProds.value.push(prod);
           }
         });
-      }
+      },
+      async (err) => await onFirestoreErr(name, err),
+      () => onFirestoreCompletion(name)
     );
 
     return { shopProds, unsubscribe };

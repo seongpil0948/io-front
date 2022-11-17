@@ -11,10 +11,10 @@
   </n-space>
   <n-card>
     <n-space vertical item-style="width: 100%; height: 100%;">
-      <n-h2 prefix="bar" style="text-align: start">{{
-        detailPost?.title
-      }}</n-h2>
-      <div style="min-height: 70vh" id="io-editor"></div>
+      <n-h2 prefix="bar" style="text-align: start">
+        {{ detailPost?.title }}
+      </n-h2>
+      <div id="io-editor" style="min-height: 70vh" />
     </n-space>
   </n-card>
 </template>

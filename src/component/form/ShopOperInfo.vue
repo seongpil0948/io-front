@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SHIP_METHOD, ShopOperInfo } from "@/composable";
+import { SHIP_METHOD, ShopOperInfo } from "@io-boxies/js-lib";
 import { notNullRule, saleAvgOpt, shipMethodOpt } from "@/util";
 import { FormInst } from "naive-ui";
 import { reactive, ref } from "vue";
@@ -31,16 +31,14 @@ defineExpose({ operInfo: formModel });
           v-model:value="formModel.saleAverage"
           placeholder="월 판매량이 어떻게 되시나요?"
           :options="saleAvgOpt"
-        >
-        </n-select>
+        />
       </n-form-item-gi>
       <n-form-item-gi label="현재 사입방식" path="purchaseMethod">
         <n-select
           v-model:value="formModel.purchaseMethod"
           placeholder="어떤 방식으로 주문 상품을 배송 받으시나요?"
           :options="shipMethodOpt"
-        >
-        </n-select>
+        />
       </n-form-item-gi>
     </n-grid>
   </n-form>

@@ -1,5 +1,6 @@
 import { useUncleWorkers } from "@/composable/auth";
 import { useAuthStore, useUncleOrderStore } from "@/store";
+import { getUserName } from "@io-boxies/js-lib";
 import {
   batchInQuery,
   getIoCollection,
@@ -54,7 +55,7 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
           openWorkerModal.value = true;
         },
       },
-      { default: () => (worker ? worker.name : "미배정") }
+      { default: () => (worker ? getUserName(worker) : "미배정") }
     );
     return btn;
   }

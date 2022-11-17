@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { getAuth, signOut } from "firebase/auth";
-import { IoUser } from "@/composable/auth/model/user";
+import { IoUser, userFromJson } from "@io-boxies/js-lib";
 interface AuthStoreInterface {
   user: IoUser | null;
 }
@@ -16,8 +16,10 @@ export const useAuthStore = defineStore({
       if (!this.user) {
         const userStr = localStorage.getItem(userKey);
         if (userStr) {
-          const u = IoUser.fromJson(JSON.parse(userStr));
-          if (!u) this.$router.replace({ name: "Login" });
+          const u = userFromJson(JSON.parse(userStr));
+          if (!u) {
+            this.$router.replace({ name: "Login" });
+          }
           this.user = u!;
           return u!;
         } else {
@@ -34,17 +36,20 @@ export const useAuthStore = defineStore({
     setUser() {
       localStorage.setItem(userKey, JSON.stringify(this.user));
     },
-    async login(u: IoUser) {
+    login(u: IoUser) {
       if (this.user) {
         if (this.user.userInfo.userId === u.userInfo.userId) return;
-        else await this.logout(false);
+        else this.clearUser();
       }
       this.user = u;
       this.setUser();
     },
-    async logout(replace = true) {
+    clearUser() {
       localStorage.clear();
       this.user = null;
+    },
+    async logout(replace = true) {
+      this.clearUser();
       const auth = getAuth();
       await signOut(auth);
       if (replace) this.$router.replace({ name: "Login" }); //   this.$http.get("https://www.naver.com");

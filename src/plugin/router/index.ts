@@ -2,13 +2,13 @@ import { createRouter, createWebHistory } from "vue-router";
 import { routes } from "./routes";
 import { useAuthStore, useCommonStore } from "@/store";
 import { logger } from "../logger";
-import { IoUser, USER_ROLE } from "@/composable";
-import { analytics } from "../firebase";
+import { ioFire } from "@io-boxies/js-lib";
 import { logEvent } from "firebase/analytics";
+import { IoUser, USER_ROLE } from "@io-boxies/js-lib";
 export const notAuthName = ["Login", "SignUp", "PlayGround", "OrderLinkage"];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: routes,
 });
 
@@ -27,7 +27,7 @@ router.beforeEach(async (to) => {
       logger.error(
         authStore.currUser.userInfo.userId,
         "유효하지 않은 페이지 접근",
-        to
+        to.fullPath
       );
       useCommonStore().$patch((state) => {
         state.msgQueue.push({
@@ -53,17 +53,22 @@ router.beforeEach(async (to) => {
 
 router.afterEach((to, from, failure) => {
   if (!failure) {
-    // sendToAnalytics(to.fullPath);
-    logEvent(analytics, "screen_view", {
+    logEvent(ioFire.analytics, "screen_view", {
       firebase_screen: to.name?.toString() ?? to.path,
       firebase_screen_class: to.fullPath ?? "",
     });
-    analytics;
   }
 });
 
 router.goHome = (user?: IoUser) => {
-  router.push({ name: getHomeName(user?.userInfo.role) });
+  if (!user) {
+    const authStore = useAuthStore();
+    console.log("authStore.currUserRole: ", authStore.currUserRole);
+    router.push({ name: getHomeName(authStore.currUserRole) });
+  } else {
+    console.log("user.userInfo.role: ", user.userInfo.role);
+    router.push({ name: getHomeName(user.userInfo.role) });
+  }
 };
 function getHomeName(role?: USER_ROLE) {
   if (!role) return "Login";

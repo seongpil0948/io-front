@@ -1,9 +1,9 @@
+import { onFirestoreErr, onFirestoreCompletion } from "@/composable/common";
 import { useAuthStore } from "@/store";
 import { getIoCollection, IoCollection } from "@/util";
 import { onSnapshot, query, where } from "@firebase/firestore";
+import { IoUser, userFireConverter, usersFromSnap } from "@io-boxies/js-lib";
 import { onBeforeUnmount, ref, computed } from "vue";
-import { _usersFromSnap } from "../db/firebase";
-import { IoUser } from "../model";
 
 export function useUncleWorkers() {
   const auth = useAuthStore();
@@ -17,8 +17,9 @@ export function useUncleWorkers() {
     }, {} as { [uid: string]: string })
   );
   const c = getIoCollection({ c: IoCollection.USER }).withConverter(
-    IoUser.fireConverter()
+    userFireConverter
   );
+  const name = "uncleWorkers snapshot";
   const unsubscribe = onSnapshot(
     query(
       c,
@@ -26,8 +27,10 @@ export function useUncleWorkers() {
       where("userInfo.managerId", "==", u.userInfo.userId)
     ),
     (snapshot) => {
-      workers.value = _usersFromSnap(snapshot);
-    }
+      workers.value = usersFromSnap(snapshot);
+    },
+    async (err) => await onFirestoreErr(name, err),
+    () => onFirestoreCompletion(name)
   );
   onBeforeUnmount(() => unsubscribe());
   return {

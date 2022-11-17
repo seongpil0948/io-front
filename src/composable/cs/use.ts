@@ -10,7 +10,8 @@ import {
   QuerySnapshot,
   where,
 } from "firebase/firestore";
-import { csPostFireConverter, USER_ROLE } from "@/composable";
+import { csPostFireConverter } from "@/composable";
+import { USER_ROLE } from "@io-boxies/js-lib";
 import { KAKAO_CHANNEL_ID } from "@/constants";
 import { ComponentInternalInstance } from "vue";
 const getCollection = () =>

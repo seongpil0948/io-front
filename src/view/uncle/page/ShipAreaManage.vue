@@ -34,10 +34,10 @@ const u = authStore.currUser;
         >
           <n-space vertical>
             <n-h2>사이즈별 비용</n-h2>
-            <ship-unit-list :u="u" :edit="true" unitKey="amountBySize" />
-            <div style="height: 1vh"></div>
+            <ship-unit-list :u="u" :edit="true" unit-key="amountBySize" />
+            <div style="height: 1vh" />
             <n-h2>중량별 비용</n-h2>
-            <ship-unit-list :u="u" :edit="true" unitKey="amountByWeight" />
+            <ship-unit-list :u="u" :edit="true" unit-key="amountByWeight" />
           </n-space>
         </n-tab-pane>
       </n-tabs>

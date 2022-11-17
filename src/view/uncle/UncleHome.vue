@@ -16,7 +16,7 @@ const u = auth.currUser;
       <n-grid-item>
         <n-card class="button-card" style="border-color: #e88080">
           <template #header>
-            <n-text style="font-color: #e88080">광고 노출 상태</n-text>
+            <n-text style="font-color: #e88080"> 광고 노출 상태 </n-text>
           </template>
           {{ u.availUncleAdvertise ? "활성화" : "비활성화" }}
         </n-card>

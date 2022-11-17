@@ -104,7 +104,7 @@ function setEditMode() {
   <n-text v-else style="color: inherit" @click="setEditMode">
     <n-tooltip trigger="hover">
       <template #trigger> {{ activeCnt }} / {{ pendingCnt }} </template>
-      <n-space vertical v-if="prodOrder.vendorGarment">
+      <n-space v-if="prodOrder.vendorGarment" vertical>
         <n-text>
           주문시도 개수: {{ prodOrder.orderCnt }}, 재고 개수:
           {{ prodOrder.vendorGarment.stockCnt }}

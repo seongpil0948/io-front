@@ -16,6 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: check versions
+        run: node --version
+      - name: set npm registry
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > .npmrc
+          echo "@io-boxies=https://npm.pkg.github.com/" >> .npmrc
       - name: npm build
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"

@@ -3,8 +3,8 @@ import { ApiToken, catchError, LINKAGE_DB } from "@/composable";
 import { strLenEqualRule, strLenRule } from "@/util";
 import { useMessage, FormInst } from "naive-ui";
 import { ref } from "vue";
-import { v4 as uuidv4 } from "uuid";
 import { useAuthStore } from "@/store";
+import { uuidv4 } from "@firebase/util";
 
 const emits = defineEmits<{
   (e: "submitToken", value: ApiToken): void;

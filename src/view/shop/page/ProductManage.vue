@@ -7,7 +7,7 @@ import {
 import { useAuthStore, useVendorsStore } from "@/store";
 import { makeMsgOpt, isMobile } from "@/util";
 import { NButton, useMessage } from "naive-ui";
-import { v4 as uuidv4 } from "uuid";
+import { uuidv4 } from "@firebase/util";
 import { computed } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
@@ -51,6 +51,7 @@ async function onCheckedOrder() {
     const prod = userProd.value.find(
       (x) => x.shopProdId === checkedKeys.value[i]
     )!;
+    if (!prod) continue;
 
     const vendorProd = vendorStore.vendorUserGarments.find(
       (y) => y.vendorProdId === prod.vendorProdId
@@ -96,23 +97,23 @@ function updateOrderId(arr: string[]) {
       <template #header-extra>
         <n-button
           v-if="!isMobile()"
-          @click="onCheckedDelete"
           size="small"
           round
           type="primary"
           style="margin-right: 5px"
+          @click="onCheckedDelete"
         >
-          선택 상품 삭제</n-button
-        >
+          선택 상품 삭제
+        </n-button>
         <n-button
-          @click="onCheckedOrder"
           v-if="!isMobile()"
           size="small"
           round
           type="primary"
+          @click="onCheckedOrder"
         >
-          선택 상품 주문</n-button
-        >
+          선택 상품 주문
+        </n-button>
       </template>
       <n-data-table
         ref="tableRef"
@@ -141,6 +142,6 @@ function updateOrderId(arr: string[]) {
   <shop-prod-modify-modal
     v-if="popVal === 'Edit'"
     v-model:userProd="selectedRow"
-    @onClose="selectedRow = null"
+    @on-close="selectedRow = null"
   />
 </template>

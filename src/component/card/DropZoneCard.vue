@@ -7,8 +7,12 @@
     @mouseover="hovered = true"
     @mouseleave="hovered = false"
   >
-    <template #header> <slot name="header"></slot> </template>
-    <template #header-extra> <slot name="header-extra"></slot> </template>
+    <template #header>
+      <slot name="header" />
+    </template>
+    <template #header-extra>
+      <slot name="header-extra" />
+    </template>
     <div v-bind="getRootProps()">
       <div v-if="listenClick">
         <input v-bind="getInputProps()" />
@@ -27,16 +31,20 @@
               hovered === true ? activeColor : 'var(--n-close-color-pressed)'
             }`"
           >
-            <n-text type="primary" v-if="!isDragActive">
+            <n-text v-if="!isDragActive" type="primary">
               클릭 혹은 드래그앤드롭(Drag&Drop) 으로 사입리스트를 업로드하세요!
             </n-text>
-            <n-text type="primary" v-else>좋아요! 내려놓으세요!</n-text>
+            <n-text v-else type="primary"> 좋아요! 내려놓으세요! </n-text>
           </n-el>
         </div>
       </slot>
     </div>
-    <template #footer> <slot name="footer"></slot> </template>
-    <template #action> <slot name="action"></slot> </template>
+    <template #footer>
+      <slot name="footer" />
+    </template>
+    <template #action>
+      <slot name="action" />
+    </template>
   </n-card>
 </template>
 
@@ -55,6 +63,7 @@ const props = defineProps({
   fileModel: {
     type: Array,
     required: false,
+    default: () => [],
   },
   activeColor: {
     type: String,

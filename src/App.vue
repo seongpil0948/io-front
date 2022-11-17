@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { lightTheme, darkTheme } from "naive-ui";
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { lightThemeOver, darkThemeOver } from "./composable/config";
+import { initIoFirebase } from "./plugin/firebase";
 import { useAuthStore } from "./store";
 
 const auth = useAuthStore();
@@ -9,6 +10,8 @@ const isDark = computed(() => (auth.user ? auth.user.preferDark : false));
 const currTheme = computed(() =>
   isDark.value ? darkThemeOver : lightThemeOver
 );
+
+onMounted(initIoFirebase);
 </script>
 
 <template>

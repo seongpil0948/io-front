@@ -46,7 +46,7 @@ const numOfShipping = computed(
 </script>
 <template>
   <n-space vertical align="center" item-style="width: 100%">
-    <shop-add-order-table :showSizes="false" :inStates="['BEFORE_ORDER']" />
+    <shop-add-order-table :show-sizes="false" :in-states="['BEFORE_ORDER']" />
     <n-grid
       cols="1 s:2 m:2 l:4 xl:4 2xl:4"
       x-gap="24"
@@ -56,8 +56,8 @@ const numOfShipping = computed(
     >
       <n-grid-item>
         <n-card
-          @click="router.push({ name: 'OrderComplete' })"
           class="button-card"
+          @click="router.push({ name: 'OrderComplete' })"
         >
           <template #header>
             <n-text>승인주문수</n-text>
@@ -70,9 +70,9 @@ const numOfShipping = computed(
       </n-grid-item>
       <n-grid-item>
         <n-card
-          @click="router.push({ name: 'OrderRequire' })"
           class="button-card"
           style="border-color: var(--primary-color)"
+          @click="router.push({ name: 'OrderRequire' })"
         >
           <template #header>
             <n-text>미승인주문수</n-text>
@@ -82,24 +82,24 @@ const numOfShipping = computed(
       </n-grid-item>
       <n-grid-item>
         <n-card
-          @click="router.push({ name: 'OrderComplete' })"
           class="button-card"
           style="border-color: #70c0e8"
+          @click="router.push({ name: 'OrderComplete' })"
         >
           <template #header>
-            <n-text style="font-color: #70c0e8">미결제금액</n-text>
+            <n-text style="font-color: #70c0e8"> 미결제금액 </n-text>
           </template>
           {{ amountNotPaid }} 원
         </n-card>
       </n-grid-item>
       <n-grid-item>
         <n-card
-          @click="router.push({ name: 'PayHistory' })"
           class="button-card"
           style="border-color: #e88080"
+          @click="router.push({ name: 'PayHistory' })"
         >
           <template #header>
-            <n-text style="font-color: #e88080">배송중인수량</n-text>
+            <n-text style="font-color: #e88080"> 배송중인수량 </n-text>
           </template>
           {{ numOfShipping }}건
         </n-card>

@@ -68,8 +68,8 @@ const ctgrOpts = computed(() =>
     :prod="selectedProd"
   />
   <n-space
-    vertical
     v-if="searchedData.length > 0"
+    vertical
     style="width: 100%"
     item-style="width: 100%"
   >
@@ -79,17 +79,17 @@ const ctgrOpts = computed(() =>
         placeholder="상품검색 - 오늘도 신상을 잘 찾아보즈아!"
         style="width: 30vw"
       />
-      <n-button @click="search">검색</n-button>
+      <n-button @click="search"> 검색 </n-button>
       <n-select
+        v-model:value="part"
         placeholder="파트선택"
         clearable
-        v-model:value="part"
         :options="partOpts"
       />
       <n-select
+        v-model:value="ctgr"
         placeholder="카테고리선택"
         clearable
-        v-model:value="ctgr"
         :options="ctgrOpts"
       />
     </n-space>
@@ -108,19 +108,19 @@ const ctgrOpts = computed(() =>
         >
           <n-gi v-for="(prod, i) in paginatedData" :key="i">
             <vendor-prod-thum
-              style="padding: 5%; margin: auto"
               v-if="validProd(prod)"
+              style="padding: 5%; margin: auto"
               :prod="prod"
               :width="250"
-              @onClickProd="onClickProd"
+              @on-click-prod="onClickProd"
             />
           </n-gi>
         </n-grid>
       </n-card>
     </n-space>
     <n-pagination
-      style="justify-content: end"
       v-model:page="page"
+      style="justify-content: end"
       :page-count="totalPage"
       show-quick-jumper
       size="large"

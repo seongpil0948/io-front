@@ -36,10 +36,10 @@ onBeforeMount(() => store.init(user.userInfo.userId));
 <template>
   <n-card>
     <template #header>
-      <n-h2 class="under-bar" style="text-align: left"
-        >결제완료 / 미송 주문</n-h2
-      >
+      <n-h2 class="under-bar" style="text-align: left">
+        결제완료 / 미송 주문
+      </n-h2>
     </template>
-    <order-by-shop-expand-table :inStates="['BEFORE_READY']" />
+    <order-by-shop-expand-table :in-states="['BEFORE_READY']" />
   </n-card>
 </template>

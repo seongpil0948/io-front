@@ -11,15 +11,20 @@ const ServerLogHook: LoggerHook = {
   async run(event: LogEvent) {
     if (event.level !== "debug" && event.argumentArray.length > 1) {
       if (event.level === "log") {
-        console.error("Not Support Log Level : log");
+        console.error("not support log level : log");
         return;
+      }
+      if (import.meta.env.MODE !== "production") {
+        console.log(event.argumentArray);
       }
       const isUserLog =
         event.argumentArray[0] && typeof event.argumentArray[0] === "string";
       const formData = new FormData();
+      const txt = event.argumentArray.join("&&");
+
       formData.set("logName", "io-web-app");
       formData.set("category", "client-side");
-      formData.set("txt", event.argumentArray.join("&&"));
+      formData.set("txt", txt);
       formData.set("severity", event.level);
       if (isUserLog) {
         const txts = event.argumentArray
@@ -49,7 +54,7 @@ const ServerLogHook: LoggerHook = {
 // create logger with options
 const logger = createLogger({
   enabled: true,
-  // consoleEnabled: process.env.NODE_ENV !== "production",
+  // consoleEnabled: import.meta.env.MODE !== "production",
   prefixFormat: ({ level, caller }) =>
     caller
       ? `[${level.toUpperCase()}] [${caller?.fileName}:${

@@ -66,13 +66,13 @@ const {
         :bordered="false"
       />
       <coin-reduce-confirm-modal
-        :showModal="showReqOrderModal"
-        @update:showModal="updateReqOrderShow"
-        @onConfirm="onReqOrderConfirm"
-        :userId="auth.currUser.userInfo.userId"
-        :expectedReduceCoin="expectedReduceCoin"
+        :show-modal="showReqOrderModal"
+        :user-id="auth.currUser.userInfo.userId"
+        :expected-reduce-coin="expectedReduceCoin"
+        @update:show-modal="updateReqOrderShow"
+        @on-confirm="onReqOrderConfirm"
       >
-        <template #title>주문을 전송 하시겠습니까? </template>
+        <template #title> 주문을 전송 하시겠습니까? </template>
         <template #default>
           도매처에 주문 데이터를 전송 후
           <br />

@@ -1,4 +1,4 @@
-import { IoUser, GarmentOrder, useAlarm } from "@/composable";
+import { GarmentOrder, useAlarm } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
@@ -7,6 +7,7 @@ import { useLogger } from "vue-logger-plugin";
 import { ORDER_GARMENT_DB } from "../db";
 import { ProdOrderCombined } from "../domain";
 import { DataFrame, toExcel } from "danfojs";
+import { IoUser, getUserName } from "@io-boxies/js-lib";
 
 export function useOrderBasic(
   user: IoUser,
@@ -45,14 +46,22 @@ export function useOrderBasic(
         await smtp.sendAlarm({
           toUserIds: vendorIds,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${user.name} 으로부터 주문 요청이 도착하였습니다. `,
+          body: `${getUserName(user)} 으로부터 주문 요청이 도착하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
         });
       })
       .catch((err) => {
-        if (typeof err.toString && err.toString().includes("out of stock")) {
+        if (err.toString && err.toString().includes("out of stock")) {
           msg.error(`주문개수가 재고 수량보다 많습니다.`, makeMsgOpt());
+        } else if (
+          err.toString &&
+          (err.toString() as string).toLowerCase().includes("network")
+        ) {
+          log.warn(
+            user.userInfo.userId,
+            "주문실패 네트워크 에러, 유효하지 않은 이메일일 수 있습니다."
+          );
         } else {
           const message =
             err instanceof Error ? err.message : JSON.stringify(err);

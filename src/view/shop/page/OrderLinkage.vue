@@ -200,17 +200,17 @@ async function onSaveMatch() {
     <n-card title="주문연동">
       <n-space vertical>
         <n-space>
-          <n-h5 style="text-align: start"
-            >주문내역 일자 범위선택 (1개월이내)</n-h5
-          >
+          <n-h5 style="text-align: start">
+            주문내역 일자 범위선택 (1개월이내)
+          </n-h5>
           <n-date-picker
             v-model:value="range"
-            @update:formatted-value="updateRangeNaive"
             type="daterange"
             start-placeholder="부터"
             end-placeholder="까지"
             :format="timeFormat"
             clearable
+            @update:formatted-value="updateRangeNaive"
           />
         </n-space>
 
@@ -225,29 +225,29 @@ async function onSaveMatch() {
             <template #trigger>
               <n-button> 카페24 연동 </n-button>
             </template>
-            <n-h5 style="width: 100%; text-align: start">쇼핑몰 ID 입력</n-h5>
+            <n-h5 style="width: 100%; text-align: start"> 쇼핑몰 ID 입력 </n-h5>
             <n-space vertical align="end">
               <n-input v-model:value="mallId" />
-              <n-button @click="goAuthorizeCafe">연동하기</n-button>
+              <n-button @click="goAuthorizeCafe"> 연동하기 </n-button>
             </n-space>
           </n-popover>
           <n-popover v-model:show="showRegitZig" trigger="click">
             <template #trigger>
               <n-button> 지그재그 연동 </n-button>
             </template>
-            <zigzag-register-api-form @submitToken="onZigSubmit" />
+            <zigzag-register-api-form @submit-token="onZigSubmit" />
           </n-popover>
         </n-space>
       </n-space>
     </n-card>
-    <n-card title="수동매칭관리" v-if="matchData.length > 0">
+    <n-card v-if="matchData.length > 0" title="수동매칭관리">
       <n-space style="margin-bottom: 10px" justify="end">
-        <n-button v-if="filterIsNull" @click="() => switchFilter(false)"
-          >전체보기</n-button
-        >
-        <n-button v-else @click="() => switchFilter(true)"
-          >매칭실패만보기</n-button
-        >
+        <n-button v-if="filterIsNull" @click="() => switchFilter(false)">
+          전체보기
+        </n-button>
+        <n-button v-else @click="() => switchFilter(true)">
+          매칭실패만보기
+        </n-button>
       </n-space>
       <n-data-table
         :data="filteredMatchData"
@@ -263,7 +263,7 @@ async function onSaveMatch() {
       />
       <template #action>
         <n-space justify="end">
-          <n-button @click="onSaveMatch">주문데이터로 넘기기</n-button>
+          <n-button @click="onSaveMatch"> 주문데이터로 넘기기 </n-button>
         </n-space>
       </template>
     </n-card>
@@ -274,7 +274,7 @@ async function onSaveMatch() {
     <n-card title="상품선택" :bordered="false" size="large">
       <template #header-extra>
         <n-input v-model:value="searchInputVal" placeholder="상품검색" />
-        <n-button @click="search">검색</n-button>
+        <n-button @click="search"> 검색 </n-button>
       </template>
       <n-data-table
         ref="tableRef"

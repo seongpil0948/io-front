@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import { IoUser, USER_DB } from "@/composable";
 import { useAuthStore } from "@/store";
-import { useMessage } from "naive-ui";
+import { IoUser, USER_DB, availUncleAdvertise } from "@io-boxies/js-lib";
+import {
+  NButton,
+  NCard,
+  NGrid,
+  NGridItem,
+  NH1,
+  NModal,
+  NSpace,
+  NText,
+  useMessage,
+} from "naive-ui";
 import { computed, onBeforeMount, ref } from "vue";
 
 const msg = useMessage();
@@ -10,7 +20,7 @@ const u = auth.currUser;
 const uncles = ref<IoUser[]>([]);
 onBeforeMount(async () => {
   const users = await USER_DB.getUsersByRole("UNCLE");
-  uncles.value = users.filter((x) => x.availUncleAdvertise);
+  uncles.value = users.filter((x) => availUncleAdvertise(x));
 });
 // modal
 const selectedUser = ref<IoUser | null>(null);
@@ -33,7 +43,7 @@ async function onContract() {
     msg.success("추가 완료.");
   } else if (!u.shopInfo.uncleUserIds.includes(uId)) {
     u.shopInfo?.uncleUserIds.push(uId);
-    await u.update();
+    await USER_DB.updateUser(u);
     msg.success("추가 완료.");
   } else {
     msg.error("이미 계약된 유저입니다.");
@@ -47,10 +57,7 @@ function onClose() {
 const bodyStyle = {
   width: "600px",
 };
-const segmented = {
-  content: "soft",
-  footer: "soft",
-};
+
 const showModal = ref(false);
 </script>
 <template>
@@ -64,7 +71,7 @@ const showModal = ref(false);
       responsive="screen"
     >
       <n-grid-item v-for="(uncle, idx) in uncles" :key="idx">
-        <uncle-thum-info @onDetail="onDetail(uncle)" :uncleUser="uncle" />
+        <uncle-thum-info :uncle-user="uncle" @on-detail="onDetail(uncle)" />
       </n-grid-item>
     </n-grid>
   </n-card>
@@ -76,7 +83,6 @@ const showModal = ref(false);
     :title="title"
     :bordered="false"
     size="huge"
-    :segmented="segmented"
   >
     <n-space
       v-if="
@@ -86,26 +92,26 @@ const showModal = ref(false);
       "
       vertical
     >
-      <n-text type="info">픽업건물</n-text>
+      <n-text type="info"> 픽업건물 </n-text>
       <locate-amount-list
         style="padding-bottom: 5%"
         :locates="selectedUser.uncleInfo.pickupLocates"
       />
-      <n-text type="info">배송건물</n-text>
+      <n-text type="info"> 배송건물 </n-text>
       <locate-amount-list
         style="padding-bottom: 5%"
         :locates="selectedUser.uncleInfo.shipLocates"
       />
     </n-space>
     <div
-      style="margin-top: 1vh"
       v-if="
         selectedUser &&
         selectedUser.uncleInfo &&
         selectedUser.uncleInfo.amountBySize
       "
+      style="margin-top: 1vh"
     >
-      <ship-unit-list :u="selectedUser" :edit="false" unitKey="amountBySize" />
+      <ship-unit-list :u="selectedUser" :edit="false" unit-key="amountBySize" />
     </div>
     <div
       v-if="
@@ -117,14 +123,14 @@ const showModal = ref(false);
       <ship-unit-list
         :u="selectedUser"
         :edit="false"
-        unitKey="amountByWeight"
+        unit-key="amountByWeight"
       />
     </div>
 
     <template #action>
       <n-space justify="space-around">
-        <n-button @click="onClose">닫기</n-button>
-        <n-button @click="onContract">계약하기</n-button>
+        <n-button @click="onClose"> 닫기 </n-button>
+        <n-button @click="onContract"> 계약하기 </n-button>
       </n-space>
     </template>
   </n-modal>

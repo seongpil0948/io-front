@@ -14,7 +14,7 @@ import {
   DocumentSnapshot,
   DocumentData,
 } from "@firebase/firestore";
-import { v4 as uuidv4 } from "uuid";
+import { uuidv4 } from "@firebase/util";
 import cloneDeep from "lodash.clonedeep";
 import { insertById, getIoCollection, IoCollection, uniqueArr } from "@/util";
 import { logger } from "@/plugin/logger";
@@ -175,12 +175,15 @@ export class GarmentOrder extends CommonField implements OrderCrt {
     this.cancellations.push(arg);
     await this.update();
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async doneCancel(arg: any) {
     await this.update();
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async reqOrder(arg: any): Promise<void> {
     throw new Error("Method not implemented.");
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async doneOrder(arg: any): Promise<void> {
     throw new Error("Method not implemented.");
   }

@@ -7,7 +7,9 @@
       justify="space-around"
       item-style="width: 100%; height: 100%"
     >
-      <n-h2 v-if="title" style="text-align: start">{{ title }}</n-h2>
+      <n-h2 v-if="title" style="text-align: start">
+        {{ title }}
+      </n-h2>
       <n-data-table
         :columns="columns"
         :data="posts"

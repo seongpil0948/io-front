@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   IoShipment,
-  IoUser,
   ORDER_STATE,
   useShipmentUncle,
   useAlarm,
@@ -10,6 +9,7 @@ import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ShipOrder,
 } from "@/composable";
+import { IoUser, getUserName } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
 
 const props = defineProps<{
@@ -49,7 +49,7 @@ async function onSelectWorker(val: IoUser) {
       await smtp.sendAlarm({
         toUserIds: [order.shopId, ...order.vendorIds, val.userInfo.userId],
         subject: `inoutbox 주문 처리내역 알림.`,
-        body: `배송 담당자 ${val.name} 님이 배정되었습니다.`,
+        body: `배송 담당자 ${getUserName(val)} 님이 배정되었습니다.`,
         notiLoadUri: "/",
         uriArgs: {},
       });
@@ -66,7 +66,7 @@ async function onSelectWorker(val: IoUser) {
       :bordered="false"
       :columns="byShopCols"
       :data="orderShipsByShop"
-      :rowKey="(row: ShipOrderByShop) => row.shopId"
+      :row-key="(row: ShipOrderByShop) => row.shopId"
       @update:checked-row-keys="onCheckRow"
     />
     <n-card
@@ -78,7 +78,7 @@ async function onSelectWorker(val: IoUser) {
         :bordered="false"
         :columns="byShopDetailCols"
         :data="selectedData.items"
-        :rowKey="(row: ShipOrder) => row.shippingId"
+        :row-key="(row: ShipOrder) => row.shippingId"
         @update:checked-row-keys="onCheckDetailRow"
       />
     </n-card>

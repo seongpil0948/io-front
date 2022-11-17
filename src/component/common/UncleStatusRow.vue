@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IoUser } from "@/composable";
+import { IoUser, inWork, getUserName } from "@io-boxies/js-lib";
 import { toRefs } from "vue";
 
 const props = defineProps<{ worker: IoUser }>();
@@ -8,6 +8,7 @@ defineEmits<{ e: "worker:click" }>();
 const { worker } = toRefs(props);
 </script>
 <template>
+  <!-- eslint-disable vue/require-explicit-emits -->
   <n-space
     inline
     align="center"
@@ -23,14 +24,14 @@ const { worker } = toRefs(props);
     "
     @click="$emit('worker:click')"
   >
-    <uncle-status-icon :status="worker.inWork ? 'green' : 'grey'" />
+    <uncle-status-icon :status="inWork(worker) ? 'green' : 'grey'" />
     <n-avatar
       round
       size="small"
       :src="worker.userInfo.profileImg"
       fallback-src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
     />
-    <n-text> {{ worker.name }} </n-text>
+    <n-text> {{ getUserName(worker) }} </n-text>
     <!-- <n-text> 155/200 </n-text> -->
   </n-space>
 </template>

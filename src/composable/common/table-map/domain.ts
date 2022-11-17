@@ -1,11 +1,10 @@
+import type { UserFields, IoUser } from "@io-boxies/js-lib";
 import type {
-  UserFields,
   OrderAmount,
   OrderCrt,
   ProdOrder,
   VendorGarmentCrt,
   ShopGarmentCrt,
-  IoUserCRT,
 } from "@/composable";
 import { TableColumnTitle } from "naive-ui/es/data-table/src/interface";
 import { VNodeChild } from "vue";
@@ -20,7 +19,7 @@ export type MapperFields = Partial<
     OrderCrt &
     VendorGarmentCrt &
     ShopGarmentCrt &
-    IoUserCRT &
+    IoUser &
     UserFields &
     ProdOrder &
     AdditionalMap & { accountStr: string }

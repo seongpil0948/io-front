@@ -11,9 +11,9 @@
           direction="horizontal"
         >
           <img
-            class="carousel-img"
             v-for="(url, j) in imgUrls"
             :key="j"
+            class="carousel-img"
             :src="url"
           />
         </n-carousel>
@@ -25,10 +25,10 @@
       >
         <img
           v-for="(url, i) in imgUrls"
-          @click="onClickSubImg(i)"
           :key="i"
           :src="url"
           class="small io-img"
+          @click="onClickSubImg(i)"
         />
       </n-space>
     </n-space>

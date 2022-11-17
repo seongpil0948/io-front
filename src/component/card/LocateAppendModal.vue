@@ -82,12 +82,12 @@ function updateShow(val: boolean) {
 <template>
   <n-modal
     :show="showAppendModal"
-    @on-update:show="updateShow"
-    @esc="() => updateShow(false)"
-    @close="() => updateShow(false)"
     preset="card"
     title="주소정보추가"
     :mask-closable="false"
+    @on-update:show="updateShow"
+    @esc="() => updateShow(false)"
+    @close="() => updateShow(false)"
   >
     <n-form
       ref="formRef"
@@ -111,20 +111,10 @@ function updateShow(val: boolean) {
         </n-form-item-gi>
         <n-form-item-gi label="주소">
           <area-selector
-            style="margin-bottom: 1%; margin-top: 1%"
             v-model:area="formModel"
+            style="margin-bottom: 1%; margin-top: 1%"
           />
         </n-form-item-gi>
-        <!-- <n-form-item-gi label="도시" path="city">
-          <n-input v-model:value="formModel.city" placeholder="도시 입력" />
-        </n-form-item-gi>
-        <n-form-item-gi label="구" path="county">
-          <n-input v-model:value="formModel.county" placeholder="구 입력" />
-        </n-form-item-gi>
-        <n-form-item-gi label="동" path="town">
-          <n-input v-model:value="formModel.town" placeholder="동 입력" />
-        </n-form-item-gi> -->
-
         <n-form-item-gi label="우편번호" path="postalCode">
           <n-input
             v-model:value="formModel.postalCode"

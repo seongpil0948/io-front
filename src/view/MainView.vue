@@ -35,7 +35,7 @@ watchPostEffect(() => {
 </script>
 <template>
   <n-spin size="large" :show="cs.showSpin">
-    <router-view></router-view>
+    <router-view />
   </n-spin>
   <float-action-button
     v-if="

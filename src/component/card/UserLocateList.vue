@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { CompanyInfo, Locate, LocateCRT } from "@/composable";
+import { Locate, LocateCRT } from "@/composable";
+import { CompanyInfo } from "@io-boxies/js-lib";
 import { computed, ref, toRefs } from "vue";
 
 const props = defineProps<{
@@ -44,11 +45,11 @@ const locateKey = [
 
 <template>
   <n-space v-if="info" style="overflow-x: auto" :wrap="false">
-    <n-tooltip trigger="hover" v-for="(i, idx) in locates" :key="idx">
+    <n-tooltip v-for="(i, idx) in locates" :key="idx" trigger="hover">
       <template #trigger>
         <n-tag round closable @close="onLocateClose(i as Locate)">
-          {{ i.alias }}</n-tag
-        >
+          {{ i.alias }}
+        </n-tag>
       </template>
       <!-- keyword:  {{ locateStr(i) }} -->
       <n-card style="width: 25vw" title="주소지 정보">
@@ -66,16 +67,20 @@ const locateKey = [
           </n-button>
         </template>
         <n-space v-for="(j, idx2) in locateKey" :key="idx2 + '2'">
-          <n-text type="info">{{ j[0] }} </n-text>
-          <n-text type="primary">{{ i[j[1]] }} </n-text>
+          <n-text type="info">
+            {{ j[0] }}
+          </n-text>
+          <n-text type="primary">
+            {{ i[j[1]] }}
+          </n-text>
         </n-space>
       </n-card>
     </n-tooltip>
-    <div style="width: 5px"></div>
-    <n-button @click="showAppendModal = true">추가 </n-button>
+    <div style="width: 5px" />
+    <n-button @click="showAppendModal = true"> 추가 </n-button>
     <locate-append-modal
-      @appendLocate="onAppendLocate"
       v-model:showAppendModal="showAppendModal"
+      @append-locate="onAppendLocate"
     />
   </n-space>
 </template>

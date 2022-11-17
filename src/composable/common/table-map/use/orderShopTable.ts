@@ -12,7 +12,7 @@ import { computed, h, Ref, ref } from "vue";
 import { useTable } from "./table";
 import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
 import InfoCell from "@/component/table/InfoCell.vue";
-import { write } from "clipboardy";
+import clip from "clipboardy";
 interface orderTableParam {
   garmentOrders: Ref<ProdOrderCombined[]>;
   orders: Ref<GarmentOrder[]>;
@@ -48,9 +48,9 @@ export function useOrderTable(d: orderTableParam) {
           NButton,
           {
             text: true,
-            onClick: () => {
+            onClick: async () => {
               if (row.accountStr) {
-                write(row.accountStr);
+                await clip.write(row.accountStr);
                 msg.info("복사완료");
               }
             },

@@ -16,9 +16,9 @@ function onClickChecker() {
 }
 </script>
 <template>
-  <n-space inline v-if="prodOrder">
+  <n-space v-if="prodOrder" inline>
     <logo-checker :size="1" :checked="checked" @click="onClickChecker" />
-    <div style="width: 1vw"></div>
+    <div style="width: 1vw" />
     <n-text v-if="prodOrder.vendorGarment">
       {{ prodOrder.vendorGarment.vendorProdName }} /
       {{ prodOrder.vendorGarment.color }} /
@@ -28,10 +28,10 @@ function onClickChecker() {
       , 주문/미송 개수: {{ prodOrder.orderCnt }} / ({{ prodOrder.pendingCnt }})
     </n-text>
     <n-text v-else :type="'primary'">, 주문개수: {{ prodOrder.orderCnt }} </n-text> -->
-    <shop-order-cnt :order="garmentOrder" :prodOrder="prodOrder" />
+    <shop-order-cnt :order="garmentOrder" :prod-order="prodOrder" />
     <n-text>, 주문상태: {{ ORDER_STATE[prodOrder.state] }} </n-text>
-    <n-text v-if="prodOrder.actualAmount.paidDate"
-      >, 결제일: {{ timeToDate(prodOrder.actualAmount.paidDate, "MIN") }}
+    <n-text v-if="prodOrder.actualAmount.paidDate">
+      , 결제일: {{ timeToDate(prodOrder.actualAmount.paidDate, "MIN") }}
     </n-text>
   </n-space>
 </template>

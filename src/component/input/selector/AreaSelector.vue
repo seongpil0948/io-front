@@ -61,24 +61,24 @@ function onUpdateCounty() {
 <template>
   <n-space :vertical="isMobile()" justify="space-around" :wrap="false">
     <n-select
+      v-model:value="area.city"
       style="color: yellow"
       filterable
       placeholder="시선택"
-      @update:value="onUpdateCity"
-      v-model:value="area.city"
       :options="cityOpt"
+      @update:value="onUpdateCity"
     />
     <n-select
+      v-model:value="area.county"
       filterable
       placeholder="구선택"
-      v-model:value="area.county"
-      @update:value="onUpdateCounty"
       :options="countyOpt"
+      @update:value="onUpdateCounty"
     />
     <n-select
+      v-model:value="area.town"
       filterable
       placeholder="동선택"
-      v-model:value="area.town"
       :options="townOpt"
     />
   </n-space>

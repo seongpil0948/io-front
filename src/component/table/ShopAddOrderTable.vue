@@ -81,8 +81,8 @@ function downSampleXlsx() {
 </script>
 <template>
   <drop-zone-card
-    :listenClick="!(filteredOrders.length > 0)"
     v-model:fileModel="fileModel"
+    :listen-click="!(filteredOrders.length > 0)"
   >
     <template #header>
       <n-space justify="start">
@@ -92,10 +92,10 @@ function downSampleXlsx() {
         <n-button size="small" type="primary" @click="downOrder">
           주문정보 다운
         </n-button>
-        <n-input-number placeholder="시트번호입력" v-model:value="sheetIdx">
+        <n-input-number v-model:value="sheetIdx" placeholder="시트번호입력">
           <template #prefix> 시트번호 </template>
         </n-input-number>
-        <n-input-number placeholder="시작행번호입력" v-model:value="startRow">
+        <n-input-number v-model:value="startRow" placeholder="시작행번호입력">
           <template #prefix> 시작행번호 </template>
         </n-input-number>
       </n-space>
@@ -122,8 +122,8 @@ function downSampleXlsx() {
       </n-space>
     </template>
     <n-data-table
-      ref="tableRef"
       v-if="filteredOrders.length > 0"
+      ref="tableRef"
       :table-layout="'fixed'"
       :scroll-x="800"
       :columns="tableCol"
@@ -143,13 +143,13 @@ function downSampleXlsx() {
     />
     <coin-reduce-confirm-modal
       v-if="orders && orders.length > 0"
-      :showModal="showReqOrderModal"
-      @update:showModal="updateReqOrderShow"
-      @onConfirm="onReqOrderConfirm"
-      :userId="user.userInfo.userId"
-      :expectedReduceCoin="expectedReduceCoin"
+      :show-modal="showReqOrderModal"
+      :user-id="user.userInfo.userId"
+      :expected-reduce-coin="expectedReduceCoin"
+      @update:show-modal="updateReqOrderShow"
+      @on-confirm="onReqOrderConfirm"
     >
-      <template #title>주문을 전송 하시겠습니까? </template>
+      <template #title> 주문을 전송 하시겠습니까? </template>
       <template #default>
         도매처에 주문 데이터를 전송 후
         <br />

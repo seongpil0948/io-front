@@ -3,7 +3,6 @@ import { ref, toRefs } from "vue";
 import type { MenuOption } from "naive-ui";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store";
-import { useLogin } from "@/composable";
 const props = defineProps<{
   menuOptions: MenuOption[];
 }>();
@@ -12,33 +11,27 @@ const authStore = useAuthStore();
 const u = authStore.currUser;
 const { menuOptions } = toRefs(props);
 const collapsed = ref(false);
-const uidModel = ref<string | null>(null);
-const { login } = useLogin();
-async function admLogin() {
-  if (uidModel.value && uidModel.value.length > 4) {
-    await login(uidModel.value, { providerId: "EMAIL" }, false);
-  }
-}
 </script>
 
 <template>
   <n-layout-sider
+    v-model:collapsed="collapsed"
     bordered
     show-trigger
     collapse-mode="width"
     :collapsed-width="64"
     :width="240"
     :native-scrollbar="false"
-    v-model:collapsed="collapsed"
   >
     <n-space justify="center" align="center">
-      <logo-image @click="router.goHome(u)" size="3.5rem" />
+      <logo-image size="3.5rem" @click="router.goHome(u)" />
       <n-h2
         :style="`${
           collapsed ? 'transform: skew(-9deg, 33deg);' : 'none'
         } ; margin-bottom: -7%`"
-        >InOut BOX</n-h2
       >
+        InOut BOX
+      </n-h2>
     </n-space>
 
     <n-divider />
@@ -47,20 +40,7 @@ async function admLogin() {
       :collapsed-icon-size="22"
       :options="menuOptions"
     />
-    <prefer-dark :text="!collapsed" />
-    <n-space
-      style="margin-top: 10px"
-      vertical
-      align="end"
-      v-if="u.userInfo.role === 'ADMIN'"
-    >
-      당신은 관리자 계정입니다.
-      <n-input
-        v-model:value="uidModel"
-        type="text"
-        placeholder="user id 입력"
-      />
-      <n-button @click="admLogin">로그인</n-button>
-    </n-space>
+    <prefer-dark :text="!collapsed" style="margin-top: 5%; margin-bottom: 5%" />
+    <n-button @click="authStore.logout"> 로그아웃 </n-button>
   </n-layout-sider>
 </template>

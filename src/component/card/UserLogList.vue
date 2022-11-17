@@ -51,8 +51,10 @@ const infoLogRef = getLogs(infoLogs);
     pane-style="overflow: auto; height: 40vh"
   >
     <n-tab-pane name="info" tab="활동로그">
-      <div style="margin-top: 10px" v-for="(txt, idx) in infoLogRef" :key="idx">
-        <n-h6 style="margin: 0; font-size: 0.8rem"> {{ txt[0] }} </n-h6>
+      <div v-for="(txt, idx) in infoLogRef" :key="idx" style="margin-top: 10px">
+        <n-h6 style="margin: 0; font-size: 0.8rem">
+          {{ txt[0] }}
+        </n-h6>
         <n-p style="margin-top: 0; text-indent: 2vw !important">
           {{ txt[1] }}
         </n-p>
@@ -60,11 +62,13 @@ const infoLogRef = getLogs(infoLogs);
     </n-tab-pane>
     <n-tab-pane name="error" tab="에러로그">
       <div
-        style="margin-top: 10px"
         v-for="(txt, idx) in errorLogRef"
         :key="idx"
+        style="margin-top: 10px"
       >
-        <n-h6 style="margin: 0; font-size: 0.8rem"> {{ txt[0] }} </n-h6>
+        <n-h6 style="margin: 0; font-size: 0.8rem">
+          {{ txt[0] }}
+        </n-h6>
         <n-p style="margin-top: 0; text-indent: 2vw !important">
           {{ txt[1] }}
         </n-p>

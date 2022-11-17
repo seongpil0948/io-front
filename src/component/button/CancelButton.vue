@@ -36,17 +36,17 @@ async function cancelSubmit() {
 <template>
   <n-popover trigger="click">
     <template #trigger>
-      <n-button type="error"> 취소요청</n-button>
+      <n-button type="error"> 취소요청 </n-button>
     </template>
     <n-space>
       <n-input-number
-        :disable="inValid"
         v-model:value="cancelCnt"
+        :disable="inValid"
         :min="1"
         :show-button="false"
       />
-      <div style="width: 10px"></div>
-      <n-button @click="cancelSubmit"> 제출</n-button>
+      <div style="width: 10px" />
+      <n-button @click="cancelSubmit"> 제출 </n-button>
     </n-space>
   </n-popover>
 </template>

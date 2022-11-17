@@ -1,30 +1,9 @@
 <script setup lang="ts">
-import { useLogin } from "@/composable";
-import {
-  getMockShops,
-  getMockVendors,
-  getMockUncles,
-} from "../../../tests/e2e/fixtures/users";
-
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { enableStoreNet, disableStoreNet } from "@/plugin/firebase/io-fire";
-
+import { enableStoreNet, disableStoreNet } from "@io-boxies/js-lib";
 const router = useRouter();
-const isTest = process.env.VUE_APP_IS_TEST;
-const { login } = useLogin();
-async function toVendor() {
-  const uid = getMockVendors()[0];
-  await login(uid, { providerId: "EMAIL" }, false);
-}
-async function toShop() {
-  const uid = getMockShops()[0];
-  await login(uid, { providerId: "EMAIL" }, false);
-}
-async function toUncle() {
-  const uid = getMockUncles()[0];
-  await login(uid, { providerId: "EMAIL" }, false);
-}
+const isTest = import.meta.env.VITE_IS_TEST;
 const showTos = ref(false);
 function onTos() {
   showTos.value = true;
@@ -52,20 +31,17 @@ function onTos() {
         <br />
         사업자등록번호: 720-08-02296 | 문의: inoutboxofficial@gmail.com |
         고객센터 번호 : 010-7727-7428
-        <n-button text @click="onTos" size="small" type="primary">
+        <n-button text size="small" type="primary" @click="onTos">
           이용약관 보기
         </n-button>
       </n-text>
       <n-space v-if="isTest === 'true'" justify="center">
-        <n-button @click="toVendor">도매계정전환</n-button>
-        <n-button @click="toShop">소매계정전환</n-button>
-        <n-button @click="toUncle">엉클계정전환</n-button>
         <!-- <<< TEMP <<< -->
         <n-button @click="router.push({ name: 'PlayGround' })">
           PlayGround
         </n-button>
-        <n-button @click="enableStoreNet">enableStoreNet</n-button>
-        <n-button @click="disableStoreNet">disableStoreNet</n-button>
+        <n-button @click="enableStoreNet"> enableStoreNet </n-button>
+        <n-button @click="disableStoreNet"> disableStoreNet </n-button>
       </n-space>
     </n-space>
     <n-modal

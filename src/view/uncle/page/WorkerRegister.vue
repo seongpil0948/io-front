@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import {
-  IoUser,
-  IoAccount,
-  USER_DB,
-  USER_PROVIDER,
-  WorkerInfo,
-  useLogin,
-} from "@/composable";
+import { IoAccount, setWorkerId } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { useMessage } from "naive-ui";
+import { WorkerInfo, USER_DB, USER_PROVIDER, IoUser } from "@io-boxies/js-lib";
+import { useLogin } from "@io-boxies/vue-lib";
+import {
+  NButton,
+  NCheckbox,
+  NGradientText,
+  NH1,
+  NInput,
+  NSpace,
+  useMessage,
+} from "naive-ui";
 import { getCurrentInstance, ref } from "vue";
 
 const auth = useAuthStore();
@@ -87,7 +90,7 @@ async function onSignUp() {
     return msg.error("근로자 정보를 입력 및 제출해주세요.");
   } else {
     const providerId = USER_PROVIDER.KAKAO;
-    const user = new IoUser({
+    const user: IoUser = {
       userInfo: {
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -105,10 +108,10 @@ async function onSignUp() {
         managerId: auth.currUser.userInfo.userId,
         account: account.value,
       },
-    });
+    };
     console.log("Signed User: ", user);
-    await user.update(false);
-    await auth.currUser.setWorkerId(userId.value!);
+    await USER_DB.updateUser(user);
+    await setWorkerId(auth.currUser, userId.value!);
     msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
     authed.value = false;
   }
@@ -119,13 +122,13 @@ const width = "35vw";
   <n-h1>근로자 신규 등록</n-h1>
   <n-space vertical align="start">
     <n-space :style="`width: ${width}`">
-      <n-button @click="onKakaoAuth" type="primary"> Kakao 인증 </n-button>
-      <n-button @click="onGoogleAuth" type="primary"> Google 인증 </n-button>
+      <n-button type="primary" @click="onKakaoAuth"> Kakao 인증 </n-button>
+      <n-button type="primary" @click="onGoogleAuth"> Google 인증 </n-button>
       <n-checkbox :checked="authed" />
     </n-space>
     <n-input
-      :style="`width: ${width}`"
       v-model:value="displayName"
+      :style="`width: ${width}`"
       placeholder="실명입력"
     >
       <template #prefix>
@@ -133,8 +136,8 @@ const width = "35vw";
       </template>
     </n-input>
     <n-input
-      :style="`width: ${width}`"
       v-model:value="phone"
+      :style="`width: ${width}`"
       placeholder="휴대전화번호"
     >
       <template #prefix>
@@ -142,9 +145,11 @@ const width = "35vw";
       </template>
     </n-input>
     <bank-account-form @submit:account="onSubmitAccount" />
-    <n-checkbox :checked="account !== null">계좌 제출여부 </n-checkbox>
-    <worker-info-form @submit:workerInfo="onSubmitWorker" />
-    <n-checkbox :checked="workerInfo !== null">근로자정보 제출여부 </n-checkbox>
+    <n-checkbox :checked="account !== null"> 계좌 제출여부 </n-checkbox>
+    <worker-info-form @submit:worker-info="onSubmitWorker" />
+    <n-checkbox :checked="workerInfo !== null">
+      근로자정보 제출여부
+    </n-checkbox>
     <n-button :style="`width: ${width}`" @click="onSignUp"> 가입하기 </n-button>
   </n-space>
 </template>

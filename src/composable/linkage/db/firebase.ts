@@ -1,3 +1,4 @@
+import { onFirestoreErr, onFirestoreCompletion } from "@/composable/common";
 import { getIoCollection, IoCollection } from "@/util";
 import { deleteDoc, doc, onSnapshot, setDoc } from "@firebase/firestore";
 import { ref } from "vue";
@@ -7,15 +8,21 @@ export const LinkageFB: LinkageDB = {
   getTokensByIdListen: function (uid: string) {
     const c = getC(uid);
     const tokens = ref<ApiToken[]>([]);
-    const unsubscribe = onSnapshot(c, (snapshot) => {
-      tokens.value = [];
-      snapshot.forEach((doc) => {
-        const token = doc.data();
-        if (token) {
-          tokens.value.push(token);
-        }
-      });
-    });
+    const name = "linkageTokens snapshot";
+    const unsubscribe = onSnapshot(
+      c,
+      (snapshot) => {
+        tokens.value = [];
+        snapshot.forEach((doc) => {
+          const token = doc.data();
+          if (token) {
+            tokens.value.push(token);
+          }
+        });
+      },
+      async (err) => await onFirestoreErr(name, err),
+      () => onFirestoreCompletion(name)
+    );
     return { tokens, unsubscribe };
   },
   deleteToken: async function (uid: string, tokenDbId: string): Promise<void> {

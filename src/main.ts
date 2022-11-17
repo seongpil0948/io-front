@@ -1,7 +1,6 @@
 import { createApp } from "vue";
 import router from "./plugin/router";
 import _axios from "./plugin/axios";
-import { ioFire } from "./plugin/firebase";
 
 import App from "./App.vue";
 import vueKakao from "./plugin/kakao";
@@ -19,7 +18,7 @@ window.onerror = function (errorMsg, url, errorObj) {
 logger.debug(
   null,
   "in-out box front(web) has Ignited, with Env: ",
-  process.env
+  import.meta.env
 );
 Date.prototype.toJSON = function () {
   return this.toISOString();
@@ -37,7 +36,6 @@ app.use(router);
 app.use(logger);
 
 app.config.globalProperties.$http = _axios;
-app.config.globalProperties.$fire = ioFire;
 app.mount("#app");
 
 const messaging = getMessaging();

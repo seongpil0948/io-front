@@ -1,5 +1,5 @@
 import { OutputData } from "@editorjs/editorjs";
-import { USER_ROLE } from "../auth";
+import { USER_ROLE } from "@io-boxies/js-lib";
 
 export interface CsPost {
   createdAt: Date;

@@ -1,5 +1,5 @@
-import { LocateAmount, IoUser } from "@/composable";
 import { useAuthStore } from "@/store";
+import { IoUser, LocateAmount, USER_DB } from "@io-boxies/js-lib";
 import { DataTableColumns, NText, NButton, useMessage } from "naive-ui";
 import { Ref, h } from "vue";
 
@@ -47,7 +47,7 @@ export function useShipUnitCols(
             type: "error",
             onClick: async () => {
               delete target[row.unit];
-              await u.update();
+              await USER_DB.updateUser(u);
             },
             size: "small",
           },
@@ -109,7 +109,7 @@ export function useShipAreaCols() {
               );
               console.log("idx:", idx);
               u.uncleInfo!.shipLocates.splice(idx, 1);
-              await u.update();
+              await USER_DB.updateUser(u);
               msg.success("삭제완료.");
             },
           },

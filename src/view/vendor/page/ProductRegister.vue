@@ -2,7 +2,7 @@
 import { computed, ref, watchEffect } from "vue";
 import { type FormInst, useMessage, useDialog } from "naive-ui";
 import { AddCircleOutline } from "@vicons/ionicons5";
-import { v4 as uuidv4 } from "uuid";
+import { uuidv4 } from "@firebase/util";
 import { useRouter } from "vue-router";
 import { useLogger } from "vue-logger-plugin";
 import {
@@ -189,7 +189,7 @@ function handleFileChange(evt: Event) {
       엑셀 파싱 결과 ({{ parsedGarments.length }} 건)
     </template>
     <template #header-extra>
-      <n-button @click="onPreviewConfirm">저장</n-button>
+      <n-button @click="onPreviewConfirm"> 저장 </n-button>
     </template>
 
     <n-data-table
@@ -207,9 +207,9 @@ function handleFileChange(evt: Event) {
     <template #header-extra>
       <n-button @click="onBtnClick">
         <input
+          id="customFile"
           ref="excelInputRef"
           style="display: none"
-          id="customFile"
           type="file"
           @change="handleFileChange"
         />
@@ -233,14 +233,15 @@ function handleFileChange(evt: Event) {
           <n-checkbox-group v-model:value="prodModel.allowPending">
             <n-space item-style="display: flex;">
               <n-checkbox value="받기" label="받기" />
-              <n-checkbox value="안받기" label="안받기" /> </n-space
-          ></n-checkbox-group>
+              <n-checkbox value="안받기" label="안받기" />
+            </n-space>
+          </n-checkbox-group>
         </n-form-item-gi>
         <n-form-item-gi label="파트" path="part">
           <n-select
-            @update:value="changePart"
             v-model:value="prodModel.part"
             :options="partOpts"
+            @update:value="changePart"
           />
         </n-form-item-gi>
         <n-form-item-gi label="카테고리" path="ctgr">
@@ -252,9 +253,9 @@ function handleFileChange(evt: Event) {
 
         <n-form-item-gi label="도매가" path="vendorPrice">
           <n-input-number
+            v-model:value="prodModel.vendorPrice"
             :min="1000"
             :step="10"
-            v-model:value="prodModel.vendorPrice"
           >
             <template #prefix> ₩ </template>
             <template #suffix> 원 </template>
@@ -270,18 +271,18 @@ function handleFileChange(evt: Event) {
             <n-space vertical justify="start">
               <n-form-item label="컬러" path="colors">
                 <n-dynamic-tags
+                  v-model:value="prodModel.colors"
                   round
                   style="flex-wrap: ;no-wrap; overflow-x: auto;"
-                  v-model:value="prodModel.colors"
                   @keydown.enter.prevent
                 />
               </n-form-item>
 
               <n-form-item span="2" label="사이즈" path="sizes">
                 <n-select
+                  v-model:value="prodModel.sizes"
                   placeholder="선택"
                   multiple
-                  v-model:value="prodModel.sizes"
                   :options="sizesOpts"
                 />
               </n-form-item>
@@ -299,10 +300,10 @@ function handleFileChange(evt: Event) {
                   <n-space inline :wrap="false" style="margin-bottom: 1%">
                     <n-form-item-gi span="2" :label="`${color} ${size}`">
                       <n-input-number
+                        v-model:value="stockCnts[size as GARMENT_SIZE][color]"
                         :show-button="false"
                         :min="1"
                         :validator="(x: number) => x % 1 === 0"
-                        v-model:value="stockCnts[size as GARMENT_SIZE][color]"
                       />
                     </n-form-item-gi>
                   </n-space>
@@ -312,7 +313,7 @@ function handleFileChange(evt: Event) {
           </n-space>
         </n-grid-item>
         <n-form-item-gi span="2" label="상품정보" path="info">
-          <div id="io-editor" class="io-editor-border"></div>
+          <div id="io-editor" class="io-editor-border" />
           <!-- <n-input
             v-model:value="prodModel.info"
             type="textarea"
@@ -337,14 +338,14 @@ function handleFileChange(evt: Event) {
           path="titleImgs"
         >
           <single-image-input
-            elementId="titleImgs"
-            size="100"
             v-model:urls="prodModel.titleImgs"
+            element-id="titleImgs"
+            size="100"
             :max="1"
             svc="VENDOR_PRODUCT"
-            :userId="auth.currUser.userInfo.userId"
+            :user-id="auth.currUser.userInfo.userId"
             :role="auth.currUserRole"
-            :parentId="vendorProdId"
+            :parent-id="vendorProdId"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>
@@ -355,14 +356,14 @@ function handleFileChange(evt: Event) {
           path="bodyImgs"
         >
           <single-image-input
-            elementId="bodyImgs"
-            size="100"
             v-model:urls="prodModel.bodyImgs"
+            element-id="bodyImgs"
+            size="100"
             :max="20"
             svc="VENDOR_PRODUCT"
-            :userId="auth.currUser.userInfo.userId"
+            :user-id="auth.currUser.userInfo.userId"
             :role="auth.currUserRole"
-            :parentId="vendorProdId"
+            :parent-id="vendorProdId"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>

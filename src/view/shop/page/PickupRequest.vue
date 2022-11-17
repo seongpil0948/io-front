@@ -65,9 +65,9 @@ async function pickupRequest() {
       <template #header-extra>
         <n-space>
           <n-select
+            v-model:value="targetUncleId"
             style="width: 10vw"
             placeholder="엉클 선택"
-            v-model:value="targetUncleId"
             :options="contactUncleOpts"
           />
           <n-button size="small" type="primary" @click="pickupRequest">
@@ -98,7 +98,7 @@ async function pickupRequest() {
         :bordered="false"
         :columns="tableCol"
         :data="selectedData.items"
-        :rowKey="(row: ProdOrderCombined) => row.id"
+        :row-key="(row: ProdOrderCombined) => row.id"
       />
     </n-card>
   </n-space>

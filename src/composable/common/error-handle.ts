@@ -1,5 +1,7 @@
 import { logger } from "@/plugin/logger";
+import router from "@/plugin/router";
 import { makeMsgOpt } from "@/util";
+import { FirestoreError } from "@firebase/firestore";
 import { MessageOptions } from "naive-ui";
 import { MessageApiInjection } from "naive-ui/es/message/src/MessageProvider";
 
@@ -36,4 +38,24 @@ function expressErr(errStr: string, p: Partial<CatchParam>) {
     p.msg.error(errStr, makeMsgOpt(p.opt));
   }
   logger.error(p.userId, errStr);
+}
+
+export async function onFirestoreErr(name: string, err: FirestoreError) {
+  // console.log(">>> firestore error >>> ");
+  // console.log("code: ", err.code);
+  // console.log("cause: ", err.cause);
+  // console.log("name: ", err.name);
+  // console.log("message: ", err.message);
+  // console.log("<<< firestore error <<<");
+
+  if (
+    err.code === "permission-denied" &&
+    router.currentRoute.value.name !== "Login"
+  ) {
+    router.replace({ name: "Login" });
+  }
+  logger.error(null, name + "error", err);
+}
+export function onFirestoreCompletion(name: string) {
+  console.log(`snapshot ${name} completion `);
 }

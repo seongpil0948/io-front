@@ -1,4 +1,4 @@
-import { iostore } from "@/plugin/firebase";
+import { iostore } from "@io-boxies/js-lib";
 import {
   CollectionReference,
   collection,
