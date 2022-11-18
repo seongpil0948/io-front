@@ -3,6 +3,8 @@ import { ref, toRefs } from "vue";
 import type { MenuOption } from "naive-ui";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store";
+import { SignOut20Regular } from "@vicons/fluent";
+
 const props = defineProps<{
   menuOptions: MenuOption[];
 }>();
@@ -40,7 +42,13 @@ const collapsed = ref(false);
       :collapsed-icon-size="22"
       :options="menuOptions"
     />
-    <prefer-dark :text="!collapsed" style="margin-top: 5%; margin-bottom: 5%" />
-    <n-button @click="authStore.logout"> 로그아웃 </n-button>
+    <prefer-dark
+      :text="!collapsed"
+      style="margin-top: 10%; margin-bottom: 10%"
+    />
+    <n-button style="width: 80%; min-height: 40px" @click="authStore.logout">
+      <n-text v-if="!collapsed">로그아웃</n-text>
+      <n-icon v-else :component="SignOut20Regular" size="24"></n-icon>
+    </n-button>
   </n-layout-sider>
 </template>
