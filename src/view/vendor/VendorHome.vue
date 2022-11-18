@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getCurrDate } from "@/util";
+import { getCurrDate } from "@io-boxies/js-lib";
 import { ref } from "vue";
 const currTab = ref<string>("BEFORE_APPROVE");
 </script>

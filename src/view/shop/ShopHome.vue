@@ -2,7 +2,7 @@
 import { storeToRefs } from "pinia";
 import { useShopOrderStore } from "@/store";
 import { computed } from "vue";
-import { getCurrDate } from "@/util";
+import { getCurrDate } from "@io-boxies/js-lib";
 import { useRouter } from "vue-router";
 
 const router = useRouter();

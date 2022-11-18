@@ -1,6 +1,6 @@
 import { ApiToken, LINKAGE_DB } from "@/composable/linkage";
 import { useAuthStore } from "@/store";
-import { timeToDate } from "@/util";
+import { timeToDate } from "@io-boxies/js-lib";
 import {
   DataTableColumns,
   NButton,

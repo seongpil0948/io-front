@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LocateCRT, IoAccount } from "@/composable";
+import { IoAccount } from "@/composable";
 import { emailRule, nameLenRule } from "@/util";
 
 import { getAuth } from "@firebase/auth";
@@ -9,6 +9,7 @@ import {
   IoUserInfo,
   getFcmToken,
   FcmToken,
+  Locate,
 } from "@io-boxies/js-lib";
 import { FormInst, useMessage } from "naive-ui";
 import { reactive, ref } from "vue";
@@ -28,7 +29,7 @@ const formModel = reactive({
   userName: props.userName ?? "",
   displayName: "",
   email: props.email ?? "",
-  locations: [] as LocateCRT[],
+  locations: [] as Locate[],
 });
 const accInfo = ref<IoAccount | null>(null);
 const msg = useMessage();

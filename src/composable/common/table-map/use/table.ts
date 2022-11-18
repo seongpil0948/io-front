@@ -9,7 +9,7 @@ import { colKoMapper } from "./colDict";
 import { useMapper } from "./mapper";
 import MapperSaver from "@/component/input/MapperSaver.vue";
 import LogoChecker from "@/component/input/checker/LogoChecker.vue";
-import { formatDate, loadDate } from "@/util";
+import { formatDate, loadDate } from "@io-boxies/js-lib";
 
 interface useTableParam {
   userId: string;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Locate, useShipAreaCols } from "@/composable";
+import { useShipAreaCols } from "@/composable";
 import { LocateAmount, USER_DB } from "@io-boxies/js-lib";
 import { useAuthStore } from "@/store";
 import { useMessage, NButton } from "naive-ui";
@@ -45,7 +45,7 @@ async function addShipArea() {
       msg.error("이미 추가한 지역입니다.");
     } else {
       const locate: LocateAmount = {
-        locate: new Locate({
+        locate: {
           code: target.code,
           alias: target.town,
           country: "",
@@ -53,7 +53,7 @@ async function addShipArea() {
           city: v.city as string,
           county: v.county as string,
           town: v.town as string,
-        }),
+        },
         amount: v.amount as number,
       };
       u.uncleInfo!.shipLocates.push(locate);

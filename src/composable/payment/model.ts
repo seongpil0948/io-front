@@ -1,5 +1,10 @@
 import { COIN_PAY_RATIO, COIN_FEE } from "@/constants";
-import { loadDate, insertById, getIoCollection, IoCollection } from "@/util";
+import {
+  loadDate,
+  insertById,
+  getIoCollection,
+  IoCollection,
+} from "@io-boxies/js-lib";
 import { DocumentData, DocumentSnapshot } from "firebase/firestore";
 import { CommonField } from "../common";
 import { IO_BANKS, IoPayCRT, PayHistoryCRT } from "./domain";

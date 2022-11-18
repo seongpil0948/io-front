@@ -1,8 +1,13 @@
 import { onFirestoreErr, onFirestoreCompletion } from "@/composable/common";
 import { useAuthStore } from "@/store";
-import { getIoCollection, IoCollection } from "@/util";
 import { onSnapshot, query, where } from "@firebase/firestore";
-import { IoUser, userFireConverter, usersFromSnap } from "@io-boxies/js-lib";
+import {
+  getIoCollection,
+  IoCollection,
+  IoUser,
+  userFireConverter,
+  usersFromSnap,
+} from "@io-boxies/js-lib";
 import { onBeforeUnmount, ref, computed } from "vue";
 
 export function useUncleWorkers() {

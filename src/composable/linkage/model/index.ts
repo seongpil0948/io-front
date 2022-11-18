@@ -1,5 +1,5 @@
 import { CommonField } from "@/composable/common/model";
-import { loadDate } from "@/util";
+import { loadDate } from "@io-boxies/js-lib";
 import {
   FirestoreDataConverter,
   DocumentSnapshot,

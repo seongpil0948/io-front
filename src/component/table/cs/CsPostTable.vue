@@ -30,8 +30,8 @@ import { CsPost } from "@/composable";
 import { NButton, DataTableColumns, NText } from "naive-ui";
 import { computed, h, toRefs } from "vue";
 import { useRouter } from "vue-router";
-import { loadDate, formatDate } from "@/util";
 import { useCsStore } from "@/store";
+import { loadDate, formatDate } from "@io-boxies/js-lib";
 
 const props = defineProps<{
   posts: CsPost[];

@@ -8,7 +8,7 @@
     "dev-local": "vite --mode local",
     "build": "vite build --mode production",
     "build-dev": "vite build --mode development",
-    "serve": "vite preview",
+    "serve": "vite preview --port 5173",
     "lint": "eslint --ext .ts,.js,.vue --ignore-path .gitignore --fix src",
     "format": "prettier .  --write"
   },
@@ -19,7 +19,7 @@
     "@editorjs/header": "^2.6.2",
     "@editorjs/list": "^1.7.0",
     "@editorjs/table": "^2.0.4",
-    "@io-boxies/js-lib": "0.0.4",
+    "@io-boxies/js-lib": "0.0.5",
     "@io-boxies/vue-lib": "^0.0.5",
     "axios": "1.1.2",
     "clipboardy": "^3.0.0",

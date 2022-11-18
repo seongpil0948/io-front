@@ -1,5 +1,4 @@
 import { CsPost, POST_TYPE } from "./domain";
-import { getIoCollection } from "@/util";
 import {
   deleteDoc,
   doc,
@@ -11,7 +10,7 @@ import {
   where,
 } from "firebase/firestore";
 import { csPostFireConverter } from "@/composable";
-import { USER_ROLE } from "@io-boxies/js-lib";
+import { USER_ROLE, getIoCollection } from "@io-boxies/js-lib";
 import { KAKAO_CHANNEL_ID } from "@/constants";
 import { ComponentInternalInstance } from "vue";
 const getCollection = () =>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { GarmentOrder, ORDER_STATE, ProdOrderCombined } from "@/composable";
-import { timeToDate } from "@/util";
+import { timeToDate } from "@io-boxies/js-lib";
 import { toRefs } from "vue";
+
 const props = defineProps<{
   garmentOrder: GarmentOrder;
   prodOrder: ProdOrderCombined;

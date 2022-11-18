@@ -137,7 +137,7 @@ export const pickReqDetailCols = computed(() => {
     //   render: (row) =>
     //     row.vendorGarment.companyInfo &&
     //     row.vendorGarment.companyInfo.shipLocate
-    //       ? Locate.toStr(row.vendorGarment.companyInfo.shipLocate)
+    //       ? locateToStr(row.vendorGarment.companyInfo.shipLocate)
     //       : null,
     // },
     {

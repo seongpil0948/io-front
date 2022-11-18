@@ -1,5 +1,5 @@
-import { getIoCollection, IoCollection } from "@/util";
 import { getDoc, doc } from "@firebase/firestore";
+import { getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { MapperDB } from "../domain";
 import { Mapper } from "../model";
 

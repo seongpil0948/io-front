@@ -16,8 +16,9 @@ import {
 } from "@firebase/firestore";
 import { uuidv4 } from "@firebase/util";
 import cloneDeep from "lodash.clonedeep";
-import { insertById, getIoCollection, IoCollection, uniqueArr } from "@/util";
+import { uniqueArr } from "@/util";
 import { logger } from "@/plugin/logger";
+import { getIoCollection, insertById, IoCollection } from "@io-boxies/js-lib";
 
 export class GarmentOrder extends CommonField implements OrderCrt {
   orderDate?: Date;

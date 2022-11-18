@@ -25,8 +25,10 @@ const { search, searchedData, searchInputVal } = useSearch({
   <n-card style="width: 100%">
     <template #header> 상품목록 </template>
     <template #header-extra>
-      <n-input v-model:value="searchInputVal" placeholder="상품검색" />
-      <n-button @click="search"> 검색 </n-button>
+      <n-space>
+        <n-input v-model:value="searchInputVal" placeholder="상품검색" />
+        <n-button @click="search"> 검색 </n-button>
+      </n-space>
     </template>
 
     <n-data-table

@@ -1,4 +1,4 @@
-import { getUserName } from "@io-boxies/js-lib";
+import { getUserName, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import {
   GarmentOrder,
   IoPay,
@@ -9,7 +9,7 @@ import {
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { logger } from "@/plugin/logger";
-import { getIoCollection, IoCollection, makeMsgOpt, uniqueArr } from "@/util";
+import { makeMsgOpt, uniqueArr } from "@/util";
 import {
   DataTableColumns,
   DataTableRowKey,

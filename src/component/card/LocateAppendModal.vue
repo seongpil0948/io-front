@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { shipAreas } from "@/asset/administrationAreas";
-import { Locate, LocateCRT, LocateType } from "@/composable";
 import { locateTypeOpt, nameLenRule } from "@/util";
+import { LocateType, Locate } from "@io-boxies/js-lib";
 import { FormInst, useMessage } from "naive-ui";
 import { reactive, ref, toRefs } from "vue";
 import { useLogger } from "vue-logger-plugin";
@@ -18,7 +18,7 @@ const emits = defineEmits<{
 
 const msg = useMessage();
 const formRef = ref<FormInst | null>(null);
-const formModel = reactive<{ [k in keyof LocateCRT]: LocateCRT[k] }>({
+const formModel = reactive<{ [k in keyof Locate]: Locate[k] }>({
   locateType: locateTypeOpt.value[0].value as LocateType,
   alias: "",
   city: undefined,
@@ -64,9 +64,9 @@ function submitLocate() {
       msg.error("올바른 형식의 주소를 입력 해주십시오");
       log.debug(null, errors);
     } else {
-      const result = new Locate(
-        Object.assign({}, formModel, { code: adminArea.code })
-      );
+      const result: Locate = Object.assign({}, formModel, {
+        code: adminArea.code,
+      });
 
       log.debug(null, errors, "submitLocate: ", result);
       emits("appendLocate", result);
@@ -85,6 +85,7 @@ function updateShow(val: boolean) {
     preset="card"
     title="주소정보추가"
     :mask-closable="false"
+    style="width: 85%; height: 80vh"
     @on-update:show="updateShow"
     @esc="() => updateShow(false)"
     @close="() => updateShow(false)"

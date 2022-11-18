@@ -1,13 +1,16 @@
-import { getIoCollection } from "@/util";
 import { onSnapshot } from "@firebase/firestore";
 import { computed, ref, Ref } from "vue";
-import { Locate } from ".";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
 import { onFirestoreErr, onFirestoreCompletion } from "../common";
+import {
+  getIoCollection,
+  Locate,
+  locateFireConverter,
+} from "@io-boxies/js-lib";
 
 export interface CA {
-  code: string | null;
+  code?: string | null;
   alias: string | null;
 }
 export function usePickArea(model: Ref<CA>) {
@@ -33,7 +36,7 @@ export function usePickArea(model: Ref<CA>) {
 
   const locateCollection = getIoCollection({
     c: "PICKUP_LOCATES",
-  }).withConverter(Locate.fireConverter());
+  }).withConverter(locateFireConverter);
   const name = "pickupArea snapshot";
   onSnapshot(
     locateCollection,

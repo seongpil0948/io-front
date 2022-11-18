@@ -1,8 +1,8 @@
 // import { logger } from "@/plugin/logger";
 import { CommonField } from "@/composable/common";
-import { getIoCollection, insertById, IoCollection } from "@/util";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
+import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import type { GENDER, PART, GARMENT_SIZE } from "../domain";
 import { VendorGarmentCrt } from "./domain";
 
@@ -22,7 +22,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   titleImgs: string[];
   bodyImgs: string[];
   info: string | OutputData;
-  description: string;
+  description: string; // 상품요약
 
   async update() {
     this.updatedAt = new Date();

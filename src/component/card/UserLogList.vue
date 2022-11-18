@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { IoLog, useReadLogger } from "@/plugin/logger";
 import { useAuthStore } from "@/store";
-import { isObject, timeToDate } from "@/util";
+import { isObject } from "@/util";
+import { timeToDate } from "@io-boxies/js-lib";
 import { computed, Ref } from "vue";
 const authStore = useAuthStore();
 

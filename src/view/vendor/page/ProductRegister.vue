@@ -33,7 +33,6 @@ const dialog = useDialog();
 const formRef = ref<FormInst | null>(null);
 const auth = useAuthStore();
 const router = useRouter();
-const vendorProdId = uuidv4();
 const prodModel = ref({
   part: PART.TOP,
   ctgr: getCtgrOpts(PART.TOP)[0].value,
@@ -98,7 +97,6 @@ async function onRegister() {
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
     else if (!stockCnts.value) return;
-
     const products: VendorGarment[] = [];
     const v = prodModel.value;
     const allowPending = v.allowPending[0] === "받기" ? true : false;
@@ -119,7 +117,7 @@ async function onRegister() {
               color,
               info,
               vendorId: auth.currUser.userInfo.userId,
-              vendorProdId: vendorProdId,
+              vendorProdId: uuidv4(),
               stockCnt: stockCnts.value![size][color],
             })
           )
@@ -268,7 +266,7 @@ function handleFileChange(evt: Event) {
             justify="space-between"
             style="width: 100%; margin-bottom: 5%"
           >
-            <n-space vertical justify="start">
+            <n-space vertical justify="start" style="padding: 10px">
               <n-form-item label="컬러" path="colors">
                 <n-dynamic-tags
                   v-model:value="prodModel.colors"
@@ -345,7 +343,7 @@ function handleFileChange(evt: Event) {
             svc="VENDOR_PRODUCT"
             :user-id="auth.currUser.userInfo.userId"
             :role="auth.currUserRole"
-            :parent-id="vendorProdId"
+            parent-id="titleImgs"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>
@@ -363,7 +361,7 @@ function handleFileChange(evt: Event) {
             svc="VENDOR_PRODUCT"
             :user-id="auth.currUser.userInfo.userId"
             :role="auth.currUserRole"
-            :parent-id="vendorProdId"
+            parent-id="bodyImgs"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>

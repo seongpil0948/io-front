@@ -4,7 +4,7 @@ import { computed, h } from "vue";
 import InfoCell from "@/component/table/InfoCell.vue";
 import CancelButton from "@/component/button/CancelButton.vue";
 import { useVendorsStore } from "@/store";
-import { timeToDate } from "@/util";
+import { timeToDate } from "@io-boxies/js-lib";
 import { FilterOption } from "naive-ui/es/data-table/src/interface";
 
 export function usePendingOrderCols() {

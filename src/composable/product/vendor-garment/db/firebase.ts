@@ -5,8 +5,7 @@ import {
   VendorGarment,
   VendorGarmentDB,
 } from "@/composable";
-import { getIoStore } from "@io-boxies/js-lib";
-import { getIoCollection, IoCollection } from "@/util";
+import { getIoStore, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import {
   writeBatch,
   doc,
