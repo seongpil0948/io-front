@@ -28,12 +28,7 @@ import {
   USER_PROVIDER,
   getUserName,
 } from "@io-boxies/js-lib";
-import { useLogin } from "@io-boxies/vue-lib";
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  deleteUser,
-} from "@firebase/auth";
+import { createUserWithEmailAndPassword, getAuth } from "@firebase/auth";
 
 const log = useLogger();
 const inst = getCurrentInstance();
@@ -210,18 +205,10 @@ async function onSignUp() {
     } catch (e: any) {
       if (typeof e.code === "string") {
         if (e.code.includes("email-already-in-use")) {
-          const { emailLogin } = useLogin();
-          const data = await emailLogin(u.userInfo.email, state.password);
-          log.debug(null, "Login Return in email-already-in-use", data);
-          if (data?.credential?.user) {
-            await deleteUser(data?.credential?.user);
-            const credential = await createUserWithEmailAndPassword(
-              getAuth(),
-              u.userInfo.email,
-              state.password
-            );
-            u.userInfo.userId = credential.user.uid;
-          }
+          log.debug(
+            null,
+            `user${u.userInfo.userId} login return in email-already-in-use`
+          );
         } else {
           throw e;
         }
@@ -440,7 +427,7 @@ async function onSignUp() {
       </Transition>
       <n-card v-if="step > 3 && step < 9" class="form-card">
         <n-steps
-          style="overflow-x: auto; max-width: 100%"
+          style="overflow-x: auto; max-width: 100%; padding: 1%"
           :current="(step -3 as number)"
         >
           <template #finish-icon>
