@@ -152,7 +152,7 @@ const mobileOpts = [
       vertical
       justify="space-between"
       align="center"
-      style="padding: 2%; width: 100%; height: fit-content"
+      style="padding: 2%; width: 100%; height: fit-content; max-width: 95vw"
     >
       <router-view />
       <io-footer />

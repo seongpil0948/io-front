@@ -275,10 +275,10 @@ async function onSignUp() {
           <n-p class="txt-small"> 해당되는 역할을 클릭 해주세요! </n-p>
           <n-space justify="center">
             <n-button class="role-btn txt" round @click="selectRole('SHOP')">
-              쇼핑몰
+              소매
             </n-button>
             <n-button class="role-btn txt" round @click="selectRole('VENDOR')">
-              도매처
+              도매
             </n-button>
             <n-button class="role-btn txt" round @click="selectRole('UNCLE')">
               엉클
