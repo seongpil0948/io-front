@@ -7,7 +7,7 @@ import {
 } from "@/composable/";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
-import { NButton, useMessage } from "naive-ui";
+import { NButton, NInput, NInputNumber, NSelect, useMessage } from "naive-ui";
 import { computed, h, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import LogoChecker from "@/component/input/checker/LogoChecker.vue";
@@ -28,16 +28,58 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
       prodEditTarget.value = row;
     }
   }
+  const colKeys: IoColOpt[] = [{ key: "vendorProdName" }];
+  if (editProd) {
+    colKeys.push(
+      ...([
+        {
+          key: "size",
+          cellRender: (row: VendorGarment) =>
+            h(NSelect, {
+              value: row.size,
+              onUpdateValue: (val) => {
+                row.size = val;
+              },
+            }),
+        },
+        {
+          key: "color",
+          cellRender: (row: VendorGarment) =>
+            h(NInput, {
+              value: row.color,
+              onUpdateValue: (val) => {
+                row.color = val;
+              },
+            }),
+        },
+        {
+          key: "stockCnt",
+          cellRender: (row: VendorGarment) =>
+            h(NInputNumber, {
+              value: row.stockCnt,
+              validator: (x) => x % 1 === 0,
+              min: 1,
+              onUpdateValue: (val) => {
+                if (val) {
+                  row.stockCnt = val;
+                }
+              },
+            }),
+        },
+        { key: "vendorPrice" },
+      ] as IoColOpt[])
+    );
+  } else {
+    colKeys.push(
+      ...([
+        { key: "size" },
+        { key: "color" },
+        { key: "stockCnt" },
+        { key: "vendorPrice" },
+      ] as IoColOpt[])
+    );
+  }
 
-  const colKeys = [
-    "vendorProdName",
-    "size",
-    "color",
-    "stockCnt",
-    "vendorPrice",
-  ].map((x) => {
-    return { key: x } as IoColOpt;
-  });
   if (editOrder) {
     colKeys.unshift({ imgField: true, key: "titleImgs" });
     colKeys.push(
@@ -133,7 +175,10 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
         ],
       ] as typeof basicCols.value;
     } else {
-      return basicCols.value;
+      return basicCols.value.map((x) => {
+        x.maxWidth = "100px";
+        return x;
+      });
     }
   });
 

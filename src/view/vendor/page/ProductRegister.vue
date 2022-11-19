@@ -166,7 +166,7 @@ const {
   onPreviewCancel,
 } = useBatchVendorProd();
 
-const { columns } = useVendorProdCols(false);
+const { columns } = useVendorProdCols(false, true);
 
 function handleFileChange(evt: Event) {
   const element = evt.currentTarget as HTMLInputElement;
@@ -180,7 +180,7 @@ function handleFileChange(evt: Event) {
     :mask-closable="false"
     close-on-esc
     preset="card"
-    style="margin: 0 10%"
+    style="width: 80vw"
   >
     <template #header>
       엑셀 파싱 결과 ({{ parsedGarments.length }} 건)

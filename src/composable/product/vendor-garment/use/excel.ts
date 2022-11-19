@@ -58,7 +58,7 @@ export function useBatchVendorProd() {
   );
 
   function parseDf(df: DataFrame) {
-    console.log("df.columns: ", df.columns);
+    // console.log("df.columns: ", df.columns);
     const vendorGarments: VendorGarment[] = [];
     df.apply((row: Series) => {
       const vendorProdName = row[0];

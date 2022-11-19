@@ -5,6 +5,7 @@ import {
   VendorGarment,
   VendorGarmentDB,
 } from "@/composable";
+import { handleReadSnap } from "@/util";
 import { getIoStore, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import {
   writeBatch,
@@ -53,22 +54,8 @@ export const VendorGarmentFB: VendorGarmentDB = {
     const name = "batchReadListen snapshot";
     const unsubscribe = onSnapshot(
       query(c, ...wheres, orderBy("createdAt", "desc")),
-      // query(
-      //   c,
-      //   ...wheres,
-      //   orderBy("vendorProdName"),
-      //   orderBy("size"),
-      //   orderBy("color")
-      // ),
-      (snapshot) => {
-        items.value = [];
-        snapshot.forEach((d) => {
-          const data = d.data();
-          if (data) {
-            items.value.push(data);
-          }
-        });
-      },
+      (snap) =>
+        handleReadSnap<VendorGarment>(snap, items.value, (x) => x.vendorProdId),
       async (err) => await onFirestoreErr(name, err),
       () => onFirestoreCompletion(name)
     );

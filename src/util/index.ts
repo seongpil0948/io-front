@@ -7,3 +7,4 @@ export * from "./event";
 export * from "./option";
 export * from "./io-fns";
 export * from "./order";
+export * from "./firebase";
