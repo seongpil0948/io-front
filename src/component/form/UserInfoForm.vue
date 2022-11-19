@@ -12,7 +12,7 @@ import {
   Locate,
 } from "@io-boxies/js-lib";
 import { FormInst, useMessage } from "naive-ui";
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 
 const auth = getAuth();
 const props = defineProps<{
@@ -25,7 +25,7 @@ const props = defineProps<{
 }>();
 defineExpose({ getUserInfo });
 const formRef = ref<FormInst | null>(null);
-const formModel = reactive({
+const formModel = ref({
   userName: props.userName ?? "",
   displayName: "",
   email: props.email ?? "",
@@ -54,7 +54,7 @@ async function getUserInfo(): Promise<{
       fcmTokens: auth.currentUser && token ? [token!] : ([] as FcmToken[]),
       role: props.role,
     },
-    formModel
+    formModel.value
   );
   return { userInfo: obj };
 }

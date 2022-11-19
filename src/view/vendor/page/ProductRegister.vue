@@ -179,7 +179,6 @@ function handleFileChange(evt: Event) {
     :on-update:show="onPreviewCancel"
     :mask-closable="false"
     close-on-esc
-    size="huge"
     preset="card"
     style="margin: 0 10%"
   >

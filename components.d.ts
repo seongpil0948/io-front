@@ -22,7 +22,6 @@ declare module '@vue/runtime-core' {
     CoinWallet: typeof import('./src/component/card/CoinWallet.vue')['default']
     'CoinWallet copy': typeof import('./src/component/card/CoinWallet copy.vue')['default']
     CompanyInfoForm: typeof import('./src/component/form/CompanyInfoForm.vue')['default']
-    copy: typeof import('./src/component/card/CoinWallet copy.vue')['default']
     CsDetail: typeof import('./src/view/cs/CsDetail.vue')['default']
     CsHome: typeof import('./src/view/cs/CsHome.vue')['default']
     CsLayout: typeof import('./src/view/cs/CsLayout.vue')['default']

@@ -12,7 +12,7 @@ import { computed, h, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import LogoChecker from "@/component/input/checker/LogoChecker.vue";
 
-export function useVendorProdCols(edit = true) {
+export function useVendorProdCols(editOrder = true, editProd = false) {
   const logger = useLogger();
   const auth = useAuthStore();
   const msg = useMessage();
@@ -38,7 +38,7 @@ export function useVendorProdCols(edit = true) {
   ].map((x) => {
     return { key: x } as IoColOpt;
   });
-  if (edit) {
+  if (editOrder) {
     colKeys.unshift({ imgField: true, key: "titleImgs" });
     colKeys.push(
       ...[
@@ -59,7 +59,7 @@ export function useVendorProdCols(edit = true) {
     colKeys,
   });
   const columns = computed(() => {
-    if (edit) {
+    if (editOrder) {
       return [
         ...basicCols.value,
         ...[
@@ -92,7 +92,7 @@ export function useVendorProdCols(edit = true) {
           },
           {
             title: "수정",
-            key: "edit",
+            key: "editOrder",
             render: (row: VendorUserOrderGarment) =>
               h(
                 NButton,

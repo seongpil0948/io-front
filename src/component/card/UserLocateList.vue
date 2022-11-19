@@ -12,6 +12,11 @@ const emits = defineEmits<{
 const locates = computed(() => info.value.locations ?? []);
 
 const showAppendModal = ref(false);
+function onClickLocateBtn() {
+  if (!showAppendModal.value) {
+    showAppendModal.value = true;
+  }
+}
 function onAppendLocate(l: Locate) {
   info.value.locations.push(l);
   emits("update:info", info.value);
@@ -80,9 +85,7 @@ const locateKey = [
         </n-space>
       </n-card>
     </n-tooltip>
-    <n-button round size="small" @click="showAppendModal = true">
-      추가
-    </n-button>
+    <n-button round size="small" @click="onClickLocateBtn"> 추가 </n-button>
     <locate-append-modal
       v-model:showAppendModal="showAppendModal"
       @append-locate="onAppendLocate"

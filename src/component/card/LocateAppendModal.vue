@@ -3,7 +3,7 @@ import { shipAreas } from "@/asset/administrationAreas";
 import { locateTypeOpt, nameLenRule } from "@/util";
 import { LocateType, Locate } from "@io-boxies/js-lib";
 import { FormInst, useMessage } from "naive-ui";
-import { reactive, ref, toRefs } from "vue";
+import { ref, toRefs } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const log = useLogger();
@@ -18,7 +18,7 @@ const emits = defineEmits<{
 
 const msg = useMessage();
 const formRef = ref<FormInst | null>(null);
-const formModel = reactive<{ [k in keyof Locate]: Locate[k] }>({
+const formModel = ref<{ [k in keyof Locate]: Locate[k] }>({
   locateType: locateTypeOpt.value[0].value as LocateType,
   alias: "",
   city: undefined,
@@ -49,9 +49,9 @@ const rule = {
 function submitLocate() {
   const adminArea = shipAreas.find(
     (x) =>
-      x.city === formModel.city &&
-      x.county === formModel.county &&
-      x.town === formModel.town
+      x.city === formModel.value.city &&
+      x.county === formModel.value.county &&
+      x.town === formModel.value.town
   );
   if (!adminArea) {
     msg.error("주소를 입력 해주십시오");
@@ -64,7 +64,7 @@ function submitLocate() {
       msg.error("올바른 형식의 주소를 입력 해주십시오");
       log.debug(null, errors);
     } else {
-      const result: Locate = Object.assign({}, formModel, {
+      const result: Locate = Object.assign({}, formModel.value, {
         code: adminArea.code,
       });
 

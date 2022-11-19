@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 import { FormInst } from "naive-ui";
 import { Certificate } from "@vicons/carbon";
 import { arrLenRule, emailRule, nameLenRule, isMobile } from "@/util";
@@ -10,7 +10,7 @@ const props = defineProps<{
 }>();
 
 const formRef = ref<FormInst | null>(null);
-const formModel = reactive<{ [k in keyof CompanyInfo]: CompanyInfo[k] }>({
+const formModel = ref<{ [k in keyof CompanyInfo]: CompanyInfo[k] }>({
   companyName: "",
   companyNo: "",
   companyCertificate: [],
