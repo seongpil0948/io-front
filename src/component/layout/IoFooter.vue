@@ -2,11 +2,36 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { enableStoreNet, disableStoreNet } from "@io-boxies/js-lib";
+import { useLogin } from "@io-boxies/vue-lib";
+import { useAuthStore } from "@/store";
 const router = useRouter();
 const isTest = import.meta.env.VITE_IS_TEST;
 const showTos = ref(false);
 function onTos() {
   showTos.value = true;
+}
+const authS = useAuthStore();
+const { emailLogin } = useLogin();
+async function loginShop() {
+  const data = await emailLogin("junhoi90@gmail.com", "0525cc");
+  if (data && data.user) {
+    authS.login(data.user);
+    router.goHome();
+  }
+}
+async function loginVendor() {
+  const data = await emailLogin("spchoi@gmail.com", "0525cc");
+  if (data && data.user) {
+    authS.login(data.user);
+    router.goHome();
+  }
+}
+async function loginUncle() {
+  const data = await emailLogin("bereshith_@naver.com", "0525cc");
+  if (data && data.user) {
+    authS.login(data.user);
+    router.goHome();
+  }
 }
 </script>
 
@@ -40,6 +65,9 @@ function onTos() {
         <n-button @click="router.push({ name: 'PlayGround' })">
           PlayGround
         </n-button>
+        <n-button @click="loginShop"> 쇼핑몰 </n-button>
+        <n-button @click="loginVendor"> 도매 </n-button>
+        <n-button @click="loginUncle"> 엉클 </n-button>
         <n-button @click="enableStoreNet"> enableStoreNet </n-button>
         <n-button @click="disableStoreNet"> disableStoreNet </n-button>
       </n-space>
