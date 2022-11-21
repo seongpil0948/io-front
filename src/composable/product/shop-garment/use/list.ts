@@ -69,7 +69,6 @@ export function useShopGarmentTable(briefly: boolean) {
         }
       },
       colKeys: [
-        { key: "vendorProdName", rowIdField },
         { key: "userName" },
         { key: "titleImgs", imgField: true },
         {
@@ -119,8 +118,8 @@ export function useShopGarmentTable(briefly: boolean) {
   const tableCols = computed((): DataTableColumns<ShopUserGarment> => {
     if (mapper.value === null) return [];
     columns.value.forEach((x) => {
-      if (["vendorProdName", "prodName"].includes(x.key.toString())) {
-        x.width = 150;
+      if (["userName", "prodName", "vendorName"].includes(x.key.toString())) {
+        x.width = 200;
       } else {
         x.minWidth = 100;
       }

@@ -1,3 +1,5 @@
+import { storeToRefs } from "pinia";
+import { isSamePickLocate } from "@/composable";
 import { ProdOrderByShop, ProdOrderCombined } from "@/composable/order";
 import { useAuthStore } from "@/store";
 import { uniqueArr } from "@/util";
@@ -7,7 +9,7 @@ import { computed, h } from "vue";
 
 export function usePickAreaCols() {
   const auth = useAuthStore();
-  const u = auth.currUser;
+  const { user } = storeToRefs(auth);
   const msg = useMessage();
   const pickAreaCols: DataTableColumns<LocateAmount> = [
     {
@@ -51,13 +53,14 @@ export function usePickAreaCols() {
           {
             type: "error",
             onClick: async () => {
+              if (!user.value) return;
               const l = row.locate;
-              const idx = u.uncleInfo!.pickupLocates.findIndex(
-                (e) => l.city === e.locate.city && l.alias === e.locate.alias
+              const idx = user.value.uncleInfo!.pickupLocates.findIndex((e) =>
+                isSamePickLocate(l, e.locate)
               );
-              // console.log("idx: ", idx, l);
-              u.uncleInfo!.pickupLocates.splice(idx, 1);
-              await USER_DB.updateUser(u);
+              user.value.uncleInfo!.pickupLocates.splice(idx, 1);
+              await USER_DB.updateUser(user.value);
+              auth.setUser(user.value!);
               msg.success("삭제완료.");
             },
           },

@@ -50,7 +50,7 @@ watchPostEffect(() => {
 </template>
 
 <style>
-#main-spin .n-spin-container {
+#main-spin > .n-spin-body {
   top: 30%;
 }
 </style>

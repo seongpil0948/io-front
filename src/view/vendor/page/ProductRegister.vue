@@ -281,14 +281,18 @@ function handleFileChange(evt: Event) {
             :wrap="false"
             inline
             justify="space-between"
-            style="width: 100%; margin-bottom: 5%"
+            style="width: 100%; margin-bottom: 1%"
           >
-            <n-space vertical justify="start" style="padding: 10px">
+            <n-space
+              vertical
+              justify="start"
+              style="padding: 10px; width: 100%"
+            >
               <n-form-item label="컬러" path="colors">
                 <n-dynamic-tags
                   v-model:value="prodModel.colors"
                   round
-                  style="flex-wrap: ;no-wrap; overflow-x: auto;"
+                  style="flex-wrap: no-wrap; overflow-x: auto; padding: 5%"
                   @keydown.enter.prevent
                 />
               </n-form-item>
@@ -305,7 +309,15 @@ function handleFileChange(evt: Event) {
             <n-card
               v-if="stockCnts && Object.keys(stockCnts).length > 0"
               title="재고수량 입력"
-              style="max-height: 20vh; overflow: auto"
+              style="
+                max-height: 20vh;
+                overflow: auto;
+                min-height: 300px;
+                height: 100%;
+              "
+              :segmented="{
+                content: true,
+              }"
             >
               <div v-for="(size, i) in Object.keys(stockCnts)" :key="i">
                 <div

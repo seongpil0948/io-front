@@ -142,7 +142,7 @@ const minHeight = "100vh";
   <n-layout v-else>
     <n-layout has-sider :style="`min-height: ${minHeight}`">
       <io-sider
-        :style="`min-height: ${minHeight};`"
+        :style="`min-height: ${minHeight}`"
         :menu-options="menuOptions"
       />
       <n-space

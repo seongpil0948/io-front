@@ -1,22 +1,23 @@
 <script setup lang="ts">
-import { CA, usePickArea } from "@/composable";
+import { usePickArea } from "@/composable";
+import { Locate } from "@io-boxies/js-lib";
 import { toRefs } from "vue";
 
 const props = defineProps<{
-  area: CA;
+  pickId: Locate;
 }>();
-const { area } = toRefs(props);
+const { pickId } = toRefs(props);
 const emits = defineEmits<{
-  (e: "update:area", value: CA): void;
+  (e: "update:pickId", value: Locate): void;
 }>();
 // const { areaOpt, officeOpt } = usePickArea(area);
-const { officeOpt } = usePickArea(area);
+const { officeOpt } = usePickArea();
 // function onUpdateCity() {
 //   area.value.alias = null;
 //   emits("update:area", area.value);
 // }
-function onUpdateOffice() {
-  emits("update:area", area.value);
+function onUpdateOffice(val: Locate) {
+  emits("update:pickId", val);
 }
 </script>
 <template>
@@ -30,7 +31,7 @@ function onUpdateOffice() {
       :options="areaOpt"
     /> -->
     <n-select
-      v-model:value="area.alias"
+      :value="pickId"
       filterable
       placeholder="별칭 선택"
       :options="officeOpt"

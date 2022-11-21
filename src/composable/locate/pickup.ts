@@ -1,7 +1,6 @@
 import { onSnapshot } from "@firebase/firestore";
-import { computed, ref, Ref } from "vue";
+import { computed, ref } from "vue";
 import { useMessage } from "naive-ui";
-import { useLogger } from "vue-logger-plugin";
 import { onFirestoreErr, onFirestoreCompletion } from "../common";
 import {
   getIoCollection,
@@ -9,30 +8,17 @@ import {
   locateFireConverter,
 } from "@io-boxies/js-lib";
 
-export interface CA {
-  code?: string | null;
-  alias: string | null;
-}
-export function usePickArea(model: Ref<CA>) {
+export function usePickArea() {
   const msg = useMessage();
   const locates = ref<Locate[]>([]);
-  const logger = useLogger();
-  // >>> for select logic >>>
 
-  function addPickArea() {
-    const v = model.value;
-    const target = locates.value.find((x) => isSameLocate(x, v as CA));
+  function addPickArea(pickId: string) {
+    const target = locates.value.find((x) => getPickId(x) === pickId);
     if (!target) {
       msg.error("올바르게 지역을 선택 해주세요.");
-      logger.error(
-        null,
-        "city or alias not matched in usePickArea, is there any duplicate code?" +
-          JSON.stringify(v)
-      );
     }
     return target;
   }
-  // <<< for select logic <<<
 
   const locateCollection = getIoCollection({
     c: "PICKUP_LOCATES",
@@ -53,9 +39,6 @@ export function usePickArea(model: Ref<CA>) {
     () => onFirestoreCompletion(name)
   );
 
-  // const getPickId = (x: CA) => `${x.code}__${x.alias}`;
-  const getPickId = (x: CA) => x.alias;
-  const isSameLocate = (a: CA, b: CA) => getPickId(a) === getPickId(b);
   const areaOpt = computed(() =>
     locates.value.map((x) => {
       return {
@@ -69,16 +52,19 @@ export function usePickArea(model: Ref<CA>) {
     locates.value.map((x) => {
       return {
         label: x.alias,
-        value: x.alias,
+        value: getPickId(x),
       };
     })
   );
   return {
     areaOpt,
     officeOpt,
-    isSameLocate,
-    getPickId,
     locates,
     addPickArea,
+    getPickId,
   };
 }
+
+export const getPickId = (x: Locate) => `${x.code}__${x.alias}`;
+export const isSamePickLocate = (a: Locate, b: Locate) =>
+  getPickId(a) === getPickId(b);
