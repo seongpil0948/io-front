@@ -9,9 +9,11 @@ import {
   ShoppingBag20Filled,
 } from "@vicons/fluent";
 import { useAuthStore, useVendorOrderStore } from "@/store";
-import { onBeforeMount, h } from "vue";
-import LogoImageVue from "@/component/common/LogoImage.vue";
+import { onBeforeMount, h, defineAsyncComponent } from "vue";
 import { useRouter } from "vue-router";
+const LogoImageVue = defineAsyncComponent(
+  () => import("@/component/common/LogoImage.vue")
+);
 
 const auth = useAuthStore();
 const user = auth.currUser;

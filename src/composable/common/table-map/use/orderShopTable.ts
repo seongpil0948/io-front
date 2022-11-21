@@ -8,11 +8,17 @@ import {
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { DataTableColumns, NButton, NImage, useMessage, NText } from "naive-ui";
-import { computed, h, Ref, ref } from "vue";
+import { computed, h, Ref, ref, defineAsyncComponent } from "vue";
 import { useTable } from "./table";
-import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
-import InfoCell from "@/component/table/InfoCell.vue";
 import clip from "clipboardy";
+
+const ShopOrderCnt = defineAsyncComponent(
+  () => import("@/component/input/ShopOrderCnt.vue")
+);
+const InfoCell = defineAsyncComponent(
+  () => import("@/component/table/InfoCell.vue")
+);
+
 interface orderTableParam {
   garmentOrders: Ref<ProdOrderCombined[]>;
   orders: Ref<GarmentOrder[]>;

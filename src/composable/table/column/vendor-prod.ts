@@ -9,10 +9,12 @@ import {
 import { useAuthStore } from "@/store";
 import { makeMsgOpt, getSizeOpts, getCtgrOpts } from "@/util";
 import { NButton, NInput, NInputNumber, NSelect, useMessage } from "naive-ui";
-import { computed, h, ref } from "vue";
+import { computed, h, ref, defineAsyncComponent } from "vue";
 import { useLogger } from "vue-logger-plugin";
-import LogoChecker from "@/component/input/checker/LogoChecker.vue";
 
+const LogoChecker = defineAsyncComponent(
+  () => import("@/component/input/checker/LogoChecker.vue")
+);
 export function useVendorProdCols(editOrder = true, editProd = false) {
   const logger = useLogger();
   const auth = useAuthStore();

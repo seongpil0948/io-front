@@ -6,10 +6,12 @@ import { Box24Filled } from "@vicons/fluent";
 import { renderIcon, renderRoute, getScreenSize, isMobile } from "@/util";
 import type { MenuOption } from "naive-ui";
 import { useAuthStore, useUncleOrderStore } from "@/store";
-import { onBeforeMount, h } from "vue";
+import { onBeforeMount, h, defineAsyncComponent } from "vue";
 import { People16Regular, News16Regular } from "@vicons/fluent";
-import LogoImageVue from "@/component/common/LogoImage.vue";
 import { useRouter } from "vue-router";
+const LogoImageVue = defineAsyncComponent(
+  () => import("@/component/common/LogoImage.vue")
+);
 const minHeight = "100vh";
 const router = useRouter();
 const menuOptions: MenuOption[] = [

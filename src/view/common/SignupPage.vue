@@ -10,13 +10,10 @@ import {
   onMounted,
   ref,
   watchEffect,
+  defineAsyncComponent,
 } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { useRouter } from "vue-router";
-import UserInfoForm from "@/component/form/UserInfoForm.vue";
-import CompanyInfoForm from "@/component/form/CompanyInfoForm.vue";
-import ShopOperInfoVue from "@/component/form/ShopOperInfo.vue";
-import VendorOperInfoVue from "@/component/form/VendorOperInfo.vue";
 import { ioFire } from "@io-boxies/js-lib";
 import { logEvent } from "@firebase/analytics";
 import {
@@ -29,6 +26,18 @@ import {
   getUserName,
 } from "@io-boxies/js-lib";
 import { createUserWithEmailAndPassword, getAuth } from "@firebase/auth";
+const UserInfoForm = defineAsyncComponent(
+  () => import("@/component/form/UserInfoForm.vue")
+);
+const CompanyInfoForm = defineAsyncComponent(
+  () => import("@/component/form/CompanyInfoForm.vue")
+);
+const ShopOperInfoVue = defineAsyncComponent(
+  () => import("@/component/form/ShopOperInfo.vue")
+);
+const VendorOperInfoVue = defineAsyncComponent(
+  () => import("@/component/form/VendorOperInfo.vue")
+);
 
 const log = useLogger();
 const inst = getCurrentInstance();

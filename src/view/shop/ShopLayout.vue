@@ -6,8 +6,11 @@ import { useRouter } from "vue-router";
 import { renderIcon, renderRoute, getScreenSize, isMobile } from "@/util";
 import { LocalShippingRound } from "@vicons/material";
 import { People16Regular, News16Regular } from "@vicons/fluent";
-import { onBeforeMount, h } from "vue";
-import LogoImageVue from "@/component/common/LogoImage.vue";
+import { onBeforeMount, h, defineAsyncComponent } from "vue";
+
+const LogoImageVue = defineAsyncComponent(
+  () => import("@/component/common/LogoImage.vue")
+);
 
 const minHeight = "100vh";
 const router = useRouter();
