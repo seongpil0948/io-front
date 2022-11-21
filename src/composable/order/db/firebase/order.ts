@@ -87,6 +87,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         po.actualAmount.paidDate = new Date();
         po.actualAmount.paidAmount = po.actualAmount.orderAmount;
         po.actualAmount.paid = "T";
+        // TODO: paymentMethod
         return po;
       },
       true
@@ -410,9 +411,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       q,
       (snapshot) => {
         p.orders.value = [];
-        console.log(
-          "shop order snap from cache " + snapshot.metadata.fromCache
-        );
+        console.log("order snap from cache " + snapshot.metadata.fromCache);
         snapshot.forEach((s) => {
           const data = s.data();
           if (data) {

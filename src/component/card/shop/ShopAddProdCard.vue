@@ -78,6 +78,7 @@ async function onSubmit() {
       description: prod.value.description,
       size: optById[vendorProdId].size as GARMENT_SIZE,
       color: optById[vendorProdId].color,
+      TBD: {},
     });
     await shopProd.update();
     if (

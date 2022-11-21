@@ -16,6 +16,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   fabric: string;
   vendorId: string;
   vendorProdId: string;
+  vendorProdPkgId: string;
   vendorPrice: number;
   stockCnt: number;
   vendorProdName: string;
@@ -23,6 +24,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   bodyImgs: string[];
   info: string | OutputData;
   description: string; // 상품요약
+  TBD: { [k: string]: any };
 
   async update() {
     this.updatedAt = new Date();
@@ -46,6 +48,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     this.fabric = d.fabric;
     this.vendorId = d.vendorId;
     this.vendorProdId = d.vendorProdId;
+    this.vendorProdPkgId = d.vendorProdPkgId ?? "";
     this.vendorPrice = d.vendorPrice;
     this.stockCnt = d.stockCnt;
     this.vendorProdName = d.vendorProdName;
@@ -53,9 +56,13 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     this.bodyImgs = loadImgs(d.bodyImgs);
     this.info = d.info;
     this.description = d.description;
+    this.TBD = d.TBD ?? {};
+  }
+  get combineId() {
+    return VendorGarment.combineId(this);
   }
   static combineId(c: VendorGarmentCrt): string {
-    return c.vendorId + c.vendorProdName;
+    return getVendorProdCombineId(c.vendorId, c.vendorProdName);
   }
   toJson(): { [x: string]: Partial<unknown> } {
     const j = super.toJson();
@@ -77,6 +84,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
         fabric: data.fabric,
         vendorId: data.vendorId,
         vendorProdId: data.vendorProdId,
+        vendorProdPkgId: data.vendorProdPkgId ?? "",
         vendorPrice: data.vendorPrice,
         stockCnt: data.stockCnt,
         vendorProdName: data.vendorProdName,
@@ -84,6 +92,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
         bodyImgs: loadImgs(data.bodyImgs),
         info: data.info,
         description: data.description,
+        TBD: data.TBD ?? {},
       });
     } else {
       //   logger.error(null, "vendor product from json return null, data: ", data);
@@ -122,3 +131,8 @@ function saveImgs(imgs: any) {
     return imgs.filter((x) => !defaultImgs.includes(x));
   }
 }
+
+export const getVendorProdCombineId = (
+  vendorId: string,
+  vendorProdName: string
+) => vendorId + vendorProdName?.replaceAll(" ", "");

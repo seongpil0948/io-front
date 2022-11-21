@@ -5,10 +5,12 @@ export interface ProductCrt {
   updatedAt?: Date;
   info: string | OutputData;
   description: string;
+  TBD: { [k: string]: any };
 }
 export interface VendorProdCrt extends ProductCrt {
   vendorId: string;
   vendorProdId: string;
+  vendorProdPkgId: string;
   vendorPrice: number;
   stockCnt: number;
   vendorProdName: string;
@@ -82,7 +84,12 @@ export type GARMENT_SIZE =
   | "285"
   | "290"
   | "295"
-  | "300";
+  | "300"
+  | "44"
+  | "55"
+  | "66"
+  | "77"
+  | "88";
 
 export const GARMENT_SIZE: { [key in GARMENT_SIZE]: GARMENT_SIZE } =
   Object.freeze({
@@ -117,6 +124,11 @@ export const GARMENT_SIZE: { [key in GARMENT_SIZE]: GARMENT_SIZE } =
     "290": "290",
     "295": "295",
     "300": "300",
+    "44": "44",
+    "55": "55",
+    "66": "66",
+    "77": "77",
+    "88": "88",
   });
 
 export type GENDER = "MALE" | "FEMALE" | "UNISEX" | "KIDS";
@@ -158,6 +170,7 @@ export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
       CARDIGAN: "CARDIGAN",
       KNIT_CARDIGAN: "KNIT_CARDIGAN",
       KNIT_T_SHIRT: "KNIT_T_SHIRT",
+      ETC: "ETC",
     },
     BOTTOM: {
       JEAN: "JEANS",
@@ -165,7 +178,8 @@ export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
       PANTS: "PANTS",
       SHORTS: "SHORTS",
       SKIRTS: "SKIRTS",
-      TRAINNING_PANT: "TRAINNING_PANT",
+      TRAINING_PANT: "TRAINING_PANT",
+      ETC: "ETC",
     },
     OUTER: {
       BLAZER: "BLAZER",
@@ -174,11 +188,14 @@ export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
       JACKET: "JACKET",
       PUFFER_DOWN: "PUFFER_DOWN",
       VEST: "VEST",
+      ETC: "ETC",
     },
     DRESS: {
       DRESS: "DRESS",
+      ONE_PIECE: "ONE_PIECE",
       JUMP_SUIT: "JUMP_SUIT",
       WEDDING_DRESS: "WEDDING_DRESS",
+      ETC: "ETC",
     },
     SHOES: {
       SLIPPERS: "SLIPPERS", // 슬리퍼
@@ -188,17 +205,19 @@ export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
       FLATS: "FLATS",
       LOAFERS: "LOAFERS",
       ATHLETIC: "ATHLETIC",
+      ETC: "ETC",
     },
     BAG: {
       BACKPACK: "BACKPACK",
       CROSS: "CROSS",
       HANDBAG: "HANDBAG",
-      MINIBAG: "MINIBAG",
+      MINI_BAG: "MINI_BAG",
       TOD_BAG: "TOD_BAG",
       ECO_BAG: "ECO_BAG",
+      ETC: "ETC",
     },
     ETC: {
-      NECKLASE: "NECKLASE",
+      NECKLACE: "NECKLACE",
       RING: "RING",
       WATCH: "WATCH",
       SCARP: "SCARP",

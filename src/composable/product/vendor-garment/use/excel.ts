@@ -1,15 +1,17 @@
 import { useMessage } from "naive-ui";
 import {
+  catchError,
   catchExcelError,
   GARMENT_SIZE,
   VendorGarment,
   VENDOR_GARMENT_DB,
 } from "@/composable";
-import { useAuthStore } from "@/store";
+import { useAuthStore, useCommonStore, useVendorsStore } from "@/store";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { ref, watch } from "vue";
 import { uuidv4 } from "@firebase/util";
 import { useRouter } from "vue-router";
+import { makeMsgOpt } from "@/util";
 
 export function useBatchVendorProd() {
   const fileModel = ref<FileList | null>();
@@ -19,17 +21,33 @@ export function useBatchVendorProd() {
   const msg = useMessage();
   const router = useRouter();
 
+  const disableModalSave = ref(false);
   const openPreviewModal = ref(false);
   const parsedGarments = ref<VendorGarment[]>([]);
+  const cs = useCommonStore();
   async function onPreviewConfirm() {
+    disableModalSave.value = true;
     if (parsedGarments.value.length < 1) {
       return msg.error("상품이 없습니다.");
     }
-    await VENDOR_GARMENT_DB.batchCreate(parsedGarments.value);
-    msg.success(`${parsedGarments.value.length}건 추가완료`);
-    parsedGarments.value = [];
-    openPreviewModal.value = false;
-    router.replace({ name: "VendorProductList" });
+    cs.$patch({ showSpin: true });
+    await VENDOR_GARMENT_DB.batchCreate(u.userInfo.userId, parsedGarments.value)
+      .then(() => {
+        msg.success(`${parsedGarments.value.length}건 추가완료`);
+        parsedGarments.value = [];
+        openPreviewModal.value = false;
+        router.replace({ name: "VendorProductList" });
+      })
+      .catch((err) =>
+        catchError({
+          userId: u.userInfo.userId,
+          err,
+          opt: makeMsgOpt(),
+          prefix: "상품등록 실패",
+          msg,
+        })
+      )
+      .finally(() => cs.$patch({ showSpin: false }));
   }
   async function onPreviewCancel() {
     parsedGarments.value = [];
@@ -56,38 +74,44 @@ export function useBatchVendorProd() {
       }
     }
   );
-
+  const { vendorGarments: existGarments } = useVendorsStore();
   function parseDf(df: DataFrame) {
     // console.log("df.columns: ", df.columns);
     const vendorGarments: VendorGarment[] = [];
     df.apply((row: Series) => {
-      const vendorProdName = row[0];
+      const vendorProdName = String(row[0]);
       const vendorPrice = row[5];
       const color = row[1];
       const sizeStr = String(row[2]);
       const size: GARMENT_SIZE = Object.keys(GARMENT_SIZE).includes(sizeStr)
         ? (sizeStr as GARMENT_SIZE)
         : "FREE";
-      vendorGarments.push(
-        new VendorGarment({
-          gender: "UNISEX",
-          part: "ETC",
-          ctgr: "",
-          color,
-          allowPending: false,
-          size,
-          fabric: "",
-          vendorId: u.userInfo.userId,
-          vendorProdId: uuidv4(),
-          vendorPrice,
-          stockCnt: parseInt(row[9]),
-          vendorProdName,
-          titleImgs: [],
-          bodyImgs: [],
-          info: "",
-          description: "",
-        })
+      const newGarment = new VendorGarment({
+        gender: "UNISEX",
+        part: "ETC",
+        ctgr: "ETC",
+        color,
+        allowPending: false,
+        size,
+        fabric: "",
+        vendorId: u.userInfo.userId,
+        vendorProdId: uuidv4(),
+        vendorPrice,
+        stockCnt: parseInt(row[9]),
+        vendorProdName,
+        titleImgs: [],
+        bodyImgs: [],
+        info: "",
+        description: "",
+        vendorProdPkgId: "",
+        TBD: {},
+      });
+      const exist = [...existGarments, ...vendorGarments].find(
+        (x) => x.combineId === newGarment.combineId
       );
+      newGarment.vendorProdPkgId = exist ? exist.vendorProdPkgId : uuidv4();
+
+      vendorGarments.push(newGarment);
       return row;
     });
 
@@ -110,5 +134,6 @@ export function useBatchVendorProd() {
     parsedGarments,
     onPreviewConfirm,
     onPreviewCancel,
+    disableModalSave,
   };
 }

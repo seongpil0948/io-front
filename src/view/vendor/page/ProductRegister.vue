@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watch, watchEffect } from "vue";
 import { type FormInst, useMessage, useDialog } from "naive-ui";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { uuidv4 } from "@firebase/util";
 import { useRouter } from "vue-router";
 import { useLogger } from "vue-logger-plugin";
 import {
+  catchError,
   GARMENT_SIZE,
   GENDER,
+  getVendorProdCombineId,
   PART,
   useBatchVendorProd,
   useVendorProdCols,
   VendorGarment,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
 import {
   getCtgrOpts,
@@ -25,9 +28,8 @@ import {
   genderOpts,
 } from "@/util";
 import { useEditor } from "@/plugin/editor";
-import { useAuthStore } from "@/store";
+import { useAuthStore, useCommonStore, useVendorsStore } from "@/store";
 
-const log = useLogger();
 const msg = useMessage();
 const dialog = useDialog();
 const formRef = ref<FormInst | null>(null);
@@ -93,6 +95,8 @@ watchEffect(
 function changePart() {
   prodModel.value.ctgr = ctgrOpts.value[0].value;
 }
+const { vendorGarments: existGarments } = useVendorsStore();
+const cs = useCommonStore();
 async function onRegister() {
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
@@ -102,6 +106,11 @@ async function onRegister() {
     const allowPending = v.allowPending[0] === "받기" ? true : false;
     let valid = true;
     const info = await saveEditor();
+    const vendorId = auth.currUser.userInfo.userId;
+    const exist = existGarments.find(
+      (x) => x.combineId === getVendorProdCombineId(vendorId, v.name)
+    );
+    const vendorProdPkgId = exist ? exist.vendorProdPkgId : uuidv4();
     prodModel.value.sizes.forEach((size) => {
       prodModel.value.colors.forEach((color) => {
         if (stockCnts.value![size][color] < 1) {
@@ -116,9 +125,11 @@ async function onRegister() {
               size,
               color,
               info,
-              vendorId: auth.currUser.userInfo.userId,
+              vendorId,
               vendorProdId: uuidv4(),
               stockCnt: stockCnts.value![size][color],
+              TBD: {},
+              vendorProdPkgId,
             })
           )
         );
@@ -132,20 +143,23 @@ async function onRegister() {
         negativeText: "취소",
         closeOnEsc: true,
         onPositiveClick: async () => {
-          log.debug("PRODS:", products);
-          return Promise.all(products.map((p) => p.update()))
+          cs.$patch({ showSpin: true });
+          return VENDOR_GARMENT_DB.batchCreate(vendorId, products)
             .then(() => {
               clearEditor();
               msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
               router.replace({ name: "VendorProductList" });
             })
-            .catch((err) => {
-              const message = `상품등록 실패. ${
-                err instanceof Error ? err.message : JSON.stringify(err)
-              }`;
-              msg.error(message, makeMsgOpt());
-              log.error(auth.currUser.userInfo.userId, message, products);
-            });
+            .catch((err) =>
+              catchError({
+                userId: vendorId,
+                err,
+                opt: makeMsgOpt(),
+                prefix: "상품등록 실패",
+                msg,
+              })
+            )
+            .finally(() => cs.$patch({ showSpin: false }));
         },
       });
     }
@@ -164,6 +178,7 @@ const {
   parsedGarments,
   onPreviewConfirm,
   onPreviewCancel,
+  disableModalSave,
 } = useBatchVendorProd();
 
 const { columns } = useVendorProdCols(false, true);
@@ -171,6 +186,7 @@ const { columns } = useVendorProdCols(false, true);
 function handleFileChange(evt: Event) {
   const element = evt.currentTarget as HTMLInputElement;
   fileModel.value = element.files;
+  disableModalSave.value = false;
 }
 </script>
 <template>
@@ -186,7 +202,9 @@ function handleFileChange(evt: Event) {
       엑셀 파싱 결과 ({{ parsedGarments.length }} 건)
     </template>
     <template #header-extra>
-      <n-button @click="onPreviewConfirm"> 저장 </n-button>
+      <n-button :disabled="disableModalSave" @click="onPreviewConfirm">
+        저장
+      </n-button>
     </template>
 
     <n-data-table

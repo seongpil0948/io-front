@@ -1,3 +1,4 @@
+import { partOpts } from "./../../../util/option/input";
 import {
   useTable,
   IoColOpt,
@@ -6,7 +7,7 @@ import {
   VENDOR_GARMENT_DB,
 } from "@/composable/";
 import { useAuthStore } from "@/store";
-import { makeMsgOpt } from "@/util";
+import { makeMsgOpt, getSizeOpts, getCtgrOpts } from "@/util";
 import { NButton, NInput, NInputNumber, NSelect, useMessage } from "naive-ui";
 import { computed, h, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
@@ -28,14 +29,48 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
       prodEditTarget.value = row;
     }
   }
-  const colKeys: IoColOpt[] = [{ key: "vendorProdName" }];
+  const colKeys: IoColOpt[] = [];
   if (editProd) {
     colKeys.push(
+      // vendorProdName
       ...([
+        {
+          key: "vendorProdName",
+          cellRender: (row: VendorGarment) =>
+            h(NInput, {
+              value: row.vendorProdName,
+              onUpdateValue: (val) => {
+                row.vendorProdName = val;
+              },
+            }),
+        },
+        {
+          key: "part",
+          cellRender: (row: VendorGarment) =>
+            h(NSelect, {
+              options: partOpts,
+              value: row.part,
+              onUpdateValue: (val) => {
+                row.part = val;
+              },
+            }),
+        },
+        {
+          key: "ctgr",
+          cellRender: (row: VendorGarment) =>
+            h(NSelect, {
+              options: getCtgrOpts(row.part),
+              value: row.ctgr,
+              onUpdateValue: (val) => {
+                row.ctgr = val;
+              },
+            }),
+        },
         {
           key: "size",
           cellRender: (row: VendorGarment) =>
             h(NSelect, {
+              options: getSizeOpts(row.part),
               value: row.size,
               onUpdateValue: (val) => {
                 row.size = val;
@@ -66,12 +101,27 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
               },
             }),
         },
-        { key: "vendorPrice" },
+        {
+          key: "vendorPrice",
+          cellRender: (row: VendorGarment) =>
+            h(NInputNumber, {
+              value: row.vendorPrice,
+              validator: (x) => x % 1 === 0,
+              min: 100,
+              step: 100,
+              onUpdateValue: (val) => {
+                if (val) {
+                  row.vendorPrice = val;
+                }
+              },
+            }),
+        },
       ] as IoColOpt[])
     );
   } else {
     colKeys.push(
       ...([
+        { key: "vendorProdName" },
         { key: "size" },
         { key: "color" },
         { key: "stockCnt" },
@@ -173,10 +223,13 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
               ),
           },
         ],
-      ] as typeof basicCols.value;
+      ].map((x) => {
+        x.minWidth = "100px";
+        return x;
+      }) as typeof basicCols.value;
     } else {
       return basicCols.value.map((x) => {
-        x.maxWidth = "100px";
+        x.minWidth = "100px";
         return x;
       });
     }
