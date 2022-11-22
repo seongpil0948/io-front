@@ -2,11 +2,11 @@
 // import { useAuthStore } from "@/store";
 import { useAuthStore } from "@/store";
 import { ref } from "vue";
-// const auth = useAuthStore();
-// const u = auth.currUser;
+import { storeToRefs } from "pinia";
+
 const currTab = ref<string>("SHIP_AREA");
 const authStore = useAuthStore();
-const u = authStore.currUser;
+const { user: u } = storeToRefs(authStore);
 </script>
 <template>
   <n-card>

@@ -1,3 +1,4 @@
+import { storeToRefs } from "pinia";
 import { useAuthStore } from "@/store";
 import { IoUser, LocateAmount, USER_DB } from "@io-boxies/js-lib";
 import { DataTableColumns, NText, NButton, useMessage } from "naive-ui";
@@ -62,7 +63,7 @@ export function useShipUnitCols(
 
 export function useShipAreaCols() {
   const auth = useAuthStore();
-  const u = auth.currUser;
+  const { user: u } = storeToRefs(auth);
   const msg = useMessage();
   const shipAreaCols: DataTableColumns<LocateAmount> = [
     {
@@ -101,15 +102,15 @@ export function useShipAreaCols() {
             type: "error",
             onClick: async () => {
               const l = row.locate;
-              const idx = u.uncleInfo!.shipLocates.findIndex(
+              const idx = u.value?.uncleInfo!.shipLocates.findIndex(
                 (e) =>
                   l.city === e.locate.city &&
                   l.county === e.locate.county &&
                   l.town === e.locate.town
               );
-              console.log("idx:", idx);
-              u.uncleInfo!.shipLocates.splice(idx, 1);
-              await USER_DB.updateUser(u);
+              u.value?.uncleInfo!.shipLocates.splice(idx ?? -1, 1);
+              await USER_DB.updateUser(u.value!);
+              auth.setUser(u.value!);
               msg.success("삭제완료.");
             },
           },

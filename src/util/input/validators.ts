@@ -20,3 +20,5 @@ export const checkInRange = (x: number, min: number, max: number) =>
 export const checkNotNull = (x: any) => x !== null && x !== undefined;
 
 export const isObject = (x: any) => typeof x === "object" && !Array.isArray(x);
+
+export const isDigitStr = (val: any) => /^\d+$/.test(val);

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useShipUnitCols } from "@/composable";
+import { useAuthStore } from "@/store";
 import { strLenRule } from "@/util";
 import { IoUser, getUserName, USER_DB } from "@io-boxies/js-lib";
 import { NButton, FormInst, useMessage } from "naive-ui";
@@ -7,6 +8,7 @@ import { computed, ref, toRefs } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const logger = useLogger();
+const auth = useAuthStore();
 const props = defineProps<{
   unitKey: "amountBySize" | "amountByWeight";
   edit: boolean;
@@ -22,6 +24,10 @@ if (!u.value.uncleInfo) {
 
 const target = u.value.uncleInfo![props.unitKey];
 const showModal = ref(false);
+function addUnit() {
+  showModal.value = true;
+}
+
 const message = useMessage();
 const { shipUnitCols } = useShipUnitCols(
   showModal,
@@ -45,6 +51,7 @@ async function onAdd() {
       const val = formValue.value;
       target[val.unit] = val.amount;
       await USER_DB.updateUser(u.value);
+      auth.setUser(u.value);
       message.success("추가완료 ");
       showModal.value = false;
     } else {
@@ -66,7 +73,11 @@ const rule = {
     :columns="shipUnitCols"
     :data="data"
     :pagination="{ pageSize: 5 }"
-  />
+  >
+    <template #empty>
+      <n-button @click="addUnit"> 단위요금 추가 </n-button>
+    </template>
+  </n-data-table>
   <n-modal
     v-model:show="showModal"
     preset="card"

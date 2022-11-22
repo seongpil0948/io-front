@@ -761,7 +761,7 @@ async function mergeOrders(state: ORDER_STATE, shopId: string) {
             else if (
               item.vendorProdId === existItem.vendorProdId &&
               item.shopProdId === existItem.shopProdId &&
-              item.orderType !== existItem.orderType
+              item.orderType === existItem.orderType
             ) {
               exist = o;
               // 이로직을 분리하여, 모든 주문건의 상태 변경 프로세스에 대하여 적용가능하도록

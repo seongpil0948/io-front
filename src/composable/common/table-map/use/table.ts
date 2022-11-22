@@ -235,23 +235,11 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
     }
     if (opt.cellRender) {
       col.render = opt.cellRender;
-    } else if (!col.render) {
-      col.render = (row: any) =>
-        h(
-          NText,
-          {},
-          {
-            default: () =>
-              typeof row[col.key] === "number" || checkDigitStr(row[col.key])
-                ? parseInt(row[col.key]).toLocaleString()
-                : row[col.key],
-          }
-        );
     }
     return col;
   });
 }
-const checkDigitStr = (val: any) => /^\d+$/.test(val);
+
 function rendorTableBtn(onClick: () => void, txt: string) {
   return h(
     NButton,
