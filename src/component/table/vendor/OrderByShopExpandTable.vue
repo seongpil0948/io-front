@@ -30,7 +30,9 @@ const {
   orderTargets,
   showPartialModal,
   numOfAllow,
-  completePay,
+  targetIds,
+  targetOrdDbIds,
+  targetShopIds,
   onProdReady,
 } = useApproveOrder({
   garmentOrders,
@@ -63,9 +65,17 @@ function getRowKey(row: ProdOrderByShop) {
         </n-button>
       </n-space>
       <n-space v-else-if="inStates?.includes('BEFORE_PAYMENT')">
-        <n-button size="small" type="primary" @click="completePay">
+        <vendor-complete-pay-button
+          :target-ord-db-ids="[...targetOrdDbIds]"
+          :target-ord-item-ids="[...targetIds]"
+          :target-shop-ids="targetShopIds"
+          button-text="결제완료"
+          type="primary"
+          size="small"
+        />
+        <!-- <n-button size="small" type="primary" @click="completePay">
           결제완료
-        </n-button>
+        </n-button> -->
       </n-space>
       <n-space v-else-if="inStates?.includes('BEFORE_READY')">
         <n-button size="small" type="primary" @click="onProdReady">

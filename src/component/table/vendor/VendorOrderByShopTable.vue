@@ -34,13 +34,15 @@ const {
   orderTargets,
   showPartialModal,
   numOfAllow,
-  completePay,
   returnApproved,
   returnReject,
   onProdReady,
   detailShopIds,
   columns,
   checkedOrders,
+  targetIds,
+  targetOrdDbIds,
+  targetShopIds,
 } = useApproveOrder({
   garmentOrders,
   orders,
@@ -103,9 +105,14 @@ function onClickOrder(keys: string[]) {
           </n-button>
         </n-space>
         <n-space v-else-if="inStates?.includes('BEFORE_PAYMENT')">
-          <n-button text class="under-bar" @click="completePay">
-            결제완료
-          </n-button>
+          <vendor-complete-pay-button
+            :target-ord-db-ids="[...targetOrdDbIds]"
+            :target-ord-item-ids="[...targetIds]"
+            :target-shop-ids="targetShopIds"
+            button-text="결제완료"
+            button-class="under-bar"
+            :is-text="true"
+          />
         </n-space>
         <n-space v-else-if="inStates?.includes('RETURN_REQ')">
           <n-button text class="under-bar" @click="returnApproved">

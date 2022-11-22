@@ -31,43 +31,4 @@ onMounted(initIoFirebase);
 
 <style lang="scss">
 @import "./asset/variables.scss";
-
-body {
-  width: 100%;
-  height: 100%;
-}
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  width: 100%;
-  height: 100%;
-}
-.space-no-mb * {
-  margin-bottom: 0px !important;
-}
-
-.n-message--error-type {
-  border: 1px solid $io-red;
-  box-shadow: 0px 1px 7px 0px $io-red;
-}
-
-.n-divider:not(.n-divider--vertical) {
-  margin-top: 12px;
-  margin-bottom: 12px;
-}
-
-.n-card > .n-card__content,
-.n-card > .n-card__footer,
-.n-card-header {
-  overflow: auto;
-}
-.button-card {
-  cursor: pointer;
-  transition: 0.5s;
-}
-.button-card:hover {
-  transform: scale(1.05);
-}
 </style>

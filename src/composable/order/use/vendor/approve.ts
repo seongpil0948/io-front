@@ -240,29 +240,7 @@ export function useApproveOrder(p: ApproveParam) {
         updateOrderModal(false);
       });
   }
-  function completePay() {
-    ORDER_GARMENT_DB.completePay(
-      [...targetOrdDbIds.value],
-      [...targetIds.value]
-    )
-      .then(async () => {
-        msg.success("결제승인 완료", makeMsgOpt());
-        await smtp.sendAlarm({
-          toUserIds: targetShopIds.value,
-          subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${getUserName(auth.currUser)} 에서 결제를 승인 하였습니다. `,
-          notiLoadUri: "/",
-          uriArgs: {},
-        });
-      })
-      .catch((err) => {
-        const message = `결제승인 실패 ${
-          err instanceof Error ? err.message : JSON.stringify(err)
-        }`;
-        msg.error(message, makeMsgOpt());
-        logger.error(p.vendorId, message);
-      });
-  }
+
   function returnApproved() {
     ORDER_GARMENT_DB.returnApprove(
       [...targetOrdDbIds.value],
@@ -460,7 +438,6 @@ export function useApproveOrder(p: ApproveParam) {
     orderTargets,
     showPartialModal,
     numOfAllow,
-    completePay,
     onProdReady,
     detailShopIds,
     checkedOrders,
@@ -468,5 +445,6 @@ export function useApproveOrder(p: ApproveParam) {
     returnReject,
     targetIds,
     targetOrdDbIds,
+    targetShopIds,
   };
 }

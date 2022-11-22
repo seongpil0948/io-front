@@ -177,6 +177,7 @@ declare module '@vue/runtime-core' {
     UserLocateList: typeof import('./src/component/card/UserLocateList.vue')['default']
     UserLogList: typeof import('./src/component/card/UserLogList.vue')['default']
     VehicleManage: typeof import('./src/view/uncle/page/VehicleManage.vue')['default']
+    VendorCompletePayButton: typeof import('./src/component/button/VendorCompletePayButton.vue')['default']
     VendorHome: typeof import('./src/view/vendor/VendorHome.vue')['default']
     VendorLayout: typeof import('./src/view/vendor/VendorLayout.vue')['default']
     VendorOperInfo: typeof import('./src/component/form/VendorOperInfo.vue')['default']
