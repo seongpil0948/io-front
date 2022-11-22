@@ -56,9 +56,7 @@ async function loginUncle() {
         <br />
         사업자등록번호: 720-08-02296 | 문의: inoutboxofficial@gmail.com |
         고객센터 번호 : 010-7727-7428
-        <n-button text size="small" type="primary" @click="onTos">
-          이용약관 보기
-        </n-button>
+        <n-button size="small" @click="onTos"> 이용약관 보기 </n-button>
       </n-text>
       <n-space v-if="isTest === 'true'" justify="center">
         <!-- <<< TEMP <<< -->
@@ -74,7 +72,7 @@ async function loginUncle() {
     </n-space>
     <n-modal
       v-model:show="showTos"
-      style="width: 60vw; height: 60vh; overflow: auto"
+      style="width: 90vw; height: 80vh; overflow: auto"
       :bordered="false"
     >
       <term-of-service />

@@ -26,7 +26,11 @@ const collapsed = ref(false);
     :native-scrollbar="false"
   >
     <n-space justify="center" align="center">
-      <logo-image size="3.5rem" @click="router.goHome(u)" />
+      <logo-image
+        style="margin-top: 40%"
+        size="3.5rem"
+        @click="router.goHome(u)"
+      />
       <n-h2
         :style="`${
           collapsed ? 'transform: skew(-9deg, 33deg);' : 'none'

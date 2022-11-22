@@ -24,7 +24,7 @@ export function usePickArea() {
     c: "PICKUP_LOCATES",
   }).withConverter(locateFireConverter);
   const name = "pickupArea snapshot";
-  onSnapshot(
+  const unsubscribe = onSnapshot(
     locateCollection,
     (snapshot) => {
       locates.value = [];
@@ -62,6 +62,7 @@ export function usePickArea() {
     locates,
     addPickArea,
     getPickId,
+    unsubscribe,
   };
 }
 

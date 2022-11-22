@@ -3,7 +3,7 @@ import { usePickArea, usePickAreaCols, isSamePickLocate } from "@/composable";
 import { LocateAmount, USER_DB } from "@io-boxies/js-lib";
 import { useAuthStore } from "@/store";
 import { useMessage } from "naive-ui";
-import { ref, computed } from "vue";
+import { ref, computed, onBeforeUnmount } from "vue";
 import { storeToRefs } from "pinia";
 
 const msg = useMessage();
@@ -11,7 +11,8 @@ const auth = useAuthStore();
 const pickAmount = ref(1000);
 const pickId = ref<string | null>(null);
 const { user } = storeToRefs(auth);
-const { addPickArea } = usePickArea();
+const { addPickArea, unsubscribe } = usePickArea();
+onBeforeUnmount(() => unsubscribe());
 
 async function onClickAdd() {
   if (!pickId.value) return msg.error("픽업지역을 선택 해주세요.");

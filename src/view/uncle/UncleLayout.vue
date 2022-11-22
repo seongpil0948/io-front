@@ -169,6 +169,6 @@ onBeforeMount(() => useUncleOrderStore().init(user.userInfo.userId));
         <io-footer />
       </n-space>
     </n-layout>
-    <team-uncle-sider />
+    <team-uncle-sider v-if="getScreenSize() !== 'S'" />
   </n-layout>
 </template>

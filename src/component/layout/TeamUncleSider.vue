@@ -3,7 +3,7 @@ import { useUncleWorkers } from "@/composable";
 import { ref } from "vue";
 
 const rightCollapsed = ref(false);
-const width = 360;
+const width = 320;
 const { workers } = useUncleWorkers();
 </script>
 <template>
@@ -12,10 +12,10 @@ const { workers } = useUncleWorkers();
     bordered
     show-trigger
     collapse-mode="width"
-    :collapsed-width="64"
+    :collapsed-width="10"
     :width="width"
     :native-scrollbar="false"
-    style="z-index: 0"
+    style="z-index: 0; margin-left: 3px"
   >
     <n-space
       v-if="!rightCollapsed"
