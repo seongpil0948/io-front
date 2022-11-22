@@ -80,6 +80,9 @@ async function onLogin(data: LoginReturn | undefined) {
   text-align: center;
 }
 .text-login-btn {
-  height: 3vw !important;
+  max-height: 3vw !important;
+  width: 10vw;
+  min-height: 32px;
+  min-width: 100px;
 }
 </style>

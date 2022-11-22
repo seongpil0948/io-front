@@ -1,4 +1,4 @@
-import { getCurrDate } from "@/util/date";
+import { getCurrDate } from "@io-boxies/js-lib";
 
 export class CommonField {
   createdAt?: Date;

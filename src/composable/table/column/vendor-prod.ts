@@ -1,3 +1,4 @@
+import { partOpts } from "./../../../util/option/input";
 import {
   useTable,
   IoColOpt,
@@ -6,13 +7,15 @@ import {
   VENDOR_GARMENT_DB,
 } from "@/composable/";
 import { useAuthStore } from "@/store";
-import { makeMsgOpt } from "@/util";
-import { NButton, useMessage } from "naive-ui";
-import { computed, h, ref } from "vue";
+import { makeMsgOpt, getSizeOpts, getCtgrOpts } from "@/util";
+import { NButton, NInput, NInputNumber, NSelect, useMessage } from "naive-ui";
+import { computed, h, ref, defineAsyncComponent } from "vue";
 import { useLogger } from "vue-logger-plugin";
-import LogoChecker from "@/component/input/checker/LogoChecker.vue";
 
-export function useVendorProdCols(edit = true) {
+const LogoChecker = defineAsyncComponent(
+  () => import("@/component/input/checker/LogoChecker.vue")
+);
+export function useVendorProdCols(editOrder = true, editProd = false) {
   const logger = useLogger();
   const auth = useAuthStore();
   const msg = useMessage();
@@ -28,17 +31,108 @@ export function useVendorProdCols(edit = true) {
       prodEditTarget.value = row;
     }
   }
+  const colKeys: IoColOpt[] = [];
+  if (editProd) {
+    colKeys.push(
+      // vendorProdName
+      ...([
+        {
+          key: "vendorProdName",
+          cellRender: (row: VendorGarment) =>
+            h(NInput, {
+              value: row.vendorProdName,
+              onUpdateValue: (val) => {
+                row.vendorProdName = val;
+              },
+            }),
+        },
+        {
+          key: "part",
+          cellRender: (row: VendorGarment) =>
+            h(NSelect, {
+              options: partOpts,
+              value: row.part,
+              onUpdateValue: (val) => {
+                row.part = val;
+              },
+            }),
+        },
+        {
+          key: "ctgr",
+          cellRender: (row: VendorGarment) =>
+            h(NSelect, {
+              options: getCtgrOpts(row.part),
+              value: row.ctgr,
+              onUpdateValue: (val) => {
+                row.ctgr = val;
+              },
+            }),
+        },
+        {
+          key: "size",
+          cellRender: (row: VendorGarment) =>
+            h(NSelect, {
+              options: getSizeOpts(row.part),
+              value: row.size,
+              onUpdateValue: (val) => {
+                row.size = val;
+              },
+            }),
+        },
+        {
+          key: "color",
+          cellRender: (row: VendorGarment) =>
+            h(NInput, {
+              value: row.color,
+              onUpdateValue: (val) => {
+                row.color = val;
+              },
+            }),
+        },
+        {
+          key: "stockCnt",
+          cellRender: (row: VendorGarment) =>
+            h(NInputNumber, {
+              value: row.stockCnt,
+              validator: (x) => x % 1 === 0,
+              min: 1,
+              onUpdateValue: (val) => {
+                if (val) {
+                  row.stockCnt = val;
+                }
+              },
+            }),
+        },
+        {
+          key: "vendorPrice",
+          cellRender: (row: VendorGarment) =>
+            h(NInputNumber, {
+              value: row.vendorPrice,
+              validator: (x) => x % 1 === 0,
+              min: 100,
+              step: 100,
+              onUpdateValue: (val) => {
+                if (val) {
+                  row.vendorPrice = val;
+                }
+              },
+            }),
+        },
+      ] as IoColOpt[])
+    );
+  } else {
+    colKeys.push(
+      ...([
+        { key: "vendorProdName" },
+        { key: "size" },
+        { key: "color" },
+        { key: "stockCnt" },
+        { key: "vendorPrice" },
+      ] as IoColOpt[])
+    );
+  }
 
-  const colKeys = [
-    "vendorProdName",
-    "size",
-    "color",
-    "stockCnt",
-    "vendorPrice",
-  ].map((x) => {
-    return { key: x } as IoColOpt;
-  });
-  if (edit) {
+  if (editOrder) {
     colKeys.unshift({ imgField: true, key: "titleImgs" });
     colKeys.push(
       ...[
@@ -59,7 +153,7 @@ export function useVendorProdCols(edit = true) {
     colKeys,
   });
   const columns = computed(() => {
-    if (edit) {
+    if (editOrder) {
       return [
         ...basicCols.value,
         ...[
@@ -92,7 +186,7 @@ export function useVendorProdCols(edit = true) {
           },
           {
             title: "수정",
-            key: "edit",
+            key: "editOrder",
             render: (row: VendorUserOrderGarment) =>
               h(
                 NButton,
@@ -131,9 +225,15 @@ export function useVendorProdCols(edit = true) {
               ),
           },
         ],
-      ] as typeof basicCols.value;
+      ].map((x) => {
+        x.minWidth = "100px";
+        return x;
+      }) as typeof basicCols.value;
     } else {
-      return basicCols.value;
+      return basicCols.value.map((x) => {
+        x.minWidth = "100px";
+        return x;
+      });
     }
   });
 

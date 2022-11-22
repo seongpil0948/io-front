@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { toRefs, ref } from "vue";
-import { useMessage } from "naive-ui";
+import { NCard, NIcon, NImage, NSpace, NSpin, useMessage } from "naive-ui";
 import { CloseCircle } from "@vicons/ionicons5";
-import { makeMsgOpt, STORAGE_SVC, uploadFile, getParentRef } from "@/util";
+import { makeMsgOpt } from "@/util";
+import { STORAGE_SVC, getParentRef, uploadFile } from "@io-boxies/js-lib";
 
 const props = defineProps<{
   svc: STORAGE_SVC;

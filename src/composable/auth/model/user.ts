@@ -1,11 +1,10 @@
 import { useAuthStore } from "@/store";
 import { IoUser, USER_DB } from "@io-boxies/js-lib";
 
-export async function userUpdate(login = true, user: IoUser) {
+export async function userUpdate(user: IoUser, login = true) {
   const authS = useAuthStore();
   await USER_DB.updateUser(user);
-  authS.$patch({ user });
-  authS.setUser();
+  authS.setUser(user);
 
   if (login) authS.login(user);
 }

@@ -8,11 +8,17 @@ import {
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { DataTableColumns, NButton, NImage, useMessage, NText } from "naive-ui";
-import { computed, h, Ref, ref } from "vue";
+import { computed, h, Ref, ref, defineAsyncComponent } from "vue";
 import { useTable } from "./table";
-import ShopOrderCnt from "@/component/input/ShopOrderCnt.vue";
-import InfoCell from "@/component/table/InfoCell.vue";
 import clip from "clipboardy";
+
+const ShopOrderCnt = defineAsyncComponent(
+  () => import("@/component/input/ShopOrderCnt.vue")
+);
+const InfoCell = defineAsyncComponent(
+  () => import("@/component/table/InfoCell.vue")
+);
+
 interface orderTableParam {
   garmentOrders: Ref<ProdOrderCombined[]>;
   orders: Ref<GarmentOrder[]>;
@@ -156,39 +162,48 @@ export function useOrderTable(d: orderTableParam) {
     }
 
     return columns.value.length > 1
-      ? [
-          columns.value[0],
-          {
-            key: "titleImgs",
-            title: "이미지",
-            render: (x) =>
-              h(
-                NImage,
-                {
-                  src: x.vendorGarment?.titleImgs[0] ?? "/img/x.png",
-                  width: "50",
-                  height: "50",
-                },
-                {}
-              ),
-          },
-          {
-            key: "info",
-            title: "상품정보",
-            render: (x) =>
-              h(
-                InfoCell,
-                {
-                  first: x.shopGarment.prodName,
-                  second: x.vendorGarment.vendorProdName,
-                  third: x.shopGarment.color + "/" + x.shopGarment.size,
-                },
-                {}
-              ),
-          },
+      ? (
+          [
+            columns.value[0],
+            {
+              key: "titleImgs",
+              title: "이미지",
+              render: (x) =>
+                h(
+                  NImage,
+                  {
+                    src: x.vendorGarment?.titleImgs[0] ?? "/img/x.png",
+                    width: "50",
+                    height: "50",
+                  },
+                  {}
+                ),
+            },
+            {
+              key: "info",
+              title: "상품정보",
+              minWidth: "150",
+              render: (x) =>
+                h(
+                  InfoCell,
+                  {
+                    first: x.shopGarment.prodName,
+                    second: x.vendorGarment.vendorProdName,
+                    third: x.shopGarment.color + "/" + x.shopGarment.size,
+                  },
+                  {}
+                ),
+            },
 
-          ...columns.value.slice(1),
-        ]
+            ...columns.value.slice(1),
+          ] as DataTableColumns<ProdOrderCombined>
+        ).map((col) => {
+          if (!col.minWidth && !col.width) {
+            col.minWidth = "100";
+            return col;
+          }
+          return col;
+        })
       : [];
   });
   const targetIds = computed(() => {

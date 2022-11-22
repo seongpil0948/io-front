@@ -33,7 +33,8 @@ export const useAuthStore = defineStore({
       state.user === null ? "ANONYMOUSE" : state.user?.userInfo.role,
   },
   actions: {
-    setUser() {
+    setUser(u: IoUser) {
+      this.user = u;
       localStorage.setItem(userKey, JSON.stringify(this.user));
     },
     login(u: IoUser) {
@@ -41,8 +42,7 @@ export const useAuthStore = defineStore({
         if (this.user.userInfo.userId === u.userInfo.userId) return;
         else this.clearUser();
       }
-      this.user = u;
-      this.setUser();
+      this.setUser(u);
     },
     clearUser() {
       localStorage.clear();

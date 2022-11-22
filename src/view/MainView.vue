@@ -6,7 +6,7 @@ import { useLoadingBar, useMessage } from "naive-ui";
 import { watch, watchPostEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { useRouter } from "vue-router";
-
+import { Reload } from "@vicons/ionicons5";
 // this view consumes Global State(common)
 const cs = useCommonStore();
 const loading = useLoadingBar();
@@ -34,7 +34,12 @@ watchPostEffect(() => {
 });
 </script>
 <template>
-  <n-spin size="large" :show="cs.showSpin">
+  <n-spin id="main-spin" size="large" :show="cs.showSpin">
+    <template #icon>
+      <n-icon>
+        <Reload />
+      </n-icon>
+    </template>
     <router-view />
   </n-spin>
   <float-action-button
@@ -43,3 +48,9 @@ watchPostEffect(() => {
     "
   />
 </template>
+
+<style>
+#main-spin > .n-spin-body {
+  top: 30%;
+}
+</style>

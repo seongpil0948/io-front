@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watch, watchEffect } from "vue";
 import { type FormInst, useMessage, useDialog } from "naive-ui";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { uuidv4 } from "@firebase/util";
 import { useRouter } from "vue-router";
 import { useLogger } from "vue-logger-plugin";
 import {
+  catchError,
   GARMENT_SIZE,
   GENDER,
+  getVendorProdCombineId,
   PART,
   useBatchVendorProd,
   useVendorProdCols,
   VendorGarment,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
 import {
   getCtgrOpts,
@@ -25,15 +28,13 @@ import {
   genderOpts,
 } from "@/util";
 import { useEditor } from "@/plugin/editor";
-import { useAuthStore } from "@/store";
+import { useAuthStore, useCommonStore, useVendorsStore } from "@/store";
 
-const log = useLogger();
 const msg = useMessage();
 const dialog = useDialog();
 const formRef = ref<FormInst | null>(null);
 const auth = useAuthStore();
 const router = useRouter();
-const vendorProdId = uuidv4();
 const prodModel = ref({
   part: PART.TOP,
   ctgr: getCtgrOpts(PART.TOP)[0].value,
@@ -94,16 +95,22 @@ watchEffect(
 function changePart() {
   prodModel.value.ctgr = ctgrOpts.value[0].value;
 }
+const { vendorGarments: existGarments } = useVendorsStore();
+const cs = useCommonStore();
 async function onRegister() {
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
     else if (!stockCnts.value) return;
-
     const products: VendorGarment[] = [];
     const v = prodModel.value;
     const allowPending = v.allowPending[0] === "받기" ? true : false;
     let valid = true;
     const info = await saveEditor();
+    const vendorId = auth.currUser.userInfo.userId;
+    const exist = existGarments.find(
+      (x) => x.combineId === getVendorProdCombineId(vendorId, v.name)
+    );
+    const vendorProdPkgId = exist ? exist.vendorProdPkgId : uuidv4();
     prodModel.value.sizes.forEach((size) => {
       prodModel.value.colors.forEach((color) => {
         if (stockCnts.value![size][color] < 1) {
@@ -118,9 +125,11 @@ async function onRegister() {
               size,
               color,
               info,
-              vendorId: auth.currUser.userInfo.userId,
-              vendorProdId: vendorProdId,
+              vendorId,
+              vendorProdId: uuidv4(),
               stockCnt: stockCnts.value![size][color],
+              TBD: {},
+              vendorProdPkgId,
             })
           )
         );
@@ -134,20 +143,23 @@ async function onRegister() {
         negativeText: "취소",
         closeOnEsc: true,
         onPositiveClick: async () => {
-          log.debug("PRODS:", products);
-          return Promise.all(products.map((p) => p.update()))
+          cs.$patch({ showSpin: true });
+          return VENDOR_GARMENT_DB.batchCreate(vendorId, products)
             .then(() => {
               clearEditor();
               msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
               router.replace({ name: "VendorProductList" });
             })
-            .catch((err) => {
-              const message = `상품등록 실패. ${
-                err instanceof Error ? err.message : JSON.stringify(err)
-              }`;
-              msg.error(message, makeMsgOpt());
-              log.error(auth.currUser.userInfo.userId, message, products);
-            });
+            .catch((err) =>
+              catchError({
+                userId: vendorId,
+                err,
+                opt: makeMsgOpt(),
+                prefix: "상품등록 실패",
+                msg,
+              })
+            )
+            .finally(() => cs.$patch({ showSpin: false }));
         },
       });
     }
@@ -166,13 +178,15 @@ const {
   parsedGarments,
   onPreviewConfirm,
   onPreviewCancel,
+  disableModalSave,
 } = useBatchVendorProd();
 
-const { columns } = useVendorProdCols(false);
+const { columns } = useVendorProdCols(false, true);
 
 function handleFileChange(evt: Event) {
   const element = evt.currentTarget as HTMLInputElement;
   fileModel.value = element.files;
+  disableModalSave.value = false;
 }
 </script>
 <template>
@@ -181,15 +195,16 @@ function handleFileChange(evt: Event) {
     :on-update:show="onPreviewCancel"
     :mask-closable="false"
     close-on-esc
-    size="huge"
     preset="card"
-    style="margin: 0 10%"
+    style="width: 80vw"
   >
     <template #header>
       엑셀 파싱 결과 ({{ parsedGarments.length }} 건)
     </template>
     <template #header-extra>
-      <n-button @click="onPreviewConfirm"> 저장 </n-button>
+      <n-button :disabled="disableModalSave" @click="onPreviewConfirm">
+        저장
+      </n-button>
     </template>
 
     <n-data-table
@@ -266,14 +281,18 @@ function handleFileChange(evt: Event) {
             :wrap="false"
             inline
             justify="space-between"
-            style="width: 100%; margin-bottom: 5%"
+            style="width: 100%; margin-bottom: 1%"
           >
-            <n-space vertical justify="start">
+            <n-space
+              vertical
+              justify="start"
+              style="padding: 10px; width: 100%"
+            >
               <n-form-item label="컬러" path="colors">
                 <n-dynamic-tags
                   v-model:value="prodModel.colors"
                   round
-                  style="flex-wrap: ;no-wrap; overflow-x: auto;"
+                  style="flex-wrap: no-wrap; overflow-x: auto; padding: 5%"
                   @keydown.enter.prevent
                 />
               </n-form-item>
@@ -290,7 +309,15 @@ function handleFileChange(evt: Event) {
             <n-card
               v-if="stockCnts && Object.keys(stockCnts).length > 0"
               title="재고수량 입력"
-              style="max-height: 20vh; overflow: auto"
+              style="
+                max-height: 20vh;
+                overflow: auto;
+                min-height: 300px;
+                height: 100%;
+              "
+              :segmented="{
+                content: true,
+              }"
             >
               <div v-for="(size, i) in Object.keys(stockCnts)" :key="i">
                 <div
@@ -345,7 +372,7 @@ function handleFileChange(evt: Event) {
             svc="VENDOR_PRODUCT"
             :user-id="auth.currUser.userInfo.userId"
             :role="auth.currUserRole"
-            :parent-id="vendorProdId"
+            parent-id="titleImgs"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>
@@ -363,7 +390,7 @@ function handleFileChange(evt: Event) {
             svc="VENDOR_PRODUCT"
             :user-id="auth.currUser.userInfo.userId"
             :role="auth.currUserRole"
-            :parent-id="vendorProdId"
+            parent-id="bodyImgs"
           >
             <add-circle-outline style="cursor: pointer" />
           </single-image-input>

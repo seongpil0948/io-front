@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { LocateCRT } from "@/composable";
-import { LocateAmount } from "@io-boxies/js-lib";
+import { LocateAmount, Locate } from "@io-boxies/js-lib";
 import { toRefs } from "vue";
 
 const props = defineProps<{
@@ -14,7 +13,7 @@ const locateKey = [
   ["성", "firstName"],
   ["이름", "lastName"],
   ["핸드폰번호", "phone"],
-] as [i: string, j: keyof LocateCRT][];
+] as [i: string, j: keyof Locate][];
 </script>
 
 <template>

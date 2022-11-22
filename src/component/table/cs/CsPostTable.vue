@@ -30,8 +30,8 @@ import { CsPost } from "@/composable";
 import { NButton, DataTableColumns, NText } from "naive-ui";
 import { computed, h, toRefs } from "vue";
 import { useRouter } from "vue-router";
-import { loadDate, formatDate } from "@/util";
 import { useCsStore } from "@/store";
+import { loadDate, formatDate } from "@io-boxies/js-lib";
 
 const props = defineProps<{
   posts: CsPost[];
@@ -51,8 +51,23 @@ const columns = computed(
   () =>
     [
       {
+        title: "제목",
+        key: "title",
+        minWidth: 200,
+        render: (row) =>
+          h(
+            NButton,
+            {
+              onClick: () => goDetail(row),
+              text: true,
+            },
+            { default: () => row.title ?? "" }
+          ),
+      },
+      {
         title: "게시일",
         key: "createdAt",
+        minWidth: 150,
         render: (row: any) =>
           h(
             NText,
@@ -62,19 +77,6 @@ const columns = computed(
                 return formatDate(loadDate(row.createdAt), "MIN");
               },
             }
-          ),
-      },
-      {
-        title: "제목",
-        key: "title",
-        render: (row) =>
-          h(
-            NButton,
-            {
-              onClick: () => goDetail(row),
-              text: true,
-            },
-            { default: () => row.title ?? "" }
           ),
       },
     ] as DataTableColumns<CsPost>

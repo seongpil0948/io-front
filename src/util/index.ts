@@ -1,4 +1,3 @@
-export * from "./firebase";
 export * from "./date";
 export * from "./option";
 export * from "./responsive";
@@ -8,3 +7,4 @@ export * from "./event";
 export * from "./option";
 export * from "./io-fns";
 export * from "./order";
+export * from "./firebase";

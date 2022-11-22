@@ -5,9 +5,9 @@ import {
   GarmentOrderCondi,
 } from "@/composable";
 import { CommonField } from "@/composable/common";
-import { getIoCollection, insertById, IoCollection } from "@/util";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
+import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 
 export function sameGarment(p: ShopGarmentCrt, g: GarmentOrderCondi) {
   return p.prodName === g.prodName && p.color === g.color && p.size === g.size;
@@ -25,6 +25,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   description: string;
   cafeProdId?: string;
   zigzagProdId?: string;
+  TBD: { [k: string]: any };
 
   isSameWithVendor(p: VendorGarmentCrt) {
     return (
@@ -58,6 +59,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
     this.description = d.description;
     this.cafeProdId = d.cafeProdId;
     this.zigzagProdId = d.zigzagProdId;
+    this.TBD = d.TBD;
   }
   static fromJson(data: { [x: string]: any }): ShopGarment | null {
     if (data && data.vendorProdId) {
@@ -76,6 +78,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
         description: data.description,
         cafeProdId: data.cafeProdId,
         zigzagProdId: data.zigzagProdId,
+        TBD: data.TBD,
       });
     } else {
       //   logger.error(null, "vendor product from json return null, data: ", data);

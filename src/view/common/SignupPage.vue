@@ -10,13 +10,10 @@ import {
   onMounted,
   ref,
   watchEffect,
+  defineAsyncComponent,
 } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { useRouter } from "vue-router";
-import UserInfoForm from "@/component/form/UserInfoForm.vue";
-import CompanyInfoForm from "@/component/form/CompanyInfoForm.vue";
-import ShopOperInfoVue from "@/component/form/ShopOperInfo.vue";
-import VendorOperInfoVue from "@/component/form/VendorOperInfo.vue";
 import { ioFire } from "@io-boxies/js-lib";
 import { logEvent } from "@firebase/analytics";
 import {
@@ -28,12 +25,19 @@ import {
   USER_PROVIDER,
   getUserName,
 } from "@io-boxies/js-lib";
-import { useLogin } from "@io-boxies/vue-lib";
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  deleteUser,
-} from "@firebase/auth";
+import { createUserWithEmailAndPassword, getAuth } from "@firebase/auth";
+const UserInfoForm = defineAsyncComponent(
+  () => import("@/component/form/UserInfoForm.vue")
+);
+const CompanyInfoForm = defineAsyncComponent(
+  () => import("@/component/form/CompanyInfoForm.vue")
+);
+const ShopOperInfoVue = defineAsyncComponent(
+  () => import("@/component/form/ShopOperInfo.vue")
+);
+const VendorOperInfoVue = defineAsyncComponent(
+  () => import("@/component/form/VendorOperInfo.vue")
+);
 
 const log = useLogger();
 const inst = getCurrentInstance();
@@ -210,18 +214,10 @@ async function onSignUp() {
     } catch (e: any) {
       if (typeof e.code === "string") {
         if (e.code.includes("email-already-in-use")) {
-          const { emailLogin } = useLogin();
-          const data = await emailLogin(u.userInfo.email, state.password);
-          log.debug(null, "Login Return in email-already-in-use", data);
-          if (data?.credential?.user) {
-            await deleteUser(data?.credential?.user);
-            const credential = await createUserWithEmailAndPassword(
-              getAuth(),
-              u.userInfo.email,
-              state.password
-            );
-            u.userInfo.userId = credential.user.uid;
-          }
+          log.debug(
+            null,
+            `user${u.userInfo.userId} login return in email-already-in-use`
+          );
         } else {
           throw e;
         }
@@ -288,10 +284,10 @@ async function onSignUp() {
           <n-p class="txt-small"> 해당되는 역할을 클릭 해주세요! </n-p>
           <n-space justify="center">
             <n-button class="role-btn txt" round @click="selectRole('SHOP')">
-              쇼핑몰
+              소매
             </n-button>
             <n-button class="role-btn txt" round @click="selectRole('VENDOR')">
-              도매처
+              도매
             </n-button>
             <n-button class="role-btn txt" round @click="selectRole('UNCLE')">
               엉클
@@ -397,7 +393,7 @@ async function onSignUp() {
           <n-h5 style="color: dimgray"> 히힛 간지러워요! 으익 </n-h5>
           <n-card class="form-card">
             <term-of-service
-              style="width: 60vw; height: 40vh; overflow: auto; margin: auto"
+              style="width: 70vw; height: 40vh; overflow: auto; margin: auto"
             />
             <template #action>
               <n-space justify="end">
@@ -440,7 +436,7 @@ async function onSignUp() {
       </Transition>
       <n-card v-if="step > 3 && step < 9" class="form-card">
         <n-steps
-          style="overflow-x: auto; max-width: 100%"
+          style="overflow-x: auto; max-width: 100%; padding: 1%"
           :current="(step -3 as number)"
         >
           <template #finish-icon>

@@ -1,11 +1,9 @@
-import { LocateCRT } from "@/composable";
 import { QueryConstraint } from "@firebase/firestore";
-import { SHIP_METHOD } from "@io-boxies/js-lib";
+import { SHIP_METHOD, Locate } from "@io-boxies/js-lib";
 import { Ref } from "vue";
 import {
   BOOL_M,
   GarmentOrder,
-  Locate,
   PayMethod,
   ShopUserGarment,
   VendorUserGarment,
@@ -232,9 +230,9 @@ export interface ShipmentCrt {
   amountByWeight?: number;
   shipFeeBasic: number; // 지역별 기본 배송료
   pickupFeeBasic: number; // 지역별 기본 픽업료
-  returnAddress: Locate | LocateCRT; // 출발지
-  startAddress: Locate | LocateCRT; // 도매
-  receiveAddress: Locate | LocateCRT; // 소매
+  returnAddress: Locate; // 출발지
+  startAddress: Locate; // 도매
+  receiveAddress: Locate; // 소매
   wishedDeliveryTime: Date;
   managerId: string; // 엉클관리자 아이디
 }

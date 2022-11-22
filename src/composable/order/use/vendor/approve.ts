@@ -1,4 +1,4 @@
-import { getUserName } from "@io-boxies/js-lib";
+import { getUserName, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import {
   GarmentOrder,
   IoPay,
@@ -9,7 +9,7 @@ import {
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { logger } from "@/plugin/logger";
-import { getIoCollection, IoCollection, makeMsgOpt, uniqueArr } from "@/util";
+import { makeMsgOpt, uniqueArr } from "@/util";
 import {
   DataTableColumns,
   DataTableRowKey,
@@ -17,11 +17,13 @@ import {
   NSpace,
   useMessage,
 } from "naive-ui";
-import { computed, h, ref, Ref, VNode } from "vue";
-import GarmentOrderRow from "@/component/table/vendor/GarmentOrderRow.vue";
+import { computed, h, ref, Ref, VNode, defineAsyncComponent } from "vue";
 import { useAuthStore } from "@/store";
 import { doc, getDoc, updateDoc } from "@firebase/firestore";
 
+const GarmentOrderRow = defineAsyncComponent(
+  () => import("@/component/table/vendor/GarmentOrderRow.vue")
+);
 interface ApproveParam {
   garmentOrders: Ref<ProdOrderCombined[]>;
   orders: Ref<GarmentOrder[]>;

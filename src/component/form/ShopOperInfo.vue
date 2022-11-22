@@ -2,9 +2,9 @@
 import { SHIP_METHOD, ShopOperInfo } from "@io-boxies/js-lib";
 import { notNullRule, saleAvgOpt, shipMethodOpt } from "@/util";
 import { FormInst } from "naive-ui";
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 const formRef = ref<FormInst | null>(null);
-const formModel = reactive<{ [k in keyof ShopOperInfo]: ShopOperInfo[k] }>({
+const formModel = ref<{ [k in keyof ShopOperInfo]: ShopOperInfo[k] }>({
   saleAverage: saleAvgOpt.value[0].value,
   purchaseMethod: SHIP_METHOD.UNCLE,
 });

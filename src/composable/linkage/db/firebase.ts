@@ -1,6 +1,6 @@
 import { onFirestoreErr, onFirestoreCompletion } from "@/composable/common";
-import { getIoCollection, IoCollection } from "@/util";
 import { deleteDoc, doc, onSnapshot, setDoc } from "@firebase/firestore";
+import { getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { ref } from "vue";
 import { ApiToken, ApiTokenCrt, LinkageDB } from "..";
 

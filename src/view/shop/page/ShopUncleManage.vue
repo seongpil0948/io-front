@@ -13,14 +13,24 @@ import {
   useMessage,
 } from "naive-ui";
 import { computed, onBeforeMount, ref } from "vue";
+import { storeToRefs } from "pinia";
 
 const msg = useMessage();
 const auth = useAuthStore();
-const u = auth.currUser;
-const uncles = ref<IoUser[]>([]);
+const { user } = storeToRefs(auth);
+const uncles = computed(() =>
+  allUncles.value.filter(
+    (x) =>
+      availUncleAdvertise(x) &&
+      !user.value?.shopInfo?.uncleUserIds.includes(x.userInfo.userId)
+  )
+);
+const allUncles = ref<IoUser[]>([]);
 onBeforeMount(async () => {
-  const users = await USER_DB.getUsersByRole("UNCLE");
-  uncles.value = users.filter((x) => availUncleAdvertise(x));
+  if (!user.value) {
+    user.value = auth.currUser;
+  }
+  allUncles.value = await USER_DB.getUsersByRole("UNCLE");
 });
 // modal
 const selectedUser = ref<IoUser | null>(null);
@@ -36,14 +46,14 @@ function onDetail(uncle: IoUser) {
 async function onContract() {
   if (!selectedUser.value) return;
   const uId = selectedUser.value.userInfo.userId;
-  if (!u.shopInfo) {
-    u.shopInfo = {
+  if (!user.value!.shopInfo) {
+    user.value!.shopInfo = {
       uncleUserIds: [uId],
     };
     msg.success("추가 완료.");
-  } else if (!u.shopInfo.uncleUserIds.includes(uId)) {
-    u.shopInfo?.uncleUserIds.push(uId);
-    await USER_DB.updateUser(u);
+  } else if (!user.value!.shopInfo.uncleUserIds.includes(uId)) {
+    user.value!.shopInfo?.uncleUserIds.push(uId);
+    await USER_DB.updateUser(user.value!);
     msg.success("추가 완료.");
   } else {
     msg.error("이미 계약된 유저입니다.");
@@ -97,7 +107,7 @@ const showModal = ref(false);
         style="padding-bottom: 5%"
         :locates="selectedUser.uncleInfo.pickupLocates"
       />
-      <n-text type="info"> 배송건물 </n-text>
+      <n-text type="info"> 배송지역 </n-text>
       <locate-amount-list
         style="padding-bottom: 5%"
         :locates="selectedUser.uncleInfo.shipLocates"

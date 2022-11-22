@@ -43,8 +43,7 @@ function onEdit() {
         const garment = vendorStore.vendorGarments[i];
         if (
           garment.vendorProdId !== p.vendorProdId &&
-          garment.vendorId === p.vendorId &&
-          garment.vendorProdName === p.vendorProdName
+          garment.combineId === p.combineId
         ) {
           garment.info = info;
           garment.vendorProdName = p.vendorProdName;

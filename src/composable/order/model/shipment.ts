@@ -1,13 +1,18 @@
 import { CommonField } from "@/composable/common";
 // import { GarmentOrder } from "./order";
-import { Locate, LocateCRT, ShipmentCrt } from "@/composable";
-import { SHIP_METHOD } from "@io-boxies/js-lib";
+import {
+  SHIP_METHOD,
+  Locate,
+  insertById,
+  getIoCollection,
+  IoCollection,
+} from "@io-boxies/js-lib";
 import {
   FirestoreDataConverter,
   DocumentSnapshot,
   DocumentData,
 } from "@firebase/firestore";
-import { insertById, getIoCollection, IoCollection } from "@/util";
+import { ShipmentCrt } from "@/composable";
 
 // export interface PickupCrt {
 //   pickupId: string;
@@ -72,9 +77,9 @@ export class IoShipment extends CommonField implements ShipmentCrt {
   amountByWeight?: number;
   shipFeeBasic: number;
   pickupFeeBasic: number;
-  returnAddress: Locate | LocateCRT;
-  startAddress: Locate | LocateCRT;
-  receiveAddress: Locate | LocateCRT;
+  returnAddress: Locate;
+  startAddress: Locate;
+  receiveAddress: Locate;
   wishedDeliveryTime: Date;
   managerId: string; // 엉클관리자 아이디
   constructor(d: ShipmentCrt) {

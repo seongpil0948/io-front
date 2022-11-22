@@ -46,12 +46,12 @@ function callCsChat() {
         <n-h2 style="margin: auto; text-align: center"> 자주 묻는 질문 </n-h2>
       </n-space>
 
-      <n-space align="center" justify="center">
+      <n-space align="center" justify="center" inline>
         <n-button
           v-for="ctgr in faqCtgrList"
           :key="ctgr.value"
           quaternary
-          style="width: 8rem; height: 6rem; padding-top: 10%"
+          style="width: 6rem; height: 6rem; padding-top: 10%"
           @click="() => goFaqCtgr(ctgr.value, 'FAQ')"
         >
           <n-space vertical align="center" justify="space-around">

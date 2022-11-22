@@ -1,10 +1,10 @@
-import { iostore } from "@io-boxies/js-lib";
 import {
+  iostore,
   getIoCollection,
   getIoCollectionGroup,
   IoCollection,
-  uniqueArr,
-} from "@/util";
+} from "@io-boxies/js-lib";
+import { uniqueArr } from "@/util";
 import {
   doc,
   getDoc,
@@ -87,6 +87,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         po.actualAmount.paidDate = new Date();
         po.actualAmount.paidAmount = po.actualAmount.orderAmount;
         po.actualAmount.paid = "T";
+        // TODO: paymentMethod
         return po;
       },
       true
@@ -410,9 +411,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       q,
       (snapshot) => {
         p.orders.value = [];
-        console.log(
-          "shop order snap from cache " + snapshot.metadata.fromCache
-        );
+        console.log("order snap from cache " + snapshot.metadata.fromCache);
         snapshot.forEach((s) => {
           const data = s.data();
           if (data) {
@@ -762,7 +761,7 @@ async function mergeOrders(state: ORDER_STATE, shopId: string) {
             else if (
               item.vendorProdId === existItem.vendorProdId &&
               item.shopProdId === existItem.shopProdId &&
-              item.orderType !== existItem.orderType
+              item.orderType === existItem.orderType
             ) {
               exist = o;
               // 이로직을 분리하여, 모든 주문건의 상태 변경 프로세스에 대하여 적용가능하도록

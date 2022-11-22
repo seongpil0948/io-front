@@ -112,10 +112,7 @@ function onUpdateShow(val) {
       </template>
     </n-card>
     <template #trigger>
-      <n-button
-        style="white-space: normal"
-        :type="synonyms.length < 1 ? 'primary' : 'default'"
-      >
+      <n-button :type="synonyms.length < 1 ? 'primary' : 'default'">
         {{ value }}
       </n-button>
     </template>

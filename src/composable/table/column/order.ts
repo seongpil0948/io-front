@@ -1,12 +1,15 @@
 import { ProdOrderCombined } from "@/composable/order";
 import { NImage, NText, DataTableColumns } from "naive-ui";
-import { computed, h } from "vue";
+import { computed, h, defineAsyncComponent } from "vue";
 import InfoCell from "@/component/table/InfoCell.vue";
-import CancelButton from "@/component/button/CancelButton.vue";
+
 import { useVendorsStore } from "@/store";
-import { timeToDate } from "@/util";
+import { timeToDate } from "@io-boxies/js-lib";
 import { FilterOption } from "naive-ui/es/data-table/src/interface";
 
+const CancelButton = defineAsyncComponent(
+  () => import("@/component/button/CancelButton.vue")
+);
 export function usePendingOrderCols() {
   const vendorStore = useVendorsStore();
   const filterOpts = computed<FilterOption[]>(() => {

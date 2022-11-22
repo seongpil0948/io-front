@@ -7,6 +7,10 @@ import vueKakao from "./plugin/kakao";
 import { getMessaging, onMessage } from "@firebase/messaging";
 import { logger } from "./plugin/logger";
 import { pinia } from "./store";
+// import { ioFire } from "@io-boxies/js-lib";
+// import { connectFirestoreEmulator } from "@firebase/firestore";
+// import { connectStorageEmulator } from "@firebase/storage";
+// import { connectAuthEmulator, getAuth } from "@firebase/auth";
 
 window.onerror = function (errorMsg, url, errorObj) {
   logger.error(
@@ -34,7 +38,6 @@ app.use(vueKakao, {
 });
 app.use(router);
 app.use(logger);
-
 app.config.globalProperties.$http = _axios;
 app.mount("#app");
 
@@ -42,7 +45,6 @@ const messaging = getMessaging();
 onMessage(messaging, (payload) => {
   logger.debug(null, "Foreground Message received. in onMessage ", payload);
 });
-
 const channel = new BroadcastChannel("sw-messages");
 channel.addEventListener("message", function (event) {
   logger.debug(
@@ -51,3 +53,6 @@ channel.addEventListener("message", function (event) {
     event
   );
 });
+// connectFirestoreEmulator(ioFire.store, "127.0.0.1", 8080);
+// connectStorageEmulator(ioFire.storage, "127.0.0.1", 9199);
+// connectAuthEmulator(getAuth(), "127.0.0.1:9099");

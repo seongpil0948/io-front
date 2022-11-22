@@ -1,3 +1,4 @@
+import { setDoc } from "@firebase/firestore";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   onFirestoreCompletion,
@@ -5,8 +6,8 @@ import {
   VendorGarment,
   VendorGarmentDB,
 } from "@/composable";
-import { getIoStore } from "@io-boxies/js-lib";
-import { getIoCollection, IoCollection } from "@/util";
+import { handleReadSnap } from "@/util";
+import { getIoStore, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import {
   writeBatch,
   doc,
@@ -32,17 +33,32 @@ export const VendorGarmentFB: VendorGarmentDB = {
     }
     await batch.commit();
   },
-  batchCreate: async function (args: VendorGarment[]) {
+  batchCreate: async function (userId: string, args: VendorGarment[]) {
     // vendorProdsModify
     const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
       VendorGarment.fireConverter()
     );
-    const batch = writeBatch(getIoStore());
+
     for (let i = 0; i < args.length; i++) {
       const prod = args[i];
-      batch.set(doc(c, prod.vendorProdId), prod);
+      const snapshot = await getCountFromServer(
+        query(
+          c,
+          where("vendorId", "==", userId),
+          where("vendorProdName", "==", prod.vendorProdName),
+          where("color", "==", prod.color),
+          where("size", "==", prod.size)
+        )
+      );
+      const cnt = snapshot.data().count;
+      if (cnt > 0)
+        throw new Error(
+          `${prod.vendorProdName}, ${prod.color}, ${prod.size} 는 이미 존재하는 상품입니다.`
+        );
+      else {
+        await setDoc(doc(c, prod.vendorProdId), prod);
+      }
     }
-    await batch.commit();
   },
   batchReadListen: function (vendorIds: any[]) {
     const items = ref<VendorGarment[]>([]);
@@ -54,22 +70,8 @@ export const VendorGarmentFB: VendorGarmentDB = {
     const name = "batchReadListen snapshot";
     const unsubscribe = onSnapshot(
       query(c, ...wheres, orderBy("createdAt", "desc")),
-      // query(
-      //   c,
-      //   ...wheres,
-      //   orderBy("vendorProdName"),
-      //   orderBy("size"),
-      //   orderBy("color")
-      // ),
-      (snapshot) => {
-        items.value = [];
-        snapshot.forEach((d) => {
-          const data = d.data();
-          if (data) {
-            items.value.push(data);
-          }
-        });
-      },
+      (snap) =>
+        handleReadSnap<VendorGarment>(snap, items.value, (x) => x.vendorProdId),
       async (err) => await onFirestoreErr(name, err),
       () => onFirestoreCompletion(name)
     );

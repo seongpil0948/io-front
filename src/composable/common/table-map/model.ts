@@ -1,6 +1,7 @@
 import { CommonField } from "@/composable/common/model";
 import { logger as log } from "@/plugin/logger";
-import { insertById, getIoCollection, IoCollection, uniqueArr } from "@/util";
+import { uniqueArr } from "@/util";
+import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import type {
   DocumentSnapshot,
   DocumentData,

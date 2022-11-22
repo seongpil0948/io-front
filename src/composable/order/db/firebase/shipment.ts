@@ -1,7 +1,7 @@
+import { isSamePickLocate } from "./../../../locate/pickup";
 import { IoShipment, GarmentOrder, IO_PAY_DB, ShipDB } from "@/composable";
-import { iostore } from "@io-boxies/js-lib";
+import { iostore, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { useVendorsStore } from "@/store";
-import { getIoCollection, IoCollection } from "@/util";
 import { uuidv4 } from "@firebase/util";
 import { IoUser, userFireConverter } from "@io-boxies/js-lib";
 import { doc, runTransaction } from "firebase/firestore";
@@ -88,11 +88,11 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
         const ship = uncle.uncleInfo!.shipLocates;
         const pick = uncle.uncleInfo!.pickupLocates;
         const shipLocateUncle = isReturn
-          ? pick.find((x) => x.locate.code === shipLocate.code)!
+          ? pick.find((x) => isSamePickLocate(x.locate, shipLocate))!
           : ship.find((x) => x.locate.code === shipLocate.code)!;
         const pickLocateUncle = isReturn
           ? ship.find((x) => x.locate.code === pickLocate.code)!
-          : pick.find((x) => x.locate.code === pickLocate.code)!;
+          : pick.find((x) => isSamePickLocate(x.locate, pickLocate))!;
 
         if (!isReturn && !shipLocateUncle)
           throw new Error(`${shipLocateStr}은 배송불가 지역입니다.`);

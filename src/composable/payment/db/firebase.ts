@@ -1,5 +1,4 @@
 import { onFirestoreErr, onFirestoreCompletion } from "@/composable/common";
-import { getIoCollection, IoCollection } from "@/util";
 import {
   doc,
   DocumentSnapshot,
@@ -7,6 +6,7 @@ import {
   onSnapshot,
   setDoc,
 } from "@firebase/firestore";
+import { getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { ref } from "vue";
 import { PaymentDB, IoPay } from "..";
 
@@ -15,7 +15,7 @@ export const IopayFB: PaymentDB = {
     const userPay = ref<IoPay | null>(null);
     const docRef = getDocRef(uid);
     const name = "getIoPayByUserListen snapshot";
-    onSnapshot(
+    const unsubscribe = onSnapshot(
       docRef,
       async (docData) => {
         userPay.value = await getPayFromDoc(docData, uid);
@@ -23,12 +23,12 @@ export const IopayFB: PaymentDB = {
       async (err) => await onFirestoreErr(name, err),
       () => onFirestoreCompletion(name)
     );
-    return userPay;
+    return { userPay, unsubscribe };
   },
   getIoPaysListen: function () {
     const usersPay = ref<IoPay[]>([]);
     const name = "getIoPaysListen snapshot";
-    onSnapshot(
+    const unsubscribe = onSnapshot(
       getPayCollection(),
       async (snapshot) => {
         usersPay.value = [];
@@ -42,7 +42,7 @@ export const IopayFB: PaymentDB = {
       async (err) => await onFirestoreErr(name, err),
       () => onFirestoreCompletion(name)
     );
-    return usersPay;
+    return { usersPay, unsubscribe };
   },
   getIoPayByUser: async function (uid: string) {
     const docRef = getDocRef(uid);

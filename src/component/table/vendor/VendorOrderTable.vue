@@ -8,6 +8,7 @@ import {
 } from "@/composable";
 import { useAuthStore, useVendorOrderStore } from "@/store";
 import { uniqueArr } from "@/util";
+import { getUserName } from "@io-boxies/js-lib";
 import { computed } from "vue";
 
 const props = defineProps<{
@@ -42,7 +43,7 @@ async function approveCancel() {
     uniqueArr(tarOrders.value.map((x) => x.shopId)),
     [...targetOrdDbIds.value],
     [...targetIds.value],
-    u.name,
+    getUserName(u),
     u.userInfo.userId
   );
 }
@@ -51,7 +52,7 @@ async function rejectCancel() {
     uniqueArr(tarOrders.value.map((x) => x.shopId)),
     [...targetOrdDbIds.value],
     [...targetIds.value],
-    u.name,
+    getUserName(u),
     u.userInfo.userId
   );
 }

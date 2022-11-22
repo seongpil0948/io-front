@@ -11,8 +11,10 @@ import {
   ShopOperInfo,
   USER_DB,
 } from "@io-boxies/js-lib";
+import { useMessage } from "naive-ui";
 
 const authStore = useAuthStore();
+const msg = useMessage();
 const authModel = ref<IoUser | null>(null);
 onBeforeMount(() => {
   authModel.value = clone(authStore.currUser);
@@ -30,6 +32,8 @@ onBeforeMount(() => {
 async function updateUser() {
   if (authModel.value) {
     await USER_DB.updateUser(authModel.value);
+    authStore.setUser(authModel.value);
+    msg.info("변경 완.");
   }
 }
 </script>

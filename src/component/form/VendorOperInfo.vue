@@ -2,9 +2,9 @@
 import { SALE_MANAGE, VendorOperInfo } from "@io-boxies/js-lib";
 import { deadOpt, newProdQuantityOpt, notNullRule } from "@/util";
 import { FormInst } from "naive-ui";
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 const formRef = ref<FormInst | null>(null);
-const formModel = reactive<{ [k in keyof VendorOperInfo]: VendorOperInfo[k] }>({
+const formModel = ref<{ [k in keyof VendorOperInfo]: VendorOperInfo[k] }>({
   autoOrderApprove: false,
   saleManageType: "",
   taxDeadlineDay: 1,
@@ -13,7 +13,7 @@ const formModel = reactive<{ [k in keyof VendorOperInfo]: VendorOperInfo[k] }>({
 const rule = {
   saleManageType: notNullRule,
 };
-defineExpose({ operInfo: formModel });
+defineExpose({ operInfo: formModel.value });
 </script>
 
 <template>

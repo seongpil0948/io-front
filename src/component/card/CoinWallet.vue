@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, getCurrentInstance, ref } from "vue";
+import { computed, getCurrentInstance, h, ref } from "vue";
 
 import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
@@ -7,7 +7,8 @@ import { IoPay, useUserPay } from "@/composable";
 import { Bootpay } from "@bootpay/client-js";
 import { uuidv4 } from "@firebase/util";
 import { useLogger } from "vue-logger-plugin";
-import { useMessage } from "naive-ui";
+import { useMessage, useDialog, NSpace, NText } from "naive-ui";
+import { formatDate, loadDate } from "@io-boxies/js-lib";
 
 const inst = getCurrentInstance();
 const APP_ID = "62b45e0fe38c3000215aec6b";
@@ -17,7 +18,7 @@ const { userPay } = useUserPay(user.userInfo.userId);
 const log = useLogger();
 const uid = user.userInfo.userId;
 const msg = useMessage();
-
+const dialog = useDialog();
 async function reqPay() {
   const uuid = uuidv4();
   const date = new Date();
@@ -76,8 +77,63 @@ async function reqPay() {
         } else if (confirmedResp.event === "error") {
           log.error(uid, "error in confirmedResp: ", confirmedResp);
         } else if (confirmedResp.event === "issued") {
-          log.debug(null, pre + "issued: ", confirmedResp.data);
-          console.log("bank: ", confirmedResp.data.vbank_data);
+          // 가상계좌 발급
+          log.debug(null, pre + "issued: ", confirmedResp);
+          if (confirmedResp.data.vbank_data) {
+            const bank = confirmedResp.data.vbank_data;
+            dialog.info({
+              title: "입금정보(완료시 자동충전)",
+              content: () =>
+                h(
+                  NSpace,
+                  {
+                    vertical: true,
+                    style: { "padding-left": "5%" },
+                  },
+                  {
+                    default: () => [
+                      h(
+                        NText,
+                        {
+                          type: "info",
+                        },
+                        {
+                          default: () => `은행: ${bank.bank_name}`,
+                        }
+                      ),
+                      h(
+                        NText,
+                        {
+                          type: "success",
+                        },
+                        {
+                          default: () => `계좌: ${bank.bank_account}`,
+                        }
+                      ),
+                      h(
+                        NText,
+                        {
+                          type: "warning",
+                        },
+                        {
+                          default: () => `금액: ${price.toLocaleString()}원`,
+                        }
+                      ),
+                      h(
+                        NText,
+                        {
+                          type: "error",
+                        },
+                        {
+                          default: () =>
+                            `기한: ${formatDate(loadDate(bank.expired_at))}`,
+                        }
+                      ),
+                    ],
+                  }
+                ),
+            });
+          }
         }
       } else {
         Bootpay.destroy(); //결제창을 닫는다.

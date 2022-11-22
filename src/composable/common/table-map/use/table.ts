@@ -3,13 +3,18 @@ import {
   TableBaseColumn,
   ColumnKey,
 } from "naive-ui/es/data-table/src/interface";
-import { ref, watchEffect, h, Ref } from "vue";
+import { ref, watchEffect, h, Ref, defineAsyncComponent } from "vue";
 import { IoColOpt, MapperFields, IoColOptInner } from "../domain";
 import { colKoMapper } from "./colDict";
 import { useMapper } from "./mapper";
-import MapperSaver from "@/component/input/MapperSaver.vue";
-import LogoChecker from "@/component/input/checker/LogoChecker.vue";
-import { formatDate, loadDate } from "@/util";
+import { formatDate, loadDate } from "@io-boxies/js-lib";
+
+const MapperSaver = defineAsyncComponent(
+  () => import("@/component/input/MapperSaver.vue")
+);
+const LogoChecker = defineAsyncComponent(
+  () => import("@/component/input/checker/LogoChecker.vue")
+);
 
 interface useTableParam {
   userId: string;

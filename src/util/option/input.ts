@@ -4,13 +4,12 @@ import {
   FreeSize,
   GarmentSize,
   GARMENT_SIZE,
-  LocateType,
   ShoesSize,
 } from "@/composable";
 
 import { range } from "lodash";
 import { computed } from "vue";
-import { SHIP_METHOD } from "@io-boxies/js-lib";
+import { LocateType, SHIP_METHOD } from "@io-boxies/js-lib";
 
 export const genderOpts = Object.keys(GENDER).map((x) => {
   return { label: x, value: x };

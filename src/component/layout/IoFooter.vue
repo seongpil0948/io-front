@@ -2,11 +2,36 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { enableStoreNet, disableStoreNet } from "@io-boxies/js-lib";
+import { useLogin } from "@io-boxies/vue-lib";
+import { useAuthStore } from "@/store";
 const router = useRouter();
 const isTest = import.meta.env.VITE_IS_TEST;
 const showTos = ref(false);
 function onTos() {
   showTos.value = true;
+}
+const authS = useAuthStore();
+const { emailLogin } = useLogin();
+async function loginShop() {
+  const data = await emailLogin("junhoi90@gmail.com", "0525cc");
+  if (data && data.user) {
+    authS.login(data.user);
+    router.goHome();
+  }
+}
+async function loginVendor() {
+  const data = await emailLogin("spchoi@gmail.com", "0525cc");
+  if (data && data.user) {
+    authS.login(data.user);
+    router.goHome();
+  }
+}
+async function loginUncle() {
+  const data = await emailLogin("bereshith_@naver.com", "0525cc");
+  if (data && data.user) {
+    authS.login(data.user);
+    router.goHome();
+  }
 }
 </script>
 
@@ -31,22 +56,23 @@ function onTos() {
         <br />
         사업자등록번호: 720-08-02296 | 문의: inoutboxofficial@gmail.com |
         고객센터 번호 : 010-7727-7428
-        <n-button text size="small" type="primary" @click="onTos">
-          이용약관 보기
-        </n-button>
+        <n-button size="small" @click="onTos"> 이용약관 보기 </n-button>
       </n-text>
       <n-space v-if="isTest === 'true'" justify="center">
         <!-- <<< TEMP <<< -->
         <n-button @click="router.push({ name: 'PlayGround' })">
           PlayGround
         </n-button>
+        <n-button @click="loginShop"> 쇼핑몰 </n-button>
+        <n-button @click="loginVendor"> 도매 </n-button>
+        <n-button @click="loginUncle"> 엉클 </n-button>
         <n-button @click="enableStoreNet"> enableStoreNet </n-button>
         <n-button @click="disableStoreNet"> disableStoreNet </n-button>
       </n-space>
     </n-space>
     <n-modal
       v-model:show="showTos"
-      style="width: 60vw; height: 60vh; overflow: auto"
+      style="width: 90vw; height: 80vh; overflow: auto"
       :bordered="false"
     >
       <term-of-service />
