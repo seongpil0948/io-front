@@ -36,18 +36,18 @@ export function matchCafeOrder(
         item.product_name ?? item.product_name_default;
       const orderCnt: TryNum = item.quantity;
       const prodId: TryStr = token.mallId + item.product_code;
-      const garment = userProd.find(
+      const shopProd = userProd.find(
         (x) => x.cafeProdId && x.cafeProdId === prodId
       );
-      const missing = garment === null || garment === undefined;
+      const missing = shopProd === null || shopProd === undefined;
       result.push({
         service: "CAFE",
         orderCnt: orderCnt ?? 1,
-        id: missing ? undefined : garment!.shopProdId,
+        id: missing ? undefined : shopProd!.shopProdId,
         inputId: prodId!,
-        color: missing ? undefined : garment!.color,
-        size: missing ? undefined : garment!.size,
-        prodName: missing ? undefined : garment!.prodName,
+        color: missing ? undefined : shopProd!.color,
+        size: missing ? undefined : shopProd!.size,
+        prodName: missing ? undefined : shopProd!.prodName,
         inputProdName: inputProdName!,
         optionValue: item.option_value,
         orderId,

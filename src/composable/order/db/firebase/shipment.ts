@@ -1,5 +1,5 @@
 import { isSamePickLocate } from "./../../../locate/pickup";
-import { IoShipment, GarmentOrder, IO_PAY_DB, ShipDB } from "@/composable";
+import { IoShipment, IoOrder, IO_PAY_DB, ShipDB } from "@/composable";
 import { iostore, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { useVendorsStore } from "@/store";
 import { uuidv4 } from "@firebase/util";
@@ -7,11 +7,8 @@ import { IoUser, userFireConverter } from "@io-boxies/js-lib";
 import { doc, runTransaction } from "firebase/firestore";
 import { getSrc } from "./order";
 // import { uuidv4 } from "@firebase/util";
-export const ShipmentFB: ShipDB<GarmentOrder> = {
-  approvePickUp: async function (
-    row: GarmentOrder,
-    expectedReduceCoin: number
-  ) {
+export const ShipmentFB: ShipDB<IoOrder> = {
+  approvePickUp: async function (row: IoOrder, expectedReduceCoin: number) {
     const vendorStore = useVendorsStore();
     const { getOrdRef, converterGarment } = getSrc();
     if (!row.shipManagerId) throw new Error("shipManagerId is null");
@@ -51,8 +48,8 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
 
       for (let i = 0; i < ord.items.length; i++) {
         const item = ord.items[i];
-        const prod = vendorStore.vendorGarments.find(
-          (g) => g.vendorProdId === item.vendorProdId
+        const prod = vendorStore.vendorProds.find(
+          (g) => g.vendorProdId === item.vendorProd.vendorProdId
         );
         // const vendorDoc = await transaction.get(
         //   doc(
@@ -63,7 +60,9 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
         //   )
         // );
         if (!prod)
-          throw new Error(`도매처 상품이 없습니다.: ${item.vendorProdId}`);
+          throw new Error(
+            `도매처 상품이 없습니다.: ${item.vendorProd.vendorProdId}`
+          );
         const vendor = validateUser(
           vendorStore.vendorById[item.vendorId],
           item.vendorId

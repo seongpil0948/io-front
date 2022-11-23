@@ -2,8 +2,8 @@
 import {
   getPickReqCols,
   pickReqDetailCols,
-  ProdOrderByShop,
-  ProdOrderCombined,
+  OrderItemByShop,
+  OrderItemCombined,
   SHIPMENT_DB,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ShipOrder,
@@ -28,13 +28,13 @@ const {
   checkedDetailKeys,
 } = useShipmentUncle(["BEFORE_APPROVE_PICKUP"]);
 
-const selectedData = ref<ProdOrderByShop | null>(null);
-function onClickDetail(data: ProdOrderByShop) {
+const selectedData = ref<OrderItemByShop | null>(null);
+function onClickDetail(data: OrderItemByShop) {
   selectedData.value = data;
 }
 
 const showApprovePickup = ref(false);
-const orderTargets = ref<ProdOrderCombined[]>([]);
+const orderTargets = ref<OrderItemCombined[]>([]);
 function updateReqOrderShow(val: boolean) {
   if (!val) orderTargets.value = [];
   showApprovePickup.value = val;
@@ -120,7 +120,7 @@ const reqCols = getPickReqCols(onClickDetail);
       :bordered="false"
       :columns="reqCols"
       :data="garmentOrdersByShop"
-      :row-key="(row: ProdOrderByShop) => row.shopId"
+      :row-key="(row: OrderItemByShop) => row.shopId"
       @update:checked-row-keys="onCheckRow"
     />
     <coin-reduce-confirm-modal

@@ -3,10 +3,10 @@ import { extractGarmentOrd } from "@/util";
 import {
   ORDER_GARMENT_DB,
   useShopUserGarments,
-  ProdOrderCombined,
-  ProdOrderByVendor,
+  OrderItemCombined,
+  OrderItemByVendor,
   ORDER_STATE,
-  GarmentOrder,
+  IoOrder,
   ShopUserGarment,
 } from "@/composable";
 import { defineStore, storeToRefs } from "pinia";
@@ -22,11 +22,11 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   const authStore = useAuthStore();
   const inStates = ref<ORDER_STATE[]>([]);
   const shopId = ref<string | null>(null);
-  const _orders = ref<GarmentOrder[]>([]);
+  const _orders = ref<IoOrder[]>([]);
   let orderUnSub: null | Unsubscribe = null;
-  let shopGarments = ref<ShopUserGarment[]>([]);
+  let shopProds = ref<ShopUserGarment[]>([]);
   let shopGarmentUnSub: null | Unsubscribe = null;
-  const _garmentOrders = ref<ProdOrderCombined[]>([]);
+  const _garmentOrders = ref<OrderItemCombined[]>([]);
   let initial = true;
 
   // >>> getter >>>
@@ -46,21 +46,21 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
       garmentOrders.value.reduce((acc, curr) => {
         const exist = acc.find((x) => x.vendorId === curr.vendorId);
         if (!exist) {
-          const account = curr.vendorGarment.userInfo.account;
+          const account = curr.vendorProd.userInfo.account;
           const accStr = `${account?.bank.toString()} ${account?.accountName} ${
             account?.accountNumber
           }`;
           acc.push({
             vendorId: curr.vendorId,
             vendorName:
-              curr.vendorGarment.userInfo.displayName ??
-              curr.vendorGarment.userInfo.userName,
+              curr.vendorProd.userInfo.displayName ??
+              curr.vendorProd.userInfo.userName,
             orderCnt: curr.orderCnt,
             pendingCnt: curr.pendingCnt,
             accountStr: account === undefined ? "미등록" : accStr,
             phone:
-              curr.vendorGarment.userInfo.phone ??
-              curr.vendorGarment.companyInfo?.managerPhone ??
+              curr.vendorProd.userInfo.phone ??
+              curr.vendorProd.companyInfo?.managerPhone ??
               "미등록",
             items: [curr],
           });
@@ -70,7 +70,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
         exist.pendingCnt += curr.pendingCnt;
         exist.items.push(curr);
         return acc;
-      }, [] as ProdOrderByVendor[])
+      }, [] as OrderItemByVendor[])
     );
   }
   const orders = computed(() => [..._orders.value]);
@@ -105,10 +105,10 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     async () => {
       if (shopId.value && orders.value) {
         await setExistOrderIds();
-        if (shopGarments.value) {
+        if (shopProds.value) {
           _garmentOrders.value = extractGarmentOrd(
             _orders.value,
-            shopGarments.value,
+            shopProds.value,
             vendorUserGarments.value
           );
         }
@@ -134,7 +134,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     initial = false;
     const { userProd, unsubscribe } = useShopUserGarments(shopId.value, null);
     // eslint-disable-next-line vue/no-ref-as-operand
-    shopGarments = userProd;
+    shopProds = userProd;
     shopGarmentUnSub = unsubscribe;
   }
 
@@ -152,7 +152,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     shopId.value = null;
     _orders.value = [];
     _garmentOrders.value = [];
-    shopGarments.value = [];
+    shopProds.value = [];
     initial = true;
   }
   function setInStates(states: ORDER_STATE[]) {
@@ -175,7 +175,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
 
   return {
     existOrderIds,
-    shopGarments,
+    shopProds,
     getOrders,
     unsubscribeAuth,
     garmentOrders,

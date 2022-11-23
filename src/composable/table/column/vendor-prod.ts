@@ -140,7 +140,7 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
         "updatedAt",
         "orderCnt",
         "pendingCnt",
-        "actualAmount.orderAmount",
+        "amount.orderAmount",
       ].map((x) => {
         return { key: x } as IoColOpt;
       })

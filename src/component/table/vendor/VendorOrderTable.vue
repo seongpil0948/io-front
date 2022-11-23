@@ -2,7 +2,7 @@
 import {
   getBasicColumns,
   ORDER_STATE,
-  ProdOrderCombined,
+  OrderItemCombined,
   useApproveOrder,
   useCancel,
 } from "@/composable";
@@ -30,7 +30,7 @@ const { checkedOrders, targetIds, targetOrdDbIds } = useApproveOrder({
 });
 const tableCol = computed(() => getBasicColumns(props.showPaidDate));
 
-const getRowKey = (row: ProdOrderCombined) => row.id;
+const getRowKey = (row: OrderItemCombined) => row.id;
 function onClickOrder(keys: string[]) {
   checkedOrders.value = keys;
 }

@@ -1,9 +1,9 @@
 import {
-  GarmentOrder,
+  IoOrder,
   IoColOpt,
   ORDER_STATE,
-  ProdOrderByVendor,
-  ProdOrderCombined,
+  OrderItemByVendor,
+  OrderItemCombined,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
@@ -20,8 +20,8 @@ const InfoCell = defineAsyncComponent(
 );
 
 interface orderTableParam {
-  garmentOrders: Ref<ProdOrderCombined[]>;
-  orders: Ref<GarmentOrder[]>;
+  garmentOrders: Ref<OrderItemCombined[]>;
+  orders: Ref<IoOrder[]>;
   updateOrderCnt: boolean;
   useChecker?: boolean;
   useAccountStr?: boolean;
@@ -32,12 +32,12 @@ export function useOrderTable(d: orderTableParam) {
   const msg = useMessage();
 
   const colKeys = [
-    "vendorGarment.userInfo.displayName",
+    "vendorProd.userInfo.displayName",
     "orderCnt",
-    "vendorGarment.vendorPrice",
-    "actualAmount.orderAmount",
-    "shopGarment.size",
-    "shopGarment.color",
+    "vendorProd.vendorPrice",
+    "amount.orderAmount",
+    "shopProd.size",
+    "shopProd.color",
   ].map((c) => {
     return { key: c } as IoColOpt;
   });
@@ -49,7 +49,7 @@ export function useOrderTable(d: orderTableParam) {
   if (d.useAccountStr === undefined || d.useAccountStr === true)
     byVendorColKeys.push({
       key: "accountStr",
-      cellRender: (row: ProdOrderByVendor) =>
+      cellRender: (row: OrderItemByVendor) =>
         h(
           NButton,
           {
@@ -67,7 +67,7 @@ export function useOrderTable(d: orderTableParam) {
   byVendorColKeys.push({
     key: "id",
     colRender: () => h(NText, {}, { default: () => "주문내역" }),
-    cellRender: (row: ProdOrderByVendor) =>
+    cellRender: (row: OrderItemByVendor) =>
       h(
         NButton,
         {
@@ -80,12 +80,12 @@ export function useOrderTable(d: orderTableParam) {
 
   const tableRef = ref<any>(null);
   const keyField = "id";
-  const selectedData = ref<ProdOrderByVendor | null>(null);
-  function onClickDetail(data: ProdOrderByVendor) {
+  const selectedData = ref<OrderItemByVendor | null>(null);
+  function onClickDetail(data: OrderItemByVendor) {
     selectedData.value = data;
   }
   const { columns: byVendorCol, checkedKeys: byVendorKeys } =
-    useTable<ProdOrderByVendor>({
+    useTable<OrderItemByVendor>({
       userId: auth.currUser.userInfo.userId,
       colKeys: byVendorColKeys,
       useChecker: d.useChecker ?? true,
@@ -96,7 +96,7 @@ export function useOrderTable(d: orderTableParam) {
     columns,
     checkedKeys: checkedDetailKeys,
     mapper,
-  } = useTable<ProdOrderCombined>({
+  } = useTable<OrderItemCombined>({
     userId: auth.currUser.userInfo.userId,
     colKeys,
     useChecker: d.useChecker ?? true,
@@ -114,24 +114,24 @@ export function useOrderTable(d: orderTableParam) {
       }
     },
   });
-  const tableCol = computed((): DataTableColumns<ProdOrderCombined> => {
+  const tableCol = computed((): DataTableColumns<OrderItemCombined> => {
     if (d.updateOrderCnt) {
       columns.value.forEach((x) => {
         if (x.key === "orderCnt") {
           x.title = "주문/미송";
           x.minWidth = "120";
           x.width = "120";
-          x.render = (prodOrder: ProdOrderCombined) => {
+          x.render = (orderItem: OrderItemCombined) => {
             const order = d.orders.value.find(
-              (o) => o.dbId === prodOrder.orderDbId
+              (o) => o.dbId === orderItem.orderDbId
             );
 
             return order
               ? h(ShopOrderCnt, {
                   order,
-                  prodOrder,
+                  orderItem,
                   onSubmitPost: () => {
-                    !prodOrder.vendorGarment.allowPending
+                    !orderItem.vendorProd.allowPending
                       ? msg.warning(
                           "해당상품은 미송을 잡을 수 없는 상품입니다.",
                           makeMsgOpt()
@@ -172,7 +172,7 @@ export function useOrderTable(d: orderTableParam) {
                 h(
                   NImage,
                   {
-                    src: x.vendorGarment?.titleImgs[0] ?? "/img/x.png",
+                    src: x.vendorProd?.titleImgs[0] ?? "/img/x.png",
                     width: "50",
                     height: "50",
                   },
@@ -187,16 +187,16 @@ export function useOrderTable(d: orderTableParam) {
                 h(
                   InfoCell,
                   {
-                    first: x.shopGarment.prodName,
-                    second: x.vendorGarment.vendorProdName,
-                    third: x.shopGarment.color + "/" + x.shopGarment.size,
+                    first: x.shopProd.prodName,
+                    second: x.vendorProd.vendorProdName,
+                    third: x.shopProd.color + "/" + x.shopProd.size,
                   },
                   {}
                 ),
             },
 
             ...columns.value.slice(1),
-          ] as DataTableColumns<ProdOrderCombined>
+          ] as DataTableColumns<OrderItemCombined>
         ).map((col) => {
           if (!col.minWidth && !col.width) {
             col.minWidth = "100";
@@ -217,7 +217,7 @@ export function useOrderTable(d: orderTableParam) {
         .map((y) => y.id)
     );
     if (selectedData.value) {
-      selectedData.value.items.forEach((z) => itemIds.add(z.id));
+      selectedData.value.items.forEach((z: any) => itemIds.add(z.id));
     }
     return itemIds;
   });

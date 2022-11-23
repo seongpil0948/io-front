@@ -39,19 +39,19 @@ function onEdit() {
       return msg.error("상품 작성란을 올바르게 작성 해주세요", makeMsgOpt());
     const info = await saveEditor();
     if (info) {
-      for (let i = 0; i < vendorStore.vendorGarments.length; i++) {
-        const garment = vendorStore.vendorGarments[i];
+      for (let i = 0; i < vendorStore.vendorProds.length; i++) {
+        const vendorProd = vendorStore.vendorProds[i];
         if (
-          garment.vendorProdId !== p.vendorProdId &&
-          garment.combineId === p.combineId
+          vendorProd.vendorProdId !== p.vendorProdId &&
+          vendorProd.combineId === p.combineId
         ) {
-          garment.info = info;
-          garment.vendorProdName = p.vendorProdName;
-          garment.vendorPrice = p.vendorPrice;
-          garment.allowPending = p.allowPending;
-          garment.titleImgs = p.titleImgs;
-          garment.bodyImgs = p.bodyImgs;
-          await garment.update();
+          vendorProd.info = info;
+          vendorProd.vendorProdName = p.vendorProdName;
+          vendorProd.vendorPrice = p.vendorPrice;
+          vendorProd.allowPending = p.allowPending;
+          vendorProd.titleImgs = p.titleImgs;
+          vendorProd.bodyImgs = p.bodyImgs;
+          await vendorProd.update();
         }
       }
       p.info = info;

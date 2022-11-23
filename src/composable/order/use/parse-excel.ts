@@ -2,7 +2,7 @@ import {
   GarmentOrderCondi,
   useShopUserGarments,
   Mapper,
-  GarmentOrder,
+  IoOrder,
   garmentOrderFromCondi,
   MapKey,
   synonymFilter,
@@ -21,7 +21,7 @@ export function useMappingOrderExcel(
   userId: string,
   fs: Ref<File[]>,
   existIds: Ref<Set<string>>,
-  onParse: (orders: GarmentOrder[]) => void,
+  onParse: (orders: IoOrder[]) => void,
   sheetIdx: Ref<number>,
   startRow: Ref<number>
 ) {

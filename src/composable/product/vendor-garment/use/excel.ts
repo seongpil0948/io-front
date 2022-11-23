@@ -74,10 +74,10 @@ export function useBatchVendorProd() {
       }
     }
   );
-  const { vendorGarments: existGarments } = useVendorsStore();
+  const { vendorProds: existGarments } = useVendorsStore();
   function parseDf(df: DataFrame) {
     // console.log("df.columns: ", df.columns);
-    const vendorGarments: VendorGarment[] = [];
+    const vendorProds: VendorGarment[] = [];
     df.apply((row: Series) => {
       const vendorProdName = String(row[0]);
       const vendorPrice = row[5];
@@ -106,18 +106,18 @@ export function useBatchVendorProd() {
         vendorProdPkgId: "",
         TBD: {},
       });
-      const exist = [...existGarments, ...vendorGarments].find(
+      const exist = [...existGarments, ...vendorProds].find(
         (x) => x.combineId === newGarment.combineId
       );
       newGarment.vendorProdPkgId = exist ? exist.vendorProdPkgId : uuidv4();
 
-      vendorGarments.push(newGarment);
+      vendorProds.push(newGarment);
       return row;
     });
 
-    console.log("vendorGarments:", vendorGarments);
-    vendorGarments.pop();
-    return vendorGarments;
+    console.log("vendorProds:", vendorProds);
+    vendorProds.pop();
+    return vendorProds;
   }
 
   function onBtnClick() {

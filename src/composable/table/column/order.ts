@@ -1,4 +1,4 @@
-import { ProdOrderCombined } from "@/composable/order";
+import { OrderItemCombined } from "@/composable/order";
 import { NImage, NText, DataTableColumns } from "naive-ui";
 import { computed, h, defineAsyncComponent } from "vue";
 import InfoCell from "@/component/table/InfoCell.vue";
@@ -28,7 +28,7 @@ export function usePendingOrderCols() {
             h(
               NImage,
               {
-                src: x.vendorGarment?.titleImgs[0] ?? "/img/x.png",
+                src: x.vendorProd?.titleImgs[0] ?? "/img/x.png",
                 width: "50",
                 height: "50",
               },
@@ -43,14 +43,14 @@ export function usePendingOrderCols() {
             h(
               InfoCell,
               {
-                first: x.shopGarment.prodName,
-                second: x.vendorGarment.vendorProdName,
-                third: x.shopGarment.color + "/" + x.shopGarment.size,
+                first: x.shopProd.prodName,
+                second: x.vendorProd.vendorProdName,
+                third: x.shopProd.color + "/" + x.shopProd.size,
               },
               {}
             ),
           sorter: (row1, row2) =>
-            row1.shopGarment.prodName.localeCompare(row2.shopGarment.prodName),
+            row1.shopProd.prodName.localeCompare(row2.shopProd.prodName),
         },
         {
           title: "도매이름",
@@ -85,7 +85,7 @@ export function usePendingOrderCols() {
         },
         {
           title: "판매금액",
-          key: "vendorGarment.vendorPrice",
+          key: "vendorProd.vendorPrice",
         },
         {
           title: "합계",
@@ -97,13 +97,13 @@ export function usePendingOrderCols() {
                 primary: true,
               },
               {
-                default: () => x.vendorGarment.vendorPrice * x.pendingCnt,
+                default: () => x.vendorProd.vendorPrice * x.pendingCnt,
               }
             ),
         },
         {
           title: "결제완료일",
-          key: "actualAmount.paidDate",
+          key: "amount.paidAt",
           render: (x) =>
             h(
               NText,
@@ -111,23 +111,23 @@ export function usePendingOrderCols() {
                 primary: true,
               },
               {
-                default: () => timeToDate(x.actualAmount.paidDate, "MIN"),
+                default: () => timeToDate(x.amount.paidAt, "MIN"),
               }
             ),
         },
         {
           key: "cancel",
           title: "취소접수",
-          render: (prodOrder: ProdOrderCombined) =>
+          render: (orderItem: OrderItemCombined) =>
             h(
               CancelButton,
               {
-                prodOrder,
+                orderItem,
               },
               { default: () => "취소요청" }
             ),
         },
-      ] as DataTableColumns<ProdOrderCombined>
+      ] as DataTableColumns<OrderItemCombined>
   );
   return { pendingOrderCols };
 }

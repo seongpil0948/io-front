@@ -6,7 +6,7 @@ import {
   useMapper,
   ORDER_GARMENT_DB,
   API_SERVICE_EX,
-  GarmentOrder,
+  IoOrder,
   MatchGarment,
   ShopGarment,
   useShopGarmentTable,
@@ -126,7 +126,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
           uid.value,
           token.mallId!
         );
-        let orders: GarmentOrder[] | undefined = undefined;
+        let orders: IoOrder[] | undefined = undefined;
         if (useMapping) {
           orders = parseCafeOrder(cafeOrds);
         } else if (useMatching) {

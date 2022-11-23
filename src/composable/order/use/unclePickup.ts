@@ -62,13 +62,13 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
 
   const orderShipsByShop = computed<ShipOrderByShop[]>(() =>
     orderShips.value.reduce((acc, curr) => {
-      const exist = acc.find((x) => x.shopId === curr.shopGarment.shopId);
+      const exist = acc.find((x) => x.shopId === curr.shopProd.shopId);
       if (!exist) {
         acc.push({
-          shopId: curr.shopGarment.shopId,
+          shopId: curr.shopProd.shopId,
           shopName:
-            curr.shopGarment.userInfo.displayName ??
-            curr.shopGarment.userInfo.userName,
+            curr.shopProd.userInfo.displayName ??
+            curr.shopProd.userInfo.userName,
           items: [curr],
           uncleImgs: [imageById.value[curr.uncleId!]],
         });
@@ -193,12 +193,12 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
       },
       {
         title: "도매",
-        key: "vendorGarment.userInfo.displayName",
+        key: "vendorProd.userInfo.displayName",
       },
       {
         title: "도착지 주소",
         key: "receiveAddress.detailLocate",
-        // render: (row) => GarmentOrder.isShipping(row) ? ,
+        // render: (row) => IoOrder.isShipping(row) ? ,
       },
       {
         title: "출발지 주소",

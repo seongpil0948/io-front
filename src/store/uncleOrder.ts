@@ -1,12 +1,12 @@
 import { extractGarmentOrd, uniqueArr } from "@/util";
 import {
   ORDER_STATE,
-  GarmentOrder,
+  IoOrder,
   ShopUserGarment,
-  ProdOrderCombined,
+  OrderItemCombined,
   ORDER_GARMENT_DB,
   SHOP_GARMENT_DB,
-  ProdOrderByShop,
+  OrderItemByShop,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { Unsubscribe } from "@firebase/util";
@@ -21,10 +21,10 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   const vendorStore = useVendorsStore();
   const inStates = ref<ORDER_STATE[]>([]);
   const uncleId = ref<string | null>(null);
-  const _orders = ref<GarmentOrder[]>([]);
+  const _orders = ref<IoOrder[]>([]);
   let orderUnSub: null | Unsubscribe = null;
-  const shopGarments = ref<ShopUserGarment[]>([]);
-  const _garmentOrders = ref<ProdOrderCombined[]>([]);
+  const shopProds = ref<ShopUserGarment[]>([]);
+  const _garmentOrders = ref<OrderItemCombined[]>([]);
   let initial = true;
   // >>> getter >>>
   const orders = computed(() => [..._orders.value]);
@@ -48,55 +48,55 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   function getGarmentOrdersByShop(garmentOrders: typeof _garmentOrders) {
     return computed(() =>
       garmentOrders.value.reduce((acc, curr) => {
-        const exist = acc.find((x) => x.shopId === curr.shopGarment.shopId);
+        const exist = acc.find((x) => x.shopId === curr.shopProd.shopId);
         if (!exist) {
           acc.push({
-            shopId: curr.shopGarment.shopId,
+            shopId: curr.shopProd.shopId,
             shopName:
-              curr.shopGarment.userInfo.displayName ??
-              curr.shopGarment.userInfo.userName,
+              curr.shopProd.userInfo.displayName ??
+              curr.shopProd.userInfo.userName,
             items: [curr],
           });
           return acc;
         }
         exist.items.push(curr);
         return acc;
-      }, [] as ProdOrderByShop[])
+      }, [] as OrderItemByShop[])
     );
   }
   function getOrdersByShop(garmentOrders: typeof _garmentOrders) {
     return computed(() =>
       garmentOrders.value.reduce((acc, curr) => {
-        const exist = acc.find((x) => x.shopId === curr.shopGarment.shopId);
+        const exist = acc.find((x) => x.shopId === curr.shopProd.shopId);
         if (!exist) {
           acc.push({
-            shopId: curr.shopGarment.shopId,
+            shopId: curr.shopProd.shopId,
             shopName:
-              curr.shopGarment.userInfo.displayName ??
-              curr.shopGarment.userInfo.userName,
+              curr.shopProd.userInfo.displayName ??
+              curr.shopProd.userInfo.userName,
             items: [curr],
           });
           return acc;
         }
         exist.items.push(curr);
         return acc;
-      }, [] as ProdOrderByShop[])
+      }, [] as OrderItemByShop[])
     );
   }
 
   watchEffect(async () => {
     if (orders.value.length > 0) {
-      shopGarments.value = [];
+      shopProds.value = [];
       const shopIds = uniqueArr(orders.value.map((x) => x.shopId));
       const vendorIds = uniqueArr(orders.value.flatMap((x) => x.vendorIds));
-      const vendorGarments = vendorStore.vendorUserGarments.filter((x) =>
+      const vendorProds = vendorStore.vendorUserGarments.filter((x) =>
         vendorIds.includes(x.vendorId)
       );
-      shopGarments.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
+      shopProds.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
       _garmentOrders.value = extractGarmentOrd(
         orders.value,
-        shopGarments.value,
-        vendorGarments
+        shopProds.value,
+        vendorProds
       );
     }
   });
@@ -147,12 +147,12 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
       orderUnSub();
       orderUnSub = null;
     }
-    shopGarments.value = [];
+    shopProds.value = [];
     inStates.value = [];
     uncleId.value = null;
     _orders.value = [];
     _garmentOrders.value = [];
-    shopGarments.value = [];
+    shopProds.value = [];
     initial = true;
   }
 

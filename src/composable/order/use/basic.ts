@@ -1,24 +1,24 @@
-import { GarmentOrder, useAlarm } from "@/composable";
+import { IoOrder, useAlarm } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
 import { ref, computed, Ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { ORDER_GARMENT_DB } from "../db";
-import { ProdOrderCombined } from "../domain";
+import { OrderItemCombined } from "../domain";
 import { DataFrame, toExcel } from "danfojs";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
 
 export function useOrderBasic(
   user: IoUser,
-  garmentOrders: Ref<ProdOrderCombined[]>,
-  orders: Ref<GarmentOrder[]>,
+  garmentOrders: Ref<OrderItemCombined[]>,
+  orders: Ref<IoOrder[]>,
   checkedKeys: Ref<string[]>
 ) {
   const log = useLogger();
   const msg = useMessage();
   const smtp = useAlarm();
-  const orderTargets = ref<ProdOrderCombined[]>([]);
+  const orderTargets = ref<OrderItemCombined[]>([]);
   const expectedReduceCoin = computed(
     () => IO_COSTS.REQ_ORDER * orderTargets.value.length
   );
@@ -80,7 +80,7 @@ export function useOrderBasic(
       checkedKeys.value.includes(x[keyField]!)
     );
     const ids = targetProds.map((prod) => prod.id);
-    const targets: GarmentOrder[] = [];
+    const targets: IoOrder[] = [];
     for (let i = 0; i < ids.length; i++) {
       const prodOrderId = ids[i];
       for (let j = 0; j < orders.value.length; j++) {
@@ -94,7 +94,7 @@ export function useOrderBasic(
             }
           } else {
             ord.items.splice(k, 1);
-            await ord.update();
+            await ORDER_GARMENT_DB.updateOrder(ord);
           }
         }
       }
@@ -148,7 +148,7 @@ export function useOrderBasic(
   };
 }
 
-export function downProdOrders(gOrders: ProdOrderCombined[]) {
+export function downProdOrders(gOrders: OrderItemCombined[]) {
   const df = pOrdersToFrame(gOrders);
   toExcel(df, { fileName: "testOut.xlsx" });
   const a = document.createElement("a");
@@ -159,21 +159,20 @@ export function downProdOrders(gOrders: ProdOrderCombined[]) {
   a.remove();
 }
 
-export function pOrdersToFrame(gOrders: ProdOrderCombined[]): DataFrame {
+export function pOrdersToFrame(gOrders: OrderItemCombined[]): DataFrame {
   const df = new DataFrame(
     gOrders.map((x) => {
       return {
-        소매상품명: x.shopGarment.prodName,
-        도매상품명: x.vendorGarment.vendorProdName,
-        컬러: x.vendorGarment.color,
-        사이즈: x.vendorGarment.size,
+        소매상품명: x.shopProd.prodName,
+        도매상품명: x.vendorProd.vendorProdName,
+        컬러: x.vendorProd.color,
+        사이즈: x.vendorProd.size,
         도매처:
-          x.vendorGarment.userInfo.displayName ??
-          x.vendorGarment.userInfo.userName,
+          x.vendorProd.userInfo.displayName ?? x.vendorProd.userInfo.userName,
         주문수량: x.orderCnt,
         미송수량: x.pendingCnt,
-        도매가: x.vendorGarment.vendorPrice,
-        합계: x.orderCnt * x.vendorGarment.vendorPrice,
+        도매가: x.vendorProd.vendorPrice,
+        합계: x.orderCnt * x.vendorProd.vendorPrice,
       };
     })
   );

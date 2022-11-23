@@ -1,4 +1,10 @@
-import { QuerySnapshot } from "@firebase/firestore";
+import {
+  QuerySnapshot,
+  QueryDocumentSnapshot,
+  WithFieldValue,
+  Timestamp,
+} from "@firebase/firestore";
+import { commonToJson, loadDate } from "@io-boxies/js-lib";
 
 export function handleReadSnap<T>(
   snap: QuerySnapshot<T | null>,
@@ -25,3 +31,18 @@ export function handleReadSnap<T>(
   });
   return arr;
 }
+
+function commonFromJson(data: { [k: string]: any }) {
+  Object.keys(data).forEach((k) => {
+    if (data[k] instanceof Timestamp) {
+      data[k] = loadDate(data[k]);
+    }
+  });
+  return data;
+}
+
+export const fireConverter = <T>() => ({
+  toFirestore: (data: WithFieldValue<T>) => commonToJson(data),
+  fromFirestore: (snap: QueryDocumentSnapshot) =>
+    commonFromJson(snap.data()) as T,
+});

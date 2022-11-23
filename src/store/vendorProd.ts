@@ -15,10 +15,10 @@ export const useVendorsStore = defineStore(
     console.log(`=== called useVendorsStore === `);
     const vendors = ref<IoUser[]>([]);
     const obj = VENDOR_GARMENT_DB.batchReadListen([]);
-    const vendorGarments = obj.items;
+    const vendorProds = obj.items;
 
     const isInitial = computed<boolean>(
-      () => vendors.value.length === 0 && vendorGarments.value.length === 0
+      () => vendors.value.length === 0 && vendorProds.value.length === 0
     );
 
     const vendorById = computed<{ [userId: string]: IoUser }>(() =>
@@ -29,7 +29,7 @@ export const useVendorsStore = defineStore(
     );
 
     const vendorUserGarments = computed<VendorUserGarment[]>(() => {
-      return vendorGarments.value
+      return vendorProds.value
         .map((p) => {
           return vendorById.value[p.vendorId]
             ? Object.assign({}, vendorById.value[p.vendorId], p)
@@ -81,7 +81,7 @@ export const useVendorsStore = defineStore(
     return {
       vendors,
       vendorById,
-      vendorGarments,
+      vendorProds,
       vendorUserGarments,
       isInitial,
       vendorUserCombinedGarments,

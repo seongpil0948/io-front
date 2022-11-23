@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { type FormInst, useMessage, useDialog } from "naive-ui";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { uuidv4 } from "@firebase/util";
 import { useRouter } from "vue-router";
-import { useLogger } from "vue-logger-plugin";
 import {
   catchError,
   GARMENT_SIZE,
   GENDER,
   getVendorProdCombineId,
   PART,
+  PROD_TYPE,
   useBatchVendorProd,
   useVendorProdCols,
   VendorGarment,
@@ -95,7 +95,7 @@ watchEffect(
 function changePart() {
   prodModel.value.ctgr = ctgrOpts.value[0].value;
 }
-const { vendorGarments: existGarments } = useVendorsStore();
+const { vendorProds: existGarments } = useVendorsStore();
 const cs = useCommonStore();
 async function onRegister() {
   formRef.value?.validate(async (errors) => {
@@ -130,6 +130,7 @@ async function onRegister() {
               stockCnt: stockCnts.value![size][color],
               TBD: {},
               vendorProdPkgId,
+              prodType: "GARMENT" as PROD_TYPE,
             })
           )
         );

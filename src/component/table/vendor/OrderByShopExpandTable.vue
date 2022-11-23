@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NButton, NSpace } from "naive-ui";
-import { ORDER_STATE, ProdOrderByShop, useApproveOrder } from "@/composable";
+import { ORDER_STATE, OrderItemByShop, useApproveOrder } from "@/composable";
 import { useAuthStore } from "@/store";
 import { IO_COSTS } from "@/constants";
 import { useVendorOrderStore } from "@/store/vendorOrder";
@@ -41,7 +41,7 @@ const {
   expandCol: true,
   detailCol: false,
 });
-function getRowKey(row: ProdOrderByShop) {
+function getRowKey(row: OrderItemByShop) {
   return row.shopId;
 }
 </script>

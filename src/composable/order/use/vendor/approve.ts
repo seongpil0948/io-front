@@ -1,11 +1,12 @@
 import { getUserName, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import {
-  GarmentOrder,
+  IoOrder,
   IoPay,
   ORDER_GARMENT_DB,
-  ProdOrderByShop,
-  ProdOrderCombined,
+  OrderItemByShop,
+  OrderItemCombined,
   useAlarm,
+  dividePartial,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { logger } from "@/plugin/logger";
@@ -25,8 +26,8 @@ const GarmentOrderRow = defineAsyncComponent(
   () => import("@/component/table/vendor/GarmentOrderRow.vue")
 );
 interface ApproveParam {
-  garmentOrders: Ref<ProdOrderCombined[]>;
-  orders: Ref<GarmentOrder[]>;
+  garmentOrders: Ref<OrderItemCombined[]>;
+  orders: Ref<IoOrder[]>;
   vendorId: string;
   expandCol: boolean;
   detailCol: boolean;
@@ -71,7 +72,12 @@ export function useApproveOrder(p: ApproveParam) {
               "부분승인은 개수는 주문개수 이하로 설정 되어야합니다."
             );
           }
-          const newId = await o.dividePartial(item.id, numOfAllow.value, false);
+          const newId = await dividePartial({
+            order: o,
+            itemId: item.id,
+            orderCnt: numOfAllow.value,
+            update: false,
+          });
           const docRef = doc(
             getIoCollection({ c: IoCollection.IO_PAY }),
             o.shopId
@@ -81,22 +87,23 @@ export function useApproveOrder(p: ApproveParam) {
           if (docSnap.exists() && userPay) {
             updateDoc(docRef, { pendingBudget: userPay.pendingBudget + 1 });
           }
-          o.update().then(() =>
-            ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [newId])
-              .then(async () => {
-                msg.success("부분승인 완료", makeMsgOpt());
-              })
-              .catch((err) => {
-                const message = `부분승인 실패 ${
-                  err instanceof Error ? err.message : JSON.stringify(err)
-                }`;
-                msg.error(message, makeMsgOpt());
-                logger.error(p.vendorId, message);
-              })
-              .finally(() => {
-                onCloseModal(false);
-              })
-          );
+          await ORDER_GARMENT_DB.updateOrder(o);
+          ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [newId])
+            .then(async () => {
+              msg.success("부분승인 완료", makeMsgOpt());
+            })
+            .catch((err) => {
+              const message = `부분승인 실패 ${
+                err instanceof Error ? err.message : JSON.stringify(err)
+              }`;
+              msg.error(message, makeMsgOpt());
+              logger.error(p.vendorId, message);
+            })
+            .finally(() => {
+              onCloseModal(false);
+            });
+          orderTargets.value = [];
+          checkedShops.value = [];
 
           break;
         }
@@ -104,7 +111,7 @@ export function useApproveOrder(p: ApproveParam) {
     }
   }
   // >>> Order >>>
-  const orderTargets = ref<ProdOrderCombined[]>([]);
+  const orderTargets = ref<OrderItemCombined[]>([]);
   const targetIds = computed(() => {
     const itemIds = new Set<string>();
     for (let i = 0; i < p.orders.value.length; i++) {
@@ -188,6 +195,7 @@ export function useApproveOrder(p: ApproveParam) {
       })
       .finally(() => {
         orderTargets.value = [];
+        checkedOrders.value = [];
         updateOrderModal(false);
       });
   }
@@ -237,6 +245,7 @@ export function useApproveOrder(p: ApproveParam) {
       })
       .finally(() => {
         orderTargets.value = [];
+        checkedShops.value = [];
         updateOrderModal(false);
       });
   }
@@ -319,7 +328,7 @@ export function useApproveOrder(p: ApproveParam) {
       {
         type: "selection",
       },
-    ] as DataTableColumns<ProdOrderByShop>;
+    ] as DataTableColumns<OrderItemByShop>;
     if (p.expandCol)
       cols.push({
         type: "expand",
@@ -335,7 +344,7 @@ export function useApproveOrder(p: ApproveParam) {
               children.push(
                 h(GarmentOrderRow, {
                   garmentOrder,
-                  prodOrder: item,
+                  orderItem: item,
                   checked: checkedOrders.value.includes(item.id),
                   onClick: () => {
                     const cs = checkedOrders.value;
@@ -388,10 +397,10 @@ export function useApproveOrder(p: ApproveParam) {
           key: "orderAmount",
           render: (row) =>
             row.items
-              .reduce((acc, curr) => acc + curr.actualAmount.orderAmount, 0)
+              .reduce((acc, curr) => acc + curr.amount.orderAmount, 0)
               .toLocaleString(),
         },
-      ] as DataTableColumns<ProdOrderByShop>)
+      ] as DataTableColumns<OrderItemByShop>)
     );
     if (p.detailCol)
       cols.push({

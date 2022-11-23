@@ -1,11 +1,14 @@
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 
+export type PROD_TYPE = "GARMENT" | "GROCERY";
+
 export interface ProductCrt {
   createdAt?: Date;
   updatedAt?: Date;
   info: string | OutputData;
   description: string;
   TBD: { [k: string]: any };
+  prodType: PROD_TYPE;
 }
 export interface VendorProdCrt extends ProductCrt {
   vendorId: string;

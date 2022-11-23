@@ -2,7 +2,7 @@
 import CancelButton from "@/component/button/CancelButton.vue";
 import {
   ORDER_STATE,
-  ProdOrderCombined,
+  OrderItemCombined,
   useOrderTable,
   OrderCancel,
 } from "@/composable";
@@ -43,11 +43,11 @@ const columns = computed(() => [
   {
     key: "cancel",
     title: "취소접수",
-    render: (prodOrder: ProdOrderCombined) =>
+    render: (orderItem: OrderItemCombined) =>
       h(
         CancelButton,
         {
-          prodOrder,
+          orderItem,
 
           onCancelDone: async (val: OrderCancel) => {
             console.log("cancel claim: ", val);
@@ -93,7 +93,7 @@ const columns = computed(() => [
           :bordered="false"
           :columns="columns"
           :data="selectedData.items"
-          :row-key="(row: ProdOrderCombined) => row.id"
+          :row-key="(row: OrderItemCombined) => row.id"
         />
       </n-card>
     </n-space>

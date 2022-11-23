@@ -56,10 +56,10 @@ async function returnReq() {
   const prodOrderIds: string[] = [];
 
   for (let i = 0; i < returnTargets.length; i++) {
-    const prodOrder = returnTargets[i];
-    if (!orderDbIds.includes(prodOrder.orderDbId))
-      orderDbIds.push(prodOrder.orderDbId);
-    if (!prodOrderIds.includes(prodOrder.id)) prodOrderIds.push(prodOrder.id);
+    const orderItem = returnTargets[i];
+    if (!orderDbIds.includes(orderItem.orderDbId))
+      orderDbIds.push(orderItem.orderDbId);
+    if (!prodOrderIds.includes(orderItem.id)) prodOrderIds.push(orderItem.id);
   }
   ORDER_GARMENT_DB.returnReq(uniqueArr(orderDbIds), uniqueArr(prodOrderIds))
     .then(async () => {

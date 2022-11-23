@@ -3,7 +3,7 @@ import { CommonField } from "@/composable/common";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
-import type { GENDER, PART, GARMENT_SIZE } from "../domain";
+import type { GENDER, PART, GARMENT_SIZE, PROD_TYPE } from "../domain";
 import { VendorGarmentCrt } from "./domain";
 
 export class VendorGarment extends CommonField implements VendorGarmentCrt {
@@ -25,6 +25,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   info: string | OutputData;
   description: string; // 상품요약
   TBD: { [k: string]: any };
+  prodType: PROD_TYPE;
 
   async update() {
     this.updatedAt = new Date();
@@ -57,6 +58,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     this.info = d.info;
     this.description = d.description;
     this.TBD = d.TBD ?? {};
+    this.prodType = d.prodType;
   }
   get combineId() {
     return VendorGarment.combineId(this);
@@ -93,6 +95,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
         info: data.info,
         description: data.description,
         TBD: data.TBD ?? {},
+        prodType: data.prodType ?? "GARMENT",
       });
     } else {
       //   logger.error(null, "vendor product from json return null, data: ", data);

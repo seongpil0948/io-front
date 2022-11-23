@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { OrderCancel, ProdOrder, useCancel } from "@/composable";
+import { OrderCancel, OrderItem, useCancel } from "@/composable";
 import { toRefs, ref, computed } from "vue";
 import { useAuthStore } from "@/store";
 
 const props = defineProps<{
-  prodOrder: ProdOrder;
+  orderItem: OrderItem;
 }>();
 const emits = defineEmits<{
   (e: "cancelDone", value: OrderCancel): void;
 }>();
 
-const { prodOrder: p } = toRefs(props);
+const { orderItem: p } = toRefs(props);
 const { getCancel, cancelSelected } = useCancel();
 const auth = useAuthStore();
 const cancelCnt = ref(0);

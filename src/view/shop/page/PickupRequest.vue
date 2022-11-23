@@ -4,7 +4,7 @@ import {
   ORDER_STATE,
   ORDER_GARMENT_DB,
   useAlarm, // eslint-disable-next-line
-  ProdOrderCombined,
+  OrderItemCombined,
   useContactUncle,
 } from "@/composable";
 import { useShopOrderStore } from "@/store";
@@ -98,7 +98,7 @@ async function pickupRequest() {
         :bordered="false"
         :columns="tableCol"
         :data="selectedData.items"
-        :row-key="(row: ProdOrderCombined) => row.id"
+        :row-key="(row: OrderItemCombined) => row.id"
       />
     </n-card>
   </n-space>

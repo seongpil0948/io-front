@@ -82,9 +82,7 @@ async function onSubmit() {
     });
     await shopProd.update();
     if (
-      !shopOrdStore.shopGarments.find(
-        (x) => x.shopProdId == shopProd.shopProdId
-      )
+      !shopOrdStore.shopProds.find((x) => x.shopProdId == shopProd.shopProdId)
     ) {
       const vendorUnit = vendorStore.vendorUserGarments.find(
         (y) => y.vendorProdId === vendorProdId
@@ -101,8 +99,8 @@ async function onSubmit() {
           shopProd
         );
         shopOrdStore.$patch({
-          shopGarments: [
-            ...shopOrdStore.shopGarments,
+          shopProds: [
+            ...shopOrdStore.shopProds,
             userGarment,
           ] as ShopUserGarment[],
         });
