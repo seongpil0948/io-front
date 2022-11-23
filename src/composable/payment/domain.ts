@@ -1,10 +1,9 @@
 import { Ref } from "vue";
 import { IoPay } from "./model";
-export type PayMethod = "CASH" | "NO_BANKBOOK" | "CARD";
-export const PayMethod: { [key in PayMethod]: PayMethod } = Object.freeze({
+export type PAY_METHOD = "CASH" | "DEPOSIT";
+export const PAY_METHOD: { [key in PAY_METHOD]: PAY_METHOD } = Object.freeze({
   CASH: "CASH",
-  NO_BANKBOOK: "NO_BANKBOOK",
-  CARD: "CARD",
+  DEPOSIT: "DEPOSIT",
 });
 
 export type IO_BANKS =

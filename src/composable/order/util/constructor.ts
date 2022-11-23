@@ -1,4 +1,4 @@
-import { PayMethod } from "@/composable";
+import { PAY_METHOD } from "@/composable";
 import { BOOL_M } from "@/composable/common";
 import { VendorGarmentCrt, ShopGarmentCrt } from "@/composable/product";
 import { fireConverter } from "@/util";
@@ -33,7 +33,7 @@ export function newOrdItem(d: {
   paidAmount: number; // 지불된 금액
   paid: BOOL_M; // 지불여부
   paymentConfirm: boolean;
-  paymentMethod?: PayMethod;
+  paymentMethod?: PAY_METHOD;
   paidAt?: Date;
 }): OrderItem {
   const pureAmount = getPureAmount(d.orderCnt, d.vendorProd.vendorPrice);

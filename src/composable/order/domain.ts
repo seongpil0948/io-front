@@ -9,7 +9,7 @@ import {
   VendorGarmentCrt,
   ShopGarmentCrt,
 } from "@/composable/product";
-import { PayMethod } from "@/composable/payment";
+import { PAY_METHOD } from "@/composable/payment";
 import { BOOL_M } from "@/composable/common/domain";
 
 export interface OrderAmount {
@@ -23,7 +23,7 @@ export interface OrderAmount {
   pureAmount: number; // 순수 상품 금액 (로그용)
   orderAmount: number; // 주문 요청 금액
   paymentConfirm: boolean;
-  paymentMethod?: PayMethod;
+  paymentMethod?: PAY_METHOD;
   paidAt?: Date;
 }
 
