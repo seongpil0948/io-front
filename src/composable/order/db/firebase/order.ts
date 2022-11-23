@@ -165,7 +165,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       }
     });
     await Promise.all(
-      Object.keys(processedShops).map((x) => mergeOrders("BEFORE_ORDER", x))
+      Object.keys(processedShops).map((x) => mergeSameOrders("BEFORE_ORDER", x))
     );
   },
   orderApprove: async function (
@@ -232,7 +232,9 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       }
     });
     await Promise.all(
-      Object.keys(processedShops).map((x) => mergeOrders("BEFORE_PAYMENT", x))
+      Object.keys(processedShops).map((x) =>
+        mergeSameOrders("BEFORE_PAYMENT", x)
+      )
     );
   },
   orderGarment: async function (
@@ -300,7 +302,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       );
       return newOrds;
     });
-    await mergeOrders("BEFORE_APPROVE", shopId);
+    await mergeSameOrders("BEFORE_APPROVE", shopId);
     return result;
   },
   batchCreate: async function (uid: string, orders: GarmentOrder[]) {
@@ -578,7 +580,9 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
       }
     });
     await Promise.all(
-      Object.entries(data).map(([shopId, state]) => mergeOrders(state, shopId))
+      Object.entries(data).map(([shopId, state]) =>
+        mergeSameOrders(state, shopId)
+      )
     );
   },
   returnDone: async function (): Promise<void> {
@@ -621,7 +625,7 @@ export const OrderGarmentFB: OrderDB<GarmentOrder> = {
         doc(getOrdRef(order.shopId), order.dbId),
         converterGarment.toFirestore(order)
       );
-      mergeOrders("CANCEL", "shopId");
+      mergeSameOrders("CANCEL", "shopId");
     };
 
     if (item.orderCnt > cancelCnt) {
@@ -731,10 +735,10 @@ async function stateModify(
       }
     }
   });
-  await Promise.all(shopIds.map((x) => mergeOrders(afterState, x)));
+  await Promise.all(shopIds.map((x) => mergeSameOrders(afterState, x)));
 }
 
-async function mergeOrders(state: ORDER_STATE, shopId: string) {
+async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
   return await runTransaction(iostore, async (transaction) => {
     const { getOrdRef, converterGarment } = getSrc();
     const ordRef = getOrdRef(shopId);
@@ -742,7 +746,6 @@ async function mergeOrders(state: ORDER_STATE, shopId: string) {
       where("shopId", "==", shopId),
       where("states", "array-contains", state),
     ]);
-    // <<< 주문요청전 주문들을 가져온다. <<<
     for (let i = 0; i < orders.length; i++) {
       const order = orders[i];
       const vendorIds = order.vendorIds;
@@ -764,9 +767,12 @@ async function mergeOrders(state: ORDER_STATE, shopId: string) {
               item.orderType === existItem.orderType
             ) {
               exist = o;
-              // 이로직을 분리하여, 모든 주문건의 상태 변경 프로세스에 대하여 적용가능하도록
               exist.setOrderCnt(existItem.id, item.orderCnt, true);
               order.items.splice(j, 1);
+              order.itemIds.splice(
+                order.itemIds.findIndex((oid) => oid === item.id),
+                1
+              );
               if (order.items.length < 1) {
                 exist.orderIds = uniqueArr([
                   ...order.orderIds,

@@ -148,23 +148,6 @@ export interface ProdOrder {
   orderType: ORDER_TYPE;
 }
 
-interface Claim {
-  id: string;
-  prodOrderId: string;
-  reqDate: Date;
-  state: ORDER_STATE; // 요청시 주문상태
-  reason: string; // 클레임 상세 이유
-  type: REASON_TYPE; // 클레임 이유 분류
-  done: boolean; // 처리 완료여부
-  approved: boolean; // 승인 여부
-}
-
-export interface OrderExchange extends Claim {
-  exchangedDate?: Date; // 교환 완료일
-}
-export interface OrderCancel extends Claim {
-  canceledDate?: Date; // 취소 완료일
-}
 export interface ProdOrderCombined extends ProdOrder {
   shopGarment: ShopUserGarment;
   vendorGarment: VendorUserGarment;
@@ -235,6 +218,24 @@ export interface ShipmentCrt {
   receiveAddress: Locate; // 소매
   wishedDeliveryTime: Date;
   managerId: string; // 엉클관리자 아이디
+}
+
+interface Claim {
+  id: string;
+  prodOrderId: string;
+  reqDate: Date;
+  state: ORDER_STATE; // 요청시 주문상태
+  reason: string; // 클레임 상세 이유
+  type: REASON_TYPE; // 클레임 이유 분류
+  done: boolean; // 처리 완료여부
+  approved: boolean; // 승인 여부
+}
+
+export interface OrderExchange extends Claim {
+  exchangedDate?: Date; // 교환 완료일
+}
+export interface OrderCancel extends Claim {
+  canceledDate?: Date; // 취소 완료일
 }
 
 export interface OrderDB<T> {
