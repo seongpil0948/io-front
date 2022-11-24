@@ -1,4 +1,4 @@
-import { IoShipment } from "@/composable";
+import { IoShipment, DefrayParam } from "@/composable";
 import { CommonField } from "@io-boxies/js-lib";
 import { QueryConstraint } from "@firebase/firestore";
 import { Ref } from "vue";
@@ -10,16 +10,16 @@ import {
   ShopGarmentCrt,
 } from "@/composable/product";
 import { PAY_METHOD } from "@/composable/payment";
-import { BOOL_M } from "@/composable/common/domain";
+import { PAID_INFO } from "@/composable/common/domain";
 
 export interface OrderAmount {
   shipFeeAmount: number;
   shipFeeDiscountAmount: number;
   pickFeeAmount: number;
   pickFeeDiscountAmount: number;
-  tax: number;
+  tax: number; // 주문건 생성시부과하여 지불되야할 금액 orderAmount 에 더해진다
   paidAmount: number; // 지불된 금액
-  paid: BOOL_M; // 지불여부
+  paid: PAID_INFO; // 지불여부
   pureAmount: number; // 순수 상품 금액 (로그용)
   orderAmount: number; // 주문 요청 금액
   paymentConfirm: boolean;
@@ -46,7 +46,7 @@ export interface IoOrder extends CommonField {
   cancellations: OrderCancel[];
   prodTypes: PROD_TYPE[];
   shipManagerIds: string[];
-  paids: BOOL_M[];
+  paids: PAID_INFO[];
   orderTypes: ORDER_TYPE[];
 
   orderCnts: number;
@@ -277,7 +277,11 @@ export interface OrderDB<T> {
     prodOrderIds: string[]
   ): Promise<void>;
   orderReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
-  completePay(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  completePay(
+    orderDbIds: string[],
+    prodOrderIds: string[],
+    param: DefrayParam
+  ): Promise<void>;
   orderToReady(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
   reqPickup(
     orderDbIds: string[],

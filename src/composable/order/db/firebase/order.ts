@@ -36,6 +36,8 @@ import {
   isValidOrder,
   refreshOrder,
   dividePartial,
+  defrayAmount,
+  DefrayParam,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 
@@ -91,17 +93,24 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       },
     });
   },
-  completePay: async function (orderDbIds: string[], orderItemIds: string[]) {
+  completePay: async function (
+    orderDbIds: string[],
+    orderItemIds: string[],
+    param: DefrayParam
+  ) {
     await stateModify({
       orderDbIds,
       orderItemIds,
       afterState: "BEFORE_READY",
       beforeState: ["BEFORE_PAYMENT"],
       onItem: async function (po) {
-        po.amount.paidAt = new Date();
-        po.amount.paidAmount = po.amount.orderAmount;
-        po.amount.paid = "T";
-        // TODO: paymentMethod, paid, receive amount
+        // 한쇼핑몰에 속한 다른 주문건들 의 order Item들을 한 order 로 모아서 새로 생성
+        // 기존 주문건과 신규 주문사이에 정보이동 (orderId, amount)등 확인
+        console.log("completePay param: ", param);
+        console.log("before amount", po.amount);
+        const { newAmount, creditAmount } = defrayAmount(po.amount, param);
+        po.amount = newAmount;
+        console.log("new amount", creditAmount, newAmount);
         return po;
       },
     });
@@ -636,7 +645,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
 
     const processing = async (i: OrderItem, c: OrderCancel) => {
       const paid = i.amount.paid;
-      if (paid === "F") {
+      if (paid === "NO") {
         c.done = true;
         c.canceledDate = new Date();
         i.cancellation = c;

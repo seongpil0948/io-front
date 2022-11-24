@@ -1,5 +1,5 @@
 import { PAY_METHOD } from "@/composable";
-import { BOOL_M } from "@/composable/common";
+import { PAID_INFO } from "@/composable/common";
 import { VendorGarmentCrt, ShopGarmentCrt } from "@/composable/product";
 import { fireConverter } from "@/util";
 import { uuidv4 } from "@firebase/util";
@@ -31,7 +31,7 @@ export function newOrdItem(d: {
   pickFeeDiscountAmount: number;
   tax: number;
   paidAmount: number; // 지불된 금액
-  paid: BOOL_M; // 지불여부
+  paid: PAID_INFO; // 지불여부
   paymentConfirm: boolean;
   paymentMethod?: PAY_METHOD;
   paidAt?: Date;
@@ -131,7 +131,7 @@ export function emptyAmount(): OrderAmount {
     pickFeeDiscountAmount: 0,
     tax: 0,
     paidAmount: 0,
-    paid: BOOL_M.F,
+    paid: PAID_INFO.NO,
     pureAmount: 0,
     orderAmount: 0,
     paymentConfirm: false,

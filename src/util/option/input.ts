@@ -6,7 +6,7 @@ import {
   GARMENT_SIZE,
   ShoesSize,
 } from "@/composable";
-
+import { PAY_METHOD } from "@/composable/payment/domain";
 import { range } from "lodash";
 import { computed } from "vue";
 import { LocateType, SHIP_METHOD } from "@io-boxies/js-lib";
@@ -79,3 +79,14 @@ export const locateTypeOpt = computed(() =>
 );
 
 export const deadOpt = rangeOpts(1, 32, (n) => `${n}일`);
+
+export const payMethodOpts = [
+  {
+    label: "현금",
+    value: PAY_METHOD.CASH,
+  },
+  {
+    label: "입금",
+    value: PAY_METHOD.DEPOSIT,
+  },
+];

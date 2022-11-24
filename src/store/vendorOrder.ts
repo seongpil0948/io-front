@@ -38,7 +38,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
       : vendorStore.vendorUserGarments
   );
   function getVendorOrderGarments(orders: typeof _orders) {
-    return computed(() =>
+    return computed<VendorUserOrderGarment[]>(() =>
       vendorProds.value
         .map((x) => {
           let vendorProd: VendorUserOrderGarment | null = null;
@@ -58,7 +58,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
 
           return vendorProd;
         })
-        .filter((y) => y)
+        .filter((y) => y !== null)
     );
   }
   function getGarmentOrdersByShop(garmentOrders: typeof _garmentOrders) {

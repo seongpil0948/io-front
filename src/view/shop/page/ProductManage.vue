@@ -81,7 +81,7 @@ async function onCheckedOrder() {
       pickFeeDiscountAmount: 0,
       tax: 0,
       paidAmount: 0,
-      paid: "F",
+      paid: "NO",
       paymentConfirm: false,
     });
     const order = newOrdFromItem([item]);

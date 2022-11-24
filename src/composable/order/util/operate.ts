@@ -1,10 +1,16 @@
-import { BOOL_M } from "@/composable/common";
+import { PAY_METHOD } from "@/composable";
+import { PAID_INFO } from "@/composable/common";
 import { uuidv4 } from "@firebase/util";
 import { uniqueArr } from "@io-boxies/js-lib";
 import cloneDeep from "lodash.clonedeep";
 import { refreshOrder } from ".";
 import { ORDER_GARMENT_DB } from "../db";
-import { IoOrder, OrderItemCombined, ORDER_STATE } from "../domain";
+import {
+  IoOrder,
+  OrderAmount,
+  OrderItemCombined,
+  ORDER_STATE,
+} from "../domain";
 import {
   getPendingCnt,
   getActiveCnt,
@@ -19,7 +25,7 @@ export function setOrderCnt(
   prodOrderId: string,
   orderCnt: number,
   add = true,
-  paid = BOOL_M.F
+  paid = PAID_INFO.NO
 ) {
   // 0. find prod order
   const targetIdx = order.items.findIndex((x) => x.id === prodOrderId);
@@ -110,4 +116,29 @@ export async function dividePartial(d: {
     await ORDER_GARMENT_DB.updateOrder(d.order);
   }
   return newOrder.id;
+}
+
+export interface DefrayParam {
+  paidAmount: number;
+  tax: number;
+  payMethod: PAY_METHOD;
+}
+export function defrayAmount(target: OrderAmount, d: DefrayParam) {
+  const t = cloneDeep(target);
+  if (t.tax !== d.tax) {
+    t.orderAmount = getOrderAmount(Object.assign({}, t, { tax: d.tax }));
+  }
+  t.paidAt = new Date();
+  t.paidAmount = d.paidAmount;
+  t.paymentConfirm = true;
+  t.paymentMethod = d.payMethod;
+  const creditAmount = t.orderAmount - t.paidAmount;
+  if (t.orderAmount === t.paidAmount) {
+    t.paid = "EXACT";
+  } else if (t.orderAmount > t.paidAmount) {
+    t.paid = "CREDIT";
+  } else if (t.orderAmount < t.paidAmount) {
+    t.paid = "OVERCOME";
+  }
+  return { newAmount: t, creditAmount };
 }

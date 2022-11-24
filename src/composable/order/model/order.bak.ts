@@ -1,6 +1,6 @@
 // import { VendorUserGarment } from "./../../product/vendor-garment/domain";
 // import {
-//   BOOL_M,
+//   PAID_INFO,
 //   OrderAmount,
 //   OrderCrt,
 //   OrderParent,
@@ -340,7 +340,7 @@
 //     prodOrderId: string,
 //     orderCnt: number,
 //     add = true,
-//     paid = BOOL_M.F,
+//     paid = PAID_INFO.F,
 //     refreshInitial = true
 //   ) {
 //     // 0. find prod order
@@ -475,7 +475,7 @@
 //     pickFeeDiscountAmount: 0,
 //     tax: 0,
 //     paidAmount: 0,
-//     paid: BOOL_M.F,
+//     paid: PAID_INFO.F,
 //     pureAmount: 0,
 //     orderAmount: 0,
 //     paymentConfirm: false,

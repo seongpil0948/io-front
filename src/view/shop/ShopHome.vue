@@ -22,7 +22,7 @@ const amountNotPaid = computed(() => {
   return garmentOrders.value
     .map((x) => x.amount)
     .reduce((acc, curr) => {
-      const notPaidAmount = curr.paid ? 0 : curr.orderAmount - curr.paidAmount;
+      const notPaidAmount = curr.orderAmount - curr.paidAmount;
       return acc + notPaidAmount;
     }, 0)
     .toLocaleString();
