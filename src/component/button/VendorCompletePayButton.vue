@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ORDER_GARMENT_DB, PAY_METHOD } from "@/composable";
+import { ORDER_GARMENT_DB, OrderItem, useCompletePay } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { useAuthStore } from "@/store";
 import { getUserName, IoUser, USER_DB } from "@io-boxies/js-lib";
 import { makeMsgOpt, useAlarm } from "@io-boxies/vue-lib";
 import { NButton, useMessage } from "naive-ui";
 import { Size, Type } from "naive-ui/es/button/src/interface";
-import { ref, toRefs, watchEffect } from "vue";
+import { ref, toRefs, watchEffect, computed } from "vue";
 import ReceiptCard from "@/component/card/vendor/ReceiptCard.vue";
 import { payMethodOpts } from "@/util";
 const props = defineProps<{
   targetOrdDbIds: string[];
-  targetOrdItemIds: string[];
+  items: OrderItem[];
   targetShopIds: string[];
   buttonText: string;
   buttonClass?: string;
@@ -20,13 +20,10 @@ const props = defineProps<{
   size?: Size;
   beforePay?: () => Promise<void>;
 }>();
-const {
-  targetOrdDbIds,
-  targetOrdItemIds,
-  targetShopIds,
-  buttonText,
-  buttonClass,
-} = toRefs(props);
+const { items, targetShopIds, buttonText, buttonClass, targetOrdDbIds } =
+  toRefs(props);
+const targetOrdItemIds = computed(() => items.value.map((x) => x.id));
+
 const msg = useMessage();
 const { sendAlarm } = useAlarm();
 const auth = useAuthStore();
@@ -41,20 +38,20 @@ watchEffect(async () => {
   targetShop.value = await USER_DB.getUserById(ids[0]);
 });
 
-const showModal = ref(false);
+const {
+  payMethod,
+  showModal,
+  tax,
+  paidAmount,
+  orderAmounts,
+  receiptRef,
+  onPrint,
+} = useCompletePay({ items });
 
 async function applyCredit() {
   console.log("applyCredit");
 }
-const receiptRef = ref<typeof ReceiptCard | null>(null);
-function onPrint() {
-  if (!receiptRef.value) return msg.error("다시 시도");
-  receiptRef.value.printReceipt();
-}
 
-const payMethod = ref<PAY_METHOD>("CASH");
-const tax = ref(false);
-const paidAmount = ref(0);
 async function completePay() {
   if (props.beforePay) {
     await props.beforePay();
@@ -126,6 +123,8 @@ async function completePay() {
           :options="payMethodOpts"
           placeholder="결제방식"
         />
+        <n-text>총 결제 금액: {{ orderAmounts }}</n-text>
+
         <n-text>받은금액</n-text>
         <n-input-number
           v-model:value="paidAmount"
@@ -141,14 +140,3 @@ async function completePay() {
     </template>
   </n-modal>
 </template>
-
-<style>
-#receipt-card {
-  width: 45vw;
-  height: 80vh;
-  overflow: auto;
-}
-.black-divider {
-  border-top: 1px solid black;
-}
-</style>

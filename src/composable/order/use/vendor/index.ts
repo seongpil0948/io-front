@@ -2,7 +2,9 @@ import { DataTableColumns } from "naive-ui";
 import { OrderItemCombined } from "../../domain";
 
 export * from "./approve";
+export * from "./pay";
 
+// FIXME: 왜 여깄어 너?
 export function getBasicColumns(
   showPaidDate: boolean
 ): DataTableColumns<OrderItemCombined> {

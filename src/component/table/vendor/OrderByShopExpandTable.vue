@@ -30,7 +30,6 @@ const {
   orderTargets,
   showPartialModal,
   numOfAllow,
-  targetIds,
   targetOrdDbIds,
   targetShopIds,
   onProdReady,
@@ -67,7 +66,7 @@ function getRowKey(row: OrderItemByShop) {
       <n-space v-else-if="inStates?.includes('BEFORE_PAYMENT')">
         <vendor-complete-pay-button
           :target-ord-db-ids="[...targetOrdDbIds]"
-          :target-ord-item-ids="[...targetIds]"
+          :items="orderTargets"
           :target-shop-ids="targetShopIds"
           button-text="결제완료"
           type="primary"

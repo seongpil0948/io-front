@@ -61,3 +61,5 @@ export function isShipping(item: OrderItem) {
     "SHIPPING_COMPLETE",
   ].includes(item.state);
 }
+
+export const getTax = (amount: number) => Math.round(amount / 100) * 10;
