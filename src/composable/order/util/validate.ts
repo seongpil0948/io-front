@@ -16,8 +16,9 @@ export function isValidOrderItem(o: OrderItem | OrderItemCombined): void {
     throw new Error("invalid amount");
   } else if (o.pendingCnt > 0 && o.vendorProd && !o.vendorProd.allowPending) {
     throw new Error("invalid allowPending");
-  } else if (!o.orderDbId)
-    throw new Error(`order item(${o.id}) orderDbId is null`);
+  }
+  // else if (!o.orderDbId)
+  //   throw new Error(`order item(${o.id}) orderDbId is null`);
 }
 
 export function isValidAmount(a: OrderAmount) {

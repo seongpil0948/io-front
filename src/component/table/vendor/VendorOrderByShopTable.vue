@@ -40,7 +40,6 @@ const {
   detailShopIds,
   columns,
   checkedOrders,
-  targetIds,
   targetOrdDbIds,
   targetShopIds,
 } = useApproveOrder({
@@ -107,11 +106,11 @@ function onClickOrder(keys: string[]) {
         <n-space v-else-if="inStates?.includes('BEFORE_PAYMENT')">
           <vendor-complete-pay-button
             :target-ord-db-ids="[...targetOrdDbIds]"
-            :target-ord-item-ids="[...targetIds]"
+            :items="orderTargets"
             :target-shop-ids="targetShopIds"
             button-text="결제완료"
-            button-class="under-bar"
-            :is-text="true"
+            type="primary"
+            size="small"
           />
         </n-space>
         <n-space v-else-if="inStates?.includes('RETURN_REQ')">

@@ -7,6 +7,8 @@ import {
   OrderItemCombined,
   useAlarm,
   dividePartial,
+  VendorGarment,
+  OrderItem,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { logger } from "@/plugin/logger";
@@ -25,6 +27,20 @@ import { doc, getDoc, updateDoc } from "@firebase/firestore";
 const GarmentOrderRow = defineAsyncComponent(
   () => import("@/component/table/vendor/GarmentOrderRow.vue")
 );
+export async function reduceStockCnt(
+  vendorProd: VendorGarment,
+  orderItem: OrderItem
+) {
+  if (vendorProd.stockCnt < orderItem.orderCnt)
+    throw new Error(
+      `${vendorProd.vendorProdName}상품의 재고개수(${vendorProd.stockCnt})가 주문개수(${orderItem.orderCnt}) 보다 적습니다.`
+    );
+  else {
+    vendorProd.stockCnt -= orderItem.orderCnt;
+    await vendorProd.update();
+  }
+}
+
 interface ApproveParam {
   garmentOrders: Ref<OrderItemCombined[]>;
   orders: Ref<IoOrder[]>;
@@ -102,7 +118,7 @@ export function useApproveOrder(p: ApproveParam) {
             .finally(() => {
               onCloseModal(false);
             });
-          orderTargets.value = [];
+          targetIds.value.clear();
           checkedShops.value = [];
 
           break;
@@ -111,7 +127,9 @@ export function useApproveOrder(p: ApproveParam) {
     }
   }
   // >>> Order >>>
-  const orderTargets = ref<OrderItemCombined[]>([]);
+  const orderTargets = computed<OrderItemCombined[]>(() =>
+    p.garmentOrders.value.filter((x) => targetIds.value.has(x.id))
+  );
   const targetIds = computed(() => {
     const itemIds = new Set<string>();
     for (let i = 0; i < p.orders.value.length; i++) {
@@ -158,7 +176,7 @@ export function useApproveOrder(p: ApproveParam) {
   }
 
   async function approveGarments() {
-    const prodIds = orderTargets.value.map((x) => x.id);
+    const prodIds = [...targetIds.value];
     const orderDBIds: string[] = [];
     const shopIds = [] as string[];
     for (let i = 0; i < p.orders.value.length; i++) {
@@ -194,21 +212,18 @@ export function useApproveOrder(p: ApproveParam) {
         logger.error(p.vendorId, message);
       })
       .finally(() => {
-        orderTargets.value = [];
+        targetIds.value.clear();
         checkedOrders.value = [];
         updateOrderModal(false);
       });
   }
 
   function approveSelected() {
-    orderTargets.value = p.garmentOrders.value.filter((x) =>
-      targetIds.value.has(x.id)
-    );
     showOrderModal.value = true;
   }
 
   function approveAll() {
-    orderTargets.value = p.garmentOrders.value;
+    p.garmentOrders.value.forEach((po) => targetIds.value.add(po.id));
     showOrderModal.value = true;
   }
 
@@ -244,7 +259,7 @@ export function useApproveOrder(p: ApproveParam) {
         logger.error(p.vendorId, message);
       })
       .finally(() => {
-        orderTargets.value = [];
+        targetIds.value.clear();
         checkedShops.value = [];
         updateOrderModal(false);
       });

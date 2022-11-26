@@ -8,7 +8,7 @@ import { NButton, useMessage } from "naive-ui";
 import { Size, Type } from "naive-ui/es/button/src/interface";
 import { ref, toRefs, watchEffect, computed } from "vue";
 import ReceiptCard from "@/component/card/vendor/ReceiptCard.vue";
-import { payMethodOpts } from "@/util";
+
 const props = defineProps<{
   targetOrdDbIds: string[];
   items: OrderItem[];
@@ -38,33 +38,24 @@ watchEffect(async () => {
   targetShop.value = await USER_DB.getUserById(ids[0]);
 });
 
-const {
-  payMethod,
-  showModal,
-  tax,
-  paidAmount,
-  orderAmounts,
-  receiptRef,
-  onPrint,
-} = useCompletePay({ items });
-
-async function applyCredit() {
-  console.log("applyCredit");
-}
+const { showModal, defrayInfo, orderAmounts, receiptRef, newCredit } =
+  useCompletePay({
+    items,
+  });
 
 async function completePay() {
+  if (!targetShop.value) {
+    return msg.error("쇼핑몰을 지정해주십시오!!");
+  }
   if (props.beforePay) {
     await props.beforePay();
   }
   ORDER_GARMENT_DB.completePay(
     [...targetOrdDbIds.value],
     [...targetOrdItemIds.value],
-    {
-      // tax: tax.value ? Math.round(orderAmount / 100) * 10 : 0,
-      tax: 0,
-      payMethod: payMethod.value,
-      paidAmount: paidAmount.value,
-    }
+    targetShop.value.userInfo.userId,
+    auth.currUser.userInfo.userId,
+    defrayInfo.value
   )
     .then(async () => {
       msg.success("결제승인 완료", makeMsgOpt());
@@ -108,35 +99,29 @@ async function completePay() {
         :customer="targetShop"
         :vendor="auth.currUser"
       />
-      <n-space vertical>
-        <n-space>
-          <n-button @click="onPrint">출력하기</n-button>
-          <n-button @click="tax = !tax"
-            >부가세 {{ tax ? "해제" : "적용" }}</n-button
-          >
-          <n-button @click="applyCredit">미결제금액 적용</n-button>
-        </n-space>
-
-        <n-text>결제방식</n-text>
-        <n-select
-          v-model:value="payMethod"
-          :options="payMethodOpts"
-          placeholder="결제방식"
-        />
-        <n-text>총 결제 금액: {{ orderAmounts }}</n-text>
-
-        <n-text>받은금액</n-text>
-        <n-input-number
-          v-model:value="paidAmount"
-          :step="10"
-          :show-button="false"
-        />
+      <n-space v-if="showModal" vertical>
+        <n-card>
+          <n-space justify="space-between">
+            <n-text>총 결제 금액: </n-text>
+            <n-text type="info">{{ orderAmounts.toLocaleString() }} </n-text>
+          </n-space>
+          <n-space justify="space-between">
+            <n-text>추가 미 결제금액: </n-text>
+            <n-text type="info">{{ newCredit.toLocaleString() }} </n-text>
+          </n-space>
+          <template #footer>
+            <n-space justify="end">
+              <n-button @click="completePay">주문확정</n-button>
+            </n-space>
+          </template>
+        </n-card>
+        <div v-for="(item, i) in items" :key="i">
+          <defray-info-card
+            v-model:defray.lazy="defrayInfo[item.id]"
+            v-model:item.lazy="items[i]"
+          />
+        </div>
       </n-space>
     </n-space>
-    <template #footer>
-      <n-space justify="end">
-        <n-button @click="completePay">주문확정</n-button>
-      </n-space>
-    </template>
   </n-modal>
 </template>

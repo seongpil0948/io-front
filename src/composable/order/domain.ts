@@ -41,7 +41,7 @@ export interface IoOrder extends CommonField {
   shipmentIds: string[];
   vendorIds: string[];
   itemIds: string[];
-  items: OrderItem[] | OrderItemCombined[];
+  items: OrderItem[] | OrderItemCombined[]; // 주문프로세스 생성단계에서만 사용
   states: ORDER_STATE[];
   cancellations: OrderCancel[];
   prodTypes: PROD_TYPE[];
@@ -52,7 +52,7 @@ export interface IoOrder extends CommonField {
   orderCnts: number;
   activeCnts: number;
   pendingCnts: number;
-  amount: OrderAmount;
+  amount: OrderAmount; // 결제완료(completePay)이후 건들면 안댐
   memo: string;
 }
 
@@ -233,6 +233,7 @@ export interface OrderCancel extends Claim {
 
 export interface OrderDB<T> {
   updateOrder(order: IoOrder): Promise<void>;
+  deleteOrder(order: IoOrder): Promise<void>;
   orderGarment(
     orderDbIds: string[],
     prodOrderIds: string[],
@@ -280,7 +281,9 @@ export interface OrderDB<T> {
   completePay(
     orderDbIds: string[],
     prodOrderIds: string[],
-    param: DefrayParam
+    shopId: string,
+    vendorId: string,
+    param: { [itemId: string]: DefrayParam }
   ): Promise<void>;
   orderToReady(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
   reqPickup(

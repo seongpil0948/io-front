@@ -2,6 +2,7 @@
 import { OrderCancel, OrderItem, useCancel } from "@/composable";
 import { toRefs, ref, computed } from "vue";
 import { useAuthStore } from "@/store";
+import { getUserName } from "@io-boxies/js-lib";
 
 const props = defineProps<{
   orderItem: OrderItem;
@@ -21,10 +22,10 @@ async function cancelSubmit() {
   if (cancelCnt.value < 1) return;
   const claim = getCancel(p.value.id, p.value.state, "", "ETC");
   await cancelSelected(
-    auth.currUser.name,
+    getUserName(auth.currUser),
     p.value.shopId,
     p.value.vendorId,
-    p.value.orderDbId,
+    p.value.orderDbId!,
     p.value.id,
     claim,
     cancelCnt.value

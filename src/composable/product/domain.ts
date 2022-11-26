@@ -1,4 +1,5 @@
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
+import { ShopGarment, VendorGarment } from ".";
 
 export type PROD_TYPE = "GARMENT" | "GROCERY";
 
@@ -19,6 +20,11 @@ export interface VendorProdCrt extends ProductCrt {
   vendorProdName: string;
   titleImgs: string[];
   bodyImgs: string[];
+}
+
+export interface ShopVendorGarment {
+  vendorGarment: VendorGarment;
+  shopGarment: ShopGarment;
 }
 
 export const GarmentSize: GARMENT_SIZE[] = [

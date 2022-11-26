@@ -1,6 +1,6 @@
 import { MapKey, ShopUserGarment } from "@/composable";
 import { useVendorsStore } from "@/store";
-import { Ref, ref, watchEffect } from "vue";
+import { onBeforeUnmount, Ref, ref, watchEffect } from "vue";
 import { ShopGarment, GarmentOrderCondi, SHOP_GARMENT_DB } from "..";
 
 export function useShopUserGarments(
@@ -49,6 +49,7 @@ export function useShopGarments(
     userId,
     matching
   );
+  onBeforeUnmount(() => unsubscribe());
 
   return { shopProds, unsubscribe };
 }

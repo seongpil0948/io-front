@@ -1,5 +1,4 @@
 // TODO: Require Refactoring
-
 import { fireConverter } from "@/util";
 import { doc, getDoc, setDoc } from "@firebase/firestore";
 import { ioFire } from "@io-boxies/js-lib";
@@ -39,5 +38,5 @@ const getDocId = (d: { shopId: string; vendorId: string }) =>
 const partnerConverter = fireConverter<IoPartner>();
 const partnerPath = "partner";
 
-const getPartnerDoc = (d: { shopId: string; vendorId: string }) =>
+export const getPartnerDoc = (d: { shopId: string; vendorId: string }) =>
   doc(ioFire.store, partnerPath, getDocId(d)).withConverter(partnerConverter);

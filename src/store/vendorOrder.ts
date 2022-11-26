@@ -38,27 +38,28 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
       : vendorStore.vendorUserGarments
   );
   function getVendorOrderGarments(orders: typeof _orders) {
-    return computed<VendorUserOrderGarment[]>(() =>
-      vendorProds.value
-        .map((x) => {
-          let vendorProd: VendorUserOrderGarment | null = null;
-          for (let i = 0; i < orders.value.length; i++) {
-            const o = orders.value[i];
-            for (let j = 0; j < o.items.length; j++) {
-              const item = o.items[j];
-              if (item.vendorProd.vendorProdId === x.vendorProdId) {
-                if (vendorProd != null) {
-                  mergeOrderItem(vendorProd, item);
-                } else {
-                  vendorProd = Object.assign({}, item.amount, item, x);
+    return computed<VendorUserOrderGarment[]>(
+      () =>
+        vendorProds.value
+          .map((x) => {
+            let vendorProd: VendorUserOrderGarment | null = null;
+            for (let i = 0; i < orders.value.length; i++) {
+              const o = orders.value[i];
+              for (let j = 0; j < o.items.length; j++) {
+                const item = o.items[j];
+                if (item.vendorProd.vendorProdId === x.vendorProdId) {
+                  if (vendorProd != null) {
+                    mergeOrderItem(vendorProd, item);
+                  } else {
+                    vendorProd = Object.assign({}, item.amount, item, x);
+                  }
                 }
               }
             }
-          }
 
-          return vendorProd;
-        })
-        .filter((y) => y !== null)
+            return vendorProd;
+          })
+          .filter((y) => y !== null) as VendorUserOrderGarment[]
     );
   }
   function getGarmentOrdersByShop(garmentOrders: typeof _garmentOrders) {

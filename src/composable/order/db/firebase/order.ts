@@ -18,6 +18,8 @@ import {
   where,
   WithFieldValue,
   writeBatch,
+  deleteDoc,
+  increment,
 } from "@firebase/firestore";
 import { useVendorsStore } from "@/store";
 import { Ref } from "vue";
@@ -38,6 +40,8 @@ import {
   dividePartial,
   defrayAmount,
   DefrayParam,
+  reduceStockCnt,
+  getPartnerDoc,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 
@@ -69,6 +73,11 @@ async function getOrders(constraints: QueryConstraint[]) {
 }
 
 export const OrderGarmentFB: OrderDB<IoOrder> = {
+  deleteOrder: async function (order) {
+    if (order.items.length > 0) throw new Error("order has items not blank");
+    const { getOrdRef } = getSrc();
+    await deleteDoc(doc(getOrdRef(order.shopId), order.dbId));
+  },
   updateOrder: async function (order) {
     return insertById<IoOrder>(
       order,
@@ -96,23 +105,30 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
   completePay: async function (
     orderDbIds: string[],
     orderItemIds: string[],
-    param: DefrayParam
+    shopId: string,
+    vendorId: string,
+    param: { [itemId: string]: DefrayParam }
   ) {
+    let addedCredit = 0;
     await stateModify({
       orderDbIds,
       orderItemIds,
       afterState: "BEFORE_READY",
       beforeState: ["BEFORE_PAYMENT"],
       onItem: async function (po) {
-        // 한쇼핑몰에 속한 다른 주문건들 의 order Item들을 한 order 로 모아서 새로 생성
-        // 기존 주문건과 신규 주문사이에 정보이동 (orderId, amount)등 확인
-        console.log("completePay param: ", param);
         console.log("before amount", po.amount);
-        const { newAmount, creditAmount } = defrayAmount(po.amount, param);
+        const { newAmount, creditAmount } = defrayAmount(
+          po.amount,
+          param[po.id]!
+        );
         po.amount = newAmount;
-        console.log("new amount", creditAmount, newAmount);
+        addedCredit += creditAmount;
         return po;
       },
+    });
+    console.info("addedCredit: ", addedCredit);
+    await updateDoc(getPartnerDoc({ shopId, vendorId }), {
+      credit: increment(addedCredit),
     });
   },
   orderToReady: async function (orderDbIds: string[], orderItemIds: string[]) {
@@ -132,13 +148,8 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
           throw new Error(
             `vendor prod ${po.vendorProd.vendorProdId} is not exist`
           );
-        else if (vendorProd.stockCnt < po.orderCnt)
-          throw new Error(
-            `${vendorProd.vendorProdName}상품의 재고개수(${vendorProd.stockCnt})가 주문개수(${po.orderCnt}) 보다 적습니다.`
-          );
         else {
-          vendorProd.stockCnt -= po.orderCnt;
-          await vendorProd.update();
+          reduceStockCnt(vendorProd, po);
         }
 
         return po;

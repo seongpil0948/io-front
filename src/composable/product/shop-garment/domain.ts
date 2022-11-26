@@ -36,6 +36,10 @@ export type StockCntObj = {
 };
 
 export interface ShopGarmentDB {
+  getShopGarments(d: {
+    shopId?: string;
+    vendorId?: string;
+  }): Promise<ShopGarment[]>;
   shopGarmentExist(vendorProdId: string, shopUserId: string): Promise<boolean>;
   useGetShopGarments(
     shopId: string,

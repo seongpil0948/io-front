@@ -8,6 +8,7 @@ import { ORDER_GARMENT_DB } from "../db";
 import {
   IoOrder,
   OrderAmount,
+  OrderItem,
   OrderItemCombined,
   ORDER_STATE,
 } from "../domain";
@@ -33,19 +34,29 @@ export function setOrderCnt(
   const item: OrderItemCombined = (order.items as OrderItemCombined[])[
     targetIdx
   ];
-
+  const v = item.vendorProd;
+  setItemCnt(item, orderCnt, v.stockCnt, v.allowPending, add, paid);
+  refreshOrder(order);
+  isValidOrder(order);
+}
+export function setItemCnt(
+  item: OrderItem,
+  orderCnt: number,
+  stockCnt: number,
+  allowPending: boolean,
+  add = true,
+  paid = PAID_INFO.NO
+) {
   if (add) {
     orderCnt += item.orderCnt;
   }
-  const v = item.vendorProd;
-  // 1. set Order Cnt
   item.orderCnt = orderCnt;
   // 2. set pending cnt
-  item.pendingCnt = getPendingCnt(v.stockCnt, orderCnt, v.allowPending);
+  item.pendingCnt = getPendingCnt(stockCnt, orderCnt, allowPending);
   // 3. set active cnt
   item.activeCnt = getActiveCnt(orderCnt, item.pendingCnt);
   // 4. set prod order amount
-  const pureAmount = getPureAmount(orderCnt, v.vendorPrice);
+  const pureAmount = getPureAmount(orderCnt, item.vendorProd.vendorPrice);
   item.amount.paid = paid;
   item.amount.pureAmount = pureAmount;
   item.amount.orderAmount = getOrderAmount(item.amount);
@@ -53,11 +64,9 @@ export function setOrderCnt(
     isValidOrderItem(item);
   } catch (e) {
     throw new Error(
-      `Invalid Prod Order: ${item.id} orderIds: ${order.dbId}, error: ${e}`
+      `Invalid Prod Order: ${item.id} orderDbId: ${item.orderDbId}, error: ${e}`
     );
   }
-  refreshOrder(order);
-  isValidOrder(order);
 }
 
 export function setState(order: IoOrder, itemId: string, state: ORDER_STATE) {
@@ -118,6 +127,19 @@ export async function dividePartial(d: {
   return newOrder.id;
 }
 
+export async function deleteItem(d: { order: IoOrder; itemId: string }) {
+  const idx = d.order.items.findIndex((x) => x.id === d.itemId);
+  if (idx === -1)
+    throw new Error(`order(${d.order.dbId}) not has item(${d.itemId})`);
+  d.order.items.splice(idx, 1);
+  if (d.order.items.length > 0) {
+    refreshOrder(d.order);
+    await ORDER_GARMENT_DB.updateOrder(d.order);
+  } else {
+    await ORDER_GARMENT_DB.deleteOrder(d.order);
+  }
+}
+
 export interface DefrayParam {
   paidAmount: number;
   tax: number;
@@ -125,9 +147,8 @@ export interface DefrayParam {
 }
 export function defrayAmount(target: OrderAmount, d: DefrayParam) {
   const t = cloneDeep(target);
-  if (t.tax !== d.tax) {
-    t.orderAmount = getOrderAmount(Object.assign({}, t, { tax: d.tax }));
-  }
+  t.tax = d.tax;
+  t.orderAmount = getOrderAmount(t);
   t.paidAt = new Date();
   t.paidAmount = d.paidAmount;
   t.paymentConfirm = true;

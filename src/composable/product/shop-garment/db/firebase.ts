@@ -24,10 +24,29 @@ import {
   writeBatch,
   QuerySnapshot,
   Unsubscribe,
+  QueryConstraint,
 } from "@firebase/firestore";
 import { Ref, ref } from "vue";
 
 export const ShopGarmentFB: ShopGarmentDB = {
+  getShopGarments: async function (d) {
+    const constraints: QueryConstraint[] = [];
+    if (d.shopId) {
+      constraints.push(where("shopId", "==", d.shopId));
+    }
+    if (d.vendorId) {
+      constraints.push(where("vendorId", "==", d.vendorId));
+    }
+    const snap = await getDocs(
+      query(
+        getIoCollection({ c: IoCollection.SHOP_PROD }).withConverter(
+          ShopGarment.fireConverter()
+        ),
+        ...constraints
+      )
+    );
+    return _prodFromSnap(snap);
+  },
   shopGarmentExist: async function (
     vendorProdId: string,
     shopUserId: string
