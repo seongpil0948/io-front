@@ -44,6 +44,7 @@ export interface VendorUserOrderGarment
   shopUser?: IoUser;
 }
 export interface VendorGarmentDB {
+  incrementStockCnt(cnt: number, vendorProdId: string): Promise<void>;
   batchReadListen(args: any[]): {
     items: Ref<VendorGarment[]>;
     unsubscribe: () => void;

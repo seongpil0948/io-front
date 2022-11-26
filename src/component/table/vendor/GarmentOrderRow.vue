@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { IoOrder, ORDER_STATE, OrderItemCombined } from "@/composable";
+import {
+  IoOrder,
+  ORDER_STATE,
+  OrderItemCombined,
+  VENDOR_GARMENT_DB,
+} from "@/composable";
 import { timeToDate } from "@io-boxies/js-lib";
-import { toRefs } from "vue";
+import { computed, toRefs } from "vue";
 
 const props = defineProps<{
   garmentOrder: IoOrder;
@@ -14,6 +19,19 @@ const emits = defineEmits<{
 }>();
 function onClickChecker() {
   if (orderItem.value) emits("onClick", orderItem.value.id);
+}
+
+const fillRequired = computed(
+  () => orderItem.value.vendorProd.stockCnt < orderItem.value.orderCnt
+);
+async function fillStock() {
+  const fillCount =
+    orderItem.value.orderCnt - orderItem.value.vendorProd.stockCnt;
+  await VENDOR_GARMENT_DB.incrementStockCnt(
+    fillCount,
+    orderItem.value.vendorProd.vendorProdId
+  );
+  orderItem.value.vendorProd.stockCnt += fillCount;
 }
 </script>
 <template>
@@ -34,5 +52,8 @@ function onClickChecker() {
     <n-text v-if="orderItem.amount.paidAt">
       , 결제일: {{ timeToDate(orderItem.amount.paidAt, "MIN") }}
     </n-text>
+    <n-button v-if="fillRequired" size="small" type="error" @click="fillStock"
+      >재고채우기</n-button
+    >
   </n-space>
 </template>

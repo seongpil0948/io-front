@@ -1,10 +1,34 @@
 <script setup lang="ts">
 import { useUncleWorkers } from "@/composable";
-import { ref } from "vue";
+import { inWork } from "@io-boxies/js-lib";
+import { ref, watch } from "vue";
 
 const rightCollapsed = ref(false);
 const width = 320;
 const { workers } = useUncleWorkers();
+const statusCnts = ref({
+  inWork: 0,
+  leave: 0,
+});
+function initCnts() {
+  statusCnts.value.inWork = 0;
+  statusCnts.value.leave = 0;
+}
+watch(
+  () => workers.value,
+  (val) => {
+    initCnts();
+    for (let i = 0; i < val.length; i++) {
+      const w = val[i];
+      if (inWork(w)) {
+        statusCnts.value.inWork += 1;
+      } else {
+        statusCnts.value.leave += 1;
+      }
+    }
+  },
+  { deep: true }
+);
 </script>
 <template>
   <n-layout-sider
@@ -34,8 +58,16 @@ const { workers } = useUncleWorkers();
       <!-- TODO -->
       <n-text>인원: 100 </n-text>
       <n-space size="large" justify="space-between">
-        <uncle-status-count status="green" text="업무중" :count="10" />
-        <uncle-status-count status="grey" text="퇴근" :count="40" />
+        <uncle-status-count
+          status="green"
+          text="업무중"
+          :count="statusCnts.inWork"
+        />
+        <uncle-status-count
+          status="grey"
+          text="퇴근"
+          :count="statusCnts.leave"
+        />
       </n-space>
       <n-divider />
       <!-- <n-h2>디오트</n-h2> -->

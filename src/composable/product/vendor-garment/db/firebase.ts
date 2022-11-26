@@ -1,4 +1,4 @@
-import { setDoc } from "@firebase/firestore";
+import { increment, setDoc, updateDoc } from "@firebase/firestore";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   onFirestoreCompletion,
@@ -21,6 +21,12 @@ import {
 import { ref } from "vue";
 
 export const VendorGarmentFB: VendorGarmentDB = {
+  incrementStockCnt: async function (cnt: number, vendorProdId: string) {
+    const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
+      VendorGarment.fireConverter()
+    );
+    await updateDoc(doc(c, vendorProdId), { stockCnt: increment(cnt) });
+  },
   batchUpdate: async function (args: VendorGarment[]) {
     // vendorProdsModify
     const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(

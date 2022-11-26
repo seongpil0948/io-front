@@ -39,6 +39,7 @@ export const lightThemeOver: GlobalThemeOverrides = {
     textColor: lightColors.text,
     textColorTextSuccess: lightColors.text,
     textColorFocusSuccess: lightColors.text,
+    textColorError: lightColors.white,
     // border: "1px solid #f0c755",
   },
   Radio: {
