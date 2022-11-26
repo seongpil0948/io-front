@@ -39,6 +39,7 @@ export async function reduceStockCnt(
     vendorProd.stockCnt -= orderItem.orderCnt;
     await vendorProd.update();
   }
+  return orderItem;
 }
 
 interface ApproveParam {

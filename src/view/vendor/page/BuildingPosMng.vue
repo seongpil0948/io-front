@@ -135,7 +135,7 @@ watch(
     inline
     style="height: 100%; min-height: 80vh; overflow: auto"
   >
-    <n-card class="container" style="width: 30vw">
+    <n-card class="container" style="width: 25vw">
       <n-h3 class="center-txt">주문목록</n-h3>
       <n-space justify="end">
         <n-text v-if="partner"
@@ -185,11 +185,12 @@ watch(
         </n-space>
       </template>
     </n-card>
-    <n-card class="container" style="width: 50vw">
+    <n-card class="container" style="width: 100%">
       <template #header> 상품목록 </template>
       <template #header-extra>
         <n-select
           filterable
+          style="width: 80%; margin-left: auto"
           placeholder="소매처 검색"
           :options="shopOpts"
           @update:value="updateShop"
@@ -230,7 +231,6 @@ watch(
 
 <style scoped>
 .container {
-  min-width: 300px;
   min-height: 400px;
 }
 </style>

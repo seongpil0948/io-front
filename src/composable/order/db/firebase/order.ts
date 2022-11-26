@@ -149,10 +149,8 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
             `vendor prod ${po.vendorProd.vendorProdId} is not exist`
           );
         else {
-          reduceStockCnt(vendorProd, po);
+          return reduceStockCnt(vendorProd, po);
         }
-
-        return po;
       },
     });
   },
