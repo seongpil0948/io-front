@@ -1,15 +1,34 @@
 <script setup lang="ts">
 import { formatDate, getUserName, IoUser } from "@io-boxies/js-lib";
-import { Instagram } from "@vicons/fa";
 import { toRefs } from "vue";
 import { useMessage } from "naive-ui";
+import { OrderItem } from "@/composable";
+import { useEditor } from "@/plugin/editor";
 
 const props = defineProps<{
   customer?: IoUser | null;
   vendor: IoUser;
+  items: OrderItem[];
 }>();
 const { customer, vendor } = toRefs(props);
 const msg = useMessage();
+
+const { saveEditor, clearEditor, toggleEditor } = useEditor({
+  readOnly: true,
+  elementId: "io-editor",
+  placeholder: "메모 입력",
+  // data: prod.value!.info,
+  data: {
+    blocks: [
+      {
+        type: "paragraph",
+        data: {
+          text: "메모 입력",
+        },
+      },
+    ],
+  },
+});
 
 function printReceipt() {
   const card = document.getElementById("receipt-card");
@@ -30,79 +49,75 @@ function printReceipt() {
 defineExpose({ printReceipt });
 </script>
 <template>
-  <n-card id="receipt-card" title="주문 영수증">
-    <template #header-extra
-      ><n-button @click="printReceipt">출력하기</n-button></template
-    >
-    <n-space vertical align="end">
-      <n-text> {{ formatDate(new Date(), "MIN") }}</n-text>
-      <n-text v-if="customer"> {{ getUserName(customer) }} 귀하 </n-text>
-    </n-space>
-    <n-divider class="black-divider" />
-    <n-h2 class="center-txt">{{ getUserName(vendor) }}</n-h2>
-    <n-divider class="black-divider" />
-    <n-space vertical align="center" item-style="width: 100%">
-      <n-space align="center" justify="space-between">
+  <n-card title="주문 영수증">
+    <template #header-extra>
+      <n-space justify="end">
+        <n-button @click="printReceipt">출력하기</n-button>
+        <n-button @click="toggleEditor">편집모드</n-button>
+      </n-space>
+    </template>
+    <div id="receipt-card">
+      <n-divider class="black-divider" />
+      <n-space justify="space-between">
         <n-space vertical>
-          <n-text>hp: 010-7184-0948</n-text>
-          <n-text>tel: 010-7727-7428</n-text>
-          <n-text>kakao: fuckjunhai</n-text>
-          <n-text><n-icon :component="Instagram" />: fuckjunhai</n-text>
-          <n-text
-            >메모: <br />메모 메모 항헹홍행홍 <br />메모 메모 항헹홍행홍
-            <br />메모 메모 항헹홍행홍
-          </n-text>
+          <n-text> {{ formatDate(new Date(), "MIN") }}</n-text>
+          <n-h2>{{ getUserName(vendor) }}</n-h2>
+          <n-h2 v-if="customer">{{ getUserName(customer) }} 귀하</n-h2>
         </n-space>
+
         <img
-          style="width: 15vw"
+          style="width: 10vw"
           src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
         />
       </n-space>
-
-      <n-table :bordered="false" :single-line="false" size="small">
-        <thead>
-          <tr>
-            <th>품목</th>
-            <th>옵션</th>
-            <th>수량</th>
-            <th>단가</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>放弃</td>
-            <td>反常的</td>
-            <td>彻底废除</td>
-            <td>...</td>
-          </tr>
-        </tbody>
-      </n-table>
-
       <n-divider class="black-divider" />
-      <n-space justify="space-between">
-        <n-text type="info">수량합계</n-text><n-text>15</n-text>
+      <n-space vertical align="center" item-style="width: 100%">
+        <div id="io-editor" class="io-editor-border" />
+        <n-table :bordered="false" :single-line="false" size="small">
+          <thead>
+            <tr>
+              <th>품목</th>
+              <th>옵션</th>
+              <th>수량</th>
+              <th>단가</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, i) in items" :key="i">
+              <td>{{ item.vendorProd.vendorProdName }}</td>
+              <td>{{ item.vendorProd.size }} / {{ item.vendorProd.color }}</td>
+              <td>{{ item.orderCnt }}</td>
+              <td>{{ item.vendorProd.vendorPrice }}</td>
+            </tr>
+          </tbody>
+        </n-table>
+
+        <n-divider class="black-divider" />
+        <n-space justify="space-between">
+          <n-text type="info">수량합계</n-text><n-text>15</n-text>
+        </n-space>
+        <n-space justify="space-between">
+          <n-text type="info">부가세</n-text><n-text>5,000</n-text>
+        </n-space>
+        <n-space justify="space-between">
+          <n-text type="info">금액 합계</n-text><n-text>75,000</n-text>
+        </n-space>
+        <n-space justify="space-between">
+          <n-text type="info">미결제 금액</n-text><n-text>120,000</n-text>
+        </n-space>
+        <n-space justify="space-between">
+          <n-text type="info">총 결제 금액</n-text><n-text>200,000</n-text>
+        </n-space>
+        <n-divider class="black-divider" />
       </n-space>
-      <n-space justify="space-between">
-        <n-text type="info">부가세</n-text><n-text>5,000</n-text>
-      </n-space>
-      <n-space justify="space-between">
-        <n-text type="info">금액 합계</n-text><n-text>75,000</n-text>
-      </n-space>
-      <n-space justify="space-between">
-        <n-text type="info">미결제 금액</n-text><n-text>120,000</n-text>
-      </n-space>
-      <n-space justify="space-between">
-        <n-text type="info">총 결제 금액</n-text><n-text>200,000</n-text>
-      </n-space>
-      <n-divider class="black-divider" />
-    </n-space>
+    </div>
   </n-card>
 </template>
 
 <style>
 #receipt-card {
   width: 45vw;
-  height: 80vh;
+  min-height: 60vh;
   overflow: auto;
 }
 .black-divider {

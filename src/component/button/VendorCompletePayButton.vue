@@ -98,6 +98,7 @@ async function completePay() {
         ref="receiptRef"
         :customer="targetShop"
         :vendor="auth.currUser"
+        :items="items"
       />
       <n-space v-if="showModal" vertical>
         <n-card>

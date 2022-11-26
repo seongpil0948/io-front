@@ -211,7 +211,7 @@ watch(
       >
         <n-gi v-for="(prod, i) in searchedData" :key="i">
           <n-card
-            style="margin: auto; width: 200px; cursor: pointer"
+            style="margin: auto; width: 190px; height: 120px; cursor: pointer"
             @click="onClickProd(prod)"
           >
             <n-space vertical>

@@ -7,10 +7,9 @@ import {
   ShopVendorGarment,
   ORDER_GARMENT_DB,
   setItemCnt,
-  reduceStockCnt,
 } from "@/composable";
 import { uuidv4 } from "@firebase/util";
-import { toRefs, watch, ref, computed } from "vue";
+import { toRefs, watch, ref } from "vue";
 import { Size, Type } from "naive-ui/es/button/src/interface";
 import type ReceiptCard from "@/component/card/vendor/ReceiptCard.vue";
 import { useAuthStore } from "@/store";
@@ -27,7 +26,7 @@ const props = defineProps<{
   type?: Type;
   size?: Size;
 }>();
-const { products, orderCnts, credit } = toRefs(props);
+const { products, orderCnts } = toRefs(props);
 const emits = defineEmits<{
   (e: "complete", value: number): void;
 }>();
@@ -91,15 +90,6 @@ watch(
 async function completePay() {
   const c = newCredit.value;
   const order = newOrdFromItem([...items.value]);
-  for (let i = 0; i < order.items.length; i++) {
-    const item = order.items[i];
-    const prod = products.value.find(
-      (x) => x.vendorGarment.vendorProdId === item.vendorProd.vendorProdId
-    );
-    if (prod) {
-      await reduceStockCnt(prod.vendorGarment, item);
-    }
-  }
   await ORDER_GARMENT_DB.updateOrder(order);
   emits("complete", c);
   showModal.value = false;
@@ -132,6 +122,7 @@ const { showModal, defrayInfo, orderAmounts, receiptRef, newCredit } =
         ref="receiptRef"
         :customer="targetShop"
         :vendor="auth.currUser"
+        :items="items"
       />
       <n-space v-if="showModal" vertical>
         <n-card>
