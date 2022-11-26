@@ -230,8 +230,7 @@ watch(
 
 <style scoped>
 .container {
-  min-width: 400px;
-  min-height: 500px;
-  overflow: auto;
+  min-width: 300px;
+  min-height: 400px;
 }
 </style>

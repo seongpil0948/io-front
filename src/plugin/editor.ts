@@ -60,6 +60,7 @@ export function getEditor(c: IoEditorParam) {
     holder: c.elementId,
     placeholder: c.placeholder,
     onChange: c.onChange,
+    minHeight: 100,
     // inlineToolbar: ["bold", "italic", "underline"],
     tools: {
       list: List,
