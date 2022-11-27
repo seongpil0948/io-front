@@ -37,7 +37,6 @@ export interface IoOrder extends CommonField {
   tossAt?: Date;
 
   dbId: string;
-  memo: string;
   shopId: string;
 
   orderCnts: number;

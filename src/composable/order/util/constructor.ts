@@ -161,6 +161,5 @@ function emptyOrder(shopId: string): IoOrder {
     activeCnts: 0,
     pendingCnts: 0,
     amount: emptyAmount(),
-    memo: "",
   };
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { formatDate, getUserName, IoUser } from "@io-boxies/js-lib";
-import { toRefs, watch, ref, computed } from "vue";
+import { formatDate, getUserName, IoUser, USER_DB } from "@io-boxies/js-lib";
+import { toRefs, watch, ref, onBeforeUnmount } from "vue";
 import { useMessage } from "naive-ui";
 import { OrderItem } from "@/composable";
 import { useEditor } from "@/plugin/editor";
@@ -13,12 +13,12 @@ const props = defineProps<{
 const { customer, vendor, items } = toRefs(props);
 const msg = useMessage();
 
-const { toggleEditor } = useEditor({
+const { toggleEditor, saveEditor } = useEditor({
   readOnly: true,
   elementId: "io-editor",
   placeholder: "메모 입력",
   // data: prod.value!.info,
-  data: {
+  data: vendor.value.orderMemo ?? {
     blocks: [
       {
         type: "paragraph",
@@ -28,6 +28,14 @@ const { toggleEditor } = useEditor({
       },
     ],
   },
+});
+
+onBeforeUnmount(async () => {
+  const orderMemo = await saveEditor();
+  if (orderMemo) {
+    vendor.value.orderMemo = orderMemo;
+    await USER_DB.updateUser(vendor.value);
+  }
 });
 
 function printReceipt() {

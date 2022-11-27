@@ -136,12 +136,19 @@ const { showModal, defrayInfo, orderAmounts, receiptRef, newCredit } =
           </n-space>
           <template #footer>
             <n-space justify="end">
+              <n-button
+                @click="
+                  () => ($refs as any).defrayCards.forEach((e: any) => e.applyTax(true))
+                "
+                >부가세적용</n-button
+              >
               <n-button @click="completePay">주문확정</n-button>
             </n-space>
           </template>
         </n-card>
         <div v-for="(item, i) in items" :key="i">
           <defray-info-card
+            ref="defrayCards"
             v-model:defray.lazy="defrayInfo[item.id]"
             v-model:item.lazy="items[i]"
           />

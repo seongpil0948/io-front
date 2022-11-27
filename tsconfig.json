@@ -16,8 +16,12 @@
     "baseUrl": ".",
     "types": ["vite/client"],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@io-boxies/js-lib": ["node_modules/@io-boxies/js-lib/dist/src"]
     },
+    "rootDirs": [
+      "src/"
+    ] /* Allow multiple folders to be treated as one when resolving modules. */,
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
   "include": [

@@ -8,7 +8,6 @@ import {
 } from "@/composable";
 import { ref, toRefs, onBeforeMount } from "vue";
 import { payMethodOpts } from "@/util";
-
 const props = defineProps<{
   defray: DefrayParam;
   item: OrderItem;
@@ -32,7 +31,12 @@ function updatePayMethod(payMethod: PAY_METHOD) {
 const isTax = ref(false);
 function updateTax() {
   isTax.value = !isTax.value;
-  const tax = isTax.value ? getTax(item.value.amount.orderAmount) : 0;
+  applyTax(isTax.value);
+}
+function applyTax(useTax: boolean) {
+  if (useTax === isTax.value) return;
+  isTax.value = useTax;
+  const tax = useTax ? getTax(item.value.amount.orderAmount) : 0;
   defray.value.tax = tax;
   emits("update:defray", defray.value);
   updateAmount();
@@ -45,6 +49,8 @@ function updateAmount() {
   emits("update:item", item.value);
 }
 onBeforeMount(() => updateAmount());
+
+defineExpose({ applyTax });
 </script>
 
 <template>

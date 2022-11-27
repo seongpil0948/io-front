@@ -57,7 +57,11 @@ export const useAuthStore = defineStore({
       const pinia = getActivePinia();
       console.log("pinia:", pinia);
       if (pinia) {
-        (pinia as any)._s.forEach((store: any) => store.$reset());
+        (pinia as any)._s.forEach((store: any) => {
+          if (store.discard) store.discard();
+          if (store.$reset) store.$reset();
+          if (store.$dispose) store.$dispose();
+        });
       }
       if (replace) this.$router.replace({ name: "Login" }); //   this.$http.get("https://www.naver.com");
     },
