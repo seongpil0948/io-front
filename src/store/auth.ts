@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { getAuth, signOut } from "firebase/auth";
 import { IoUser, userFromJson } from "@io-boxies/js-lib";
+import { getActivePinia } from "pinia";
 interface AuthStoreInterface {
   user: IoUser | null;
 }
@@ -52,6 +53,12 @@ export const useAuthStore = defineStore({
       this.clearUser();
       const auth = getAuth();
       await signOut(auth);
+      // map through that list and use the **$reset** fn to reset the state
+      const pinia = getActivePinia();
+      console.log("pinia:", pinia);
+      if (pinia) {
+        (pinia as any)._s.forEach((store: any) => store.$reset());
+      }
       if (replace) this.$router.replace({ name: "Login" }); //   this.$http.get("https://www.naver.com");
     },
   },

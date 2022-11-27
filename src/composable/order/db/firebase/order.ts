@@ -505,6 +505,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     uncleId: string;
     orders: Ref<IoOrder[]>;
   }) {
+    console.log("p.uncleId: ", p.uncleId);
     const orderQ = query(
       getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
         orderFireConverter
@@ -531,9 +532,9 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
             }
           }
         });
-      },
-      async (err) => await onFirestoreErr(name, err),
-      () => onFirestoreCompletion(name)
+      }
+      // async (err) => await onFirestoreErr(name, err),
+      // () => onFirestoreCompletion(name)
     );
 
     return { unsubscribe };
@@ -777,12 +778,12 @@ async function stateModify(d: {
           ? await d.onItem(o.items[j] as OrderItem)
           : o.items[j];
         setState(o, item.id, d.afterState);
-        transaction.set(
-          doc(getOrdRef(o.shopId), o.dbId),
-          converterGarment.toFirestore(o)
-        );
       }
       refreshOrder(o);
+      transaction.set(
+        doc(getOrdRef(o.shopId), o.dbId),
+        converterGarment.toFirestore(o)
+      );
     }
   });
   await Promise.all(shopIds.map((x) => mergeSameOrders(d.afterState, x)));

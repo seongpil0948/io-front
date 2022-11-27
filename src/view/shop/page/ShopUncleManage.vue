@@ -18,11 +18,17 @@ import { storeToRefs } from "pinia";
 const msg = useMessage();
 const auth = useAuthStore();
 const { user } = storeToRefs(auth);
-const uncles = computed(() =>
-  allUncles.value.filter(
-    (x) =>
-      availUncleAdvertise(x) &&
-      !user.value?.shopInfo?.uncleUserIds.includes(x.userInfo.userId)
+const availUncles = computed(() =>
+  allUncles.value.filter((x) => availUncleAdvertise(x))
+);
+const otherUncles = computed(() =>
+  availUncles.value.filter(
+    (y) => !user.value?.shopInfo?.uncleUserIds.includes(y.userInfo.userId)
+  )
+);
+const myUncles = computed(() =>
+  availUncles.value.filter((y) =>
+    user.value?.shopInfo?.uncleUserIds.includes(y.userInfo.userId)
   )
 );
 const allUncles = ref<IoUser[]>([]);
@@ -43,6 +49,16 @@ function onDetail(uncle: IoUser) {
   selectedUser.value = uncle;
   showModal.value = true;
 }
+async function onDelete() {
+  const uId = selectedUser.value!.userInfo.userId;
+  user.value!.shopInfo?.uncleUserIds.splice(
+    user.value!.shopInfo?.uncleUserIds.findIndex((x) => x === uId),
+    1
+  );
+  await USER_DB.updateUser(user.value!);
+  auth.setUser(user.value!);
+  msg.success("삭제 완료.");
+}
 async function onContract() {
   if (!selectedUser.value) return;
   const uId = selectedUser.value.userInfo.userId;
@@ -54,6 +70,7 @@ async function onContract() {
   } else if (!user.value!.shopInfo.uncleUserIds.includes(uId)) {
     user.value!.shopInfo?.uncleUserIds.push(uId);
     await USER_DB.updateUser(user.value!);
+    auth.setUser(user.value!);
     msg.success("추가 완료.");
   } else {
     msg.error("이미 계약된 유저입니다.");
@@ -71,20 +88,34 @@ const bodyStyle = {
 const showModal = ref(false);
 </script>
 <template>
-  <n-h1>엉클 리스트</n-h1>
-  <n-card>
-    <n-grid
-      style="width: 70vw"
-      cols="1 s:2 m:2 l:3 xl:4 2xl:6"
-      x-gap="24"
-      y-gap="12"
-      responsive="screen"
-    >
-      <n-grid-item v-for="(uncle, idx) in uncles" :key="idx">
-        <uncle-thum-info :uncle-user="uncle" @on-detail="onDetail(uncle)" />
-      </n-grid-item>
-    </n-grid>
-  </n-card>
+  <n-space vertical>
+    <n-card v-if="myUncles.length > 0" title="나의 소중한 엉클들">
+      <n-grid
+        style="width: 70vw"
+        cols="1 s:2 m:2 l:3 xl:4 2xl:6"
+        x-gap="24"
+        y-gap="12"
+        responsive="screen"
+      >
+        <n-grid-item v-for="(uncle, idx) in myUncles" :key="idx">
+          <uncle-thum-info :uncle-user="uncle" @on-detail="onDetail(uncle)" />
+        </n-grid-item>
+      </n-grid>
+    </n-card>
+    <n-card v-if="otherUncles.length > 0" title="엉클 찾기">
+      <n-grid
+        style="width: 70vw"
+        cols="1 s:2 m:2 l:3 xl:4 2xl:6"
+        x-gap="24"
+        y-gap="12"
+        responsive="screen"
+      >
+        <n-grid-item v-for="(uncle, idx) in otherUncles" :key="idx">
+          <uncle-thum-info :uncle-user="uncle" @on-detail="onDetail(uncle)" />
+        </n-grid-item>
+      </n-grid>
+    </n-card>
+  </n-space>
   <n-modal
     v-model:show="showModal"
     class="custom-card"
@@ -140,7 +171,16 @@ const showModal = ref(false);
     <template #action>
       <n-space justify="space-around">
         <n-button @click="onClose"> 닫기 </n-button>
-        <n-button @click="onContract"> 계약하기 </n-button>
+        <n-button
+          v-if="
+            selectedUser &&
+            !user?.shopInfo?.uncleUserIds.includes(selectedUser.userInfo.userId)
+          "
+          @click="onContract"
+        >
+          계약하기
+        </n-button>
+        <n-button v-else @click="onDelete"> 해지하기 </n-button>
       </n-space>
     </template>
   </n-modal>

@@ -74,8 +74,8 @@ async function rejectCancel() {
       :columns="tableCol"
       :data="garmentOrders"
       :pagination="{
-        'show-size-picker': true,
-        'page-sizes': [5, 10],
+        showSizePicker: true,
+        pageSizes: [5, 10],
       }"
       :bordered="false"
       :row-key="getRowKey"

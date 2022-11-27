@@ -12,6 +12,7 @@ import { useAuthStore, useShopOrderStore } from "@/store";
 import { uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
+import { validateUser } from "@/composable/order/db/firebase";
 
 const auth = useAuthStore();
 const inStates: ORDER_STATE[] = [
@@ -57,7 +58,7 @@ async function returnReq() {
 
   for (let i = 0; i < returnTargets.length; i++) {
     const orderItem = returnTargets[i];
-    if (!orderDbIds.includes(orderItem.orderDbId))
+    if (orderItem.orderDbId && !orderDbIds.includes(orderItem.orderDbId))
       orderDbIds.push(orderItem.orderDbId);
     if (!prodOrderIds.includes(orderItem.id)) prodOrderIds.push(orderItem.id);
   }
@@ -101,6 +102,7 @@ async function pickupRequest() {
   else if (byVendorKeys.value.length < 1) {
     return msg.error("주문을 선택 해주세요");
   }
+  validateUser(u, u.userInfo.userId);
   const filtered = garmentOrdersByVendor.value.filter((x) =>
     byVendorKeys.value.includes(x.vendorId)
   );
@@ -155,8 +157,8 @@ const currTab = ref<string>("RETURN_REQ");
               :columns="targetTCol"
               :data="targetProdOrders"
               :pagination="{
-                'show-size-picker': true,
-                'page-sizes': [5, 10, 25, 50, 100],
+                showSizePicker: true,
+                pageSizes: [5, 10, 25, 50, 100],
               }"
               :bordered="false"
             />
@@ -189,8 +191,8 @@ const currTab = ref<string>("RETURN_REQ");
             :columns="byVendorCol"
             :data="garmentOrdersByVendor"
             :pagination="{
-              'show-size-picker': true,
-              'page-sizes': [5, 10, 25, 50, 100],
+              showSizePicker: true,
+              pageSizes: [5, 10, 25, 50, 100],
             }"
             :bordered="false"
           />

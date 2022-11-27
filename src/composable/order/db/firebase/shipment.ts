@@ -1,5 +1,12 @@
 import { isSamePickLocate } from "./../../../locate/pickup";
-import { IoShipment, IoOrder, IO_PAY_DB, ShipDB } from "@/composable";
+import {
+  IoShipment,
+  IoOrder,
+  IO_PAY_DB,
+  ShipDB,
+  isValidOrder,
+  setState,
+} from "@/composable";
 import { iostore, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { useVendorsStore } from "@/store";
 import { uuidv4 } from "@firebase/util";
@@ -9,13 +16,13 @@ import { getSrc } from "./order";
 // import { uuidv4 } from "@firebase/util";
 export const ShipmentFB: ShipDB<IoOrder> = {
   approvePickUp: async function (row: IoOrder, expectedReduceCoin: number) {
+    isValidOrder(row);
     const vendorStore = useVendorsStore();
     const { getOrdRef, converterGarment } = getSrc();
     if (!row.shipManagerId) throw new Error("shipManagerId is null");
     const userPay = await IO_PAY_DB.getIoPayByUser(row.shipManagerId);
     if (userPay.budget < expectedReduceCoin)
       throw new Error("보유 코인이 부족합니다.");
-    else if (!row.isValid) throw new Error("invalid order.");
     const ordRef = getOrdRef(row.shopId);
     const ordDocRef = doc(ordRef, row.dbId).withConverter(converterGarment);
     return runTransaction(iostore, async (transaction) => {
@@ -123,7 +130,7 @@ export const ShipmentFB: ShipDB<IoOrder> = {
           shipment
         );
         item.shipmentId = shipment.shippingId;
-        ord.setState(item.id, "BEFORE_ASSIGN_PICKUP");
+        setState(ord, item.id, "BEFORE_ASSIGN_PICKUP");
       }
       transaction.update(ordDocRef, converterGarment.toFirestore(ord));
       transaction.update(
@@ -138,7 +145,10 @@ export const ShipmentFB: ShipDB<IoOrder> = {
   },
 };
 
-function validateUser(u: IoUser | null | undefined, userId: string): IoUser {
+export function validateUser(
+  u: IoUser | null | undefined,
+  userId: string
+): IoUser {
   if (!u) throw new Error(`유저정보가 없습니다. id: ${userId}`);
   const role = u.userInfo.role;
   const name =
@@ -151,8 +161,8 @@ function validateUser(u: IoUser | null | undefined, userId: string): IoUser {
       : "유저";
   if (!u.companyInfo) throw new Error(`${name}의 회사정보가 없습니다.`);
   else if ((role === "SHOP" || role === "VENDOR") && !u.companyInfo.shipLocate)
-    throw new Error("배송지 정보를 입력해주세요.");
+    throw new Error(`${name}의 대표 배송지 설정을 해주세요.`);
   else if (role === "UNCLE" && !u.uncleInfo)
-    throw new Error("배송처 정보를 입력해주세요");
+    throw new Error("엉클 배송지와 요금 설정을 해주세요");
   return u!;
 }

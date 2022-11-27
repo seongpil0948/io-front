@@ -34,26 +34,29 @@ export interface IoOrder extends CommonField {
   approvedAt?: Date;
   paidAt?: Date;
   doneAt?: Date;
+  tossAt?: Date;
 
   dbId: string;
+  memo: string;
   shopId: string;
-  orderIds: string[];
-  shipmentIds: string[];
-  vendorIds: string[];
-  itemIds: string[];
-  items: OrderItem[] | OrderItemCombined[]; // 주문프로세스 생성단계에서만 사용
-  states: ORDER_STATE[];
-  cancellations: OrderCancel[];
-  prodTypes: PROD_TYPE[];
-  shipManagerIds: string[];
-  paids: PAID_INFO[];
-  orderTypes: ORDER_TYPE[];
 
   orderCnts: number;
   activeCnts: number;
   pendingCnts: number;
+
+  orderIds: string[];
+  shipmentIds: string[];
+  vendorIds: string[];
+  itemIds: string[];
+  shipManagerId?: string;
+
+  items: OrderItem[] | OrderItemCombined[]; // 주문프로세스 생성단계에서만 사용
+  states: ORDER_STATE[];
+  cancellations: OrderCancel[];
+  prodTypes: PROD_TYPE[];
+  paids: PAID_INFO[];
+  orderTypes: ORDER_TYPE[];
   amount: OrderAmount; // 결제완료(completePay)이후 건들면 안댐
-  memo: string;
 }
 
 export interface OrderItem {

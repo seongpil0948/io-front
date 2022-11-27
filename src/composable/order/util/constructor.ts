@@ -83,6 +83,7 @@ export function refreshOrder(o: IoOrder) {
     item.orderDbId = o.dbId;
     if (item.shopId !== o.shopId)
       throw new Error("order item shopId !== order.shopId");
+    o.shipManagerId = item.shipManagerId;
     o.orderIds = uniqueArr([...o.orderIds, ...item.orderIds]);
     if (!o.vendorIds.includes(item.vendorId)) o.vendorIds.push(item.vendorId);
     if (!o.states.includes(item.state)) o.states.push(item.state);
@@ -92,8 +93,7 @@ export function refreshOrder(o: IoOrder) {
     if (!o.paids.includes(item.amount.paid)) o.paids.push(item.amount.paid);
 
     if (item.cancellation) o.cancellations.push(item.cancellation);
-    if (item.shipManagerId && !o.shipManagerIds.includes(item.shipManagerId))
-      o.shipManagerIds.push(item.shipManagerId);
+
     if (item.shipmentId && !o.shipmentIds.includes(item.shipmentId))
       o.shipmentIds.push(item.shipmentId);
     o.itemIds.push(item.id);
@@ -156,7 +156,6 @@ function emptyOrder(shopId: string): IoOrder {
     cancellations: [],
     prodTypes: [],
     orderTypes: [],
-    shipManagerIds: [],
     paids: [],
     orderCnts: 0,
     activeCnts: 0,

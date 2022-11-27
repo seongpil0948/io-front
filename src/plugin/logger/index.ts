@@ -15,7 +15,13 @@ const ServerLogHook: LoggerHook = {
         return;
       }
       if (import.meta.env.MODE !== "production") {
-        console.log(event.argumentArray);
+        if (event.level === "error") {
+          console.error(event);
+        } else if (event.level === "warn") {
+          console.warn(event);
+        } else {
+          console.log(event);
+        }
       }
       const isUserLog =
         event.argumentArray[0] && typeof event.argumentArray[0] === "string";

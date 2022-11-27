@@ -36,8 +36,8 @@ const { search, searchedData, searchInputVal } = useSearch({
       :columns="columns"
       :data="searchedData"
       :pagination="{
-        'show-size-picker': true,
-        'page-sizes': [5, 10, 25, 50, 100],
+        showSizePicker: true,
+        pageSizes: [5, 10, 25, 50, 100],
       }"
       :bordered="false"
     />

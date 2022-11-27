@@ -254,8 +254,8 @@ async function onSaveMatch() {
         :columns="matchCols"
         :single-line="false"
         :pagination="{
-          'show-size-picker': true,
-          'page-sizes': [5, 10, 25, 50, 100],
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
         }"
         :bordered="false"
         :table-layout="'fixed'"
@@ -281,8 +281,8 @@ async function onSaveMatch() {
         :columns="tableCols"
         :data="searchedData"
         :pagination="{
-          'show-size-picker': true,
-          'page-sizes': [5, 10, 25, 50, 100],
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
         }"
         :bordered="false"
         :table-layout="'fixed'"
