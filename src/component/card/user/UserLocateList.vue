@@ -4,8 +4,9 @@ import { computed, ref, toRefs } from "vue";
 
 const props = defineProps<{
   info: CompanyInfo;
+  readonly?: boolean;
 }>();
-const { info } = toRefs(props);
+const { info, readonly } = toRefs(props);
 const emits = defineEmits<{
   (e: "update:info", value: CompanyInfo): void;
 }>();
@@ -56,7 +57,7 @@ const locateKey = [
   >
     <n-tooltip v-for="(i, idx) in locates" :key="idx" trigger="hover">
       <template #trigger>
-        <n-tag round closable @close="onLocateClose(i as Locate)">
+        <n-tag round :closable="!readonly" @close="onLocateClose(i as Locate)">
           {{ i.alias }}
         </n-tag>
       </template>
@@ -65,9 +66,10 @@ const locateKey = [
         <template #header-extra>
           <n-button
             v-if="
-              !info.shipLocate ||
-              info.shipLocate.postalCode !== i.postalCode ||
-              info.shipLocate.alias !== i.alias
+              (!info.shipLocate ||
+                info.shipLocate.postalCode !== i.postalCode ||
+                info.shipLocate.alias !== i.alias) &&
+              !readonly
             "
             size="small"
             @click="setShipAddr(i as Locate)"
@@ -85,7 +87,9 @@ const locateKey = [
         </n-space>
       </n-card>
     </n-tooltip>
-    <n-button round size="small" @click="onClickLocateBtn"> 추가 </n-button>
+    <n-button v-if="!readonly" round size="small" @click="onClickLocateBtn">
+      추가
+    </n-button>
     <locate-append-modal
       v-model:showAppendModal="showAppendModal"
       @append-locate="onAppendLocate"

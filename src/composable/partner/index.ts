@@ -1,6 +1,14 @@
 // TODO: Require Refactoring
 import { fireConverter } from "@/util";
-import { doc, getDoc, setDoc } from "@firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  getDocs,
+  query,
+  collection,
+  where,
+} from "@firebase/firestore";
 import { ioFire } from "@io-boxies/js-lib";
 import { IoOrder } from "../order";
 
@@ -31,6 +39,12 @@ export async function loadPartner(d: {
     return data;
   }
 }
+export async function loadPartnerVendors(shopId: string): Promise<IoPartner[]> {
+  const docSnap = await getDocs(
+    query(partnerCollection, where("shopId", "==", shopId))
+  );
+  return docSnap.docs.map((x) => x.data());
+}
 
 const getDocId = (d: { shopId: string; vendorId: string }) =>
   d.shopId.concat(d.vendorId).split("").sort().join("");
@@ -40,3 +54,6 @@ const partnerPath = "partner";
 
 export const getPartnerDoc = (d: { shopId: string; vendorId: string }) =>
   doc(ioFire.store, partnerPath, getDocId(d)).withConverter(partnerConverter);
+const partnerCollection = collection(ioFire.store, partnerPath).withConverter(
+  partnerConverter
+);

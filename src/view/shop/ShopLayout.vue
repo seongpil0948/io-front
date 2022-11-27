@@ -103,7 +103,7 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(People16Regular),
     children: [
       {
-        label: () => renderRoute("팔로우한 거래처", "FollowPartner"),
+        label: () => renderRoute("거래처 관리", "FollowPartner"),
         key: "FollowPartner",
       },
       {
