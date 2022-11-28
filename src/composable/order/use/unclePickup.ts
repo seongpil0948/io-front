@@ -13,6 +13,7 @@ import {
   DataTableColumns,
   NAvatarGroup,
   DataTableRowKey,
+  NText,
 } from "naive-ui";
 import ag from "naive-ui/es/avatar-group/src/AvatarGroup";
 import { ref, computed, watchEffect, h, watch } from "vue";
@@ -206,6 +207,20 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
         key: "vendorProd.userInfo.displayName",
       },
       {
+        title: "상품명",
+        key: "vendorProd.vendorProdName",
+      },
+      {
+        title: "상태",
+        key: "state",
+        render: (row) =>
+          h(NText, { type: "info" }, { default: () => ORDER_STATE[row.state] }),
+      },
+      {
+        title: "픽업수량",
+        key: "orderCnt",
+      },
+      {
         title: "도착지 주소",
         key: "receiveAddress.detailLocate",
         // render: (row) => IoOrder.isShipping(row) ? ,
@@ -213,10 +228,6 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
       {
         title: "출발지 주소",
         key: "startAddress.detailLocate",
-      },
-      {
-        title: "픽업수량",
-        key: "orderCnt",
       },
     ] as DataTableColumns<ShipOrder>;
     return cols.map((x: any) => {

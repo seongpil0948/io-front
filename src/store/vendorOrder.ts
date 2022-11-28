@@ -41,18 +41,13 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     return computed<VendorUserOrderGarment[]>(
       () =>
         vendorProds.value
-          .map((x) => {
-            let vendorProd: VendorUserOrderGarment | null = null;
+          .map((vendorProd) => {
             for (let i = 0; i < orders.value.length; i++) {
               const o = orders.value[i];
               for (let j = 0; j < o.items.length; j++) {
                 const item = o.items[j];
-                if (item.vendorProd.vendorProdId === x.vendorProdId) {
-                  if (vendorProd != null) {
-                    mergeOrderItem(vendorProd, item);
-                  } else {
-                    vendorProd = Object.assign({}, item.amount, item, x);
-                  }
+                if (item.vendorProd.vendorProdId === vendorProd.vendorProdId) {
+                  mergeOrderItem(vendorProd, item);
                 }
               }
             }

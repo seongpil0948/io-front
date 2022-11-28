@@ -105,10 +105,15 @@ export function refreshOrder(o: IoOrder) {
   }
   isValidOrder(o);
 }
-export function mergeOrderItem(origin: OrderItem, y: OrderItem) {
-  origin.orderCnt += y.orderCnt;
-  origin.activeCnt += y.activeCnt;
-  origin.pendingCnt += y.pendingCnt;
+export function mergeOrderItem(origin: Partial<OrderItem>, y: OrderItem) {
+  origin.orderCnt = origin.orderCnt ? origin.orderCnt + y.orderCnt : y.orderCnt;
+  origin.activeCnt = origin.activeCnt
+    ? origin.activeCnt + y.activeCnt
+    : y.activeCnt;
+  origin.pendingCnt = origin.pendingCnt
+    ? origin.pendingCnt + y.pendingCnt
+    : y.pendingCnt;
+  if (!origin.amount) origin.amount = emptyAmount();
   mergeOrderAmount(origin.amount, y.amount);
 }
 export function mergeOrderAmount(origin: OrderAmount, y: OrderAmount) {

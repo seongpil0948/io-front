@@ -532,9 +532,9 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
             }
           }
         });
-      }
-      // async (err) => await onFirestoreErr(name, err),
-      // () => onFirestoreCompletion(name)
+      },
+      async (err) => await onFirestoreErr(name, err),
+      () => onFirestoreCompletion(name)
     );
 
     return { unsubscribe };

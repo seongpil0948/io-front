@@ -39,8 +39,8 @@ export interface VendorUserGarmentCombined
 export interface VendorOrderGarment extends VendorGarmentCrt, IoOrder {}
 export interface VendorUserOrderGarment
   extends VendorUserGarment,
-    OrderAmount,
-    OrderItem {
+    Partial<OrderAmount>,
+    Omit<Partial<OrderItem>, "prodType" | "vendorId"> {
   shopUser?: IoUser;
 }
 export interface VendorGarmentDB {
