@@ -31,16 +31,16 @@ const inStates: ORDER_STATE[] = [
 const shopOrderStore = useShopOrderStore();
 
 const targetOrders = shopOrderStore.getOrders(inStates);
-const stateProdOrders = shopOrderStore.getFilteredOrder(inStates);
-const targetProdOrders = computed(() =>
-  stateProdOrders.value.filter((x) => x.orderType !== "RETURN")
+const stateOrderItems = shopOrderStore.getFilteredOrder(inStates);
+const targetOrderItems = computed(() =>
+  stateOrderItems.value.filter((x) => x.orderType !== "RETURN")
 );
 const {
   checkedDetailKeys: targetKeys,
   tableCol: targetTCol,
   tableRef: targetRef,
 } = useOrderTable({
-  garmentOrders: targetProdOrders,
+  ioOrders: targetOrderItems,
   orders: targetOrders,
   updateOrderCnt: true,
 });
@@ -50,23 +50,23 @@ const smtp = useAlarm();
 
 // request return  >>>
 async function returnReq() {
-  const returnTargets = targetProdOrders.value.filter((x) =>
+  const returnTargets = targetOrderItems.value.filter((x) =>
     targetKeys.value.includes(x.id!)
   );
   const orderDbIds: string[] = [];
-  const prodOrderIds: string[] = [];
+  const orderItemIds: string[] = [];
 
   for (let i = 0; i < returnTargets.length; i++) {
     const orderItem = returnTargets[i];
     if (orderItem.orderDbId && !orderDbIds.includes(orderItem.orderDbId))
       orderDbIds.push(orderItem.orderDbId);
-    if (!prodOrderIds.includes(orderItem.id)) prodOrderIds.push(orderItem.id);
+    if (!orderItemIds.includes(orderItem.id)) orderItemIds.push(orderItem.id);
   }
-  ORDER_GARMENT_DB.returnReq(uniqueArr(orderDbIds), uniqueArr(prodOrderIds))
+  ORDER_GARMENT_DB.returnReq(uniqueArr(orderDbIds), uniqueArr(orderItemIds))
     .then(async () => {
-      msg.success(`${prodOrderIds.length}건의 반품 요청이 완료 되었습니다.`);
+      msg.success(`${orderItemIds.length}건의 반품 요청이 완료 되었습니다.`);
       const targetVendorIds = uniqueArr(
-        targetProdOrders.value.map((x) => x.vendorId)
+        targetOrderItems.value.map((x) => x.vendorId)
       );
       await smtp.sendAlarm({
         toUserIds: targetVendorIds,
@@ -86,10 +86,10 @@ const u = auth.currUser;
 const { targetUncleId, contactUncleOpts, contractUncles } = useContactUncle();
 const filteredOrders = shopOrderStore.getFilteredOrder(["RETURN_APPROVED"]);
 const orders = shopOrderStore.getOrders(["RETURN_APPROVED"]);
-const garmentOrdersByVendor =
+const ioOrdersByVendor =
   shopOrderStore.getGarmentOrdersByVendor(filteredOrders);
 const { tableRef, byVendorCol, byVendorKeys } = useOrderTable({
-  garmentOrders: filteredOrders,
+  ioOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
 });
@@ -103,19 +103,19 @@ async function pickupRequest() {
     return msg.error("주문을 선택 해주세요");
   }
   validateUser(u, u.userInfo.userId);
-  const filtered = garmentOrdersByVendor.value.filter((x) =>
+  const filtered = ioOrdersByVendor.value.filter((x) =>
     byVendorKeys.value.includes(x.vendorId)
   );
-  const prodOrderIds = filtered.flatMap((x) => x.items).map((y) => y.id);
+  const orderItemIds = filtered.flatMap((x) => x.items).map((y) => y.id);
   const orderIds: string[] = [];
   orders.value.forEach((x) => {
-    if (x.itemIds.some((y) => prodOrderIds.includes(y))) {
+    if (x.itemIds.some((y) => orderItemIds.includes(y))) {
       orderIds.push(x.dbId);
     }
   });
 
   if (orderIds.length > 0) {
-    ORDER_GARMENT_DB.reqPickup(orderIds, prodOrderIds, uncle.userInfo.userId)
+    ORDER_GARMENT_DB.reqPickup(orderIds, orderItemIds, uncle.userInfo.userId)
       .then(() => msg.success("픽업 요청 성공!"))
       .catch((err) => {
         const message = `픽업 요청 실패! ${
@@ -155,7 +155,7 @@ const currTab = ref<string>("RETURN_REQ");
               :table-layout="'fixed'"
               :scroll-x="800"
               :columns="targetTCol"
-              :data="targetProdOrders"
+              :data="targetOrderItems"
               :pagination="{
                 showSizePicker: true,
                 pageSizes: [5, 10, 25, 50, 100],
@@ -189,7 +189,7 @@ const currTab = ref<string>("RETURN_REQ");
             :table-layout="'fixed'"
             :scroll-x="800"
             :columns="byVendorCol"
-            :data="garmentOrdersByVendor"
+            :data="ioOrdersByVendor"
             :pagination="{
               showSizePicker: true,
               pageSizes: [5, 10, 25, 50, 100],

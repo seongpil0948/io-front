@@ -142,9 +142,6 @@ function emptyOrder(shopId: string): IoOrder {
   return {
     createdAt: currDate,
     updatedAt: currDate,
-    approvedAt: currDate,
-    paidAt: currDate,
-    doneAt: currDate,
     shopId,
     dbId: uuidv4(),
     orderIds: [],

@@ -1,4 +1,3 @@
-import { isSamePickLocate } from "./../../../locate/pickup";
 import {
   IoShipment,
   IoOrder,
@@ -6,6 +5,7 @@ import {
   ShipDB,
   isValidOrder,
   setState,
+  uncleAvailShip,
 } from "@/composable";
 import { iostore, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { useVendorsStore } from "@/store";
@@ -86,36 +86,38 @@ export const ShipmentFB: ShipDB<IoOrder> = {
             `도매처 대표 배송지 정보가 없습니다. ${shop.userInfo.userId}`
           );
         }
-        const pickLocate = isReturn ? shopLocate : vendorLocate;
-        const shipLocate = isReturn ? vendorLocate : shopLocate;
-        const shipLocateStr = isReturn
-          ? vendorLocate.detailLocate
-          : shopLocate.detailLocate;
-        const ship = uncle.uncleInfo!.shipLocates;
-        const pick = uncle.uncleInfo!.pickupLocates;
+        const clientPickL = isReturn ? shopLocate : vendorLocate;
+        const clientshipL = isReturn ? vendorLocate : shopLocate;
+        const clientshipLStr =
+          clientshipL.city ?? "" + clientshipL.county + clientshipL.town;
+        const clientPickLStr =
+          clientPickL.city ?? "" + clientPickL.county + clientPickL.town;
+
+        const uncleShips = uncle.uncleInfo!.shipLocates;
+        const unclePickups = uncle.uncleInfo!.pickupLocates;
         const shipLocateUncle = isReturn
-          ? pick.find((x) => isSamePickLocate(x.locate, shipLocate))!
-          : ship.find((x) => x.locate.code === shipLocate.code)!;
+          ? unclePickups.find((x) => uncleAvailShip(x.locate, clientshipL))!
+          : uncleShips.find((x) => uncleAvailShip(x.locate, clientshipL))!;
         const pickLocateUncle = isReturn
-          ? ship.find((x) => x.locate.code === pickLocate.code)!
-          : pick.find((x) => isSamePickLocate(x.locate, pickLocate))!;
+          ? uncleShips.find((x) => uncleAvailShip(x.locate, clientPickL))!
+          : unclePickups.find((x) => uncleAvailShip(x.locate, clientPickL))!;
 
         if (!isReturn && !shipLocateUncle)
-          throw new Error(`${shipLocateStr}은 배송불가 지역입니다.`);
+          throw new Error(`${clientshipLStr}은 배송불가 지역입니다.`);
         else if (!isReturn && !pickLocateUncle)
-          throw new Error(`${pickLocate.detailLocate}은 픽업불가 지역입니다.`);
+          throw new Error(`${clientPickLStr}은 픽업불가 지역입니다.`);
         const shipment = new IoShipment({
           shippingId: uuidv4(),
           orderDbId: ord.dbId,
-          prodOrderId: item.id,
+          orderItemId: item.id,
           shipMethod: "UNCLE",
           additionalInfo: "",
           paid: false,
           shipFeeBasic: shipLocateUncle.amount,
           pickupFeeBasic: pickLocateUncle.amount,
-          returnAddress: shipLocate,
-          receiveAddress: shipLocate,
-          startAddress: pickLocate,
+          returnAddress: clientshipL,
+          receiveAddress: clientshipL,
+          startAddress: clientPickL,
           wishedDeliveryTime: new Date(),
           managerId: uncle.userInfo.userId,
         });

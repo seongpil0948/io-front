@@ -96,8 +96,8 @@
 //       this.initialAmount = cloneDeep(this.amount);
 //     }
 //   }
-//   setState(prodOrderId: string, state: ORDER_STATE) {
-//     const ts = this.getProdOrders(prodOrderId);
+//   setState(orderItemId: string, state: ORDER_STATE) {
+//     const ts = this.getOrderItems(orderItemId);
 //     if (ts && ts.length > 0) {
 //       // if (!ts[0].history) ts[0].history = [];
 //       // console.log(ts[0]);
@@ -106,19 +106,19 @@
 //       ts[0].state = state;
 //       this.states = uniqueArr(this.items.map((x) => x.state));
 //     } else {
-//       throw new Error(`prodOrderId ${prodOrderId} not exist`);
+//       throw new Error(`orderItemId ${orderItemId} not exist`);
 //     }
 //   }
 //   // getters
-//   getProdOrders(
-//     prodOrderId?: string,
+//   getOrderItems(
+//     orderItemId?: string,
 //     shopProdId?: string,
 //     vendorProdId?: string
 //   ) {
 //     const orders: OrderItem[] = [];
 //     for (let i = 0; i < this.items.length; i++) {
 //       const item = this.items[i];
-//       if (prodOrderId && prodOrderId === item.id) {
+//       if (orderItemId && orderItemId === item.id) {
 //         orders.push(item);
 //         return orders;
 //       } else if (shopProdId && item.shopProdId === shopProdId) {
@@ -144,7 +144,7 @@
 //         ? amounts.reduce((prev, acc) => prev + (acc[n] as number), 0) ===
 //           this.amount[n]
 //         : true;
-//     this.items.forEach((y) => IoOrder.validProdOrder(y as OrderItemCombined));
+//     this.items.forEach((y) => IoOrder.validOrderItem(y as OrderItemCombined));
 //     return Object.keys(this.amount)
 //       .map((k) => amountFieldValid(k as keyof OrderAmount))
 //       .every((z) => z === true);
@@ -189,11 +189,11 @@
 //   async doneOrder(arg: any): Promise<void> {
 //     throw new Error("Method not implemented.");
 //   }
-//   async dividePartial(prodOrderId: string, orderCnt: number, update: boolean) {
+//   async dividePartial(orderItemId: string, orderCnt: number, update: boolean) {
 //     const item = (this.items as OrderItemCombined[]).find(
-//       (x) => x.id === prodOrderId
+//       (x) => x.id === orderItemId
 //     );
-//     if (!item) throw new Error("prodOrderId not exist");
+//     if (!item) throw new Error("orderItemId not exist");
 //     else if (orderCnt < 0 || orderCnt > item.orderCnt) {
 //       throw new Error("invalid Cnt");
 //     }
@@ -337,14 +337,14 @@
 //   }
 //   // >>> Prod Order >>>
 //   setOrderCnt(
-//     prodOrderId: string,
+//     orderItemId: string,
 //     orderCnt: number,
 //     add = true,
 //     paid = PAID_INFO.F,
 //     refreshInitial = true
 //   ) {
 //     // 0. find prod order
-//     const targetIdx = this.items.findIndex((x) => x.id === prodOrderId);
+//     const targetIdx = this.items.findIndex((x) => x.id === orderItemId);
 //     if (targetIdx < 0) throw new Error("orderItem not belong to order");
 //     const item: OrderItemCombined = (this.items as OrderItemCombined[])[
 //       targetIdx
@@ -377,7 +377,7 @@
 //       item.amount.tax
 //     );
 //     try {
-//       IoOrder.validProdOrder(item);
+//       IoOrder.validOrderItem(item);
 //     } catch (e) {
 //       throw new Error(
 //         `Invalid Prod Order: ${item.id} orderIds: ${this.dbId}, error: ${e}`
@@ -430,7 +430,7 @@
 //       tax
 //     );
 //   }
-//   static validProdOrder(o: OrderItemCombined): void {
+//   static validOrderItem(o: OrderItemCombined): void {
 //     const a = o.amount;
 //     if (!(o.pendingCnt + o.activeCnt === o.orderCnt)) {
 //       throw new Error("invalid count");
@@ -445,7 +445,7 @@
 //     }
 //   }
 // }
-// export function mergeProdOrder(origin: OrderItem, y: OrderItem) {
+// export function mergeOrderItem(origin: OrderItem, y: OrderItem) {
 //   origin.orderCnt += y.orderCnt;
 //   origin.activeCnt += y.activeCnt;
 //   origin.pendingCnt += y.pendingCnt;
@@ -482,7 +482,7 @@
 //   };
 // }
 
-// export function emptyProdOrder(): OrderItem {
+// export function emptyOrderItem(): OrderItem {
 //   return {
 //     id: "",
 //     vendorId: "",

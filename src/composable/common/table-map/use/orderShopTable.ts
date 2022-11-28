@@ -20,7 +20,7 @@ const InfoCell = defineAsyncComponent(
 );
 
 interface orderTableParam {
-  garmentOrders: Ref<OrderItemCombined[]>;
+  ioOrders: Ref<OrderItemCombined[]>;
   orders: Ref<IoOrder[]>;
   updateOrderCnt: boolean;
   useChecker?: boolean;
@@ -107,7 +107,7 @@ export function useOrderTable(d: orderTableParam) {
           (x) => x.index
         );
         checkedDetailKeys.value = to
-          ? d.garmentOrders.value
+          ? d.ioOrders.value
               .filter((o: any, idx: any) => idxes.includes(idx))
               .map((p: { [x: string]: any }) => p[keyField])
           : [];
@@ -208,7 +208,7 @@ export function useOrderTable(d: orderTableParam) {
   });
   const targetIds = computed(() => {
     const itemIds = new Set<string>(
-      d.garmentOrders.value
+      d.ioOrders.value
         .filter(
           (x) =>
             checkedDetailKeys.value.includes(x.id) ||

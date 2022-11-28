@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { uncleAvailShip } from "@/composable";
 import { useAuthStore } from "@/store";
 import { IoUser } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
@@ -30,10 +31,13 @@ const info = uncle.value.userInfo;
 const uInfo = uncle.value.uncleInfo!;
 const title = info.displayName ?? info.userName;
 const shipAmount = computed(() => {
-  const userCode = u.value?.companyInfo!.shipLocate?.code;
-  const locates = uncle.value.uncleInfo?.shipLocates ?? [];
-  const userLocate = locates.find((x) => x.locate.code === userCode);
-  return userLocate ? userLocate.amount.toLocaleString() : "배송불가";
+  const userLocate = u.value?.companyInfo!.shipLocate;
+  if (!userLocate) return "배송불가";
+  const uncleLocates = uncle.value.uncleInfo?.shipLocates ?? [];
+  const availLocate = uncleLocates.find((x) =>
+    uncleAvailShip(x.locate, userLocate)
+  );
+  return availLocate ? availLocate.amount.toLocaleString() : "배송불가";
 });
 
 const emits = defineEmits<{

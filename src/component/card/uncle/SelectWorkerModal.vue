@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useUncleWorkers } from "@/composable";
-import { IoUser } from "@io-boxies/js-lib";
+import { IoUser, getUserName } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
 import { computed, ref, toRefs, watchEffect } from "vue";
 
@@ -32,7 +32,7 @@ function submit() {
 }
 const workerOpt = computed(() =>
   workers.value.map((x) => {
-    return { label: x.name, value: x.userInfo.userId };
+    return { label: getUserName(x), value: x.userInfo.userId };
   })
 );
 </script>

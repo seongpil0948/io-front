@@ -15,7 +15,7 @@ import {
   DataTableRowKey,
 } from "naive-ui";
 import ag from "naive-ui/es/avatar-group/src/AvatarGroup";
-import { ref, computed, watchEffect, h } from "vue";
+import { ref, computed, watchEffect, h, watch } from "vue";
 import { ORDER_STATE, ShipOrder, ShipOrderByShop } from "../domain";
 import { IoShipment } from "../model";
 
@@ -24,8 +24,8 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
   const u = auth.currUser;
   const ordStore = useUncleOrderStore();
   const orders = computed(() => ordStore.orders);
-  const garmentOrders = ordStore.getFilteredOrder(inStates);
-  const garmentOrdersByShop = ordStore.getGarmentOrdersByShop(garmentOrders);
+  const ioOrders = ordStore.getFilteredOrder(inStates);
+  const ioOrdersByShop = ordStore.getGarmentOrdersByShop(ioOrders);
   const orderShips = ref<ShipOrder[]>([]);
   const { imageById, workers } = useUncleWorkers();
 
@@ -44,6 +44,16 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
   const selectedOrderProdId = ref<string | null>(null);
   const openWorkerModal = ref(false);
 
+  watch(
+    () => openWorkerModal.value,
+    (val) => {
+      if (val === false) {
+        selectedOrderProdId.value = null;
+        selectedData.value = null;
+      }
+    }
+  );
+
   function renderWorker(row: ShipOrder) {
     const worker = workers.value.find((x) => x.userInfo.userId === row.uncleId);
     const btn = h(
@@ -51,7 +61,7 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
       {
         size: "small",
         onClick: () => {
-          selectedOrderProdId.value = row.prodOrderId;
+          selectedOrderProdId.value = row.orderItemId;
           openWorkerModal.value = true;
         },
       },
@@ -84,10 +94,10 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
   );
   async function refreshOrderShip() {
     orderShips.value = [];
-    if (garmentOrders.value.length > 0) {
+    if (ioOrders.value.length > 0) {
       const shipIds: string[] = [];
-      for (let i = 0; i < garmentOrders.value.length; i++) {
-        const o = garmentOrders.value[i];
+      for (let i = 0; i < ioOrders.value.length; i++) {
+        const o = ioOrders.value[i];
         if (o.shipmentId) shipIds.push(o.shipmentId);
       }
 
@@ -101,8 +111,8 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
       );
       const shipments = snapshots.flatMap(dataFromSnap<IoShipment>);
 
-      for (let k = 0; k < garmentOrders.value.length; k++) {
-        const ord = garmentOrders.value[k];
+      for (let k = 0; k < ioOrders.value.length; k++) {
+        const ord = ioOrders.value[k];
         for (let z = 0; z < shipments.length; z++) {
           const shipment = shipments[z];
           if (ord.shipmentId === shipment.shippingId) {
@@ -233,7 +243,7 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
     selectedOrderProdId,
     openWorkerModal,
     byShopDetailCols,
-    garmentOrdersByShop,
-    garmentOrders,
+    ioOrdersByShop,
+    ioOrders,
   };
 }

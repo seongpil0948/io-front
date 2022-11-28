@@ -27,7 +27,7 @@ const { existOrderIds } = storeToRefs(shopOrderStore);
 const filteredOrders = shopOrderStore.getFilteredOrder(props.inStates ?? []);
 const orders = shopOrderStore.getOrders(props.inStates ?? []);
 const { checkedDetailKeys, tableCol, tableRef, mapper } = useOrderTable({
-  garmentOrders: filteredOrders,
+  ioOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
 });
@@ -40,7 +40,7 @@ const {
   updateReqOrderShow,
   onReqOrderConfirm,
   deleteChecked,
-  downProdOrders,
+  downOrderItems,
 } = useOrderBasic(user, filteredOrders, orders, checkedDetailKeys);
 
 const sheetIdx = ref(0);
@@ -68,7 +68,7 @@ async function orderDelAll() {
 }
 // <<<<< COLUMNS <<<<<
 function downOrder() {
-  downProdOrders(filteredOrders.value);
+  downOrderItems(filteredOrders.value);
 }
 function downSampleXlsx() {
   const a = document.createElement("a");

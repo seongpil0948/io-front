@@ -43,7 +43,7 @@ export async function reduceStockCnt(
 }
 
 interface ApproveParam {
-  garmentOrders: Ref<OrderItemCombined[]>;
+  ioOrders: Ref<OrderItemCombined[]>;
   orders: Ref<IoOrder[]>;
   vendorId: string;
   expandCol: boolean;
@@ -78,12 +78,12 @@ export function useApproveOrder(p: ApproveParam) {
       return msg.error("부분승인은 개수는 0이상 이어야 합니다.");
     }
 
-    const targetProdOrderId = checkedOrders.value[0];
+    const targetOrderItemId = checkedOrders.value[0];
     for (let i = 0; i < p.orders.value.length; i++) {
       const o = p.orders.value[i];
       for (let j = 0; j < o.items.length; j++) {
         const item = o.items[j];
-        if (item.id === targetProdOrderId) {
+        if (item.id === targetOrderItemId) {
           if (numOfAllow.value > item.orderCnt) {
             return msg.error(
               "부분승인은 개수는 주문개수 이하로 설정 되어야합니다."
@@ -129,7 +129,7 @@ export function useApproveOrder(p: ApproveParam) {
   }
   // >>> Order >>>
   const orderTargets = computed<OrderItemCombined[]>(() =>
-    p.garmentOrders.value.filter((x) => targetIds.value.has(x.id))
+    p.ioOrders.value.filter((x) => targetIds.value.has(x.id))
   );
   const targetIds = computed(() => {
     const itemIds = new Set<string>();
@@ -145,7 +145,7 @@ export function useApproveOrder(p: ApproveParam) {
         }
       }
     }
-    // return garmentOrders.value.filter((z) => itemIds.has(z.id));
+    // return ioOrders.value.filter((z) => itemIds.has(z.id));
     return itemIds;
   });
   const targetOrdDbIds = computed(() => {
@@ -224,7 +224,7 @@ export function useApproveOrder(p: ApproveParam) {
   }
 
   function approveAll() {
-    p.garmentOrders.value.forEach((po) => targetIds.value.add(po.id));
+    p.ioOrders.value.forEach((po) => targetIds.value.add(po.id));
     showOrderModal.value = true;
   }
 
@@ -353,13 +353,13 @@ export function useApproveOrder(p: ApproveParam) {
           const children: VNode[] = [];
           for (let i = 0; i < row.items.length; i++) {
             const item = row.items[i];
-            const garmentOrder = p.orders.value.find(
+            const ioOrder = p.orders.value.find(
               (o) => o.dbId === item.orderDbId
             );
-            if (garmentOrder)
+            if (ioOrder)
               children.push(
                 h(GarmentOrderRow, {
-                  garmentOrder,
+                  ioOrder,
                   orderItem: item,
                   checked: checkedOrders.value.includes(item.id),
                   onClick: () => {

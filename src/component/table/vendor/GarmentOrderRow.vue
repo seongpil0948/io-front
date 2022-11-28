@@ -4,16 +4,19 @@ import {
   ORDER_STATE,
   OrderItemCombined,
   VENDOR_GARMENT_DB,
+  setItemCnt,
+  refreshOrder,
+  ORDER_GARMENT_DB,
 } from "@/composable";
 import { timeToDate } from "@io-boxies/js-lib";
 import { computed, toRefs } from "vue";
 
 const props = defineProps<{
-  garmentOrder: IoOrder;
+  ioOrder: IoOrder;
   orderItem: OrderItemCombined;
   checked: boolean;
 }>();
-const { garmentOrder, checked, orderItem } = toRefs(props);
+const { ioOrder, checked, orderItem } = toRefs(props);
 const emits = defineEmits<{
   (e: "onClick", value: string): void;
 }>();
@@ -32,6 +35,21 @@ async function fillStock() {
     orderItem.value.vendorProd.vendorProdId
   );
   orderItem.value.vendorProd.stockCnt += fillCount;
+  setItemCnt(
+    orderItem.value,
+    orderItem.value.orderCnt,
+    orderItem.value.vendorProd.stockCnt,
+    orderItem.value.vendorProd.allowPending,
+    false,
+    orderItem.value.amount.paid
+  );
+  ioOrder.value.items.splice(
+    ioOrder.value.items.findIndex((x) => x.id === orderItem.value.id),
+    1
+  );
+  ioOrder.value.items.push(orderItem.value);
+  refreshOrder(ioOrder.value);
+  await ORDER_GARMENT_DB.updateOrder(ioOrder.value);
 }
 </script>
 <template>
@@ -47,7 +65,7 @@ async function fillStock() {
       , 주문/미송 개수: {{ orderItem.orderCnt }} / ({{ orderItem.pendingCnt }})
     </n-text>
     <n-text v-else :type="'primary'">, 주문개수: {{ orderItem.orderCnt }} </n-text> -->
-    <shop-order-cnt :order="garmentOrder" :order-item="orderItem" />
+    <shop-order-cnt :order="ioOrder" :order-item="orderItem" />
     <n-text>, 주문상태: {{ ORDER_STATE[orderItem.state] }} </n-text>
     <n-text v-if="orderItem.amount.paidAt">
       , 결제일: {{ timeToDate(orderItem.amount.paidAt, "MIN") }}

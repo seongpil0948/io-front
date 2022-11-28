@@ -11,7 +11,7 @@ import {
   newOrdItem,
 } from "@/composable";
 
-export function garmentOrderFromCondi(
+export function ioOrderFromCondi(
   conditions: GarmentOrderCondi[],
   vendorProds: VendorUserGarment[],
   userGarments: ShopUserGarment[]

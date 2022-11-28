@@ -3,7 +3,7 @@ import {
   useShopUserGarments,
   Mapper,
   IoOrder,
-  garmentOrderFromCondi,
+  ioOrderFromCondi,
   MapKey,
   synonymFilter,
   catchExcelError,
@@ -76,7 +76,7 @@ export function useMappingOrderExcel(
         }
       }
       files = [];
-      const ords = garmentOrderFromCondi(
+      const ords = ioOrderFromCondi(
         conditions.value,
         vendorStore.vendorUserGarments,
         userProd.value

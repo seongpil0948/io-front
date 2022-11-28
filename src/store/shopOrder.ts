@@ -26,7 +26,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   let orderUnSub: null | Unsubscribe = null;
   let shopProds = ref<ShopUserGarment[]>([]);
   let shopGarmentUnSub: null | Unsubscribe = null;
-  const _garmentOrders = ref<OrderItemCombined[]>([]);
+  const _ioOrders = ref<OrderItemCombined[]>([]);
   let initial = true;
 
   // >>> getter >>>
@@ -37,13 +37,13 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   }
   function getFilteredOrder(inStates: ORDER_STATE[]) {
     return computed(() =>
-      _garmentOrders.value.filter((x) => inStates.includes(x.state))
+      _ioOrders.value.filter((x) => inStates.includes(x.state))
     );
   }
 
-  function getGarmentOrdersByVendor(garmentOrders: typeof _garmentOrders) {
+  function getGarmentOrdersByVendor(ioOrders: typeof _ioOrders) {
     return computed(() =>
-      garmentOrders.value.reduce((acc, curr) => {
+      ioOrders.value.reduce((acc, curr) => {
         const exist = acc.find((x) => x.vendorId === curr.vendorId);
         if (!exist) {
           const account = curr.vendorProd.userInfo.account;
@@ -74,7 +74,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     );
   }
   const orders = computed(() => [..._orders.value]);
-  const garmentOrders = computed(() => [..._garmentOrders.value]);
+  const ioOrders = computed(() => [..._ioOrders.value]);
 
   // >>> connection >>>
   const { vendorUserGarments } = storeToRefs(useVendorsStore());
@@ -106,7 +106,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
       if (shopId.value && orders.value) {
         await setExistOrderIds();
         if (shopProds.value) {
-          _garmentOrders.value = extractGarmentOrd(
+          _ioOrders.value = extractGarmentOrd(
             _orders.value,
             shopProds.value,
             vendorUserGarments.value
@@ -151,7 +151,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     inStates.value = [];
     shopId.value = null;
     _orders.value = [];
-    _garmentOrders.value = [];
+    _ioOrders.value = [];
     shopProds.value = [];
     initial = true;
   }
@@ -178,7 +178,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     shopProds,
     getOrders,
     unsubscribeAuth,
-    garmentOrders,
+    ioOrders,
     getGarmentOrdersByVendor,
     getFilteredOrder,
     setInStates,

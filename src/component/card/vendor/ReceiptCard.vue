@@ -13,7 +13,7 @@ const props = defineProps<{
 const { customer, vendor, items } = toRefs(props);
 const msg = useMessage();
 
-const { toggleEditor, saveEditor } = useEditor({
+const { toggleEditor, saveEditor, editor } = useEditor({
   readOnly: true,
   elementId: "io-editor",
   placeholder: "메모 입력",
@@ -29,13 +29,24 @@ const { toggleEditor, saveEditor } = useEditor({
     ],
   },
 });
+async function onToggle() {
+  // readonly로 바뀔때 상태 저장
+  if (editor.value) {
+    if (!editor.value.readOnly.isEnabled) {
+      console.log("save!");
+      const orderMemo = await saveEditor();
+      if (orderMemo) {
+        vendor.value.orderMemo = orderMemo;
+        await USER_DB.updateUser(vendor.value);
+      }
+    }
+    await toggleEditor();
+  }
+}
 
 onBeforeUnmount(async () => {
-  const orderMemo = await saveEditor();
-  if (orderMemo) {
-    vendor.value.orderMemo = orderMemo;
-    await USER_DB.updateUser(vendor.value);
-  }
+  onToggle();
+  editor.value?.destroy();
 });
 
 function printReceipt() {
@@ -89,7 +100,7 @@ defineExpose({ printReceipt });
     <template #header-extra>
       <n-space justify="end">
         <n-button @click="printReceipt">출력하기</n-button>
-        <n-button @click="toggleEditor">편집모드</n-button>
+        <n-button @click="onToggle">편집모드</n-button>
       </n-space>
     </template>
     <div id="receipt-card">

@@ -12,7 +12,7 @@ const orders = shopOrderStore.getOrders(inStates);
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 
 const { checkedDetailKeys, tableCol, tableRef } = useOrderTable({
-  garmentOrders: filteredOrders,
+  ioOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
 });

@@ -26,7 +26,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   const _orders = ref<IoOrder[]>([]);
   let orderUnSub: null | Unsubscribe = null;
   const shopProds = ref<ShopUserGarment[]>([]);
-  const _garmentOrders = ref<OrderItemCombined[]>([]);
+  const _ioOrders = ref<OrderItemCombined[]>([]);
   let initial = true;
   // >>> getter >>>
   const orders = computed(() => [..._orders.value]);
@@ -62,9 +62,9 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
           .filter((y) => y !== null) as VendorUserOrderGarment[]
     );
   }
-  function getGarmentOrdersByShop(garmentOrders: typeof _garmentOrders) {
+  function getGarmentOrdersByShop(ioOrders: typeof _ioOrders) {
     return computed(() =>
-      garmentOrders.value.reduce((acc, curr) => {
+      ioOrders.value.reduce((acc, curr) => {
         const exist = acc.find((x) => x.shopId === curr.shopProd.shopId);
         if (!exist) {
           acc.push({
@@ -93,8 +93,8 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   function getFilteredOrder(inStates: ORDER_STATE[]) {
     return computed(() =>
       inStates.length > 0
-        ? _garmentOrders.value.filter((x) => inStates.includes(x.state))
-        : _garmentOrders.value
+        ? _ioOrders.value.filter((x) => inStates.includes(x.state))
+        : _ioOrders.value
     );
   }
   // >>> connection >>>
@@ -127,7 +127,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
       shopProds.value = [];
       const shopIds = uniqueArr(orders.value.map((x) => x.shopId));
       shopProds.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
-      _garmentOrders.value = extractGarmentOrd(
+      _ioOrders.value = extractGarmentOrd(
         orders.value,
         shopProds.value,
         vendorProds.value
@@ -167,7 +167,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     inStates.value = [];
     vendorId.value = null;
     _orders.value = [];
-    _garmentOrders.value = [];
+    _ioOrders.value = [];
     shopProds.value = [];
     initial = true;
   }

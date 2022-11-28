@@ -199,7 +199,12 @@ watch(
       <n-space
         justify="end"
         inline
-        style="width: 100%; margin-top: 0.5%; margin-bottom: 1%"
+        style="
+          width: 100%;
+          margin-top: 0.5%;
+          margin-bottom: 1%;
+          min-width: 45vw;
+        "
       >
         <n-input v-model:value="searchInputVal" placeholder="상품검색" />
         <n-button @click="search"> 검색 </n-button>

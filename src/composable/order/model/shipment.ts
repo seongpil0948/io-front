@@ -17,7 +17,7 @@ export class IoShipment extends CommonField {
   shippingId: string;
   orderDbId: string;
   uncleId?: string; // 엉클근로자 아이디, 토스시 변경가능
-  prodOrderId: string;
+  orderItemId: string;
   trackingNo?: string; //송장번호
   shipMethod: SHIP_METHOD;
   additionalInfo: string;
@@ -49,7 +49,7 @@ export class IoShipment extends CommonField {
     super(d.createdAt, d.updatedAt);
     this.shippingId = d.shippingId;
     this.orderDbId = d.orderDbId;
-    this.prodOrderId = d.prodOrderId;
+    this.orderItemId = d.orderItemId;
     this.uncleId = d.uncleId;
     this.trackingNo = d.trackingNo;
     this.shipMethod = d.shipMethod;
@@ -106,7 +106,7 @@ export class IoShipment extends CommonField {
       shippingId: d.shippingId,
       orderDbId: d.orderDbId,
       uncleId: d.uncleId,
-      prodOrderId: d.prodOrderId,
+      orderItemId: d.orderItemId,
       trackingNo: d.trackingNo,
       shipMethod: d.shipMethod,
       additionalInfo: d.additionalInfo,

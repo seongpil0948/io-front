@@ -59,8 +59,6 @@ async function onSelectWorker(val: IoUser) {
         uriArgs: {},
       });
       openWorkerModal.value = false;
-      selectedOrderProdId.value = null;
-      selectedData.value = null;
     });
   }
 }

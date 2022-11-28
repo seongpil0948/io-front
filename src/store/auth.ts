@@ -53,6 +53,7 @@ export const useAuthStore = defineStore({
       this.clearUser();
       const auth = getAuth();
       await signOut(auth);
+      if (replace) this.$router.replace({ name: "Login" });
       // map through that list and use the **$reset** fn to reset the state
       const pinia = getActivePinia();
       console.log("pinia:", pinia);
@@ -63,7 +64,6 @@ export const useAuthStore = defineStore({
           if (store.$dispose) store.$dispose();
         });
       }
-      if (replace) this.$router.replace({ name: "Login" }); //   this.$http.get("https://www.naver.com");
     },
   },
 });

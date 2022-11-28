@@ -2,7 +2,7 @@ import {
   GarmentOrderCondi,
   useShopUserGarments,
   Mapper,
-  garmentOrderFromCondi,
+  ioOrderFromCondi,
   AnyOrder,
   synonymFilter,
   TryNum,
@@ -90,7 +90,7 @@ export function useMappingOrderCafe(
       logger.error(userId, err);
     });
 
-    return garmentOrderFromCondi(
+    return ioOrderFromCondi(
       conditions.value,
       vendorStore.vendorUserGarments,
       userProd.value

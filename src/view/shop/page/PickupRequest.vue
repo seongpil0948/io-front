@@ -26,7 +26,7 @@ const smtp = useAlarm();
 const auth = useAuthStore();
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 const orders = shopOrderStore.getOrders(inStates);
-const garmentOrdersByVendor =
+const ioOrdersByVendor =
   shopOrderStore.getGarmentOrdersByVendor(filteredOrders);
 const {
   tableRef,
@@ -36,7 +36,7 @@ const {
   targetOrdDbIds,
   tableCol,
 } = useOrderTable({
-  garmentOrders: filteredOrders,
+  ioOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
   useAccountStr: false,
@@ -91,7 +91,7 @@ async function pickupRequest() {
         :table-layout="'fixed'"
         :scroll-x="800"
         :columns="byVendorCol"
-        :data="garmentOrdersByVendor"
+        :data="ioOrdersByVendor"
         :pagination="{
           showSizePicker: true,
           pageSizes: [5, 10, 25, 50, 100],

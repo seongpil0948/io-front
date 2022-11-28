@@ -12,7 +12,7 @@ export function extractGarmentOrd(
   shopProds: ShopUserGarment[],
   vendorProds: VendorUserGarment[]
 ) {
-  const garmentOrders: OrderItemCombined[] = [];
+  const ioOrders: OrderItemCombined[] = [];
   orders.forEach((order) => {
     for (let i = 0; i < order.items.length; i++) {
       const sId = order.items[i].shopProd.shopProdId;
@@ -39,8 +39,8 @@ export function extractGarmentOrd(
       );
       // 3. set active cnt
       item.activeCnt = getActiveCnt(item.orderCnt, item.pendingCnt);
-      garmentOrders.push(item);
+      ioOrders.push(item);
     }
   });
-  return garmentOrders;
+  return ioOrders;
 }

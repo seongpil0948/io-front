@@ -18,8 +18,8 @@ const auth = useAuthStore();
 const u = auth.currUser;
 const store = useVendorOrderStore();
 const orders = store.getOrders(props.inStates ?? []);
-const garmentOrders = store.getFilteredOrder(props.inStates ?? []);
-const garmentOrdersByShop = store.getGarmentOrdersByShop(garmentOrders);
+const ioOrders = store.getFilteredOrder(props.inStates ?? []);
+const ioOrdersByShop = store.getGarmentOrdersByShop(ioOrders);
 const {
   showPartial,
   onCloseModal,
@@ -43,7 +43,7 @@ const {
   targetOrdDbIds,
   targetShopIds,
 } = useApproveOrder({
-  garmentOrders,
+  ioOrders,
   orders,
   vendorId: u.userInfo.userId,
   expandCol: false,
@@ -54,9 +54,7 @@ const shopTableCol = computed(() =>
 );
 const tableCol = computed(() => getBasicColumns(props.showPaidDate));
 const targetShops = computed(() =>
-  garmentOrdersByShop.value.filter((x) =>
-    detailShopIds.value.includes(x.shopId)
-  )
+  ioOrdersByShop.value.filter((x) => detailShopIds.value.includes(x.shopId))
 );
 
 const currTab = ref<string | null>(null);
@@ -79,7 +77,7 @@ function onClickOrder(keys: string[]) {
     <n-data-table
       :bordered="false"
       :columns="shopTableCol"
-      :data="garmentOrdersByShop"
+      :data="ioOrdersByShop"
       style="min-width: 65vw"
     />
     <n-card v-if="targetShops.length > 0" style="width: 65vw; margin-top: 5vh">

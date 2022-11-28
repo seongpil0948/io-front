@@ -20,9 +20,9 @@ const auth = useAuthStore();
 const u = auth.currUser;
 const store = useVendorOrderStore();
 const orders = store.getOrders(props.inStates ?? []);
-const garmentOrders = store.getFilteredOrder(props.inStates ?? []);
+const ioOrders = store.getFilteredOrder(props.inStates ?? []);
 const { checkedOrders, targetIds, targetOrdDbIds } = useApproveOrder({
-  garmentOrders,
+  ioOrders,
   orders,
   vendorId: u.userInfo.userId,
   expandCol: false,
@@ -72,7 +72,7 @@ async function rejectCancel() {
     </template>
     <n-data-table
       :columns="tableCol"
-      :data="garmentOrders"
+      :data="ioOrders"
       :pagination="{
         showSizePicker: true,
         pageSizes: [5, 10],

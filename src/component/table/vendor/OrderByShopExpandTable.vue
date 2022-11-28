@@ -12,8 +12,8 @@ const auth = useAuthStore();
 const u = auth.currUser;
 const store = useVendorOrderStore();
 const orders = store.getOrders(props.inStates ?? []);
-const garmentOrders = store.getFilteredOrder(props.inStates ?? []);
-const garmentOrdersByShop = store.getGarmentOrdersByShop(garmentOrders);
+const ioOrders = store.getFilteredOrder(props.inStates ?? []);
+const ioOrdersByShop = store.getGarmentOrdersByShop(ioOrders);
 const {
   showPartial,
   onCloseModal,
@@ -34,7 +34,7 @@ const {
   targetShopIds,
   onProdReady,
 } = useApproveOrder({
-  garmentOrders,
+  ioOrders,
   orders,
   vendorId: u.userInfo.userId,
   expandCol: true,
@@ -85,7 +85,7 @@ function getRowKey(row: OrderItemByShop) {
     <n-data-table
       :bordered="false"
       :columns="columns"
-      :data="garmentOrdersByShop"
+      :data="ioOrdersByShop"
       :table-layout="'fixed'"
       :scroll-x="800"
       :row-key="getRowKey"

@@ -631,7 +631,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
   cancelReq: async function (
     shopId: string,
     orderDbId: string,
-    prodOrderId: string,
+    orderItemId: string,
     claim: OrderCancel,
     cancelCnt: number
   ): Promise<void> {
@@ -650,7 +650,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     const order = await OrderGarmentFB.readById(shopId, orderDbId);
     if (!order) throw new Error("주문 데이터 정보가 없습니다.");
     const item = validate(
-      (order.items as OrderItem[]).find((x) => x.id === prodOrderId)
+      (order.items as OrderItem[]).find((x) => x.id === orderItemId)
     );
 
     const processing = async (i: OrderItem, c: OrderCancel) => {
@@ -682,7 +682,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       const itemDivided = validate(
         (order.items as OrderItem[]).find((x) => x.id === newId)
       );
-      claim.prodOrderId = newId;
+      claim.orderItemId = newId;
       await processing(itemDivided, claim);
     } else {
       await processing(item, claim);

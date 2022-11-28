@@ -23,13 +23,13 @@ import { isValidOrderItem, isValidOrder } from "./validate";
 
 export function setOrderCnt(
   order: IoOrder,
-  prodOrderId: string,
+  orderItemId: string,
   orderCnt: number,
   add = true,
   paid = PAID_INFO.NO
 ) {
   // 0. find prod order
-  const targetIdx = order.items.findIndex((x) => x.id === prodOrderId);
+  const targetIdx = order.items.findIndex((x) => x.id === orderItemId);
   if (targetIdx < 0) throw new Error("orderItem not belong to order");
   const item: OrderItemCombined = (order.items as OrderItemCombined[])[
     targetIdx
@@ -89,7 +89,7 @@ export async function dividePartial(d: {
   const item = (d.order.items as OrderItemCombined[]).find(
     (x) => x.id === d.itemId
   );
-  if (!item) throw new Error("prodOrderId not exist");
+  if (!item) throw new Error("orderItemId not exist");
   else if (d.orderCnt < 0 || d.orderCnt > item.orderCnt) {
     throw new Error("invalid Cnt");
   }

@@ -11,7 +11,7 @@ import { IoUser, getUserName } from "@io-boxies/js-lib";
 
 export function useOrderBasic(
   user: IoUser,
-  garmentOrders: Ref<OrderItemCombined[]>,
+  ioOrders: Ref<OrderItemCombined[]>,
   orders: Ref<IoOrder[]>,
   checkedKeys: Ref<string[]>
 ) {
@@ -76,18 +76,18 @@ export function useOrderBasic(
   }
 
   async function deleteChecked() {
-    const targetProds = garmentOrders.value.filter((x) =>
+    const targetProds = ioOrders.value.filter((x) =>
       checkedKeys.value.includes(x[keyField]!)
     );
     const ids = targetProds.map((prod) => prod.id);
     const targets: IoOrder[] = [];
     for (let i = 0; i < ids.length; i++) {
-      const prodOrderId = ids[i];
+      const orderItemId = ids[i];
       for (let j = 0; j < orders.value.length; j++) {
         const ord = orders.value[j];
         for (let k = 0; k < ord.items.length; k++) {
           const item = ord.items[k];
-          if (item.id !== prodOrderId) continue;
+          if (item.id !== orderItemId) continue;
           if (ord.items.length < 2) {
             if (!targets.map((z) => z.dbId).includes(ord.dbId)) {
               targets.push(ord);
@@ -123,13 +123,13 @@ export function useOrderBasic(
       );
   }
   async function orderChecked() {
-    orderTargets.value = garmentOrders.value.filter((x) =>
+    orderTargets.value = ioOrders.value.filter((x) =>
       checkedKeys.value.includes(x[keyField]!)
     );
     showReqOrderModal.value = true;
   }
   async function orderAll() {
-    orderTargets.value = garmentOrders.value;
+    orderTargets.value = ioOrders.value;
     showReqOrderModal.value = true;
   }
 
@@ -144,11 +144,11 @@ export function useOrderBasic(
     updateReqOrderShow,
     onReqOrderConfirm,
     deleteChecked,
-    downProdOrders,
+    downOrderItems,
   };
 }
 
-export function downProdOrders(gOrders: OrderItemCombined[]) {
+export function downOrderItems(gOrders: OrderItemCombined[]) {
   const df = pOrdersToFrame(gOrders);
   toExcel(df, { fileName: "testOut.xlsx" });
   const a = document.createElement("a");

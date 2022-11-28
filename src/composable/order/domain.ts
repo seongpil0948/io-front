@@ -80,7 +80,7 @@ export interface OrderItem {
 }
 
 export interface OrderEffect {
-  prodOrderId: string;
+  orderItemId: string;
   orderCnt: number;
   pendingCnt: number;
 }
@@ -217,7 +217,7 @@ export interface OrderItemByVendor {
 }
 interface Claim {
   id: string;
-  prodOrderId: string;
+  orderItemId: string;
   reqDate: Date;
   state: ORDER_STATE; // 요청시 주문상태
   reason: string; // 클레임 상세 이유
@@ -238,7 +238,7 @@ export interface OrderDB<T> {
   deleteOrder(order: IoOrder): Promise<void>;
   orderGarment(
     orderDbIds: string[],
-    prodOrderIds: string[],
+    orderItemIds: string[],
     shopId: string
   ): Promise<T[]>;
   batchCreate(uid: string, orders: T[]): Promise<void>;
@@ -277,35 +277,35 @@ export interface OrderDB<T> {
   orderApprove(
     vendorId: string,
     orderDbIds: string[],
-    prodOrderIds: string[]
+    orderItemIds: string[]
   ): Promise<void>;
-  orderReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  orderReject(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
   completePay(
     orderDbIds: string[],
-    prodOrderIds: string[],
+    orderItemIds: string[],
     shopId: string,
     vendorId: string,
     param: { [itemId: string]: DefrayParam }
   ): Promise<void>;
-  orderToReady(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  orderToReady(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
   reqPickup(
     orderDbIds: string[],
-    prodOrderIds: string[],
+    orderItemIds: string[],
     uncleId: string
   ): Promise<void>;
-  returnReq(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
-  returnApprove(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
-  returnReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
-  returnDone(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  returnReq(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
+  returnApprove(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
+  returnReject(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
+  returnDone(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
   cancelReq(
     shopId: string,
     orderDbId: string,
-    prodOrderId: string,
+    orderItemId: string,
     claim: OrderCancel,
     cancelCnt: number
   ): Promise<void>;
-  cancelApprove(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
-  cancelReject(orderDbIds: string[], prodOrderIds: string[]): Promise<void>;
+  cancelApprove(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
+  cancelReject(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
 }
 
 export interface ShipDB<T> {
