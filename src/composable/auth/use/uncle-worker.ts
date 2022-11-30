@@ -34,7 +34,10 @@ export function useUncleWorkers() {
     (snapshot) => {
       workers.value = usersFromSnap(snapshot);
     },
-    async (err) => await onFirestoreErr(name, err),
+    async (err) => {
+      await onFirestoreErr(name, err);
+      throw err;
+    },
     () => onFirestoreCompletion(name)
   );
   onBeforeUnmount(() => unsubscribe());

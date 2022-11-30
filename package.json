@@ -13,14 +13,13 @@
     "format": "prettier .  --write"
   },
   "dependencies": {
-    "@bootpay/client-js": "^4.2.5",
+    "@bootpay/client-js": "^4.2.6",
     "@editorjs/editorjs": "^2.25.0",
     "@editorjs/embed": "^2.5.3",
     "@editorjs/header": "^2.6.2",
     "@editorjs/list": "^1.7.0",
     "@editorjs/table": "^2.0.4",
-    "@io-boxies/js-lib": "0.0.6",
-    "@io-boxies/vue-lib": "0.0.9",
+    "@io-boxies/vue-lib": "0.1.1",
     "axios": "1.1.2",
     "clipboardy": "^3.0.0",
     "danfojs": "1.1.1",
@@ -29,7 +28,8 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.debounce": "^4.0.8",
     "pinia": "^2.0.17",
-    "register-service-worker": "^1.7.2"
+    "register-service-worker": "^1.7.2",
+    "@io-boxies/js-lib": "0.0.8"
   },
   "devDependencies": {
     "@types/kakao-js-sdk": "^1.39.1",

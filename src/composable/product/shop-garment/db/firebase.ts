@@ -8,7 +8,7 @@ import {
 } from "@/composable";
 import {
   USER_DB,
-  getIoStore,
+  IoFireApp,
   batchInQuery,
   getIoCollection,
   IoCollection,
@@ -27,6 +27,7 @@ import {
   QueryConstraint,
 } from "@firebase/firestore";
 import { Ref, ref } from "vue";
+import { ioFire } from "@/plugin/firebase";
 
 export const ShopGarmentFB: ShopGarmentDB = {
   getShopGarments: async function (d) {
@@ -81,7 +82,10 @@ export const ShopGarmentFB: ShopGarmentDB = {
           }
         });
       },
-      async (err) => await onFirestoreErr(name, err),
+      async (err) => {
+        await onFirestoreErr(name, err);
+        throw err;
+      },
       () => onFirestoreCompletion(name)
     );
 
@@ -93,7 +97,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
     else if (prodIds.length === 1) {
       await deleteDoc(doc(c, prodIds[0]));
     } else {
-      const batch = writeBatch(getIoStore());
+      const batch = writeBatch(ioFire.store);
       for (let i = 0; i < prodIds.length; i++) {
         batch.delete(doc(c, prodIds[i]));
       }

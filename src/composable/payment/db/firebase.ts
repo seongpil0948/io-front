@@ -20,7 +20,10 @@ export const IopayFB: PaymentDB = {
       async (docData) => {
         userPay.value = await getPayFromDoc(docData, uid);
       },
-      async (err) => await onFirestoreErr(name, err),
+      async (err) => {
+        await onFirestoreErr(name, err);
+        throw err;
+      },
       () => onFirestoreCompletion(name)
     );
     return { userPay, unsubscribe };
@@ -39,7 +42,10 @@ export const IopayFB: PaymentDB = {
           }
         });
       },
-      async (err) => await onFirestoreErr(name, err),
+      async (err) => {
+        await onFirestoreErr(name, err);
+        throw err;
+      },
       () => onFirestoreCompletion(name)
     );
     return { usersPay, unsubscribe };

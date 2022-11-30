@@ -14,8 +14,8 @@ import {
 } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { useRouter } from "vue-router";
-import { ioFire } from "@io-boxies/js-lib";
-import { logEvent } from "@firebase/analytics";
+import { IoFireApp } from "@io-boxies/js-lib";
+import { logEvent, getAnalytics } from "@firebase/analytics";
 import {
   IoUser,
   USER_DB,
@@ -26,6 +26,7 @@ import {
   getUserName,
 } from "@io-boxies/js-lib";
 import { createUserWithEmailAndPassword, getAuth } from "@firebase/auth";
+import { ioFire } from "@/plugin/firebase";
 const UserInfoForm = defineAsyncComponent(
   () => import("@/component/form/UserInfoForm.vue")
 );
@@ -205,7 +206,7 @@ async function onSignUp() {
       return msg.error("(오류) 이메일이 없습니다.", makeMsgOpt());
     try {
       const credential = await createUserWithEmailAndPassword(
-        getAuth(),
+        getAuth(ioFire.app),
         u.userInfo.email,
         state.password
       );
@@ -228,7 +229,7 @@ async function onSignUp() {
       } else {
         log.debug(u.userInfo.userId, "signup user: ", u);
         await USER_DB.updateUser(u);
-        logEvent(ioFire.analytics, "sign_up", {
+        logEvent(getAnalytics(IoFireApp.getInst().app), "sign_up", {
           method: u.userInfo.providerId,
           userRole: u.userInfo.role,
         });

@@ -16,12 +16,13 @@ import { logger } from "@/plugin/logger";
 import { onBeforeMount, ref } from "vue";
 import { CommonField } from "@/composable/common/model";
 import {
-  iostore,
+  IoFireApp,
   getIoCollection,
   IoCollection,
   loadDate,
 } from "@io-boxies/js-lib";
 import { onFirestoreErr, onFirestoreCompletion } from "@/composable";
+import { ioFire } from "../firebase";
 export interface IoLogCRT {
   createdAt?: Date;
   uid?: string;
@@ -124,7 +125,7 @@ export function useReadLogger(param: ReadLogParam) {
     }
     constraints.push(limit(param.limit));
     return query(
-      collectionGroup(iostore, "logs").withConverter(ioLogConverter),
+      collectionGroup(ioFire.store, "logs").withConverter(ioLogConverter),
       ...constraints
     );
   }
@@ -142,7 +143,10 @@ export function useReadLogger(param: ReadLogParam) {
       lastLog.value = len > 0 ? userLogs.value[len - 1] : null;
       noMore.value = lastLog.value === null;
     },
-    async (err) => await onFirestoreErr(name, err),
+    async (err) => {
+      await onFirestoreErr(name, err);
+      throw err;
+    },
     () => onFirestoreCompletion(name)
   );
   async function next() {

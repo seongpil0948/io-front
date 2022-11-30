@@ -4,6 +4,7 @@ import { NCard, NIcon, NImage, NSpace, NSpin, useMessage } from "naive-ui";
 import { CloseCircle } from "@vicons/ionicons5";
 import { makeMsgOpt } from "@/util";
 import { STORAGE_SVC, getParentRef, uploadFile } from "@io-boxies/js-lib";
+import { getStorage } from "@firebase/storage";
 
 const props = defineProps<{
   svc: STORAGE_SVC;
@@ -27,6 +28,7 @@ async function loadFile() {
   } else if (input.value.files && input.value.files.length > 0) {
     loading.value = true;
     const parent = getParentRef({
+      storage: getStorage(),
       svc: props.svc,
       parentId: props.parentId,
       userId: props.userId,

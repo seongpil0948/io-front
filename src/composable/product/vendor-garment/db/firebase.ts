@@ -7,7 +7,7 @@ import {
   VendorGarmentDB,
 } from "@/composable";
 import { handleReadSnap } from "@/util";
-import { getIoStore, getIoCollection, IoCollection } from "@io-boxies/js-lib";
+import { IoFireApp, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import {
   writeBatch,
   doc,
@@ -19,6 +19,7 @@ import {
   getCountFromServer,
 } from "@firebase/firestore";
 import { ref } from "vue";
+import { ioFire } from "@/plugin/firebase";
 
 export const VendorGarmentFB: VendorGarmentDB = {
   incrementStockCnt: async function (cnt: number, vendorProdId: string) {
@@ -32,7 +33,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
     const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
       VendorGarment.fireConverter()
     );
-    const batch = writeBatch(getIoStore());
+    const batch = writeBatch(ioFire.store);
     for (let i = 0; i < args.length; i++) {
       const prod = args[i];
       batch.update(doc(c, prod.vendorProdId), prod.toJson());
@@ -78,7 +79,10 @@ export const VendorGarmentFB: VendorGarmentDB = {
       query(c, ...wheres, orderBy("createdAt", "desc")),
       (snap) =>
         handleReadSnap<VendorGarment>(snap, items.value, (x) => x.vendorProdId),
-      async (err) => await onFirestoreErr(name, err),
+      async (err) => {
+        await onFirestoreErr(name, err);
+        throw err;
+      },
       () => onFirestoreCompletion(name)
     );
     return { items, unsubscribe };

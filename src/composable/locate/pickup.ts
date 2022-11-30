@@ -35,7 +35,10 @@ export function usePickArea() {
         }
       });
     },
-    async (err) => await onFirestoreErr(name, err),
+    async (err) => {
+      await onFirestoreErr(name, err);
+      throw err;
+    },
     () => onFirestoreCompletion(name)
   );
 

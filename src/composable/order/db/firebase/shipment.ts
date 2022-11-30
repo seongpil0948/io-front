@@ -7,12 +7,13 @@ import {
   setState,
   uncleAvailShip,
 } from "@/composable";
-import { iostore, getIoCollection, IoCollection } from "@io-boxies/js-lib";
+import { getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { useVendorsStore } from "@/store";
 import { uuidv4 } from "@firebase/util";
 import { IoUser, userFireConverter } from "@io-boxies/js-lib";
 import { doc, runTransaction } from "firebase/firestore";
 import { getSrc } from "./order";
+import { ioFire } from "@/plugin/firebase";
 // import { uuidv4 } from "@firebase/util";
 export const ShipmentFB: ShipDB<IoOrder> = {
   approvePickUp: async function (row: IoOrder, expectedReduceCoin: number) {
@@ -25,7 +26,7 @@ export const ShipmentFB: ShipDB<IoOrder> = {
       throw new Error("보유 코인이 부족합니다.");
     const ordRef = getOrdRef(row.shopId);
     const ordDocRef = doc(ordRef, row.dbId).withConverter(converterGarment);
-    return runTransaction(iostore, async (transaction) => {
+    return runTransaction(ioFire.store, async (transaction) => {
       const ordDoc = await transaction.get(ordDocRef);
       if (!ordDoc.exists()) throw new Error("order doc does not exist!");
 

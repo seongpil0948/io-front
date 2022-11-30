@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { IoAccount, setWorkerId } from "@/composable";
+import { ioFire } from "@/plugin/firebase";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt, password, email as validEmail } from "@/util";
 import { createUserWithEmailAndPassword, getAuth } from "@firebase/auth";
-import { WorkerInfo, USER_DB, USER_PROVIDER, IoUser } from "@io-boxies/js-lib";
+import {
+  WorkerInfo,
+  USER_DB,
+  USER_PROVIDER,
+  IoUser,
+  IoFireApp,
+} from "@io-boxies/js-lib";
 import { useLogin } from "@io-boxies/vue-lib";
 import {
   NButton,
@@ -88,7 +95,7 @@ async function onEmailAuth() {
     return msg.error(`유효하지 않은 비밀번호`);
   try {
     const credential = await createUserWithEmailAndPassword(
-      getAuth(),
+      getAuth(ioFire.app),
       email.value,
       pw.value
     );

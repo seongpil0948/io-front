@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { IoAccount } from "@/composable";
 import { emailRule, nameLenRule } from "@/util";
-
+import { ioFire } from "@/plugin/firebase";
 import { getAuth } from "@firebase/auth";
 import {
   USER_PROVIDER,
@@ -14,7 +14,7 @@ import {
 import { FormInst, useMessage } from "naive-ui";
 import { ref } from "vue";
 
-const auth = getAuth();
+const auth = getAuth(ioFire.app);
 const props = defineProps<{
   userName: string;
   profileImg: string;

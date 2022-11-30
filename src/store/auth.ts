@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
 import { getAuth, signOut } from "firebase/auth";
-import { IoUser, userFromJson } from "@io-boxies/js-lib";
+import { IoUser, userFromJson, IoFireApp } from "@io-boxies/js-lib";
 import { getActivePinia } from "pinia";
+import { ioFire } from "@/plugin/firebase";
 interface AuthStoreInterface {
   user: IoUser | null;
 }
@@ -51,7 +52,7 @@ export const useAuthStore = defineStore({
     },
     async logout(replace = true) {
       this.clearUser();
-      const auth = getAuth();
+      const auth = getAuth(ioFire.app);
       await signOut(auth);
       if (replace) this.$router.replace({ name: "Login" });
       // map through that list and use the **$reset** fn to reset the state

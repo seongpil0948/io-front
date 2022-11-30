@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { enableStoreNet, disableStoreNet } from "@io-boxies/js-lib";
 import { useLogin } from "@io-boxies/vue-lib";
 import { useAuthStore } from "@/store";
 const router = useRouter();
@@ -66,8 +65,6 @@ async function loginUncle() {
         <n-button @click="loginShop"> 쇼핑몰 </n-button>
         <n-button @click="loginVendor"> 도매 </n-button>
         <n-button @click="loginUncle"> 엉클 </n-button>
-        <n-button @click="enableStoreNet"> enableStoreNet </n-button>
-        <n-button @click="disableStoreNet"> disableStoreNet </n-button>
       </n-space>
     </n-space>
     <n-modal
