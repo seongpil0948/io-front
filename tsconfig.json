@@ -16,8 +16,8 @@
     "baseUrl": ".",
     "types": ["vite/client"],
     "paths": {
-      "@/*": ["src/*"],
-      "@io-boxies/js-lib": ["node_modules/@io-boxies/js-lib/dist/src"]
+      "@/*": ["src/*"]
+      /* "@io-boxies/js-lib": ["node_modules/@io-boxies/js-lib"] */
     },
     "rootDirs": [
       "src/"
