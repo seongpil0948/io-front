@@ -8,6 +8,7 @@ import { ORDER_GARMENT_DB } from "../db";
 import { OrderItemCombined } from "../domain";
 import { DataFrame, toExcel } from "danfojs";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
+import { useVendorsStore } from "@/store";
 
 export function useOrderBasic(
   user: IoUser,
@@ -160,21 +161,33 @@ export function downOrderItems(gOrders: OrderItemCombined[]) {
 }
 
 export function pOrdersToFrame(gOrders: OrderItemCombined[]): DataFrame {
+  const vendors = useVendorsStore().vendors;
+
   const df = new DataFrame(
-    gOrders.map((x) => {
-      return {
-        소매상품명: x.shopProd.prodName,
-        도매상품명: x.vendorProd.vendorProdName,
-        컬러: x.vendorProd.color,
-        사이즈: x.vendorProd.size,
-        도매처:
-          x.vendorProd.userInfo.displayName ?? x.vendorProd.userInfo.userName,
-        주문수량: x.orderCnt,
-        미송수량: x.pendingCnt,
-        도매가: x.vendorProd.vendorPrice,
-        합계: x.orderCnt * x.vendorProd.vendorPrice,
-      };
-    })
+    gOrders
+      .map((x) => {
+        const vendor = vendors.find((v) => v.userInfo.userId === x.vendorId);
+        if (!vendor || !vendor.companyInfo) return null;
+        const locate =
+          vendor?.companyInfo.shipLocate ?? vendor?.companyInfo?.locations[0];
+        if (!locate) return null;
+        return {
+          소매상품명: x.shopProd.prodName,
+          도매상품명: x.vendorProd.vendorProdName,
+          컬러: x.vendorProd.color,
+          사이즈: x.vendorProd.size,
+          도매처:
+            x.vendorProd.userInfo.displayName ?? x.vendorProd.userInfo.userName,
+          주문수량: x.orderCnt,
+          미송수량: x.pendingCnt,
+          도매가: x.vendorProd.vendorPrice,
+          합계: x.orderCnt * x.vendorProd.vendorPrice,
+          "도매처 건물명": locate.alias,
+          "도매처 상세주소": locate.detailLocate ?? "",
+          핸드폰번호: locate.phone,
+        };
+      })
+      .filter((z) => z)
   );
   return df;
 }
