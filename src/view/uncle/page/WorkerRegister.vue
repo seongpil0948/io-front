@@ -73,7 +73,7 @@ function onKakaoAuth() {
     fail,
   });
 }
-const { googleLogin } = useLogin();
+const { googleLogin } = useLogin(IoFireApp.getInst());
 async function onGoogleAuth() {
   const u = (await googleLogin(false)) as any;
   console.log("Google Login  Res: ", u);

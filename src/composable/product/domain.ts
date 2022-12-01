@@ -155,6 +155,7 @@ export type PART =
   | "DRESS"
   | "SHOES"
   | "BAG"
+  | "HAT"
   | "ETC";
 export const PART: { [key in PART]: PART } = Object.freeze({
   TOP: "TOP",
@@ -163,6 +164,7 @@ export const PART: { [key in PART]: PART } = Object.freeze({
   DRESS: "DRESS",
   SHOES: "SHOES",
   BAG: "BAG",
+  HAT: "HAT",
   ETC: "ETC",
 });
 export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
@@ -187,6 +189,7 @@ export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
       PANTS: "PANTS",
       SHORTS: "SHORTS",
       SKIRTS: "SKIRTS",
+      SLACKS: "SLACKS",
       TRAINING_PANT: "TRAINING_PANT",
       ETC: "ETC",
     },
@@ -198,6 +201,7 @@ export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
       PUFFER_DOWN: "PUFFER_DOWN",
       VEST: "VEST",
       ETC: "ETC",
+      SUIT: "SUIT",
     },
     DRESS: {
       DRESS: "DRESS",
@@ -214,22 +218,53 @@ export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
       FLATS: "FLATS",
       LOAFERS: "LOAFERS",
       ATHLETIC: "ATHLETIC",
+      WEDGE_HEEL: "WEDGE_HEEL",
+      HAND_MADE: "HAND_MADE",
+      DRESS: "DRESS",
       ETC: "ETC",
     },
     BAG: {
       BACKPACK: "BACKPACK",
+      LEATHER: "LEATHER",
       CROSS: "CROSS",
+      CLUTCH: "CLUTCH",
       HANDBAG: "HANDBAG",
       MINI_BAG: "MINI_BAG",
       TOD_BAG: "TOD_BAG",
       ECO_BAG: "ECO_BAG",
+      SHOULDER: "SHOULDER",
+      WALLET: "WALLET",
       ETC: "ETC",
     },
-    ETC: {
+    ACCESSORY: {
       NECKLACE: "NECKLACE",
       RING: "RING",
       WATCH: "WATCH",
       SCARP: "SCARP",
       ETC: "ETC",
+      BELT:"BELT",
+      BAND: "BAND",
+      GLASSES: "GLASSES",
+      SUN_GLASSES: "SUN_GLASSES",
+    },
+    HAT: {
+      ETC: "ETC",
+      CAP: "CAP",
+      FEDORA: "FEDORA",
+      BERET: "BERET",
+      FLOPPY: "FLOPPY",
+      SNAPBACK: "SNAPBACK",
+      BEANIE: "BEANIE",
+      CLOCHE: "CLOCHE",
+      TRAPPER: "TRAPPER",
+      BUCKET: "BUCKET",
+      BOATER: "BOATER",
+    },
+    ETC: {
+      ETC: "ETC",
+      TOP_BOTTOM_SET: "TOP_BOTTOM_SET",
+      SUIT_SET: "SUIT_SET",
+      BIG_SIZE: "BIG_SIZE",
+      MATERNITY: "MATERNITY",
     },
   });

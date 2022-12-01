@@ -4,7 +4,7 @@ import { lightTheme, NSpace, useMessage } from "naive-ui";
 import { LoginReturn, LoginView } from "@io-boxies/vue-lib";
 import { useAuthStore } from "@/store";
 import { useRouter } from "vue-router";
-import { getUserName, USER_ROLE } from "@io-boxies/js-lib";
+import { getUserName, USER_ROLE, IoFireApp } from "@io-boxies/js-lib";
 import { makeMsgOpt } from "@/util";
 import { useLogger } from "vue-logger-plugin";
 
@@ -49,6 +49,9 @@ async function onLogin(data: LoginReturn | undefined) {
     return msg.error("핸들링 되지 못한 에러", makeMsgOpt());
   }
 }
+const app = IoFireApp.getInst(
+  import.meta.env.MODE === "production" ? "io-prod" : "io-dev"
+);
 </script>
 
 <template>
@@ -56,6 +59,7 @@ async function onLogin(data: LoginReturn | undefined) {
     <n-space id="login-page-container" vertical>
       <!-- FIXME: 적당한곳에 슬롯을 만들어 내용을 추가할 수 있도록 -->
       <LoginView
+        :fire-app="app"
         style="max-width: 500px"
         kakao-img-other-path="/img/icon-kakao-talk-black.png"
         kakao-img-path="/img/icon-kakao-talk.png"

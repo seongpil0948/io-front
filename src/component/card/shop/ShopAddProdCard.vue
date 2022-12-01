@@ -229,7 +229,6 @@ useEditor({
             <n-h3>상세 정보</n-h3>
           </template>
           <div id="io-editor" />
-          />
         </n-descriptions-item>
       </n-descriptions>
     </n-space>
