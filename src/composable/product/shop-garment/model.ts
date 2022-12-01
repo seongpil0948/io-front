@@ -1,5 +1,5 @@
 import {
-  GARMENT_SIZE,
+  PRODUCT_SIZE,
   ShopGarmentCrt,
   VendorGarmentCrt,
   GarmentOrderCondi,
@@ -14,7 +14,7 @@ export function sameGarment(p: ShopGarmentCrt, g: GarmentOrderCondi) {
   return p.prodName === g.prodName && p.color === g.color && p.size === g.size;
 }
 export class ShopGarment extends CommonField implements ShopGarmentCrt {
-  size: GARMENT_SIZE;
+  size: PRODUCT_SIZE;
   color: string;
   vendorId: string;
   vendorProdId: string;

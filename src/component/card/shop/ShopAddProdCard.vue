@@ -2,7 +2,7 @@
 import { useMessage } from "naive-ui";
 import { computed, ref, toRefs } from "vue";
 import {
-  GARMENT_SIZE,
+  PRODUCT_SIZE,
   ShopGarment,
   SHOP_GARMENT_DB,
   VendorUserGarmentCombined,
@@ -76,7 +76,7 @@ async function onSubmit() {
       prodName: prod.value.vendorProdName,
       info: prod.value.info,
       description: prod.value.description,
-      size: optById[vendorProdId].size as GARMENT_SIZE,
+      size: optById[vendorProdId].size as PRODUCT_SIZE,
       color: optById[vendorProdId].color,
       TBD: {},
       prodType: "GARMENT",

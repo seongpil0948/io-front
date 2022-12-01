@@ -27,7 +27,7 @@ export interface ShopVendorGarment {
   shopGarment: ShopGarment;
 }
 
-export const GarmentSize: GARMENT_SIZE[] = [
+export const GarmentSize: PRODUCT_SIZE[] = [
   "FREE",
   "XXS",
   "XS",
@@ -38,7 +38,7 @@ export const GarmentSize: GARMENT_SIZE[] = [
   "XXL",
   "XXXL",
 ];
-export const ShoesSize: GARMENT_SIZE[] = [
+export const ShoesSize: PRODUCT_SIZE[] = [
   "200",
   "205",
   "210",
@@ -61,8 +61,8 @@ export const ShoesSize: GARMENT_SIZE[] = [
   "295",
   "300",
 ];
-export const FreeSize: GARMENT_SIZE[] = ["FREE"];
-export type GARMENT_SIZE =
+export const FreeSize: PRODUCT_SIZE[] = ["FREE"];
+export type PRODUCT_SIZE =
   | "FREE"
   | "XXXS"
   | "XXS"
@@ -100,7 +100,7 @@ export type GARMENT_SIZE =
   | "77"
   | "88";
 
-export const GARMENT_SIZE: { [key in GARMENT_SIZE]: GARMENT_SIZE } =
+export const PRODUCT_SIZE: { [key in PRODUCT_SIZE]: PRODUCT_SIZE } =
   Object.freeze({
     FREE: "FREE",
     XXXS: "XXXS",
@@ -242,7 +242,7 @@ export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
       WATCH: "WATCH",
       SCARP: "SCARP",
       ETC: "ETC",
-      BELT:"BELT",
+      BELT: "BELT",
       BAND: "BAND",
       GLASSES: "GLASSES",
       SUN_GLASSES: "SUN_GLASSES",

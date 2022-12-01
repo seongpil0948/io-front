@@ -3,7 +3,7 @@ import {
   CATEGORIES,
   FreeSize,
   GarmentSize,
-  GARMENT_SIZE,
+  PRODUCT_SIZE,
   ShoesSize,
 } from "@/composable";
 import { PAY_METHOD } from "@/composable/payment/domain";
@@ -35,12 +35,13 @@ export const getCtgrOpts = (part: PART) =>
     return { label: x, value: x };
   });
 export const getSizeOpts = (part: PART) => {
-  let obj: GARMENT_SIZE[] = [];
+  let obj: PRODUCT_SIZE[] = [];
   if (
     part === PART.TOP ||
     part === PART.BOTTOM ||
     part === PART.DRESS ||
-    part === PART.OUTER
+    part === PART.OUTER ||
+    part === PART.HAT
   ) {
     obj = GarmentSize;
   } else if (part === PART.SHOES) {

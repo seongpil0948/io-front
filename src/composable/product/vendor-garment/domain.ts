@@ -1,5 +1,5 @@
 import {
-  GARMENT_SIZE,
+  PRODUCT_SIZE,
   IoOrder,
   GENDER,
   PART,
@@ -18,7 +18,7 @@ export interface VendorGarmentCrt extends VendorProdCrt {
   ctgr: string;
   color: string;
   allowPending: boolean;
-  size: GARMENT_SIZE;
+  size: PRODUCT_SIZE;
   fabric: string;
 }
 
@@ -28,7 +28,7 @@ export interface VendorGarmentCombined
     "color" | "size" | "stockCnt" | "vendorProdId"
   > {
   colors: string[];
-  sizes: GARMENT_SIZE[];
+  sizes: PRODUCT_SIZE[];
   allStockCnt: number;
   stockCnt: StockCntObj;
 }

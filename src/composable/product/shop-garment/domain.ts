@@ -2,7 +2,7 @@ import { IoUser } from "@io-boxies/js-lib";
 import { Unsubscribe } from "@firebase/firestore";
 import { API_SERVICE_EX } from "@/composable";
 import { Ref } from "vue";
-import { ProductCrt, GARMENT_SIZE } from "../domain";
+import { ProductCrt, PRODUCT_SIZE } from "../domain";
 import { ShopGarment } from "./model";
 
 export interface GarmentOrderCondi {
@@ -23,14 +23,14 @@ export interface ShopProdCrt extends ProductCrt {
 }
 
 export interface ShopGarmentCrt extends ShopProdCrt {
-  size: GARMENT_SIZE;
+  size: PRODUCT_SIZE;
   color: string;
   cafeProdId?: string;
   zigzagProdId?: string;
 }
 
 export type StockCntObj = {
-  [size in GARMENT_SIZE]: {
+  [size in PRODUCT_SIZE]: {
     [color: string]: { stockCnt: number; prodId: string };
   };
 };

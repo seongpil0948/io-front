@@ -2,7 +2,7 @@ import { useMessage } from "naive-ui";
 import {
   catchError,
   catchExcelError,
-  GARMENT_SIZE,
+  PRODUCT_SIZE,
   VendorGarment,
   VENDOR_GARMENT_DB,
 } from "@/composable";
@@ -83,8 +83,8 @@ export function useBatchVendorProd() {
       const vendorPrice = row[5];
       const color = row[1];
       const sizeStr = String(row[2]);
-      const size: GARMENT_SIZE = Object.keys(GARMENT_SIZE).includes(sizeStr)
-        ? (sizeStr as GARMENT_SIZE)
+      const size: PRODUCT_SIZE = Object.keys(PRODUCT_SIZE).includes(sizeStr)
+        ? (sizeStr as PRODUCT_SIZE)
         : "FREE";
       const newGarment = new VendorGarment({
         gender: "UNISEX",

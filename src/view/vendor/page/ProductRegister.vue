@@ -6,7 +6,7 @@ import { uuidv4 } from "@firebase/util";
 import { useRouter } from "vue-router";
 import {
   catchError,
-  GARMENT_SIZE,
+  PRODUCT_SIZE,
   GENDER,
   getVendorProdCombineId,
   PART,
@@ -46,7 +46,7 @@ const prodModel = ref({
   titleImgs: [] as string[],
   bodyImgs: [] as string[],
   colors: ["black"],
-  sizes: [] as GARMENT_SIZE[],
+  sizes: [] as PRODUCT_SIZE[],
   stockCnt: 10,
   fabric: "", // 혼용률 / 제조국
   info: "", // 상세정보
@@ -67,7 +67,7 @@ const rules = {
   info: notNullRule, // 상세정보
   description: notNullRule,
 };
-type StockCnt = { [size in GARMENT_SIZE]: { [color: string]: number } };
+type StockCnt = { [size in PRODUCT_SIZE]: { [color: string]: number } };
 const stockCnts = ref<StockCnt | null>(null);
 
 watchEffect(() => {
@@ -322,13 +322,13 @@ function handleFileChange(evt: Event) {
             >
               <div v-for="(size, i) in Object.keys(stockCnts)" :key="i">
                 <div
-                  v-for="(color, j) in Object.keys(stockCnts[size as GARMENT_SIZE])"
+                  v-for="(color, j) in Object.keys(stockCnts[size as PRODUCT_SIZE])"
                   :key="j"
                 >
                   <n-space inline :wrap="false" style="margin-bottom: 1%">
                     <n-form-item-gi span="2" :label="`${color} ${size}`">
                       <n-input-number
-                        v-model:value="stockCnts[size as GARMENT_SIZE][color]"
+                        v-model:value="stockCnts[size as PRODUCT_SIZE][color]"
                         :show-button="false"
                         :min="1"
                         :validator="(x: number) => x % 1 === 0"

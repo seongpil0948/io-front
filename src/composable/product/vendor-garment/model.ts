@@ -3,7 +3,7 @@ import { CommonField } from "@/composable/common";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
-import type { GENDER, PART, GARMENT_SIZE, PROD_TYPE } from "../domain";
+import type { GENDER, PART, PRODUCT_SIZE, PROD_TYPE } from "../domain";
 import { VendorGarmentCrt } from "./domain";
 
 export class VendorGarment extends CommonField implements VendorGarmentCrt {
@@ -12,7 +12,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   ctgr: string;
   color: string;
   allowPending: boolean;
-  size: GARMENT_SIZE;
+  size: PRODUCT_SIZE;
   fabric: string;
   vendorId: string;
   vendorProdId: string;
