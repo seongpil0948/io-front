@@ -9,3 +9,4 @@ export * from "./linkage";
 export * from "./table";
 export * from "./cs";
 export * from "./by-role";
+export * from "./translate";

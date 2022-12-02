@@ -1,8 +1,11 @@
 import { GENDER, PART } from "./../../composable/product/domain";
 import {
   CATEGORIES,
+  CtgrDict,
   FreeSize,
   GarmentSize,
+  LOCALE,
+  PartDict,
   PRODUCT_SIZE,
   ShoesSize,
 } from "@/composable";
@@ -14,9 +17,10 @@ import { LocateType, SHIP_METHOD } from "@io-boxies/js-lib";
 export const genderOpts = Object.keys(GENDER).map((x) => {
   return { label: x, value: x };
 });
-export const partOpts = Object.keys(PART).map((x) => {
-  return { label: x, value: x };
-});
+export const partOpts = (locale: LOCALE = "ko") =>
+  Object.keys(PART).map((x) => {
+    return { label: PartDict[locale][x as PART], value: x };
+  });
 
 export function rangeOpts(
   start: number,
@@ -30,9 +34,9 @@ export function rangeOpts(
   );
 }
 
-export const getCtgrOpts = (part: PART) =>
+export const getCtgrOpts = (part: PART, locale: LOCALE = "ko") =>
   Object.keys(CATEGORIES[part]).map((x) => {
-    return { label: x, value: x };
+    return { label: CtgrDict[locale][x], value: x };
   });
 export const getSizeOpts = (part: PART) => {
   let obj: PRODUCT_SIZE[] = [];

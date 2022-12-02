@@ -29,6 +29,7 @@ import {
 } from "@/util";
 import { useEditor } from "@/plugin/editor";
 import { useAuthStore, useCommonStore, useVendorsStore } from "@/store";
+import { storeToRefs } from "pinia";
 
 const msg = useMessage();
 const dialog = useDialog();
@@ -52,7 +53,11 @@ const prodModel = ref({
   info: "", // 상세정보
   description: "",
 });
-const ctgrOpts = computed(() => getCtgrOpts(prodModel.value.part));
+const cs = useCommonStore();
+const { locale } = storeToRefs(cs);
+const ctgrOpts = computed(() =>
+  getCtgrOpts(prodModel.value.part, locale.value)
+);
 const sizesOpts = computed(() => getSizeOpts(prodModel.value.part));
 const rules = {
   part: notNullRule,
@@ -96,7 +101,7 @@ function changePart() {
   prodModel.value.ctgr = ctgrOpts.value[0].value;
 }
 const { vendorProds: existGarments } = useVendorsStore();
-const cs = useCommonStore();
+
 async function onRegister() {
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
@@ -256,7 +261,7 @@ function handleFileChange(evt: Event) {
         <n-form-item-gi label="파트" path="part">
           <n-select
             v-model:value="prodModel.part"
-            :options="partOpts"
+            :options="partOpts(locale)"
             @update:value="changePart"
           />
         </n-form-item-gi>

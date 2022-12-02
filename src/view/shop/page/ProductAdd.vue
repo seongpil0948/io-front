@@ -5,12 +5,14 @@ import {
   useSearch,
   VendorUserGarmentCombined,
 } from "@/composable";
-import { useVendorsStore } from "@/store";
+import { useCommonStore, useVendorsStore } from "@/store";
 import { computed, ref, watchEffect } from "vue";
 import { getCtgrOpts, partOpts } from "@/util";
+import { storeToRefs } from "pinia";
 const selectedPart = ref<PART | "전체" | null>(null);
 const selectedCtgr = ref<string | null>(null);
-
+const cs = useCommonStore();
+const { locale } = storeToRefs(cs);
 const showAddModal = ref(false);
 const selectedProd = ref<VendorUserGarmentCombined | null>(null);
 function onClickProd(prod: VendorUserGarmentCombined) {
@@ -58,7 +60,7 @@ const { totalPage, paginatedData, page } = usePaginate({
 const part = ref(null);
 const ctgr = ref(null);
 const ctgrOpts = computed(() =>
-  part.value !== null ? getCtgrOpts(part.value) : []
+  part.value !== null ? getCtgrOpts(part.value, locale.value) : []
 );
 </script>
 <template>
@@ -84,7 +86,7 @@ const ctgrOpts = computed(() =>
         v-model:value="part"
         placeholder="파트선택"
         clearable
-        :options="partOpts"
+        :options="partOpts(locale)"
       />
       <n-select
         v-model:value="ctgr"
