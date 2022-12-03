@@ -8,7 +8,7 @@ import {
   catchError,
   PRODUCT_SIZE,
   GENDER,
-  getVendorProdCombineId,
+  getVendorProdSimilarId,
   PART,
   PROD_TYPE,
   useBatchVendorProd,
@@ -112,35 +112,50 @@ async function onRegister() {
     let valid = true;
     const info = await saveEditor();
     const vendorId = auth.currUser.userInfo.userId;
-    const exist = existGarments.find(
-      (x) => x.combineId === getVendorProdCombineId(vendorId, v.name)
-    );
-    const vendorProdPkgId = exist ? exist.vendorProdPkgId : uuidv4();
-    prodModel.value.sizes.forEach((size) => {
-      prodModel.value.colors.forEach((color) => {
+    const similarProds = await VENDOR_GARMENT_DB.getSimilarProds({
+      vendorId: vendorId,
+      vendorProdName: v.name,
+    });
+    const vendorProdPkgId =
+      similarProds.length > 0 ? similarProds[0].vendorProdPkgId : uuidv4();
+    for (let i = 0; i < prodModel.value.sizes.length; i++) {
+      const size = prodModel.value.sizes[i];
+      for (let j = 0; j < prodModel.value.colors.length; j++) {
+        const color = prodModel.value.colors[j];
         if (stockCnts.value![size][color] < 1) {
           msg.error("상품의 재고량을 1이상으로 설정 해주십시오.");
           valid = false;
+        } else if (
+          await VENDOR_GARMENT_DB.existSameProd({
+            vendorId,
+            vendorProdName: v.name,
+            color,
+            size,
+          })
+        ) {
+          msg.error("같은 상품이 존재합니다.");
+          valid = false;
+        } else {
+          products.push(
+            new VendorGarment(
+              Object.assign({}, v, {
+                allowPending,
+                vendorProdName: v.name,
+                size,
+                color,
+                info,
+                vendorId,
+                vendorProdId: uuidv4(),
+                stockCnt: stockCnts.value![size][color],
+                TBD: {},
+                vendorProdPkgId,
+                prodType: "GARMENT" as PROD_TYPE,
+              })
+            )
+          );
         }
-        products.push(
-          new VendorGarment(
-            Object.assign({}, v, {
-              allowPending,
-              vendorProdName: v.name,
-              size,
-              color,
-              info,
-              vendorId,
-              vendorProdId: uuidv4(),
-              stockCnt: stockCnts.value![size][color],
-              TBD: {},
-              vendorProdPkgId,
-              prodType: "GARMENT" as PROD_TYPE,
-            })
-          )
-        );
-      });
-    });
+      }
+    }
     if (valid) {
       dialog.success({
         title: "상품을 등록합니다.",

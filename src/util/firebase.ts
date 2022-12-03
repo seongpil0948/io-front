@@ -35,3 +35,15 @@ export const fireConverter = <T>() => ({
   fromFirestore: (snap: QueryDocumentSnapshot) =>
     commonFromJson(snap.data()) as T,
 });
+
+export function dataFromSnap<T>(snap: QuerySnapshot<T | null>): T[] {
+  const garments: T[] = [];
+
+  snap.docs.forEach((d) => {
+    const data = d.data();
+    if (data) {
+      garments.push(data);
+    }
+  });
+  return garments;
+}

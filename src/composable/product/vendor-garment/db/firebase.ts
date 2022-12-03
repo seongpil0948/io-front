@@ -1,13 +1,26 @@
-import { increment, setDoc, updateDoc } from "@firebase/firestore";
+import {
+  getDoc,
+  getDocs,
+  increment,
+  QueryConstraint,
+  setDoc,
+  updateDoc,
+} from "@firebase/firestore";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   onFirestoreCompletion,
   onFirestoreErr,
-  VendorGarment,
   VendorGarmentDB,
+  VendorProdSimilar,
 } from "@/composable";
+import { VendorGarment } from "@/composable/product/vendor-garment/model";
 import { handleReadSnap } from "@/util";
-import { IoFireApp, getIoCollection, IoCollection } from "@io-boxies/js-lib";
+import {
+  IoFireApp,
+  getIoCollection,
+  IoCollection,
+  dataFromSnap,
+} from "@io-boxies/js-lib";
 import {
   writeBatch,
   doc,
@@ -20,37 +33,29 @@ import {
 } from "@firebase/firestore";
 import { ref } from "vue";
 import { ioFire } from "@/plugin/firebase";
+import { VendorProdSame } from "../domain";
 
 export const VendorGarmentFB: VendorGarmentDB = {
   incrementStockCnt: async function (cnt: number, vendorProdId: string) {
-    const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
-      VendorGarment.fireConverter()
-    );
-    await updateDoc(doc(c, vendorProdId), { stockCnt: increment(cnt) });
+    await updateDoc(doc(vendorProdC, vendorProdId), {
+      stockCnt: increment(cnt),
+    });
   },
   batchUpdate: async function (args: VendorGarment[]) {
-    // vendorProdsModify
-    const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
-      VendorGarment.fireConverter()
-    );
+    // vendorProdsModify;
     const batch = writeBatch(ioFire.store);
     for (let i = 0; i < args.length; i++) {
       const prod = args[i];
-      batch.update(doc(c, prod.vendorProdId), prod.toJson());
+      batch.update(doc(vendorProdC, prod.vendorProdId), prod.toJson());
     }
     await batch.commit();
   },
   batchCreate: async function (userId: string, args: VendorGarment[]) {
-    // vendorProdsModify
-    const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
-      VendorGarment.fireConverter()
-    );
-
     for (let i = 0; i < args.length; i++) {
       const prod = args[i];
       const snapshot = await getCountFromServer(
         query(
-          c,
+          vendorProdC,
           where("vendorId", "==", userId),
           where("vendorProdName", "==", prod.vendorProdName),
           where("color", "==", prod.color),
@@ -63,20 +68,17 @@ export const VendorGarmentFB: VendorGarmentDB = {
           `${prod.vendorProdName}, ${prod.color}, ${prod.size} 는 이미 존재하는 상품입니다.`
         );
       else {
-        await setDoc(doc(c, prod.vendorProdId), prod);
+        await setDoc(doc(vendorProdC, prod.vendorProdId), prod);
       }
     }
   },
   batchReadListen: function (vendorIds: any[]) {
     const items = ref<VendorGarment[]>([]);
-    const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
-      VendorGarment.fireConverter()
-    );
     const wheres =
       vendorIds.length > 0 ? [where("vendorId", "in", vendorIds)] : [];
     const name = "batchReadListen snapshot";
     const unsubscribe = onSnapshot(
-      query(c, ...wheres, orderBy("createdAt", "desc")),
+      query(vendorProdC, ...wheres, orderBy("createdAt", "desc")),
       (snap) =>
         handleReadSnap<VendorGarment>(snap, items.value, (x) => x.vendorProdId),
       async (err) => {
@@ -88,9 +90,6 @@ export const VendorGarmentFB: VendorGarmentDB = {
     return { items, unsubscribe };
   },
   delete: async function (prodId) {
-    const c = getIoCollection({ c: IoCollection.VENDOR_PROD }).withConverter(
-      VendorGarment.fireConverter()
-    );
     const query_ = query(
       getIoCollection({ c: "SHOP_PROD" }),
       where("vendorProdId", "==", prodId)
@@ -99,6 +98,53 @@ export const VendorGarmentFB: VendorGarmentDB = {
     const snapshot = await getCountFromServer(query_);
     const cnt = snapshot.data().count;
     if (cnt > 0) throw new Error("소매처와 거래중인 상품입니다.");
-    await deleteDoc(doc(c, prodId));
+    await deleteDoc(doc(vendorProdC, prodId));
+  },
+  list: async function (d): Promise<VendorGarment[]> {
+    const constraints: QueryConstraint[] = [];
+    if (d.vendorId) {
+      constraints.push(where("vendorId", "==", d.vendorId));
+    }
+    const snap = await getDocs(query(vendorProdC, ...constraints));
+    return dataFromSnap(snap);
+  },
+  getByVendorProdId: async function (vendorProdId) {
+    const docSnap = await getDoc(doc(vendorProdC, vendorProdId));
+    const data = docSnap.data();
+    return data ?? null;
+  },
+  updateSimilarProd: async function (
+    d: VendorProdSimilar,
+    data: { [k: string]: any }
+  ) {
+    const batch = writeBatch(ioFire.store);
+    const prods = await this.getSimilarProds(d);
+    console.log("getSimilarProds", prods);
+    for (let i = 0; i < prods.length; i++) {
+      batch.update(doc(vendorProdC, prods[i].vendorProdId), data);
+    }
+    batch.commit();
+  },
+  getSimilarProds: async function (d: VendorProdSimilar) {
+    const q = query(vendorProdC, ...similarConst(d.vendorId, d.vendorProdName));
+    const snap = await getDocs(q);
+    return dataFromSnap(snap);
+  },
+  existSameProd: async function (d: VendorProdSame): Promise<boolean> {
+    const constraints = similarConst(d.vendorId, d.vendorProdName);
+    constraints.push(where("color", "==", d.color));
+    constraints.push(where("size", "==", d.size));
+    const snap = await getDocs(query(vendorProdC, ...constraints));
+    return snap.empty === false;
   },
 };
+
+const vendorProdC = getIoCollection({
+  c: IoCollection.VENDOR_PROD,
+}).withConverter(VendorGarment.fireConverter());
+
+const similarConst = (vendorId: string, vendorProdName: string) =>
+  [
+    where("vendorId", "==", vendorId),
+    where("vendorProdName", "==", vendorProdName),
+  ] as QueryConstraint[];

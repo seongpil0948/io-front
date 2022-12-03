@@ -43,6 +43,14 @@ export interface VendorUserOrderGarment
     Omit<Partial<OrderItem>, "prodType" | "vendorId"> {
   shopUser?: IoUser;
 }
+export interface VendorProdSimilar {
+  vendorId: string;
+  vendorProdName: string;
+}
+export interface VendorProdSame extends VendorProdSimilar {
+  color: string;
+  size: string;
+}
 export interface VendorGarmentDB {
   incrementStockCnt(cnt: number, vendorProdId: string): Promise<void>;
   batchReadListen(args: any[]): {
@@ -52,4 +60,12 @@ export interface VendorGarmentDB {
   batchUpdate(args: VendorGarment[]): Promise<void>;
   batchCreate(userId: string, args: VendorGarment[]): Promise<void>;
   delete(prodId: string): Promise<void>;
+  list(d: { vendorId?: string }): Promise<VendorGarment[]>;
+  getByVendorProdId(vendorProdId: string): Promise<VendorGarment | null>;
+  getSimilarProds(d: VendorProdSimilar): Promise<VendorGarment[]>;
+  updateSimilarProd(
+    d: VendorProdSimilar,
+    data: { [k: string]: any }
+  ): Promise<void>;
+  existSameProd(d: VendorProdSame): Promise<boolean>;
 }

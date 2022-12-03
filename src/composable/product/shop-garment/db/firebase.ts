@@ -8,7 +8,6 @@ import {
 } from "@/composable";
 import {
   USER_DB,
-  IoFireApp,
   batchInQuery,
   getIoCollection,
   IoCollection,
@@ -22,12 +21,12 @@ import {
   deleteDoc,
   doc,
   writeBatch,
-  QuerySnapshot,
   Unsubscribe,
   QueryConstraint,
 } from "@firebase/firestore";
 import { Ref, ref } from "vue";
 import { ioFire } from "@/plugin/firebase";
+import { dataFromSnap } from "@/util";
 
 export const ShopGarmentFB: ShopGarmentDB = {
   getShopGarments: async function (d) {
@@ -46,7 +45,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
         ...constraints
       )
     );
-    return _prodFromSnap(snap);
+    return dataFromSnap(snap);
   },
   shopGarmentExist: async function (
     vendorProdId: string,
@@ -117,7 +116,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
       c,
       "shopId"
     );
-    const garments = snapshots.flatMap(_prodFromSnap);
+    const garments = snapshots.flatMap(dataFromSnap);
     return garments.reduce((acc, curr) => {
       const shop = users.find((u) => curr.shopId === u.userInfo.userId);
       if (!shop) {
@@ -131,15 +130,3 @@ export const ShopGarmentFB: ShopGarmentDB = {
     }, [] as ShopUserGarment[]);
   },
 };
-
-function _prodFromSnap(snap: QuerySnapshot<ShopGarment | null>): ShopGarment[] {
-  const garments: ShopGarment[] = [];
-
-  snap.docs.forEach((d) => {
-    const data = d.data();
-    if (data) {
-      garments.push(data);
-    }
-  });
-  return garments;
-}

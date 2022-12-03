@@ -4,7 +4,7 @@ import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import type { GENDER, PART, PRODUCT_SIZE, PROD_TYPE } from "../domain";
-import { VendorGarmentCrt } from "./domain";
+import { VendorGarmentCrt, VendorProdSame, VendorProdSimilar } from "./domain";
 
 export class VendorGarment extends CommonField implements VendorGarmentCrt {
   gender: GENDER;
@@ -64,7 +64,10 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     return VendorGarment.combineId(this);
   }
   static combineId(c: VendorGarmentCrt): string {
-    return getVendorProdCombineId(c.vendorId, c.vendorProdName);
+    return getVendorProdSimilarId({
+      vendorId: c.vendorId,
+      vendorProdName: c.vendorProdName,
+    });
   }
   toJson(): { [x: string]: Partial<unknown> } {
     const j = super.toJson();
@@ -135,7 +138,11 @@ function saveImgs(imgs: any) {
   }
 }
 
-export const getVendorProdCombineId = (
-  vendorId: string,
-  vendorProdName: string
-) => vendorId + vendorProdName?.replaceAll(" ", "");
+export const getVendorProdSimilarId = (d: VendorProdSimilar) =>
+  d.vendorId + d.vendorProdName?.replaceAll(" ", "");
+
+export const sameVendorProd = (a: VendorProdSame, b: VendorProdSame) =>
+  a.vendorId === b.vendorId &&
+  a.vendorProdName === b.vendorProdName &&
+  a.color === b.color &&
+  a.size === b.size;
