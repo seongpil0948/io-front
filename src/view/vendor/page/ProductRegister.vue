@@ -8,7 +8,6 @@ import {
   catchError,
   PRODUCT_SIZE,
   GENDER,
-  getVendorProdSimilarId,
   PART,
   PROD_TYPE,
   useBatchVendorProd,
@@ -28,7 +27,7 @@ import {
   genderOpts,
 } from "@/util";
 import { useEditor } from "@/plugin/editor";
-import { useAuthStore, useCommonStore, useVendorsStore } from "@/store";
+import { useAuthStore, useCommonStore } from "@/store";
 import { storeToRefs } from "pinia";
 
 const msg = useMessage();
@@ -100,7 +99,6 @@ watchEffect(
 function changePart() {
   prodModel.value.ctgr = ctgrOpts.value[0].value;
 }
-const { vendorProds: existGarments } = useVendorsStore();
 
 async function onRegister() {
   formRef.value?.validate(async (errors) => {

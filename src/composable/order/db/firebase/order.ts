@@ -3,6 +3,7 @@ import {
   getIoCollectionGroup,
   IoCollection,
   insertById,
+  userFireConverter,
 } from "@io-boxies/js-lib";
 import { ioFire } from "@/plugin/firebase";
 import { uniqueArr } from "@/util";
@@ -21,7 +22,6 @@ import {
   deleteDoc,
   increment,
 } from "@firebase/firestore";
-import { useVendorsStore } from "@/store";
 import { Ref } from "vue";
 import {
   IoOrder,
@@ -42,6 +42,7 @@ import {
   DefrayParam,
   reduceStockCnt,
   getPartnerDoc,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 
@@ -132,8 +133,6 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     });
   },
   orderToReady: async function (orderDbIds: string[], orderItemIds: string[]) {
-    const vendorStore = useVendorsStore();
-
     await stateModify({
       orderDbIds,
       orderItemIds,
@@ -141,8 +140,8 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       beforeState: ["BEFORE_READY"],
       onItem: async function (po) {
         // po.orderCnt
-        const vendorProd = vendorStore.vendorProds.find(
-          (x) => x.vendorProdId === po.vendorProd.vendorProdId
+        const vendorProd = await VENDOR_GARMENT_DB.getByVendorProdId(
+          po.vendorProd.vendorProdId
         );
         if (!vendorProd)
           throw new Error(
@@ -275,7 +274,6 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     orderItemIds: string[],
     shopId: string
   ) {
-    const vendorStore = useVendorsStore();
     const { getOrdRef, converterGarment } = getSrc();
     const constraints = [where("dbId", "in", orderDbIds)];
     const orders = await getOrders(constraints);
@@ -299,9 +297,17 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         for (let j = 0; j < ord.items.length; j++) {
           const item = ord.items[j];
           if (!orderItemIds.includes(item.id)) continue;
-          const vendor = vendorStore.vendorById[item.vendorId];
-          const prod = vendorStore.vendorProds.find(
-            (g) => g.vendorProdId === item.vendorProd.vendorProdId
+          const vendorRef = await transaction.get(
+            doc(
+              getIoCollection({ c: IoCollection.USER }).withConverter(
+                userFireConverter
+              ),
+              item.vendorId
+            )
+          );
+          const vendor = vendorRef.data();
+          const prod = await VENDOR_GARMENT_DB.getByVendorProdId(
+            item.vendorProd.vendorProdId
           );
           if (!prod)
             throw new Error(

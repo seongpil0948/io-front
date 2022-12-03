@@ -2,24 +2,31 @@ import {
   getDoc,
   getDocs,
   increment,
+  limit,
   QueryConstraint,
   setDoc,
+  startAfter,
   updateDoc,
 } from "@firebase/firestore";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   onFirestoreCompletion,
   onFirestoreErr,
+  PaginateParam,
+  StockCntObj,
   VendorGarmentDB,
   VendorProdSimilar,
 } from "@/composable";
 import { VendorGarment } from "@/composable/product/vendor-garment/model";
-import { handleReadSnap } from "@/util";
+import { handleReadSnap, uniqueArr } from "@/util";
 import {
   IoFireApp,
   getIoCollection,
   IoCollection,
   dataFromSnap,
+  USER_DB,
+  batchInQuery,
+  dateToJson,
 } from "@io-boxies/js-lib";
 import {
   writeBatch,
@@ -33,7 +40,12 @@ import {
 } from "@firebase/firestore";
 import { ref } from "vue";
 import { ioFire } from "@/plugin/firebase";
-import { VendorProdSame } from "../domain";
+import {
+  VendorProdSame,
+  VendorUserGarment,
+  VendorUserGarmentCombined,
+} from "../domain";
+import { subDays } from "date-fns";
 
 export const VendorGarmentFB: VendorGarmentDB = {
   incrementStockCnt: async function (cnt: number, vendorProdId: string) {
@@ -107,6 +119,91 @@ export const VendorGarmentFB: VendorGarmentDB = {
     }
     const snap = await getDocs(query(vendorProdC, ...constraints));
     return dataFromSnap(snap);
+  },
+  listByIds: async function (vendorProdIds: string[]) {
+    const prodSnaps = await batchInQuery<VendorGarment>(
+      vendorProdIds,
+      vendorProdC,
+      "vendorProdId"
+    );
+    return prodSnaps.flatMap(dataFromSnap<VendorGarment>);
+  },
+  listByVendorIds: async function (vendorIds: string[]) {
+    const vendors = await USER_DB.getUserByIds(vendorIds);
+    const prodSnaps = await batchInQuery<VendorGarment>(
+      vendorIds,
+      vendorProdC,
+      "vendorId"
+    );
+    return prodSnaps
+      .flatMap(dataFromSnap<VendorGarment>)
+      .map((prod) => {
+        const vendor = vendors.find(
+          (vendor) => prod.vendorId === vendor.userInfo.userId
+        );
+        if (!vendor) return null;
+        return Object.assign({}, prod, vendor);
+      })
+      .filter((x) => x) as VendorUserGarment[];
+  },
+  listUserGarmentCombined: async function (
+    d
+  ): Promise<VendorUserGarmentCombined[]> {
+    const startAt =
+      d.lastData?.createdAt ?? dateToJson(subDays(new Date(), 30));
+    console.log("startAt: ", startAt, typeof startAt);
+    const snap = await getDocs(
+      query(
+        vendorProdC,
+        orderBy("createdAt", "asc"),
+        startAfter(startAt),
+        limit(d.pageSize ?? 20)
+      )
+    );
+    const targetProds = dataFromSnap(snap);
+    const vendors = await USER_DB.getUserByIds(
+      uniqueArr(targetProds.map((x) => x.vendorId))
+    );
+    const pkgIds = targetProds.map((y) => y.vendorProdPkgId);
+    const pkgSnaps = await batchInQuery<VendorGarment>(
+      pkgIds,
+      vendorProdC,
+      "vendorProdPkgId"
+    );
+    const vendorProds = pkgSnaps.flatMap(dataFromSnap<VendorGarment>);
+    const obj = vendorProds.reduce<{
+      [userAndProdName: string]: VendorUserGarmentCombined;
+    }>((acc, curr) => {
+      const user = vendors.find((x) => x.userInfo.userId === curr.vendorId);
+      if (!user) return acc;
+      const userProd = Object.assign({}, curr, user);
+      const similarId = VendorGarment.similarId(userProd);
+      if (!acc[similarId]) {
+        acc[similarId] = Object.assign({}, userProd, {
+          allStockCnt: 0,
+          colors: [],
+          sizes: [],
+          stockCnt: {} as StockCntObj,
+        }) as VendorUserGarmentCombined;
+      }
+      if (!acc[similarId].stockCnt[userProd.size]) {
+        acc[similarId].stockCnt[userProd.size] = {};
+      }
+      acc[similarId].stockCnt[userProd.size][userProd.color] = {
+        stockCnt: userProd.stockCnt,
+        prodId: userProd.vendorProdId,
+      };
+      if (!acc[similarId].sizes.includes(userProd.size)) {
+        acc[similarId].sizes.push(userProd.size);
+      }
+      if (!acc[similarId].colors.includes(userProd.color)) {
+        acc[similarId].colors.push(userProd.color);
+      }
+      acc[similarId].allStockCnt += userProd.stockCnt;
+      return acc;
+    }, {});
+    console.info("new data: ", Object.values(obj));
+    return Object.values(obj);
   },
   getByVendorProdId: async function (vendorProdId) {
     const docSnap = await getDoc(doc(vendorProdC, vendorProdId));

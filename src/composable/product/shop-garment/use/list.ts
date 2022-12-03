@@ -64,7 +64,7 @@ export function useShopGarmentTable(briefly: boolean) {
           checkedKeys.value = to
             ? userProd.value
                 .filter((o, idx) => idxes.includes(idx))
-                .map((p) => p[rowIdField]!)
+                .map((p: any) => p[rowIdField])
             : [];
         }
       },

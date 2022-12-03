@@ -18,7 +18,7 @@ import {
   saveMatch,
   getZigzagOrders,
 } from "@/composable";
-import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
+import { useAuthStore, useShopOrderStore } from "@/store";
 import { dateRanges } from "@/util";
 import { useMessage, NButton } from "naive-ui";
 import { onBeforeUnmount, computed, ref } from "vue";
@@ -48,7 +48,6 @@ const {
 const { authorizeCafe, mallId } = useCafeAuth();
 const { mapper } = useMapper(uid.value);
 const shopOrderStore = useShopOrderStore();
-const vendorStore = useVendorsStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
 const { parseCafeOrder } = useMappingOrderCafe(
   mapper,
@@ -184,13 +183,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
   }
 }
 async function onSaveMatch() {
-  await saveMatch(
-    matchData.value,
-    userProd.value,
-    vendorStore.vendorUserGarments,
-    uid.value,
-    existOrderIds
-  );
+  await saveMatch(matchData.value, userProd.value, uid.value, existOrderIds);
   matchData.value = [];
 }
 </script>

@@ -67,8 +67,8 @@ async function orderDelAll() {
   existOrderIds.value.clear();
 }
 // <<<<< COLUMNS <<<<<
-function downOrder() {
-  downOrderItems(filteredOrders.value);
+async function downOrder() {
+  await downOrderItems(filteredOrders.value);
 }
 function downSampleXlsx() {
   const a = document.createElement("a");

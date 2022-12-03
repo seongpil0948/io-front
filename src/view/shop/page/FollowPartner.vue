@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import { IoPartner, loadPartnerVendors } from "@/composable";
-import { useAuthStore, useVendorsStore } from "@/store";
-import { getUserName } from "@io-boxies/js-lib";
-import { onBeforeMount, ref } from "vue";
+import { useAuthStore } from "@/store";
+import { getUserName, IoUser, USER_DB } from "@io-boxies/js-lib";
+import { onBeforeMount, shallowRef } from "vue";
 
 const auth = useAuthStore();
-const vendorStore = useVendorsStore();
 
-const partners = ref<IoPartner[]>([]);
+const partners = shallowRef<IoPartner[]>([]);
+const vendorById = shallowRef<{ [userId: string]: IoUser }>({});
 onBeforeMount(async () => {
   partners.value = await loadPartnerVendors(auth.currUser.userInfo.userId);
+  const vendors = await USER_DB.getUserByIds(
+    partners.value.map((x) => x.vendorId)
+  );
+  vendorById.value = vendors.reduce((acc: any, user: any) => {
+    acc[user.userInfo.userId] = user;
+    return acc;
+  }, {} as { [userId: string]: IoUser });
 });
 </script>
 <template>
@@ -24,20 +31,20 @@ onBeforeMount(async () => {
           <n-space justify-between>
             <n-text>파트너명</n-text>
             <n-text type="info">{{
-              getUserName(vendorStore.vendorById[partner.vendorId])
+              getUserName(vendorById[partner.vendorId])
             }}</n-text>
           </n-space>
           <n-space justify-between>
             <n-text>email</n-text>
             <n-text type="info">{{
-              vendorStore.vendorById[partner.vendorId].userInfo.email
+              vendorById[partner.vendorId].userInfo.email
             }}</n-text>
           </n-space>
           <n-space justify-between>
             <n-text>연락처</n-text>
             <n-text type="info">{{
-              vendorStore.vendorById[partner.vendorId].userInfo.phone ??
-              vendorStore.vendorById[partner.vendorId].companyInfo?.companyPhone
+              vendorById[partner.vendorId].userInfo.phone ??
+              vendorById[partner.vendorId].companyInfo?.companyPhone
             }}</n-text>
           </n-space>
           <n-space justify-between>
@@ -46,7 +53,7 @@ onBeforeMount(async () => {
           </n-space>
           <user-locate-list
             :readonly="true"
-            :info="vendorStore.vendorById[partner.vendorId].companyInfo!"
+            :info="vendorById[partner.vendorId].companyInfo!"
           />
         </n-space>
       </n-card>

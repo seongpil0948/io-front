@@ -7,14 +7,15 @@ import {
   MapKey,
   synonymFilter,
   catchExcelError,
+  VendorGarment,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
-import { useVendorsStore } from "@/store";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { useMessage } from "naive-ui";
 import { MessageApiInjection } from "naive-ui/es/message/src/MessageProvider";
-import { Ref, ref, watch } from "vue";
+import { Ref, ref, shallowRef, watch, watchEffect } from "vue";
 
 export function useMappingOrderExcel(
   mapper: Ref<Mapper | null>,
@@ -26,10 +27,14 @@ export function useMappingOrderExcel(
   startRow: Ref<number>
 ) {
   const conditions = ref<GarmentOrderCondi[]>([]);
-  const vendorStore = useVendorsStore();
   const { userProd } = useShopUserGarments(userId, conditions);
   const msg = useMessage();
 
+  const vendorProds = shallowRef<VendorGarment[]>([]);
+  watchEffect(async () => {
+    const ids = userProd.value.map((x) => x.vendorProdId);
+    vendorProds.value = await VENDOR_GARMENT_DB.listByIds(ids);
+  });
   watch(
     () => fs.value,
     async (files) => {
@@ -78,7 +83,7 @@ export function useMappingOrderExcel(
       files = [];
       const ords = ioOrderFromCondi(
         conditions.value,
-        vendorStore.vendorUserGarments,
+        vendorProds.value,
         userProd.value
       );
 

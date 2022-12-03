@@ -7,18 +7,17 @@ import {
   ORDER_GARMENT_DB,
   SHOP_GARMENT_DB,
   OrderItemByShop,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { Unsubscribe } from "@firebase/util";
 import { defineStore } from "pinia";
 import { ref, computed, watchEffect } from "vue";
 import { useAuthStore } from "./auth";
-import { useVendorsStore } from "./vendorProd";
 
 export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   console.log(`=== called useUncleOrderStore ===`);
   const authStore = useAuthStore();
-  const vendorStore = useVendorsStore();
   const inStates = ref<ORDER_STATE[]>([]);
   const uncleId = ref<string | null>(null);
   const _orders = ref<IoOrder[]>([]);
@@ -89,9 +88,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
       shopProds.value = [];
       const shopIds = uniqueArr(orders.value.map((x) => x.shopId));
       const vendorIds = uniqueArr(orders.value.flatMap((x) => x.vendorIds));
-      const vendorProds = vendorStore.vendorUserGarments.filter((x) =>
-        vendorIds.includes(x.vendorId)
-      );
+      const vendorProds = await VENDOR_GARMENT_DB.listByVendorIds(vendorIds);
       shopProds.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
       _ioOrders.value = extractGarmentOrd(
         orders.value,

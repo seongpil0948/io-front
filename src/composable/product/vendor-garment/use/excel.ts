@@ -107,7 +107,7 @@ export function useBatchVendorProd() {
         TBD: {},
       });
       const exist = [...existGarments, ...vendorProds].find(
-        (x) => x.combineId === newGarment.combineId
+        (x) => x.similarId === newGarment.similarId
       );
       newGarment.vendorProdPkgId = exist ? exist.vendorProdPkgId : uuidv4();
 

@@ -8,6 +8,7 @@ import {
   VendorGarment,
   OrderAmount,
   OrderItem,
+  PaginateParam,
 } from "@/composable";
 import { IoUser } from "@io-boxies/js-lib";
 import { Ref } from "vue";
@@ -61,6 +62,11 @@ export interface VendorGarmentDB {
   batchCreate(userId: string, args: VendorGarment[]): Promise<void>;
   delete(prodId: string): Promise<void>;
   list(d: { vendorId?: string }): Promise<VendorGarment[]>;
+  listByIds(vendorProdIds: string[]): Promise<VendorGarment[]>;
+  listByVendorIds(vendorIds: string[]): Promise<VendorUserGarment[]>;
+  listUserGarmentCombined(
+    d: PaginateParam<VendorUserGarmentCombined>
+  ): Promise<VendorUserGarmentCombined[]>;
   getByVendorProdId(vendorProdId: string): Promise<VendorGarment | null>;
   getSimilarProds(d: VendorProdSimilar): Promise<VendorGarment[]>;
   updateSimilarProd(

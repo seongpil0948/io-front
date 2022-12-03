@@ -9,17 +9,19 @@ import {
   VendorUserGarment,
   newOrdFromItem,
   newOrdItem,
+  VENDOR_GARMENT_DB,
+  VendorGarment,
 } from "@/composable";
 
 export function ioOrderFromCondi(
   conditions: GarmentOrderCondi[],
-  vendorProds: VendorUserGarment[],
+  vendorProds: VendorGarment[],
   userGarments: ShopUserGarment[]
 ) {
   const infos: {
     [k: string]: {
       prod: ShopUserGarment;
-      vendorProd: VendorUserGarment;
+      vendorProd: VendorGarment;
       orderIds: string[];
       orderCnt: number;
     };
@@ -59,7 +61,7 @@ export function ioOrderFromCondi(
       pickFeeDiscountAmount: 0,
       tax: 0,
       paidAmount: 0,
-      paid: "F",
+      paid: "NO",
       paymentConfirm: false,
     });
     const order = newOrdFromItem([item]);
@@ -71,17 +73,19 @@ export function ioOrderFromCondi(
 export async function saveMatch(
   matchData: MatchGarment[],
   userProd: ShopUserGarment[],
-  vendorUserGarments: VendorUserGarment[],
   userId: string,
   existOrderIds: Ref<Set<string>>
 ) {
   const orders: IoOrder[] = [];
+  const ids = userProd.map((x) => x.vendorProdId);
+  const vendorProds = await VENDOR_GARMENT_DB.listByIds(ids);
+
   for (let i = 0; i < matchData.length; i++) {
     const data = matchData[i];
     if (!data.id) continue;
     const g = userProd.find((x) => x.shopProdId === data.id);
     if (!g) throw new Error("소매처 상품이 없습니다.");
-    const vendorProd = vendorUserGarments.find(
+    const vendorProd = vendorProds.find(
       (x) => x.vendorProdId === g?.vendorProdId
     );
     if (!vendorProd) throw new Error("도매처 상품이 없습니다.");
@@ -97,7 +101,7 @@ export async function saveMatch(
       pickFeeDiscountAmount: 0,
       tax: 0,
       paidAmount: 0,
-      paid: "F",
+      paid: "NO",
       paymentConfirm: false,
     });
     const order = newOrdFromItem([item]);

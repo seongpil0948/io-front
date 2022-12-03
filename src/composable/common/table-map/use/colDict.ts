@@ -81,7 +81,7 @@ export const colKoMapper: { [key in string]: string | null } = {
   cancellations: "취소내역",
   ctgr: null,
   fabric: null,
-  combineId: null,
+  similarId: null,
   bodyImgs: null,
   info: null,
   id: null,

@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import {
   PART,
-  usePaginate,
   useSearch,
   VendorUserGarmentCombined,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
-import { useCommonStore, useVendorsStore } from "@/store";
-import { computed, ref, watchEffect } from "vue";
+import { useCommonStore } from "@/store";
+import { computed, onBeforeMount, ref, watchEffect } from "vue";
 import { getCtgrOpts, partOpts } from "@/util";
 import { storeToRefs } from "pinia";
+import throttle from "lodash.throttle";
+
 const selectedPart = ref<PART | "전체" | null>(null);
 const selectedCtgr = ref<string | null>(null);
 const cs = useCommonStore();
@@ -36,9 +38,37 @@ function validProd(prod: VendorUserGarmentCombined) {
   }
   return valid;
 }
-const vendorStore = useVendorsStore();
+
+const data = ref<VendorUserGarmentCombined[]>([]);
+const handleScroll = throttle(
+  async (e: MouseEvent) => {
+    console.log("handle scroll", e);
+    if (!e.target) return;
+    const el = e.target as HTMLElement;
+
+    const distance = el.scrollHeight - (el.scrollTop + el.clientHeight);
+    if (distance < 500) {
+      console.log("load data!", distance, el.scrollHeight);
+      await loadData();
+    }
+  },
+  500,
+  { trailing: false, leading: true }
+);
+
+async function loadData() {
+  data.value = [
+    ...data.value,
+    ...(await VENDOR_GARMENT_DB.listUserGarmentCombined({
+      pageSize: 30,
+      lastData: data.value[data.value.length - 1],
+      // lastData: data.value[0],
+    })),
+  ];
+}
+onBeforeMount(async () => await loadData());
 const { search, searchedData, searchInputVal } = useSearch({
-  data: computed(() => Object.values(vendorStore.vendorUserCombinedGarments)),
+  data,
   filterFunc: (x, searchVal) => {
     const v: typeof searchVal = searchVal;
     return (
@@ -51,10 +81,6 @@ const { search, searchedData, searchInputVal } = useSearch({
       (ctgr.value === null ? true : x.ctgr === ctgr.value)
     );
   },
-});
-
-const { totalPage, paginatedData, page } = usePaginate({
-  data: searchedData,
 });
 
 const part = ref(null);
@@ -101,32 +127,26 @@ const ctgrOpts = computed(() =>
         v-model:selectedCtgr="selectedCtgr"
       /> -->
       <n-card style="height: 70vh; overflow: auto">
-        <!-- prods -->
-        <n-grid
-          x-gap="12"
-          y-gap="12"
-          cols="1 s:2 m:3 l:4 xl:5"
-          responsive="screen"
-        >
-          <n-gi v-for="(prod, i) in paginatedData" :key="i">
-            <vendor-prod-thum
-              v-if="validProd(prod)"
-              style="padding: 5%; margin: auto"
-              :prod="prod"
-              :width="250"
-              @on-click-prod="onClickProd"
-            />
-          </n-gi>
-        </n-grid>
+        <n-scrollbar style="max-height: 70vh" @scroll="handleScroll">
+          <n-grid
+            x-gap="12"
+            y-gap="12"
+            cols="1 s:2 m:3 l:4 xl:5"
+            responsive="screen"
+          >
+            <n-gi v-for="(prod, i) in data" :key="i">
+              <vendor-prod-thum
+                v-if="validProd(prod)"
+                style="padding: 5%; margin: auto"
+                :prod="prod"
+                :width="250"
+                @on-click-prod="onClickProd"
+              />
+            </n-gi>
+          </n-grid>
+        </n-scrollbar>
       </n-card>
     </n-space>
-    <n-pagination
-      v-model:page="page"
-      style="justify-content: end"
-      :page-count="totalPage"
-      show-quick-jumper
-      size="large"
-    />
   </n-space>
   <div v-else>
     <n-result

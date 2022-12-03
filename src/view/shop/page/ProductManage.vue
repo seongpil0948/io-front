@@ -5,8 +5,10 @@ import {
   useShopGarmentTable,
   newOrdFromItem,
   newOrdItem,
+  VENDOR_GARMENT_DB,
+  VendorGarment,
 } from "@/composable";
-import { useAuthStore, useVendorsStore } from "@/store";
+import { useAuthStore } from "@/store";
 import { makeMsgOpt, isMobile } from "@/util";
 import {
   NButton,
@@ -19,14 +21,12 @@ import {
   useMessage,
 } from "naive-ui";
 import { uuidv4 } from "@firebase/util";
-import { computed } from "vue";
+import { computed, shallowRef, watch } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const authStore = useAuthStore();
 const msg = useMessage();
-
 const log = useLogger();
-const vendorStore = useVendorsStore();
 const {
   tableCols,
   mapper,
@@ -56,6 +56,15 @@ async function mapperUpdate() {
       log.error(authStore.currUser.userInfo.userId, message, err);
     });
 }
+const vendorProds = shallowRef<VendorGarment[]>([]);
+watch(
+  () => userProd.value,
+  async (prods) => {
+    const ids = prods.map((x) => x.vendorProdId);
+    vendorProds.value = await VENDOR_GARMENT_DB.listByIds(ids);
+  }
+);
+
 async function onCheckedOrder() {
   const orders: IoOrder[] = [];
   for (let i = 0; i < checkedKeys.value.length; i++) {
@@ -64,7 +73,7 @@ async function onCheckedOrder() {
     )!;
     if (!prod) continue;
 
-    const vendorProd = vendorStore.vendorUserGarments.find(
+    const vendorProd = vendorProds.value.find(
       (y) => y.vendorProdId === prod.vendorProdId
     );
     if (!vendorProd) {

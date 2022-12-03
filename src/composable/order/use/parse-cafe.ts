@@ -10,12 +10,13 @@ import {
   ApiToken,
   MatchGarment,
   ShopUserGarment,
+  VENDOR_GARMENT_DB,
+  VendorGarment,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
-import { useVendorsStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { useMessage } from "naive-ui";
-import { Ref, ref } from "vue";
+import { Ref, ref, shallowRef, watchEffect } from "vue";
 
 export function matchCafeOrder(
   cafeOrds: AnyOrder[],
@@ -63,9 +64,13 @@ export function useMappingOrderCafe(
   existIds: Ref<Set<string>>
 ) {
   const conditions = ref<GarmentOrderCondi[]>([]);
-  const vendorStore = useVendorsStore();
   const { userProd } = useShopUserGarments(userId, conditions);
   const msg = useMessage();
+  const vendorProds = shallowRef<VendorGarment[]>([]);
+  watchEffect(async () => {
+    const ids = userProd.value.map((x) => x.vendorProdId);
+    vendorProds.value = await VENDOR_GARMENT_DB.listByIds(ids);
+  });
 
   function parseCafeOrder(cafeOrders: AnyOrder[]) {
     conditions.value = [];
@@ -92,12 +97,12 @@ export function useMappingOrderCafe(
 
     return ioOrderFromCondi(
       conditions.value,
-      vendorStore.vendorUserGarments,
+      vendorProds.value,
       userProd.value
     );
   }
 
-  return { parseCafeOrder, conditions };
+  return { parseCafeOrder, conditions, userProd };
 }
 
 function mapCafeOrder(

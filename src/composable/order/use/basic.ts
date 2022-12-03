@@ -1,4 +1,4 @@
-import { IoOrder, useAlarm } from "@/composable";
+import { IoOrder, useAlarm, VENDOR_GARMENT_DB } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
@@ -8,7 +8,6 @@ import { ORDER_GARMENT_DB } from "../db";
 import { OrderItemCombined } from "../domain";
 import { DataFrame, toExcel } from "danfojs";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
-import { useVendorsStore } from "@/store";
 
 export function useOrderBasic(
   user: IoUser,
@@ -149,8 +148,8 @@ export function useOrderBasic(
   };
 }
 
-export function downOrderItems(gOrders: OrderItemCombined[]) {
-  const df = pOrdersToFrame(gOrders);
+export async function downOrderItems(gOrders: OrderItemCombined[]) {
+  const df = await pOrdersToFrame(gOrders);
   toExcel(df, { fileName: "testOut.xlsx" });
   const a = document.createElement("a");
   // a.href = url
@@ -160,8 +159,12 @@ export function downOrderItems(gOrders: OrderItemCombined[]) {
   a.remove();
 }
 
-export function pOrdersToFrame(gOrders: OrderItemCombined[]): DataFrame {
-  const vendors = useVendorsStore().vendors;
+export async function pOrdersToFrame(
+  gOrders: OrderItemCombined[]
+): Promise<DataFrame> {
+  const vendors = await VENDOR_GARMENT_DB.listByVendorIds(
+    uniqueArr(gOrders.map((x) => x.vendorId))
+  );
 
   const df = new DataFrame(
     gOrders

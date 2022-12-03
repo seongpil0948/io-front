@@ -1,11 +1,5 @@
 import { defineStore } from "pinia";
-import {
-  StockCntObj,
-  VendorGarment,
-  VendorUserGarment,
-  VendorUserGarmentCombined,
-  VENDOR_GARMENT_DB,
-} from "@/composable";
+import { VendorUserGarment, VENDOR_GARMENT_DB } from "@/composable";
 import { computed, ref, onBeforeMount } from "vue";
 import { IoUser, USER_DB } from "@io-boxies/js-lib";
 
@@ -38,37 +32,6 @@ export const useVendorsStore = defineStore(
         .filter((x) => x) as VendorUserGarment[];
     });
 
-    const vendorUserCombinedGarments = computed(() => {
-      return vendorUserGarments.value.reduce<{
-        [userAndProdName: string]: VendorUserGarmentCombined;
-      }>((acc, curr) => {
-        const combineId = VendorGarment.combineId(curr);
-        if (!acc[combineId]) {
-          acc[combineId] = Object.assign({}, curr, {
-            allStockCnt: 0,
-            colors: [],
-            sizes: [],
-            stockCnt: {} as StockCntObj,
-          });
-        }
-        if (!acc[combineId].stockCnt[curr.size]) {
-          acc[combineId].stockCnt[curr.size] = {};
-        }
-        acc[combineId].stockCnt[curr.size][curr.color] = {
-          stockCnt: curr.stockCnt,
-          prodId: curr.vendorProdId,
-        };
-        if (!acc[combineId].sizes.includes(curr.size)) {
-          acc[combineId].sizes.push(curr.size);
-        }
-        if (!acc[combineId].colors.includes(curr.color)) {
-          acc[combineId].colors.push(curr.color);
-        }
-        acc[combineId].allStockCnt += curr.stockCnt;
-        return acc;
-      }, {});
-    });
-
     async function getVendors() {
       vendors.value = await USER_DB.getUsersByRole("VENDOR");
     }
@@ -84,7 +47,6 @@ export const useVendorsStore = defineStore(
       vendorProds,
       vendorUserGarments,
       isInitial,
-      vendorUserCombinedGarments,
       getVendors,
     };
   },

@@ -6,9 +6,9 @@ import {
   isValidOrder,
   setState,
   uncleAvailShip,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
 import { getIoCollection, IoCollection } from "@io-boxies/js-lib";
-import { useVendorsStore } from "@/store";
 import { uuidv4 } from "@firebase/util";
 import { IoUser, userFireConverter } from "@io-boxies/js-lib";
 import { doc, runTransaction } from "firebase/firestore";
@@ -18,7 +18,6 @@ import { ioFire } from "@/plugin/firebase";
 export const ShipmentFB: ShipDB<IoOrder> = {
   approvePickUp: async function (row: IoOrder, expectedReduceCoin: number) {
     isValidOrder(row);
-    const vendorStore = useVendorsStore();
     const { getOrdRef, converterGarment } = getSrc();
     if (!row.shipManagerId) throw new Error("shipManagerId is null");
     const userPay = await IO_PAY_DB.getIoPayByUser(row.shipManagerId);
@@ -56,25 +55,23 @@ export const ShipmentFB: ShipDB<IoOrder> = {
 
       for (let i = 0; i < ord.items.length; i++) {
         const item = ord.items[i];
-        const prod = vendorStore.vendorProds.find(
-          (g) => g.vendorProdId === item.vendorProd.vendorProdId
+        const prod = await VENDOR_GARMENT_DB.getByVendorProdId(
+          item.vendorProd.vendorProdId
         );
-        // const vendorDoc = await transaction.get(
-        //   doc(
-        //     getIoCollection({ c: IoCollection.USER }).withConverter(
-        //       IoUser.fireConverter()
-        //     ),
-        //     item.vendorId
-        //   )
-        // );
+
         if (!prod)
           throw new Error(
             `도매처 상품이 없습니다.: ${item.vendorProd.vendorProdId}`
           );
-        const vendor = validateUser(
-          vendorStore.vendorById[item.vendorId],
-          item.vendorId
+        const vendorRef = await transaction.get(
+          doc(
+            getIoCollection({ c: IoCollection.USER }).withConverter(
+              userFireConverter
+            ),
+            item.vendorId
+          )
         );
+        const vendor = validateUser(vendorRef.data(), item.vendorId);
         const isReturn = item.orderType === "RETURN";
         const shopLocate = shop.companyInfo!.shipLocate;
         const vendorLocate = vendor.companyInfo!.shipLocate;

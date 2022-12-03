@@ -38,7 +38,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     );
   }
 
-  constructor(d: Omit<VendorGarmentCrt, "combineId">) {
+  constructor(d: Omit<VendorGarmentCrt, "similarId">) {
     super(d.createdAt, d.updatedAt);
     this.gender = d.gender;
     this.part = d.part;
@@ -60,10 +60,10 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     this.TBD = d.TBD ?? {};
     this.prodType = d.prodType;
   }
-  get combineId() {
-    return VendorGarment.combineId(this);
+  get similarId() {
+    return VendorGarment.similarId(this);
   }
-  static combineId(c: VendorGarmentCrt): string {
+  static similarId(c: VendorGarmentCrt): string {
     return getVendorProdSimilarId({
       vendorId: c.vendorId,
       vendorProdName: c.vendorProdName,
