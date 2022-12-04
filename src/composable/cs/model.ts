@@ -5,6 +5,7 @@ import {
 } from "firebase/firestore";
 import { USER_ROLE, loadDate } from "@io-boxies/js-lib";
 import { CsPost } from "./domain";
+import { commonToJson } from "@/util";
 
 export function csFromJson(data: { [x: string]: any }): CsPost | null {
   return {
@@ -19,7 +20,7 @@ export function csFromJson(data: { [x: string]: any }): CsPost | null {
 }
 export const csPostFireConverter: FirestoreDataConverter<CsPost | null> = {
   toFirestore: (post: CsPost) => {
-    return JSON.parse(JSON.stringify(post));
+    return commonToJson(post);
   },
   fromFirestore: (
     snapshot: DocumentSnapshot<DocumentData>,

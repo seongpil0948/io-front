@@ -63,11 +63,16 @@ export interface VendorGarmentDB {
   delete(prodId: string): Promise<void>;
   list(d: { vendorId?: string }): Promise<VendorGarment[]>;
   listByIds(vendorProdIds: string[]): Promise<VendorGarment[]>;
+  listByIdsWithUser(vendorProdIds: string[]): Promise<VendorUserGarment[]>;
   listByVendorIds(vendorIds: string[]): Promise<VendorUserGarment[]>;
   listUserGarmentCombined(
     d: PaginateParam<VendorUserGarmentCombined>
-  ): Promise<VendorUserGarmentCombined[]>;
-  getByVendorProdId(vendorProdId: string): Promise<VendorGarment | null>;
+  ): Promise<{
+    data: VendorUserGarmentCombined[];
+    noMore: boolean;
+  }>;
+  getById(vendorProdId: string): Promise<VendorGarment | null>;
+  getByIdWithUser(vendorProdId: string): Promise<VendorUserGarment | null>;
   getSimilarProds(d: VendorProdSimilar): Promise<VendorGarment[]>;
   updateSimilarProd(
     d: VendorProdSimilar,

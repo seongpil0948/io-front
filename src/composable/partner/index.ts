@@ -10,7 +10,6 @@ import {
   collection,
   where,
 } from "@firebase/firestore";
-import { IoFireApp } from "@io-boxies/js-lib";
 import { IoOrder } from "../order";
 
 export interface IoPartner {

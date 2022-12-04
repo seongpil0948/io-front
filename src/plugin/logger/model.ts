@@ -15,12 +15,7 @@ import {
 import { logger } from "@/plugin/logger";
 import { onBeforeMount, ref } from "vue";
 import { CommonField } from "@/composable/common/model";
-import {
-  IoFireApp,
-  getIoCollection,
-  IoCollection,
-  loadDate,
-} from "@io-boxies/js-lib";
+import { getIoCollection, IoCollection, loadDate } from "@io-boxies/js-lib";
 import { onFirestoreErr, onFirestoreCompletion } from "@/composable";
 import { ioFire } from "../firebase";
 export interface IoLogCRT {

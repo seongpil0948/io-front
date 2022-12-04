@@ -8,10 +8,10 @@ import {
   ORDER_STATE,
   IoOrder,
   ShopUserGarment,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
-import { defineStore, storeToRefs } from "pinia";
+import { defineStore } from "pinia";
 import { ref, computed, onBeforeUnmount, watch } from "vue";
-import { useVendorsStore } from "./vendorProd";
 import { useAuthStore } from "./auth";
 import { Unsubscribe } from "@firebase/firestore";
 import { logger } from "@/plugin/logger";
@@ -76,8 +76,6 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   const orders = computed(() => [..._orders.value]);
   const ioOrders = computed(() => [..._ioOrders.value]);
 
-  // >>> connection >>>
-  const { vendorUserGarments } = storeToRefs(useVendorsStore());
   const unsubscribeAuth = authStore.$onAction(
     ({ name, store, args, after, onError }) => {
       after(async () => {
@@ -106,10 +104,14 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
       if (shopId.value && orders.value) {
         await setExistOrderIds();
         if (shopProds.value) {
+          const ids = orders.value.flatMap((o) =>
+            o.items.map((i) => i.vendorProd.vendorProdId)
+          );
+          const prods = await VENDOR_GARMENT_DB.listByIdsWithUser(ids);
           _ioOrders.value = extractGarmentOrd(
             _orders.value,
             shopProds.value,
-            vendorUserGarments.value
+            prods
           );
         }
       } else {

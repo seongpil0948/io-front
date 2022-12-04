@@ -6,7 +6,6 @@ import {
   ORDER_GARMENT_DB,
   sameGarment,
   ShopUserGarment,
-  VendorUserGarment,
   newOrdFromItem,
   newOrdItem,
   VENDOR_GARMENT_DB,

@@ -6,7 +6,7 @@ import {
   VendorGarment,
   VENDOR_GARMENT_DB,
 } from "@/composable";
-import { useAuthStore, useCommonStore, useVendorsStore } from "@/store";
+import { useAuthStore, useCommonStore } from "@/store";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { ref, watch } from "vue";
 import { uuidv4 } from "@firebase/util";
@@ -74,11 +74,10 @@ export function useBatchVendorProd() {
       }
     }
   );
-  const { vendorProds: existGarments } = useVendorsStore();
   function parseDf(df: DataFrame) {
     // console.log("df.columns: ", df.columns);
     const vendorProds: VendorGarment[] = [];
-    df.apply((row: Series) => {
+    df.apply(async (row: Series) => {
       const vendorProdName = String(row[0]);
       const vendorPrice = row[5];
       const color = row[1];
@@ -86,6 +85,17 @@ export function useBatchVendorProd() {
       const size: PRODUCT_SIZE = Object.keys(PRODUCT_SIZE).includes(sizeStr)
         ? (sizeStr as PRODUCT_SIZE)
         : "FREE";
+      if (
+        await VENDOR_GARMENT_DB.existSameProd({
+          vendorId: u.userInfo.userId,
+          vendorProdName,
+          color,
+          size,
+        })
+      ) {
+        console.log(vendorProdName, color, size, "is exist");
+        return row;
+      }
       const newGarment = new VendorGarment({
         gender: "UNISEX",
         part: "ETC",
@@ -105,11 +115,15 @@ export function useBatchVendorProd() {
         description: "",
         vendorProdPkgId: "",
         TBD: {},
+        prodType: "GARMENT",
       });
-      const exist = [...existGarments, ...vendorProds].find(
-        (x) => x.similarId === newGarment.similarId
-      );
-      newGarment.vendorProdPkgId = exist ? exist.vendorProdPkgId : uuidv4();
+      const similarProds = await VENDOR_GARMENT_DB.getSimilarProds({
+        vendorId: u.userInfo.userId,
+        vendorProdName,
+      });
+
+      newGarment.vendorProdPkgId =
+        similarProds.length > 0 ? similarProds[0].vendorProdPkgId : uuidv4();
 
       vendorProds.push(newGarment);
       return row;

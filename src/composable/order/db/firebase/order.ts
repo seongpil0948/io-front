@@ -140,7 +140,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       beforeState: ["BEFORE_READY"],
       onItem: async function (po) {
         // po.orderCnt
-        const vendorProd = await VENDOR_GARMENT_DB.getByVendorProdId(
+        const vendorProd = await VENDOR_GARMENT_DB.getById(
           po.vendorProd.vendorProdId
         );
         if (!vendorProd)
@@ -306,7 +306,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
             )
           );
           const vendor = vendorRef.data();
-          const prod = await VENDOR_GARMENT_DB.getByVendorProdId(
+          const prod = await VENDOR_GARMENT_DB.getById(
             item.vendorProd.vendorProdId
           );
           if (!prod)
@@ -480,6 +480,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
         orderFireConverter
       ),
+      where("doneAt", "==", null),
       where("vendorIds", "array-contains", p.vendorId)
     );
     const name = "vendorReadListen snapshot";

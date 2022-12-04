@@ -85,9 +85,7 @@ async function onSubmit() {
     if (
       !shopOrdStore.shopProds.find((x) => x.shopProdId == shopProd.shopProdId)
     ) {
-      const vendorUnit = await VENDOR_GARMENT_DB.getByVendorProdId(
-        vendorProdId
-      );
+      const vendorUnit = await VENDOR_GARMENT_DB.getById(vendorProdId);
       if (!vendorUnit) {
         log.error(
           uid,

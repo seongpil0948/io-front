@@ -1,7 +1,6 @@
 import {
   PRODUCT_SIZE,
   ShopGarmentCrt,
-  VendorGarmentCrt,
   GarmentOrderCondi,
   PROD_TYPE,
 } from "@/composable";
@@ -28,14 +27,6 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   zigzagProdId?: string;
   TBD: { [k: string]: any };
   prodType: PROD_TYPE;
-
-  isSameWithVendor(p: VendorGarmentCrt) {
-    return (
-      this.vendorProdId === p.vendorProdId &&
-      this.color === p.color &&
-      this.size === p.size
-    );
-  }
 
   async update() {
     await insertById<ShopGarment>(

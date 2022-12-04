@@ -12,6 +12,7 @@ import {
   DocumentSnapshot,
   DocumentData,
 } from "@firebase/firestore";
+import { commonToJson } from "@/util";
 
 export class IoShipment extends CommonField {
   shippingId: string;
@@ -129,12 +130,7 @@ export class IoShipment extends CommonField {
 
   static fireConverter(): FirestoreDataConverter<IoShipment> {
     return {
-      toFirestore: (m: IoShipment) => {
-        m.updatedAt = new Date();
-        return m instanceof CommonField
-          ? m.toJson()
-          : IoShipment.fromJson(m)!.toJson();
-      },
+      toFirestore: (m: IoShipment) => commonToJson(m),
       fromFirestore: (
         snapshot: DocumentSnapshot<DocumentData>,
         options: any

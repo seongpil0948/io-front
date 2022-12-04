@@ -1,6 +1,6 @@
 import { CommonField } from "@/composable/common/model";
 import { logger as log } from "@/plugin/logger";
-import { uniqueArr } from "@/util";
+import { commonToJson, uniqueArr } from "@/util";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import type {
   DocumentSnapshot,
@@ -122,7 +122,7 @@ class Mapper implements MapperCRT {
   }
 
   toJson() {
-    return JSON.parse(JSON.stringify(this));
+    return commonToJson(this);
   }
 
   getProdMapper(): ProdMapper {

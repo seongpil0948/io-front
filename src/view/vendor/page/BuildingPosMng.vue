@@ -7,13 +7,22 @@ import {
   IoPartner,
   savePartner,
   loadPartner,
+  VENDOR_GARMENT_DB,
+  VendorGarment,
 } from "@/composable/";
-import { useShopStore, useVendorsStore, useAuthStore } from "@/store";
+import { useShopStore, useAuthStore } from "@/store";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { NButton, useMessage } from "naive-ui";
 import { storeToRefs } from "pinia";
-import { ref, onBeforeMount, computed, watch } from "vue";
+import {
+  ref,
+  onBeforeMount,
+  computed,
+  watch,
+  shallowRef,
+  watchEffect,
+} from "vue";
 
 const msg = useMessage();
 const auth = useAuthStore();
@@ -59,12 +68,16 @@ const shopOpts = computed(() =>
   }))
 );
 
-const vendorStore = useVendorsStore();
+const vendorProds = shallowRef<VendorGarment[]>([]);
+watchEffect(async () => {
+  const ids = shopProds.value.map((x) => x.vendorProdId);
+  vendorProds.value = await VENDOR_GARMENT_DB.listByIds(ids);
+});
 const products = computed(() => {
   const prods: ShopVendorGarment[] = [];
   for (let i = 0; i < shopProds.value.length; i++) {
     const shopGarment = shopProds.value[i];
-    const vendorGarment = vendorStore.vendorProds.find(
+    const vendorGarment = vendorProds.value.find(
       (x) => x.vendorProdId === shopGarment.vendorProdId
     )!;
     prods.push({ shopGarment, vendorGarment });

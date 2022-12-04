@@ -55,7 +55,7 @@ export const ShipmentFB: ShipDB<IoOrder> = {
 
       for (let i = 0; i < ord.items.length; i++) {
         const item = ord.items[i];
-        const prod = await VENDOR_GARMENT_DB.getByVendorProdId(
+        const prod = await VENDOR_GARMENT_DB.getById(
           item.vendorProd.vendorProdId
         );
 

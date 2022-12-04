@@ -20,13 +20,13 @@ import {
 import { VendorGarment } from "@/composable/product/vendor-garment/model";
 import { handleReadSnap, uniqueArr } from "@/util";
 import {
-  IoFireApp,
   getIoCollection,
   IoCollection,
   dataFromSnap,
   USER_DB,
   batchInQuery,
-  dateToJson,
+  dateToTimeStamp,
+  loadDate,
 } from "@io-boxies/js-lib";
 import {
   writeBatch,
@@ -128,6 +128,21 @@ export const VendorGarmentFB: VendorGarmentDB = {
     );
     return prodSnaps.flatMap(dataFromSnap<VendorGarment>);
   },
+  listByIdsWithUser: async function (vendorProdIds: string[]) {
+    const prods = await this.listByIds(vendorProdIds);
+    const vendors = await USER_DB.getUserByIds(
+      uniqueArr(prods.map((x) => x.vendorId))
+    );
+    return prods
+      .map((prod) => {
+        const vendor = vendors.find(
+          (vendor) => prod.vendorId === vendor.userInfo.userId
+        );
+        if (!vendor) return null;
+        return Object.assign({}, prod, vendor);
+      })
+      .filter((x) => x) as VendorUserGarment[];
+  },
   listByVendorIds: async function (vendorIds: string[]) {
     const vendors = await USER_DB.getUserByIds(vendorIds);
     const prodSnaps = await batchInQuery<VendorGarment>(
@@ -150,14 +165,16 @@ export const VendorGarmentFB: VendorGarmentDB = {
     d
   ): Promise<VendorUserGarmentCombined[]> {
     const startAt =
-      d.lastData?.createdAt ?? dateToJson(subDays(new Date(), 30));
+      dateToTimeStamp(loadDate(d.lastData?.createdAt)) ??
+      dateToTimeStamp(new Date());
     console.log("startAt: ", startAt, typeof startAt);
+    const pageSize = d.pageSize ?? 20;
     const snap = await getDocs(
       query(
         vendorProdC,
-        orderBy("createdAt", "asc"),
+        orderBy("createdAt", "desc"),
         startAfter(startAt),
-        limit(d.pageSize ?? 20)
+        limit(pageSize)
       )
     );
     const targetProds = dataFromSnap(snap);
@@ -202,13 +219,23 @@ export const VendorGarmentFB: VendorGarmentDB = {
       acc[similarId].allStockCnt += userProd.stockCnt;
       return acc;
     }, {});
-    console.info("new data: ", Object.values(obj));
-    return Object.values(obj);
+    const noMore = pageSize > targetProds.length;
+    const result = { data: Object.values(obj), noMore };
+    console.info("new result: ", result);
+    return result;
   },
-  getByVendorProdId: async function (vendorProdId) {
+  getById: async function (vendorProdId) {
     const docSnap = await getDoc(doc(vendorProdC, vendorProdId));
     const data = docSnap.data();
     return data ?? null;
+  },
+  getByIdWithUser: async function (vendorProdId) {
+    const docSnap = await getDoc(doc(vendorProdC, vendorProdId));
+    const data = docSnap.data();
+    if (!data) return null;
+    const vendor = await USER_DB.getUserById(data.vendorId);
+    if (!vendor) return null;
+    return Object.assign({}, data, vendor);
   },
   updateSimilarProd: async function (
     d: VendorProdSimilar,

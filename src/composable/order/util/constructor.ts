@@ -1,7 +1,7 @@
 import { PAY_METHOD } from "@/composable";
 import { PAID_INFO } from "@/composable/common";
 import { VendorGarmentCrt, ShopGarmentCrt } from "@/composable/product";
-import { fireConverter } from "@/util";
+import { fireConverter } from "@/util/firebase";
 import { uuidv4 } from "@firebase/util";
 import { uniqueArr } from "@io-boxies/js-lib";
 import {

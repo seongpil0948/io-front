@@ -56,15 +56,17 @@ const handleScroll = throttle(
   { trailing: false, leading: true }
 );
 
+const noMore = ref(false);
 async function loadData() {
-  data.value = [
-    ...data.value,
-    ...(await VENDOR_GARMENT_DB.listUserGarmentCombined({
+  if (!noMore.value) {
+    const obj = await VENDOR_GARMENT_DB.listUserGarmentCombined({
       pageSize: 30,
       lastData: data.value[data.value.length - 1],
       // lastData: data.value[0],
-    })),
-  ];
+    });
+    data.value = [...data.value, ...obj.data];
+    noMore.value = obj.noMore;
+  }
 }
 onBeforeMount(async () => await loadData());
 const { search, searchedData, searchInputVal } = useSearch({

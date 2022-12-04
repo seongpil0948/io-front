@@ -26,10 +26,6 @@ logger.debug(
   import.meta.env
 );
 
-Date.prototype.toJSON = function () {
-  return this.toISOString();
-};
-
 const app = createApp(App);
 app.use(pinia);
 app.use(vueKakao, {

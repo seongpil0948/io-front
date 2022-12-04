@@ -8,19 +8,20 @@ import {
   ShopUserGarment,
   VendorUserOrderGarment,
   mergeOrderItem,
+  VendorUserGarment,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { uniqueArr, extractGarmentOrd } from "@/util";
 import { Unsubscribe } from "@firebase/util";
 import { defineStore } from "pinia";
-import { ref, computed, watch } from "vue";
-import { useVendorsStore, useAuthStore } from "./";
+import { ref, computed, watch, shallowRef } from "vue";
+import { useAuthStore } from "./";
 
 export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   console.log(`=== called useVendorOrderStore === `);
   // >>> state >>>
   const authStore = useAuthStore();
-  const vendorStore = useVendorsStore();
   const inStates = ref<ORDER_STATE[]>([]);
   const vendorId = ref<string | null>(null);
   const _orders = ref<IoOrder[]>([]);
@@ -30,13 +31,18 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   let initial = true;
   // >>> getter >>>
   const orders = computed(() => [..._orders.value]);
-  const vendorProds = computed(() =>
-    vendorId.value
-      ? vendorStore.vendorUserGarments.filter(
-          (x) => x.vendorId === vendorId.value
-        )
-      : vendorStore.vendorUserGarments
+
+  const vendorProds = shallowRef<VendorUserGarment[]>([]);
+  watch(
+    () => _orders.value,
+    async (ords) => {
+      const ids = ords.flatMap((o) =>
+        o.items.map((i) => i.vendorProd.vendorProdId)
+      );
+      vendorProds.value = await VENDOR_GARMENT_DB.listByIdsWithUser(ids);
+    }
   );
+
   function getVendorOrderGarments(orders: typeof _orders) {
     return computed<VendorUserOrderGarment[]>(
       () =>

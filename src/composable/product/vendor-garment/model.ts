@@ -1,5 +1,6 @@
 // import { logger } from "@/plugin/logger";
 import { CommonField } from "@/composable/common";
+import { commonToJson } from "@/util";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
@@ -73,7 +74,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     const j = super.toJson();
     j.titleImgs = saveImgs(j.titleImgs);
     j.bodyImgs = saveImgs(j.bodyImgs);
-    return j;
+    return commonToJson(j);
   }
   static fromJson(data: { [x: string]: any }): VendorGarment | null {
     if (data && data.vendorProdId) {

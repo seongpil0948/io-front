@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { getAuth, signOut } from "firebase/auth";
-import { IoUser, userFromJson, IoFireApp } from "@io-boxies/js-lib";
+import { IoUser, userFromJson } from "@io-boxies/js-lib";
 import { getActivePinia } from "pinia";
 import { ioFire } from "@/plugin/firebase";
 interface AuthStoreInterface {

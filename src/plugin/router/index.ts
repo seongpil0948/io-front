@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from "vue-router";
 import { routes } from "./routes";
 import { useAuthStore, useCommonStore } from "@/store";
 import { logger } from "../logger";
-import { IoFireApp } from "@io-boxies/js-lib";
 import { logEvent, getAnalytics } from "firebase/analytics";
 import { IoUser, USER_ROLE } from "@io-boxies/js-lib";
 import { ioFire } from "../firebase";
