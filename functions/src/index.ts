@@ -30,25 +30,31 @@ exports.elasticVendorProdSearch = functions
       );
     }
     functions.logger.debug("elasticVendorProdSearch search word: ", d.input);
-    const result = client.search({
-      index: env.elasticsearch.vendor_prod_index,
-      query: {
-        multi_match: {
-          query: d.input,
-          fields: [
-            "vendorProdName",
-            "fabric",
-            "info",
-            "description",
-            "createdAt",
-            "updatedAt",
-            "part",
-            "ctgr",
-          ],
+    return client
+      .search({
+        index: env.elasticsearch.vendor_prod_index,
+        query: {
+          multi_match: {
+            query: d.input,
+            fields: [
+              "vendorprodname",
+              "fabric",
+              "info",
+              "description",
+              "createdat",
+              "updatedat",
+              "part",
+              "ctgr",
+            ],
+          },
         },
-      },
-    });
-    return result;
+      })
+      .then((result) => {
+        return result;
+      })
+      .catch((e) => {
+        functions.logger.error("error in elasticVendorProdSearch :  ", e);
+      });
   });
 
 const getElastic = () => {

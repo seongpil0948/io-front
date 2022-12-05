@@ -5,9 +5,15 @@
     @click="onClickProd"
   >
     <template #cover>
-      <img
-        style="object-fit: contain; height: 200px"
+      <n-image
+        height="200"
         :src="prod.titleImgs[0]"
+        object-fit="contain"
+        lazy
+        :intersection-observer-options="{
+          root: '#image-scroll-container',
+        }"
+        :preview-disabled="true"
       />
     </template>
     <n-space

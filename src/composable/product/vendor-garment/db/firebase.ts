@@ -12,16 +12,16 @@ import {
 import {
   onFirestoreCompletion,
   onFirestoreErr,
-  PaginateParam,
-  StockCntObj,
+  similarConst,
+  toVendorUserGarmentCombined,
   VendorGarmentDB,
+  vendorProdC,
   VendorProdSimilar,
 } from "@/composable";
 import { VendorGarment } from "@/composable/product/vendor-garment/model";
 import { handleReadSnap, uniqueArr } from "@/util";
 import {
   getIoCollection,
-  IoCollection,
   dataFromSnap,
   USER_DB,
   batchInQuery,
@@ -40,12 +40,7 @@ import {
 } from "@firebase/firestore";
 import { ref } from "vue";
 import { ioFire } from "@/plugin/firebase";
-import {
-  VendorProdSame,
-  VendorUserGarment,
-  VendorUserGarmentCombined,
-} from "../domain";
-import { subDays } from "date-fns";
+import { VendorProdSame, VendorUserGarment } from "../domain";
 
 export const VendorGarmentFB: VendorGarmentDB = {
   incrementStockCnt: async function (cnt: number, vendorProdId: string) {
@@ -161,13 +156,10 @@ export const VendorGarmentFB: VendorGarmentDB = {
       })
       .filter((x) => x) as VendorUserGarment[];
   },
-  listUserGarmentCombined: async function (
-    d
-  ): Promise<VendorUserGarmentCombined[]> {
+  listUserGarmentCombined: async function (d) {
     const startAt =
       dateToTimeStamp(loadDate(d.lastData?.createdAt)) ??
       dateToTimeStamp(new Date());
-    console.log("startAt: ", startAt, typeof startAt);
     const pageSize = d.pageSize ?? 20;
     const snap = await getDocs(
       query(
@@ -178,50 +170,11 @@ export const VendorGarmentFB: VendorGarmentDB = {
       )
     );
     const targetProds = dataFromSnap(snap);
-    const vendors = await USER_DB.getUserByIds(
-      uniqueArr(targetProds.map((x) => x.vendorId))
-    );
-    const pkgIds = targetProds.map((y) => y.vendorProdPkgId);
-    const pkgSnaps = await batchInQuery<VendorGarment>(
-      pkgIds,
-      vendorProdC,
-      "vendorProdPkgId"
-    );
-    const vendorProds = pkgSnaps.flatMap(dataFromSnap<VendorGarment>);
-    const obj = vendorProds.reduce<{
-      [userAndProdName: string]: VendorUserGarmentCombined;
-    }>((acc, curr) => {
-      const user = vendors.find((x) => x.userInfo.userId === curr.vendorId);
-      if (!user) return acc;
-      const userProd = Object.assign({}, curr, user);
-      const similarId = VendorGarment.similarId(userProd);
-      if (!acc[similarId]) {
-        acc[similarId] = Object.assign({}, userProd, {
-          allStockCnt: 0,
-          colors: [],
-          sizes: [],
-          stockCnt: {} as StockCntObj,
-        }) as VendorUserGarmentCombined;
-      }
-      if (!acc[similarId].stockCnt[userProd.size]) {
-        acc[similarId].stockCnt[userProd.size] = {};
-      }
-      acc[similarId].stockCnt[userProd.size][userProd.color] = {
-        stockCnt: userProd.stockCnt,
-        prodId: userProd.vendorProdId,
-      };
-      if (!acc[similarId].sizes.includes(userProd.size)) {
-        acc[similarId].sizes.push(userProd.size);
-      }
-      if (!acc[similarId].colors.includes(userProd.color)) {
-        acc[similarId].colors.push(userProd.color);
-      }
-      acc[similarId].allStockCnt += userProd.stockCnt;
-      return acc;
-    }, {});
     const noMore = pageSize > targetProds.length;
-    const result = { data: Object.values(obj), noMore };
-    console.info("new result: ", result);
+    const result = {
+      data: await toVendorUserGarmentCombined(targetProds),
+      noMore,
+    };
     return result;
   },
   getById: async function (vendorProdId) {
@@ -262,13 +215,3 @@ export const VendorGarmentFB: VendorGarmentDB = {
     return snap.empty === false;
   },
 };
-
-const vendorProdC = getIoCollection({
-  c: IoCollection.VENDOR_PROD,
-}).withConverter(VendorGarment.fireConverter());
-
-const similarConst = (vendorId: string, vendorProdName: string) =>
-  [
-    where("vendorId", "==", vendorId),
-    where("vendorProdName", "==", vendorProdName),
-  ] as QueryConstraint[];

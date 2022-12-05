@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
   PART,
-  useSearch,
+  toVendorUserGarmentCombined,
   VendorUserGarmentCombined,
   VENDOR_GARMENT_DB,
 } from "@/composable";
@@ -10,7 +10,11 @@ import { computed, onBeforeMount, ref, watchEffect } from "vue";
 import { getCtgrOpts, partOpts } from "@/util";
 import { storeToRefs } from "pinia";
 import throttle from "lodash.throttle";
+import { ioFire } from "@/plugin/firebase";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { useMessage } from "naive-ui";
 
+const msg = useMessage();
 const selectedPart = ref<PART | "전체" | null>(null);
 const selectedCtgr = ref<string | null>(null);
 const cs = useCommonStore();
@@ -42,23 +46,21 @@ function validProd(prod: VendorUserGarmentCombined) {
 const data = ref<VendorUserGarmentCombined[]>([]);
 const handleScroll = throttle(
   async (e: MouseEvent) => {
-    console.log("handle scroll", e);
     if (!e.target) return;
     const el = e.target as HTMLElement;
 
     const distance = el.scrollHeight - (el.scrollTop + el.clientHeight);
     if (distance < 500) {
-      console.log("load data!", distance, el.scrollHeight);
       await loadData();
     }
   },
-  500,
+  200,
   { trailing: false, leading: true }
 );
 
 const noMore = ref(false);
 async function loadData() {
-  if (!noMore.value) {
+  if (searchData.value.length < 1 && !noMore.value) {
     const obj = await VENDOR_GARMENT_DB.listUserGarmentCombined({
       pageSize: 30,
       lastData: data.value[data.value.length - 1],
@@ -69,27 +71,60 @@ async function loadData() {
   }
 }
 onBeforeMount(async () => await loadData());
-const { search, searchedData, searchInputVal } = useSearch({
-  data,
-  filterFunc: (x, searchVal) => {
-    const v: typeof searchVal = searchVal;
-    return (
-      (v === null
-        ? true
-        : x.fabric.includes(v) ||
-          x.description.includes(v) ||
-          x.vendorProdName.includes(v)) &&
-      (part.value === null ? true : x.part === part.value) &&
-      (ctgr.value === null ? true : x.ctgr === ctgr.value)
-    );
-  },
-});
 
 const part = ref(null);
 const ctgr = ref(null);
 const ctgrOpts = computed(() =>
   part.value !== null ? getCtgrOpts(part.value, locale.value) : []
 );
+const searchInputVal = ref<string | null>(null);
+const searchVal = ref<string | null>(null);
+const searchData = ref<typeof data.value>([]);
+async function search() {
+  searchVal.value = searchInputVal.value;
+  const functions = getFunctions(ioFire.app, "asia-northeast3");
+  const elasticVendorProdSearch = httpsCallable(
+    functions,
+    "elasticVendorProdSearch"
+  );
+  if (!searchVal.value || searchVal.value.length < 2) {
+    searchData.value = [];
+    return msg.warning("검색어를 두글자 이상 입력해주세요!");
+  }
+  return elasticVendorProdSearch({ input: searchVal.value })
+    .then(async (result) => {
+      const data: any = result.data;
+      const prodIds: string[] = data.hits.hits.map((x: any) => x._id);
+      console.log("prodIds: ", prodIds);
+      if (prodIds.length > 0) {
+        return VENDOR_GARMENT_DB.listByIds(prodIds)
+          .then(async (prods) => {
+            return toVendorUserGarmentCombined(prods)
+              .then((value) => {
+                searchData.value = value;
+              })
+              .catch((err) =>
+                console.error("error in toVendorUserGarmentCombined : ", err)
+              );
+          })
+          .catch((err) => console.error("error in listByIds : ", err));
+      } else {
+        msg.info("검색 결과가 없습니다.");
+        searchData.value = [];
+      }
+    })
+    .catch((err) => console.error("error in elasticVendorProdSearch: ", err));
+}
+const targetData = computed(() => {
+  const d = searchData.value.length > 0 ? searchData.value : data.value;
+  return part.value || ctgr.value
+    ? d.filter(
+        (x) =>
+          (part.value === null ? true : x.part === part.value) &&
+          (ctgr.value === null ? true : x.ctgr === ctgr.value)
+      )
+    : d;
+});
 </script>
 <template>
   <shop-add-prod-card
@@ -97,12 +132,7 @@ const ctgrOpts = computed(() =>
     v-model:showAddModal="showAddModal"
     :prod="selectedProd"
   />
-  <n-space
-    v-if="searchedData.length > 0"
-    vertical
-    style="width: 100%"
-    item-style="width: 100%"
-  >
+  <n-space vertical style="width: 100%" item-style="width: 100%">
     <n-space justify="center">
       <n-input
         v-model:value="searchInputVal"
@@ -123,20 +153,29 @@ const ctgrOpts = computed(() =>
         :options="ctgrOpts"
       />
     </n-space>
-    <n-space justify="center" style="width: 100%" item-style="width: 100%">
+    <n-space
+      v-if="targetData.length > 0"
+      justify="center"
+      style="width: 100%"
+      item-style="width: 100%"
+    >
       <!-- <part-ctgr-menu
         v-model:selectedPart="selectedPart"
         v-model:selectedCtgr="selectedCtgr"
       /> -->
       <n-card style="height: 70vh; overflow: auto">
-        <n-scrollbar style="max-height: 70vh" @scroll="handleScroll">
+        <n-scrollbar
+          id="image-scroll-container"
+          style="max-height: 70vh"
+          @scroll="handleScroll"
+        >
           <n-grid
             x-gap="12"
             y-gap="12"
             cols="1 s:2 m:3 l:4 xl:5"
             responsive="screen"
           >
-            <n-gi v-for="(prod, i) in data" :key="i">
+            <n-gi v-for="(prod, i) in targetData" :key="i">
               <vendor-prod-thum
                 v-if="validProd(prod)"
                 style="padding: 5%; margin: auto"
@@ -149,12 +188,12 @@ const ctgrOpts = computed(() =>
         </n-scrollbar>
       </n-card>
     </n-space>
+    <div v-else>
+      <n-result
+        style="margin-top: 30%"
+        status="error"
+        title="상품 데이터가 없습니다"
+      />
+    </div>
   </n-space>
-  <div v-else>
-    <n-result
-      style="margin-top: 30%"
-      status="error"
-      title="상품 데이터가 없습니다"
-    />
-  </div>
 </template>

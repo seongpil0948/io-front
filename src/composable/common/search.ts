@@ -17,7 +17,7 @@ export function useSearch<T>(p: IoSearchParam<T>) {
   function search() {
     searchVal.value = searchInputVal.value;
     if (searchVal.value && searchVal.value.length > 1) {
-      logEvent(getAnalytics(ioFire.app), "search", {
+      logEvent(getAnalytics(ioFire.app), "search_vendor_prod", {
         search_term: searchVal.value,
       });
     }
