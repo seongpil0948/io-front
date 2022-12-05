@@ -34,19 +34,22 @@ exports.elasticVendorProdSearch = functions
       .search({
         index: env.elasticsearch.vendor_prod_index,
         query: {
-          multi_match: {
+          query_string: {
             query: d.input,
-            fields: [
-              "vendorprodname",
-              "fabric",
-              "info",
-              "description",
-              "createdat",
-              "updatedat",
-              "part",
-              "ctgr",
-            ],
           },
+          // multi_match: {
+          //   query: d.input,
+          //   fields: [
+          //     "vendorprodname",
+          //     "fabric",
+          //     "info",
+          //     "description",
+          //     "createdat",
+          //     "updatedat",
+          //     "part",
+          //     "ctgr",
+          //   ],
+          // },
         },
       })
       .then((result) => {
