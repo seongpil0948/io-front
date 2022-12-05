@@ -1,18 +1,72 @@
-// https://www.npmjs.com/package/@google-cloud/storage#samples
-// https://www.npmjs.com/package/@google-cloud/firestore#samples
-// https://cloud.google.com/functions/docs/writing/write-event-driven-functions
-import functions = require("firebase-functions");
-// import { Storage } from "@google-cloud/storage";
-// import { v1, Firestore } from "@google-cloud/firestore";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const functions = require("firebase-functions");
 import { v1 } from "@google-cloud/firestore";
+import { Client } from "@elastic/elasticsearch";
 
 const client = new v1.FirestoreAdminClient();
 const backupBucket = "gs://io-archives/backups/io-box/";
 
+exports.scheduledElasticHealthCheck = functions
+  .region("asia-northeast3")
+  .pubsub.schedule("every 60 minutes")
+  .onRun(() => {
+    const client = getElastic();
+    return client.ping().catch((e) => {
+      functions.logger.error("error in scheduledElasticHealthCheck :  ", e);
+    });
+  });
+
+exports.elasticVendorProdSearch = functions
+  .region("asia-northeast3")
+  .https.onCall((d: { input: string }) => {
+    const env = functions.config();
+    const client = getElastic();
+    if (!(typeof d.input === "string") || d.input.length === 0) {
+      // Throwing an HttpsError so that the client gets the error details.
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "The function must be called with " +
+          "one arguments 'input' containing the query text to add."
+      );
+    }
+    functions.logger.debug("elasticVendorProdSearch search word: ", d.input);
+    const result = client.search({
+      index: env.elasticsearch.vendor_prod_index,
+      query: {
+        multi_match: {
+          query: d.input,
+          fields: [
+            "vendorProdName",
+            "fabric",
+            "info",
+            "description",
+            "createdAt",
+            "updatedAt",
+            "part",
+            "ctgr",
+          ],
+        },
+      },
+    });
+    return result;
+  });
+
+const getElastic = () => {
+  const env = functions.config();
+  const auth = {
+    username: env.elasticsearch.username,
+    password: env.elasticsearch.password,
+  };
+  const client = new Client({
+    node: env.elasticsearch.url,
+    auth: auth,
+  });
+  return client;
+};
 exports.scheduledFirestoreExport = functions.pubsub
   .schedule("0 1 */7 * *") // at 00:00 (midnight) every days.
   // .schedule("0 0 1 * *") // at 00:00 (midnight) every days.
-  .onRun((context) => {
+  .onRun((context: any) => {
     const projectId = process.env.GCP_PROJECT || process.env.GCLOUD_PROJECT;
     if (!projectId) {
       functions.logger.error("projectId is undefined", {
@@ -42,6 +96,7 @@ exports.scheduledFirestoreExport = functions.pubsub
       .catch((err) => {
         functions.logger.error(
           "scheduledFirestoreExport fail",
+          // eslint-disable-next-line comma-dangle
           err instanceof Error ? err.message : JSON.stringify(err)
         );
         throw new Error("export operation failed");
