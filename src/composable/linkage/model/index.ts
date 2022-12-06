@@ -6,7 +6,7 @@ import {
   DocumentData,
 } from "@firebase/firestore";
 import { ApiTokenCrt, API_SERVICE_EX } from "..";
-import { commonToJson } from "@/util";
+import { commonToJson } from "@io-boxies/js-lib";
 
 export class ApiToken extends CommonField implements ApiTokenCrt {
   dbId: string;

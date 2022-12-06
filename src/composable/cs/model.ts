@@ -5,7 +5,7 @@ import {
 } from "firebase/firestore";
 import { USER_ROLE, loadDate } from "@io-boxies/js-lib";
 import { CsPost } from "./domain";
-import { commonToJson } from "@/util";
+import { commonToJson } from "@io-boxies/js-lib";
 
 export function csFromJson(data: { [x: string]: any }): CsPost | null {
   return {

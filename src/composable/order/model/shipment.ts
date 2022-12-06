@@ -12,7 +12,7 @@ import {
   DocumentSnapshot,
   DocumentData,
 } from "@firebase/firestore";
-import { commonToJson } from "@/util";
+import { commonToJson } from "@io-boxies/js-lib";
 
 export class IoShipment extends CommonField {
   shippingId: string;

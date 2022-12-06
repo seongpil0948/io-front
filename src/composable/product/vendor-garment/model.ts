@@ -1,6 +1,6 @@
 // import { logger } from "@/plugin/logger";
 import { CommonField } from "@/composable/common";
-import { commonToJson } from "@/util";
+import { commonToJson } from "@io-boxies/js-lib";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";

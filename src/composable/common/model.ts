@@ -1,4 +1,4 @@
-import { commonToJson } from "@/util";
+import { commonToJson } from "@io-boxies/js-lib";
 
 export class CommonField {
   createdAt?: Date;
