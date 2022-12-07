@@ -8,14 +8,13 @@ import {
   ShopUserGarment,
   VendorUserOrderGarment,
   mergeOrderItem,
-  VendorUserGarment,
   VENDOR_GARMENT_DB,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { uniqueArr, extractGarmentOrd } from "@/util";
 import { Unsubscribe } from "@firebase/util";
 import { defineStore } from "pinia";
-import { ref, computed, watch, shallowRef } from "vue";
+import { ref, computed, watch } from "vue";
 import { useAuthStore } from "./";
 
 export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
@@ -32,15 +31,10 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   // >>> getter >>>
   const orders = computed(() => [..._orders.value]);
 
-  const vendorProds = shallowRef<VendorUserGarment[]>([]);
-  watch(
-    () => _orders.value,
-    async (ords) => {
-      const ids = ords.flatMap((o) =>
-        o.items.map((i) => i.vendorProd.vendorProdId)
-      );
-      vendorProds.value = await VENDOR_GARMENT_DB.listByIdsWithUser(ids);
-    }
+  const { items: prods, unsubscribe: garmentUnSub } =
+    VENDOR_GARMENT_DB.batchReadListen([authStore.currUser.userInfo.userId]);
+  const vendorProds = computed(() =>
+    prods.value.map((prod) => Object.assign({}, prod, authStore.currUser))
   );
 
   function getVendorOrderGarments(orders: typeof _orders) {
@@ -163,6 +157,7 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     if (orderUnSub) {
       orderUnSub();
       orderUnSub = null;
+      garmentUnSub();
     }
     shopProds.value = [];
     inStates.value = [];
