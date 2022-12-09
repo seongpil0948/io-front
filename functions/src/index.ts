@@ -1,9 +1,16 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const functions = require("firebase-functions");
+/* eslint-disable max-len */
+/* eslint-disable require-jsdoc */
+import * as functions from "firebase-functions";
 import { v1 } from "@google-cloud/firestore";
 import { Client } from "@elastic/elasticsearch";
+import {
+  getFirestore,
+  CollectionReference,
+  DocumentData,
+} from "firebase-admin/firestore";
+import { initializeApp } from "firebase-admin/app";
 
-const client = new v1.FirestoreAdminClient();
+const store = new v1.FirestoreAdminClient();
 const backupBucket = "gs://io-archives/backups/io-box/";
 
 exports.scheduledElasticHealthCheck = functions
@@ -72,46 +79,58 @@ const getElastic = () => {
   });
   return client;
 };
-exports.scheduledFirestoreExport = functions.pubsub
-  .schedule("0 1 */7 * *") // at 00:00 (midnight) every days.
-  // .schedule("0 0 1 * *") // at 00:00 (midnight) every days.
-  .onRun((context: any) => {
-    const projectId = process.env.GCP_PROJECT || process.env.GCLOUD_PROJECT;
-    if (!projectId) {
-      functions.logger.error("projectId is undefined", {
-        env: process.env,
-      });
-      return;
-    }
-
-    const databaseName = client.databasePath(projectId, "(default)");
-    functions.logger.info("hello scheduledFirestoreExport logs!", {
-      context,
-    });
+exports.scheduledFirestoreExport = functions
+  .region("asia-northeast3")
+  .https.onCall(() => {
+    // .pubsub.schedule("0 4 * * *") // at 00:00 (midnight) every days.
+    // .onRun((context) => {
+    // functions.logger.info("hello scheduledFirestoreExport logs!", {
+    //   context,
+    // });
     const date = new Date();
-    return client
+    const bucket = backupBucket + date.toISOString().split("T")[0];
+    functions.logger.info("target today bucket: ", bucket);
+    store
       .exportDocuments({
-        name: databaseName,
-        outputUriPrefix: backupBucket + date.toISOString().split("T")[0],
-        // Leave collectionIds empty to export all collections
-        // or set to a list of collection IDs to export,
-        // collectionIds: ['users', 'posts']
-        collectionIds: [],
+        name: store.databasePath("io-box", "(default)"),
+        outputUriPrefix: bucket,
       })
       .then((responses) => {
-        const response = responses[0];
-        functions.logger.debug(`operation name: ${response}`);
-      })
-      .catch((err) => {
-        functions.logger.error(
-          "scheduledFirestoreExport fail",
-          // eslint-disable-next-line comma-dangle
-          err instanceof Error ? err.message : JSON.stringify(err)
+        functions.logger.info(
+          `exportDocuments operation: ${JSON.stringify(responses)} is done`
         );
-        throw new Error("export operation failed");
-      });
+        // store
+        //   .importDocuments({
+        //     name: store.databasePath("io-box-develop", "(default)"),
+        //     inputUriPrefix: bucket,
+        //   })
+        //   .then((responses) => functions.logger.info(`importDocuments operation: ${JSON.stringify(responses)} is done`))
+        //   .catch((err) => functions.logger.error(`importDocuments fail ${JSON.stringify(err)}`));
+      })
+      .catch((err) =>
+        functions.logger.error(
+          `scheduledFirestoreExport fail ${JSON.stringify(err)}`
+        )
+      );
   });
 
+export async function clearDevFirestoreData(
+  subCollections?: CollectionReference<DocumentData>[]
+) {
+  const devStore = getFirestore(devApp);
+  const collections = subCollections ?? (await devStore.listCollections());
+  for (const coll of collections) {
+    const batch = devStore.batch();
+    const documents = await coll.listDocuments();
+
+    for (const doc of documents) {
+      await clearDevFirestoreData(await doc.listCollections());
+      batch.delete(doc);
+    }
+    await batch.commit();
+  }
+  return;
+}
 // exports.deleteUser = functions.firestore
 //   .document("user/{userID}")
 //   .onDelete((snap, context) => {
@@ -145,3 +164,24 @@ exports.scheduledFirestoreExport = functions.pubsub
 //         });
 //     });
 //   });
+
+// const firebaseProdConfig = {
+//   apiKey: "AIzaSyCZZWgDchBhOt_FegFemyofULLHzTLVjA4",
+//   authDomain: "io-box.firebaseapp.com",
+//   databaseURL: "https://io-box-default-rtdb.firebaseio.com",
+//   projectId: "io-box",
+//   storageBucket: "io-box.appspot.com",
+//   messagingSenderId: "812477328372",
+//   appId: "1:812477328372:web:48d71b6a8390480d6827a1",
+//   measurementId: "G-JYYCY3TTPS",
+// };
+// const prodApp = initializeApp(firebaseProdConfig, "io-box-production-app");
+const firebaseDevConfig = {
+  apiKey: "AIzaSyDDBPpQ9Z8ciqpdIfcqLoP2zaYwPCsZN4A",
+  authDomain: "io-box-develop.firebaseapp.com",
+  projectId: "io-box-develop",
+  storageBucket: "io-box-develop.appspot.com",
+  messagingSenderId: "906159770710",
+  appId: "1:906159770710:web:f09dcf880010f703c8fff7",
+};
+const devApp = initializeApp(firebaseDevConfig, "io-box-develop-app");
