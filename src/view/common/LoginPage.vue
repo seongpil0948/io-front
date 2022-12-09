@@ -16,7 +16,7 @@ const log = useLogger();
 
 async function onLogin(data: LoginReturn | undefined) {
   console.log("data:", data);
-  if (!data) return msg.error("no data");
+  if (!data) return msg.error("아이디 혹은 비밀번호가 틀렸습니다.");
   else if (data.wrongPassword) return msg.error("비밀번호가 틀렸습니다.");
   else if (data.toSignup) {
     if (data.params.providerId === "EMAIL") {

@@ -100,7 +100,6 @@ declare module '@vue/runtime-core' {
     NoticeFaqTab: typeof import('./src/component/card/cs/NoticeFaqTab.vue')['default']
     NotImplemented: typeof import('./src/component/common/NotImplemented.vue')['default']
     NP: typeof import('naive-ui')['NP']
-    NPagination: typeof import('naive-ui')['NPagination']
     NPopover: typeof import('naive-ui')['NPopover']
     NRadioButton: typeof import('naive-ui')['NRadioButton']
     NRadioGroup: typeof import('naive-ui')['NRadioGroup']
