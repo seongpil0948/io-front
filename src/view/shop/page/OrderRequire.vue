@@ -12,7 +12,7 @@ const orders = shopOrderStore.getOrders(inStates);
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 
 const { checkedDetailKeys, tableCol, tableRef } = useOrderTable({
-  garmentOrders: filteredOrders,
+  ioOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
 });
@@ -60,8 +60,8 @@ const {
         :columns="tableCol"
         :data="filteredOrders"
         :pagination="{
-          'show-size-picker': true,
-          'page-sizes': [5, 10, 25, 50, 100],
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
         }"
         :bordered="false"
       />

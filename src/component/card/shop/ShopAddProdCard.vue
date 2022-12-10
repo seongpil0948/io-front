@@ -2,14 +2,15 @@
 import { useMessage } from "naive-ui";
 import { computed, ref, toRefs } from "vue";
 import {
-  GARMENT_SIZE,
+  PRODUCT_SIZE,
   ShopGarment,
   SHOP_GARMENT_DB,
   VendorUserGarmentCombined,
   ShopUserGarment,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
-import { getUserLocate } from "@io-boxies/js-lib";
-import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
+import { getUserLocate, USER_DB } from "@io-boxies/js-lib";
+import { useAuthStore, useShopOrderStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { Home24Filled, Phone20Filled } from "@vicons/fluent";
 import { useEditor } from "@/plugin/editor";
@@ -50,7 +51,6 @@ const emits = defineEmits(["update:showAddModal"]);
 const auth = useAuthStore();
 const msg = useMessage();
 const shopOrdStore = useShopOrderStore();
-const vendorStore = useVendorsStore();
 const log = useLogger();
 const uid = auth.currUser.userInfo.userId;
 
@@ -76,37 +76,44 @@ async function onSubmit() {
       prodName: prod.value.vendorProdName,
       info: prod.value.info,
       description: prod.value.description,
-      size: optById[vendorProdId].size as GARMENT_SIZE,
+      size: optById[vendorProdId].size as PRODUCT_SIZE,
       color: optById[vendorProdId].color,
       TBD: {},
+      prodType: "GARMENT",
     });
     await shopProd.update();
     if (
-      !shopOrdStore.shopGarments.find(
-        (x) => x.shopProdId == shopProd.shopProdId
-      )
+      !shopOrdStore.shopProds.find((x) => x.shopProdId == shopProd.shopProdId)
     ) {
-      const vendorUnit = vendorStore.vendorUserGarments.find(
-        (y) => y.vendorProdId === vendorProdId
-      );
+      const vendorUnit = await VENDOR_GARMENT_DB.getById(vendorProdId);
       if (!vendorUnit) {
         log.error(
           uid,
-          `vendor store contain vendorProdId(${vendorProdId}) in shop add card`
+          `vendorProdId(${vendorProdId})is not exist in shop add card`
         );
-      } else {
-        const userGarment: ShopUserGarment = Object.assign(
-          {},
-          vendorUnit,
-          shopProd
-        );
-        shopOrdStore.$patch({
-          shopGarments: [
-            ...shopOrdStore.shopGarments,
-            userGarment,
-          ] as ShopUserGarment[],
-        });
+        return msg.error("상품정보가 없습니다.");
       }
+
+      const vendor = await USER_DB.getUserById(vendorUnit.vendorId);
+      if (!vendor) {
+        log.error(
+          uid,
+          `vendor id(${vendorUnit.vendorId})is not exist in shop add card`
+        );
+        return msg.error("도매처 정보가 없습니다.");
+      }
+      const userGarment: ShopUserGarment = Object.assign(
+        {},
+        vendorUnit,
+        shopProd,
+        vendor
+      );
+      shopOrdStore.$patch({
+        shopProds: [
+          ...shopOrdStore.shopProds,
+          userGarment,
+        ] as ShopUserGarment[],
+      });
     }
   }
   msg.success(`${addCnt}개의 상품 추가완료!`);
@@ -230,7 +237,6 @@ useEditor({
             <n-h3>상세 정보</n-h3>
           </template>
           <div id="io-editor" />
-          />
         </n-descriptions-item>
       </n-descriptions>
     </n-space>

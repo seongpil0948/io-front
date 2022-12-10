@@ -1,6 +1,6 @@
 import { onMounted } from "vue";
 import { ref } from "vue";
-import EditorJS, { API } from "@editorjs/editorjs";
+import EditorJS, { API, OutputData } from "@editorjs/editorjs";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import Header from "@editorjs/header";
@@ -13,21 +13,26 @@ import Table from "@editorjs/table";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import Embed from "@editorjs/embed";
+import { uuidv4 } from "@firebase/util";
 
 export interface IoEditorParam {
   readOnly: boolean;
   elementId: string;
   onChange?: (api: API, event: CustomEvent<any>) => void;
   placeholder: string;
-  data?: any;
+  data?: OutputData | string;
 }
 
 export function useEditor(c: IoEditorParam) {
   const editor = ref<EditorJS | null>(null);
-
   onMounted(() => {
     editor.value = getEditor(c);
   });
+  async function toggleEditor() {
+    if (editor.value) {
+      await editor.value.readOnly.toggle();
+    }
+  }
   function clearEditor() {
     if (editor.value) {
       editor.value.clear();
@@ -44,18 +49,32 @@ export function useEditor(c: IoEditorParam) {
     }
   }
 
-  return { editor, saveEditor, clearEditor, getEditor };
+  return { editor, saveEditor, clearEditor, getEditor, toggleEditor };
 }
 
 export function getEditor(c: IoEditorParam) {
-  console.log("editor param", c);
+  let data: OutputData | undefined = undefined;
+  if (typeof c.data === "string") {
+    const date = new Date();
+    data = {
+      time: date.valueOf(),
+      version: "2.25.0",
+      blocks: c.data.split(/\r?\n/).map((text) => ({
+        data: { text },
+        id: uuidv4(),
+        type: "paragraph",
+      })),
+    };
+  } else if (c.data) {
+    data = c.data;
+  }
   const _editor = new EditorJS({
-    data:
-      c.data && c.data.blocks && c.data.blocks.length > 0 ? c.data : undefined,
+    data,
     readOnly: c.readOnly,
     holder: c.elementId,
     placeholder: c.placeholder,
     onChange: c.onChange,
+    minHeight: 100,
     // inlineToolbar: ["bold", "italic", "underline"],
     tools: {
       list: List,

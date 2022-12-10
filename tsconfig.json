@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "jsx": "preserve",
     "module": "esnext",
+    "jsx": "preserve",
     "strict": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
@@ -14,11 +14,24 @@
     "useDefineForClassFields": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "types": ["vite/client"],
+    "types": [
+      "vite/client"
+    ],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
+      /* "@io-boxies/js-lib": ["node_modules/@io-boxies/js-lib"] */
     },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+    "rootDirs": [
+      "src/"
+    ] /* Allow multiple folders to be treated as one when resolving modules. */,
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ]
   },
   "include": [
     "src/**/*.ts",
@@ -27,5 +40,8 @@
     "tests/**/*.ts",
     "tests/**/*.tsx"
   ],
-  "exclude": ["node_modules", "src-back"]
+  "exclude": [
+    "node_modules",
+    "src-back"
+  ]
 }

@@ -3,15 +3,15 @@ import { extractGarmentOrd } from "@/util";
 import {
   ORDER_GARMENT_DB,
   useShopUserGarments,
-  ProdOrderCombined,
-  ProdOrderByVendor,
+  OrderItemCombined,
+  OrderItemByVendor,
   ORDER_STATE,
-  GarmentOrder,
+  IoOrder,
   ShopUserGarment,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
-import { defineStore, storeToRefs } from "pinia";
+import { defineStore } from "pinia";
 import { ref, computed, onBeforeUnmount, watch } from "vue";
-import { useVendorsStore } from "./vendorProd";
 import { useAuthStore } from "./auth";
 import { Unsubscribe } from "@firebase/firestore";
 import { logger } from "@/plugin/logger";
@@ -22,11 +22,11 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   const authStore = useAuthStore();
   const inStates = ref<ORDER_STATE[]>([]);
   const shopId = ref<string | null>(null);
-  const _orders = ref<GarmentOrder[]>([]);
+  const _orders = ref<IoOrder[]>([]);
   let orderUnSub: null | Unsubscribe = null;
-  let shopGarments = ref<ShopUserGarment[]>([]);
+  let shopProds = ref<ShopUserGarment[]>([]);
   let shopGarmentUnSub: null | Unsubscribe = null;
-  const _garmentOrders = ref<ProdOrderCombined[]>([]);
+  const _ioOrders = ref<OrderItemCombined[]>([]);
   let initial = true;
 
   // >>> getter >>>
@@ -37,30 +37,30 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   }
   function getFilteredOrder(inStates: ORDER_STATE[]) {
     return computed(() =>
-      _garmentOrders.value.filter((x) => inStates.includes(x.state))
+      _ioOrders.value.filter((x) => inStates.includes(x.state))
     );
   }
 
-  function getGarmentOrdersByVendor(garmentOrders: typeof _garmentOrders) {
+  function getGarmentOrdersByVendor(ioOrders: typeof _ioOrders) {
     return computed(() =>
-      garmentOrders.value.reduce((acc, curr) => {
+      ioOrders.value.reduce((acc, curr) => {
         const exist = acc.find((x) => x.vendorId === curr.vendorId);
         if (!exist) {
-          const account = curr.vendorGarment.userInfo.account;
+          const account = curr.vendorProd.userInfo.account;
           const accStr = `${account?.bank.toString()} ${account?.accountName} ${
             account?.accountNumber
           }`;
           acc.push({
             vendorId: curr.vendorId,
             vendorName:
-              curr.vendorGarment.userInfo.displayName ??
-              curr.vendorGarment.userInfo.userName,
+              curr.vendorProd.userInfo.displayName ??
+              curr.vendorProd.userInfo.userName,
             orderCnt: curr.orderCnt,
             pendingCnt: curr.pendingCnt,
             accountStr: account === undefined ? "미등록" : accStr,
             phone:
-              curr.vendorGarment.userInfo.phone ??
-              curr.vendorGarment.companyInfo?.managerPhone ??
+              curr.vendorProd.userInfo.phone ??
+              curr.vendorProd.companyInfo?.managerPhone ??
               "미등록",
             items: [curr],
           });
@@ -70,14 +70,12 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
         exist.pendingCnt += curr.pendingCnt;
         exist.items.push(curr);
         return acc;
-      }, [] as ProdOrderByVendor[])
+      }, [] as OrderItemByVendor[])
     );
   }
   const orders = computed(() => [..._orders.value]);
-  const garmentOrders = computed(() => [..._garmentOrders.value]);
+  const ioOrders = computed(() => [..._ioOrders.value]);
 
-  // >>> connection >>>
-  const { vendorUserGarments } = storeToRefs(useVendorsStore());
   const unsubscribeAuth = authStore.$onAction(
     ({ name, store, args, after, onError }) => {
       after(async () => {
@@ -105,11 +103,15 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     async () => {
       if (shopId.value && orders.value) {
         await setExistOrderIds();
-        if (shopGarments.value) {
-          _garmentOrders.value = extractGarmentOrd(
+        if (shopProds.value) {
+          const ids = orders.value.flatMap((o) =>
+            o.items.map((i) => i.vendorProd.vendorProdId)
+          );
+          const prods = await VENDOR_GARMENT_DB.listByIdsWithUser(ids);
+          _ioOrders.value = extractGarmentOrd(
             _orders.value,
-            shopGarments.value,
-            vendorUserGarments.value
+            shopProds.value,
+            prods
           );
         }
       } else {
@@ -134,7 +136,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     initial = false;
     const { userProd, unsubscribe } = useShopUserGarments(shopId.value, null);
     // eslint-disable-next-line vue/no-ref-as-operand
-    shopGarments = userProd;
+    shopProds = userProd;
     shopGarmentUnSub = unsubscribe;
   }
 
@@ -151,8 +153,8 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     inStates.value = [];
     shopId.value = null;
     _orders.value = [];
-    _garmentOrders.value = [];
-    shopGarments.value = [];
+    _ioOrders.value = [];
+    shopProds.value = [];
     initial = true;
   }
   function setInStates(states: ORDER_STATE[]) {
@@ -175,10 +177,10 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
 
   return {
     existOrderIds,
-    shopGarments,
+    shopProds,
     getOrders,
     unsubscribeAuth,
-    garmentOrders,
+    ioOrders,
     getGarmentOrdersByVendor,
     getFilteredOrder,
     setInStates,

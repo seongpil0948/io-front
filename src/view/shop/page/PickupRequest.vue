@@ -4,20 +4,29 @@ import {
   ORDER_STATE,
   ORDER_GARMENT_DB,
   useAlarm, // eslint-disable-next-line
-  ProdOrderCombined,
+  OrderItemCombined,
   useContactUncle,
 } from "@/composable";
-import { useShopOrderStore } from "@/store";
-import { useMessage } from "naive-ui";
+import { validateUser } from "@/composable/order/db/firebase/shipment";
+import { useAuthStore, useShopOrderStore } from "@/store";
+import { getUserName } from "@io-boxies/js-lib";
+import {
+  NButton,
+  NCard,
+  NDataTable,
+  NSelect,
+  NSpace,
+  useMessage,
+} from "naive-ui";
 
 const msg = useMessage();
 const inStates: ORDER_STATE[] = ["BEFORE_PICKUP_REQ"];
 const shopOrderStore = useShopOrderStore();
 const smtp = useAlarm();
-
+const auth = useAuthStore();
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 const orders = shopOrderStore.getOrders(inStates);
-const garmentOrdersByVendor =
+const ioOrdersByVendor =
   shopOrderStore.getGarmentOrdersByVendor(filteredOrders);
 const {
   tableRef,
@@ -27,7 +36,7 @@ const {
   targetOrdDbIds,
   tableCol,
 } = useOrderTable({
-  garmentOrders: filteredOrders,
+  ioOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
   useAccountStr: false,
@@ -41,6 +50,7 @@ async function pickupRequest() {
   else if (targetIds.value.size < 1 || targetOrdDbIds.value.size < 1) {
     return msg.error("주문을 선택 해주세요");
   }
+  validateUser(auth.currUser, auth.currUser.userInfo.userId);
 
   await ORDER_GARMENT_DB.reqPickup(
     [...targetOrdDbIds.value],
@@ -52,7 +62,7 @@ async function pickupRequest() {
   await smtp.sendAlarm({
     toUserIds: [uncle.userInfo.userId],
     subject: `inoutbox 주문 처리내역 알림.`,
-    body: `${uncle.name} 으로부터 픽업요청이 도착하였습니다. `,
+    body: `${getUserName(auth.currUser)} 으로부터 픽업요청이 도착하였습니다. `,
     notiLoadUri: "/",
     uriArgs: {},
   });
@@ -81,10 +91,10 @@ async function pickupRequest() {
         :table-layout="'fixed'"
         :scroll-x="800"
         :columns="byVendorCol"
-        :data="garmentOrdersByVendor"
+        :data="ioOrdersByVendor"
         :pagination="{
-          'show-size-picker': true,
-          'page-sizes': [5, 10, 25, 50, 100],
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
         }"
         :bordered="false"
       />
@@ -98,7 +108,7 @@ async function pickupRequest() {
         :bordered="false"
         :columns="tableCol"
         :data="selectedData.items"
-        :row-key="(row: ProdOrderCombined) => row.id"
+        :row-key="(row: OrderItemCombined) => row.id"
       />
     </n-card>
   </n-space>

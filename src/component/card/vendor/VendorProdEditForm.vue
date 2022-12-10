@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { VendorGarment } from "@/composable";
-import { useAuthStore, useVendorsStore } from "@/store";
+import { VendorGarment, VENDOR_GARMENT_DB } from "@/composable";
+import { useAuthStore } from "@/store";
 import { nameLenRule, biggerThanNRule, notNullRule, makeMsgOpt } from "@/util";
 import { cloneDeep } from "lodash";
 import { useMessage, FormInst } from "naive-ui";
@@ -21,7 +21,6 @@ watchEffect(() => {
 
 const msg = useMessage();
 const formRef = ref<FormInst | null>(null);
-const vendorStore = useVendorsStore();
 
 const rules = {
   vendorProdName: nameLenRule,
@@ -32,32 +31,26 @@ const rules = {
 };
 
 function onEdit() {
-  if (!prod.value) return;
+  if (!prod.value || !props.prod) return;
   const p = prod.value!;
   formRef.value?.validate(async (errors) => {
     if (errors)
       return msg.error("상품 작성란을 올바르게 작성 해주세요", makeMsgOpt());
     const info = await saveEditor();
     if (info) {
-      for (let i = 0; i < vendorStore.vendorGarments.length; i++) {
-        const garment = vendorStore.vendorGarments[i];
-        if (
-          garment.vendorProdId !== p.vendorProdId &&
-          garment.combineId === p.combineId
-        ) {
-          garment.info = info;
-          garment.vendorProdName = p.vendorProdName;
-          garment.vendorPrice = p.vendorPrice;
-          garment.allowPending = p.allowPending;
-          garment.titleImgs = p.titleImgs;
-          garment.bodyImgs = p.bodyImgs;
-          await garment.update();
+      await VENDOR_GARMENT_DB.updateSimilarProd(
+        { vendorId: p.vendorId, vendorProdName: props.prod!.vendorProdName },
+        {
+          info,
+          vendorProdName: p.vendorProdName,
+          vendorPrice: p.vendorPrice,
+          allowPending: p.allowPending,
+          titleImgs: p.titleImgs,
+          bodyImgs: p.bodyImgs,
         }
-      }
-      p.info = info;
+      );
     }
 
-    await p.update();
     clearEditor();
     emits("onSubmitProd");
   });

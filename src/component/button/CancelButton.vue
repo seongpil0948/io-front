@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { OrderCancel, ProdOrder, useCancel } from "@/composable";
+import { OrderCancel, OrderItem, useCancel } from "@/composable";
 import { toRefs, ref, computed } from "vue";
 import { useAuthStore } from "@/store";
+import { getUserName } from "@io-boxies/js-lib";
 
 const props = defineProps<{
-  prodOrder: ProdOrder;
+  orderItem: OrderItem;
 }>();
 const emits = defineEmits<{
   (e: "cancelDone", value: OrderCancel): void;
 }>();
 
-const { prodOrder: p } = toRefs(props);
+const { orderItem: p } = toRefs(props);
 const { getCancel, cancelSelected } = useCancel();
 const auth = useAuthStore();
 const cancelCnt = ref(0);
@@ -21,10 +22,10 @@ async function cancelSubmit() {
   if (cancelCnt.value < 1) return;
   const claim = getCancel(p.value.id, p.value.state, "", "ETC");
   await cancelSelected(
-    auth.currUser.name,
+    getUserName(auth.currUser),
     p.value.shopId,
     p.value.vendorId,
-    p.value.orderDbId,
+    p.value.orderDbId!,
     p.value.id,
     claim,
     cancelCnt.value

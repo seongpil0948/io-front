@@ -35,7 +35,10 @@ export function usePickArea() {
         }
       });
     },
-    async (err) => await onFirestoreErr(name, err),
+    async (err) => {
+      await onFirestoreErr(name, err);
+      throw err;
+    },
     () => onFirestoreCompletion(name)
   );
 
@@ -69,3 +72,18 @@ export function usePickArea() {
 export const getPickId = (x: Locate) => `${x.code}__${x.alias}`;
 export const isSamePickLocate = (a: Locate, b: Locate) =>
   getPickId(a) === getPickId(b);
+
+export function uncleAvailShip(uncleL: Locate, clientL: Locate) {
+  if (uncleL.city && uncleL.county && uncleL.town) {
+    return (
+      uncleL.city === clientL.city &&
+      uncleL.county === clientL.county &&
+      uncleL.town === clientL.town
+    );
+  } else if (uncleL.city && uncleL.county) {
+    return uncleL.city === clientL.city && uncleL.county === clientL.county;
+  } else if (uncleL.city) {
+    return uncleL.city === clientL.city;
+  }
+  return false;
+}

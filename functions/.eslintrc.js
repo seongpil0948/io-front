@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-undef
 module.exports = {
   root: true,
   env: {
@@ -27,5 +28,6 @@ module.exports = {
     indent: ["error", 2],
     "object-curly-spacing": ["error", "always"],
     "quote-props": ["error", "as-needed"],
+    "comma-dangle": ["error", "only-multiline"],
   },
 };

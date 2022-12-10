@@ -33,7 +33,7 @@ async function updateUser() {
   if (authModel.value) {
     await USER_DB.updateUser(authModel.value);
     authStore.setUser(authModel.value);
-    msg.info("변경 완.");
+    msg.info("변경 완료.");
   }
 }
 </script>

@@ -1,6 +1,6 @@
 import { storeToRefs } from "pinia";
 import { isSamePickLocate } from "@/composable";
-import { ProdOrderByShop, ProdOrderCombined } from "@/composable/order";
+import { OrderItemByShop, OrderItemCombined } from "@/composable/order";
 import { useAuthStore } from "@/store";
 import { uniqueArr } from "@/util";
 import { LocateAmount, USER_DB } from "@io-boxies/js-lib";
@@ -71,7 +71,7 @@ export function usePickAreaCols() {
   return { pickAreaCols };
 }
 
-export function getPickReqCols(onClickDetail: (data: ProdOrderByShop) => void) {
+export function getPickReqCols(onClickDetail: (data: OrderItemByShop) => void) {
   return computed(() => {
     const cols = [
       {
@@ -112,7 +112,7 @@ export function getPickReqCols(onClickDetail: (data: ProdOrderByShop) => void) {
             { default: () => "상세보기" }
           ),
       },
-    ] as DataTableColumns<ProdOrderByShop>;
+    ] as DataTableColumns<OrderItemByShop>;
     return cols.map((x: any) => {
       if (!["selection", "expand"].includes(x.type)) {
         x.sorter = "default";
@@ -131,16 +131,15 @@ export const pickReqDetailCols = computed(() => {
       title: "도매처명",
       key: "vendorName",
       render: (row) =>
-        row.vendorGarment.userInfo.displayName ??
-        row.vendorGarment.userInfo.userName,
+        row.vendorProd.userInfo.displayName ?? row.vendorProd.userInfo.userName,
     },
     // {
     //   title: "도매처 주소",
     //   key: "vendor locate",
     //   render: (row) =>
-    //     row.vendorGarment.companyInfo &&
-    //     row.vendorGarment.companyInfo.shipLocate
-    //       ? locateToStr(row.vendorGarment.companyInfo.shipLocate)
+    //     row.vendorProd.companyInfo &&
+    //     row.vendorProd.companyInfo.shipLocate
+    //       ? locateToStr(row.vendorProd.companyInfo.shipLocate)
     //       : null,
     // },
     {
@@ -148,24 +147,22 @@ export const pickReqDetailCols = computed(() => {
       key: "vendor locate",
       render: (row) =>
         row.orderType === "RETURN"
-          ? row.shopGarment.companyInfo &&
-            row.shopGarment.companyInfo.shipLocate
-            ? row.shopGarment.companyInfo.shipLocate.detailLocate
+          ? row.shopProd.companyInfo && row.shopProd.companyInfo.shipLocate
+            ? row.shopProd.companyInfo.shipLocate.detailLocate
             : null
-          : row.vendorGarment.companyInfo &&
-            row.vendorGarment.companyInfo.shipLocate
-          ? row.vendorGarment.companyInfo.shipLocate.detailLocate
+          : row.vendorProd.companyInfo && row.vendorProd.companyInfo.shipLocate
+          ? row.vendorProd.companyInfo.shipLocate.detailLocate
           : null,
     },
     {
       title: "상품명",
-      key: "vendorGarment.vendorProdName",
+      key: "vendorProd.vendorProdName",
     },
     {
       title: "픽업수량",
       key: "orderCnt",
     },
-  ] as DataTableColumns<ProdOrderCombined>;
+  ] as DataTableColumns<OrderItemCombined>;
   return cols.map((x: any) => {
     if (!["selection", "expand"].includes(x.type)) {
       x.sorter = "default";

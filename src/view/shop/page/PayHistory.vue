@@ -8,10 +8,10 @@ import { NGradientText } from "naive-ui";
 const auth = useAuthStore();
 const shopOrderStore = useShopOrderStore();
 onBeforeMount(() => shopOrderStore.init(auth.currUser.userInfo.userId));
-const { garmentOrders, orders } = storeToRefs(shopOrderStore);
+const { ioOrders, orders } = storeToRefs(shopOrderStore);
 
 const { tableCol, tableRef } = useOrderTable({
-  garmentOrders,
+  ioOrders,
   orders,
   updateOrderCnt: false,
   useChecker: false,
@@ -59,10 +59,10 @@ const columns = computed(() => {
       :table-layout="'fixed'"
       :scroll-x="800"
       :columns="columns"
-      :data="garmentOrders"
+      :data="ioOrders"
       :pagination="{
-        'show-size-picker': true,
-        'page-sizes': [5, 10, 25, 50, 100],
+        showSizePicker: true,
+        pageSizes: [5, 10, 25, 50, 100],
       }"
       :bordered="false"
     />

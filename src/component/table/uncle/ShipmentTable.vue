@@ -8,6 +8,8 @@ import {
   ShipOrderByShop,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ShipOrder,
+  ORDER_GARMENT_DB,
+  setState,
 } from "@/composable";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
@@ -43,8 +45,11 @@ async function onSelectWorker(val: IoUser) {
     shipment.uncleId = val.userInfo.userId;
     const order = orders.value.find((x) => x.dbId === shipment.orderDbId);
     if (!order) throw new Error("order not exist");
-    order.setState(item.id, "BEFORE_PICKUP");
-    return Promise.all([order.update(), shipment.update()]).then(async () => {
+    setState(order, item.id, "BEFORE_PICKUP");
+    return Promise.all([
+      ORDER_GARMENT_DB.updateOrder(order),
+      shipment.update(),
+    ]).then(async () => {
       msg.success("담당자 배정이 완료되었습니다.");
       await smtp.sendAlarm({
         toUserIds: [order.shopId, ...order.vendorIds, val.userInfo.userId],
@@ -54,8 +59,6 @@ async function onSelectWorker(val: IoUser) {
         uriArgs: {},
       });
       openWorkerModal.value = false;
-      selectedOrderProdId.value = null;
-      selectedData.value = null;
     });
   }
 }

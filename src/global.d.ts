@@ -43,3 +43,10 @@ declare module "vue-router" {
     goHome(user?: IoUser): void;
   }
 }
+
+// It's possible to define the class type without methods, as described in TS documentation. But unfortunately it still contains dogYears getter. As I know, it cannot be solved because when dealing with types, there is no difference between fields and getters.
+type NonFunctionPropertyNames<T> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  [K in keyof T]: T[K] extends Function ? never : K;
+}[keyof T];
+type NonFunctionProperties<T> = Pick<T, NonFunctionPropertyNames<T>>;

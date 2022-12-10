@@ -1,30 +1,32 @@
 import { DataTableColumns } from "naive-ui";
-import { ProdOrderCombined } from "../../domain";
+import { OrderItemCombined } from "../../domain";
 
 export * from "./approve";
+export * from "./pay";
 
+// FIXME: 왜 여깄어 너?
 export function getBasicColumns(
   showPaidDate: boolean
-): DataTableColumns<ProdOrderCombined> {
-  const cols: DataTableColumns<ProdOrderCombined> = [
+): DataTableColumns<OrderItemCombined> {
+  const cols: DataTableColumns<OrderItemCombined> = [
     {
       type: "selection",
     },
     {
       title: "주문상품",
-      key: "vendorGarment.vendorProdName",
+      key: "vendorProd.vendorProdName",
     },
     {
       title: "컬러",
-      key: "vendorGarment.color",
+      key: "vendorProd.color",
     },
     {
       title: "사이즈",
-      key: "vendorGarment.size",
+      key: "vendorProd.size",
     },
     {
       title: "재고개수",
-      key: "vendorGarment.stockCnt",
+      key: "vendorProd.stockCnt",
     },
     {
       title: "주문수량",
@@ -38,7 +40,7 @@ export function getBasicColumns(
   if (showPaidDate) {
     cols.push({
       title: "결제일",
-      key: "actualAmount.paidDate",
+      key: "amount.paidAt",
     });
   }
   return cols;

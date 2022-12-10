@@ -1,27 +1,31 @@
-import { isSamePickLocate } from "./../../../locate/pickup";
-import { IoShipment, GarmentOrder, IO_PAY_DB, ShipDB } from "@/composable";
-import { iostore, getIoCollection, IoCollection } from "@io-boxies/js-lib";
-import { useVendorsStore } from "@/store";
+import {
+  IoShipment,
+  IoOrder,
+  IO_PAY_DB,
+  ShipDB,
+  isValidOrder,
+  setState,
+  uncleAvailShip,
+  VENDOR_GARMENT_DB,
+} from "@/composable";
+import { getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { uuidv4 } from "@firebase/util";
 import { IoUser, userFireConverter } from "@io-boxies/js-lib";
 import { doc, runTransaction } from "firebase/firestore";
 import { getSrc } from "./order";
+import { ioFire } from "@/plugin/firebase";
 // import { uuidv4 } from "@firebase/util";
-export const ShipmentFB: ShipDB<GarmentOrder> = {
-  approvePickUp: async function (
-    row: GarmentOrder,
-    expectedReduceCoin: number
-  ) {
-    const vendorStore = useVendorsStore();
+export const ShipmentFB: ShipDB<IoOrder> = {
+  approvePickUp: async function (row: IoOrder, expectedReduceCoin: number) {
+    isValidOrder(row);
     const { getOrdRef, converterGarment } = getSrc();
     if (!row.shipManagerId) throw new Error("shipManagerId is null");
     const userPay = await IO_PAY_DB.getIoPayByUser(row.shipManagerId);
     if (userPay.budget < expectedReduceCoin)
       throw new Error("보유 코인이 부족합니다.");
-    else if (!row.isValid) throw new Error("invalid order.");
     const ordRef = getOrdRef(row.shopId);
     const ordDocRef = doc(ordRef, row.dbId).withConverter(converterGarment);
-    return runTransaction(iostore, async (transaction) => {
+    return runTransaction(ioFire.store, async (transaction) => {
       const ordDoc = await transaction.get(ordDocRef);
       if (!ordDoc.exists()) throw new Error("order doc does not exist!");
 
@@ -51,23 +55,23 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
 
       for (let i = 0; i < ord.items.length; i++) {
         const item = ord.items[i];
-        const prod = vendorStore.vendorGarments.find(
-          (g) => g.vendorProdId === item.vendorProdId
+        const prod = await VENDOR_GARMENT_DB.getById(
+          item.vendorProd.vendorProdId
         );
-        // const vendorDoc = await transaction.get(
-        //   doc(
-        //     getIoCollection({ c: IoCollection.USER }).withConverter(
-        //       IoUser.fireConverter()
-        //     ),
-        //     item.vendorId
-        //   )
-        // );
+
         if (!prod)
-          throw new Error(`도매처 상품이 없습니다.: ${item.vendorProdId}`);
-        const vendor = validateUser(
-          vendorStore.vendorById[item.vendorId],
-          item.vendorId
+          throw new Error(
+            `도매처 상품이 없습니다.: ${item.vendorProd.vendorProdId}`
+          );
+        const vendorRef = await transaction.get(
+          doc(
+            getIoCollection({ c: IoCollection.USER }).withConverter(
+              userFireConverter
+            ),
+            item.vendorId
+          )
         );
+        const vendor = validateUser(vendorRef.data(), item.vendorId);
         const isReturn = item.orderType === "RETURN";
         const shopLocate = shop.companyInfo!.shipLocate;
         const vendorLocate = vendor.companyInfo!.shipLocate;
@@ -80,36 +84,38 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
             `도매처 대표 배송지 정보가 없습니다. ${shop.userInfo.userId}`
           );
         }
-        const pickLocate = isReturn ? shopLocate : vendorLocate;
-        const shipLocate = isReturn ? vendorLocate : shopLocate;
-        const shipLocateStr = isReturn
-          ? vendorLocate.detailLocate
-          : shopLocate.detailLocate;
-        const ship = uncle.uncleInfo!.shipLocates;
-        const pick = uncle.uncleInfo!.pickupLocates;
+        const clientPickL = isReturn ? shopLocate : vendorLocate;
+        const clientshipL = isReturn ? vendorLocate : shopLocate;
+        const clientshipLStr =
+          clientshipL.city ?? "" + clientshipL.county + clientshipL.town;
+        const clientPickLStr =
+          clientPickL.city ?? "" + clientPickL.county + clientPickL.town;
+
+        const uncleShips = uncle.uncleInfo!.shipLocates;
+        const unclePickups = uncle.uncleInfo!.pickupLocates;
         const shipLocateUncle = isReturn
-          ? pick.find((x) => isSamePickLocate(x.locate, shipLocate))!
-          : ship.find((x) => x.locate.code === shipLocate.code)!;
+          ? unclePickups.find((x) => uncleAvailShip(x.locate, clientshipL))!
+          : uncleShips.find((x) => uncleAvailShip(x.locate, clientshipL))!;
         const pickLocateUncle = isReturn
-          ? ship.find((x) => x.locate.code === pickLocate.code)!
-          : pick.find((x) => isSamePickLocate(x.locate, pickLocate))!;
+          ? uncleShips.find((x) => uncleAvailShip(x.locate, clientPickL))!
+          : unclePickups.find((x) => uncleAvailShip(x.locate, clientPickL))!;
 
         if (!isReturn && !shipLocateUncle)
-          throw new Error(`${shipLocateStr}은 배송불가 지역입니다.`);
+          throw new Error(`${clientshipLStr}은 배송불가 지역입니다.`);
         else if (!isReturn && !pickLocateUncle)
-          throw new Error(`${pickLocate.detailLocate}은 픽업불가 지역입니다.`);
+          throw new Error(`${clientPickLStr}은 픽업불가 지역입니다.`);
         const shipment = new IoShipment({
           shippingId: uuidv4(),
           orderDbId: ord.dbId,
-          prodOrderId: item.id,
+          orderItemId: item.id,
           shipMethod: "UNCLE",
           additionalInfo: "",
           paid: false,
           shipFeeBasic: shipLocateUncle.amount,
           pickupFeeBasic: pickLocateUncle.amount,
-          returnAddress: shipLocate,
-          receiveAddress: shipLocate,
-          startAddress: pickLocate,
+          returnAddress: clientshipL,
+          receiveAddress: clientshipL,
+          startAddress: clientPickL,
           wishedDeliveryTime: new Date(),
           managerId: uncle.userInfo.userId,
         });
@@ -124,7 +130,7 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
           shipment
         );
         item.shipmentId = shipment.shippingId;
-        ord.setState(item.id, "BEFORE_ASSIGN_PICKUP");
+        setState(ord, item.id, "BEFORE_ASSIGN_PICKUP");
       }
       transaction.update(ordDocRef, converterGarment.toFirestore(ord));
       transaction.update(
@@ -139,7 +145,10 @@ export const ShipmentFB: ShipDB<GarmentOrder> = {
   },
 };
 
-function validateUser(u: IoUser | null | undefined, userId: string): IoUser {
+export function validateUser(
+  u: IoUser | null | undefined,
+  userId: string
+): IoUser {
   if (!u) throw new Error(`유저정보가 없습니다. id: ${userId}`);
   const role = u.userInfo.role;
   const name =
@@ -152,8 +161,8 @@ function validateUser(u: IoUser | null | undefined, userId: string): IoUser {
       : "유저";
   if (!u.companyInfo) throw new Error(`${name}의 회사정보가 없습니다.`);
   else if ((role === "SHOP" || role === "VENDOR") && !u.companyInfo.shipLocate)
-    throw new Error("배송지 정보를 입력해주세요.");
+    throw new Error(`${name}의 대표 배송지 설정을 해주세요.`);
   else if (role === "UNCLE" && !u.uncleInfo)
-    throw new Error("배송처 정보를 입력해주세요");
+    throw new Error("엉클 배송지와 요금 설정을 해주세요");
   return u!;
 }

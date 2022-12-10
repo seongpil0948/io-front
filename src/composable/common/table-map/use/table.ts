@@ -211,9 +211,9 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
     if (
       (
         [
-          "vendorGarment.userInfo.displayName",
+          "vendorProd.userInfo.displayName",
           "userName",
-          "shopGarment.prodName",
+          "shopProd.prodName",
           "prodName",
         ] as any[]
       ).includes(col.key)

@@ -1,4 +1,5 @@
 import { COIN_PAY_RATIO, COIN_FEE } from "@/constants";
+import { commonToJson } from "@io-boxies/js-lib";
 import {
   loadDate,
   insertById,
@@ -86,12 +87,7 @@ export class IoPay extends CommonField implements IoPayCRT {
   }
   static fireConverter() {
     return {
-      toFirestore: (u: IoPay) => {
-        u.updatedAt = new Date();
-        return u instanceof CommonField
-          ? u.toJson()
-          : IoPay.fromJson(u)!.toJson();
-      },
+      toFirestore: (u: IoPay) => commonToJson(u),
       fromFirestore: (
         snapshot: DocumentSnapshot<DocumentData>,
         options: any

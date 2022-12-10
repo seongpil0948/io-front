@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { IoAccount, setWorkerId } from "@/composable";
+import { ioFire } from "@/plugin/firebase";
 import { useAuthStore } from "@/store";
-import { makeMsgOpt } from "@/util";
-import { WorkerInfo, USER_DB, USER_PROVIDER, IoUser } from "@io-boxies/js-lib";
+import { makeMsgOpt, password, email as validEmail } from "@/util";
+import { createUserWithEmailAndPassword, getAuth } from "@firebase/auth";
+import {
+  WorkerInfo,
+  USER_DB,
+  USER_PROVIDER,
+  IoUser,
+  IoFireApp,
+} from "@io-boxies/js-lib";
 import { useLogin } from "@io-boxies/vue-lib";
 import {
   NButton,
@@ -14,15 +22,18 @@ import {
   useMessage,
 } from "naive-ui";
 import { getCurrentInstance, ref } from "vue";
+import { useLogger } from "vue-logger-plugin";
 
 const auth = useAuthStore();
 const msg = useMessage();
 const inst = getCurrentInstance();
+const log = useLogger();
 const name = ref("");
-const userId = ref(null);
-const displayName = ref(null);
+const userId = ref<string | null>(null);
+const displayName = ref<string | null>(null);
 const phone = ref(null);
-const email = ref(null);
+const email = ref<string | null>(null);
+const pw = ref<string | null>(null);
 const profileImg = ref(null);
 const account = ref<IoAccount | null>(null);
 const workerInfo = ref<WorkerInfo | null>(null);
@@ -62,7 +73,7 @@ function onKakaoAuth() {
     fail,
   });
 }
-const { googleLogin } = useLogin();
+const { googleLogin } = useLogin(IoFireApp.getInst());
 async function onGoogleAuth() {
   const u = (await googleLogin(false)) as any;
   console.log("Google Login  Res: ", u);
@@ -76,6 +87,31 @@ async function onGoogleAuth() {
   name.value = u.displayName ?? "";
 
   authed.value = true;
+}
+async function onEmailAuth() {
+  if (!email.value || !validEmail(email.value))
+    return msg.error("유효하지 않은 이메일");
+  if (!pw.value || !password(pw.value))
+    return msg.error(`유효하지 않은 비밀번호`);
+  try {
+    const credential = await createUserWithEmailAndPassword(
+      getAuth(ioFire.app),
+      email.value,
+      pw.value
+    );
+    userId.value = credential.user.uid;
+    authed.value = true;
+    log.info(null, "createUserWithEmailAndPassword: ", credential);
+  } catch (e: any) {
+    if (typeof e.code === "string") {
+      if (e.code.includes("email-already-in-use")) {
+        msg.error(`${email.value}는 사용중인 이메일 입니다.`);
+      } else {
+        throw e;
+      }
+    }
+    authed.value = false;
+  }
 }
 async function onSignUp() {
   if (!authed.value) {
@@ -124,8 +160,19 @@ const width = "35vw";
     <n-space :style="`width: ${width}`">
       <n-button type="primary" @click="onKakaoAuth"> Kakao 인증 </n-button>
       <n-button type="primary" @click="onGoogleAuth"> Google 인증 </n-button>
+      <n-button type="primary" @click="onEmailAuth"> 이메일 인증 </n-button>
       <n-checkbox :checked="authed" />
     </n-space>
+    <n-input
+      v-model:value="email"
+      :style="`width: ${width}`"
+      placeholder="이메일 입력"
+    />
+    <n-input
+      v-model:value="pw"
+      :style="`width: ${width}`"
+      placeholder="비밀번호 입력"
+    />
     <n-input
       v-model:value="displayName"
       :style="`width: ${width}`"

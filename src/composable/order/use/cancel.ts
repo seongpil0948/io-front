@@ -16,14 +16,14 @@ export function useCancel() {
   const smtp = useAlarm();
 
   function getCancel(
-    prodOrderId: string,
+    orderItemId: string,
     fromState: ORDER_STATE,
     reason: string,
     type: REASON_TYPE
   ): OrderCancel {
     const claim: OrderCancel = {
       id: uuidv4(),
-      prodOrderId,
+      orderItemId,
       reqDate: new Date(),
       state: fromState,
       reason,
@@ -38,14 +38,14 @@ export function useCancel() {
     shopId: string,
     vendorId: string,
     orderDbId: string,
-    prodOrderId: string,
+    orderItemId: string,
     claim: OrderCancel,
     cancelCnt: number
   ) {
     return ORDER_GARMENT_DB.cancelReq(
       shopId,
       orderDbId,
-      prodOrderId,
+      orderItemId,
       claim,
       cancelCnt
     )
@@ -72,11 +72,11 @@ export function useCancel() {
   async function cancelApprove(
     shopIds: string[],
     orderDbIds: string[],
-    prodOrderIds: string[],
+    orderItemIds: string[],
     vendorName: string,
     vendorId: string
   ) {
-    return ORDER_GARMENT_DB.cancelApprove(orderDbIds, prodOrderIds)
+    return ORDER_GARMENT_DB.cancelApprove(orderDbIds, orderItemIds)
       .then(async () => {
         await smtp.sendAlarm({
           toUserIds: shopIds,
@@ -99,11 +99,11 @@ export function useCancel() {
   async function cancelReject(
     shopIds: string[],
     orderDbIds: string[],
-    prodOrderIds: string[],
+    orderItemIds: string[],
     vendorName: string,
     vendorId: string
   ) {
-    return ORDER_GARMENT_DB.cancelReject(orderDbIds, prodOrderIds)
+    return ORDER_GARMENT_DB.cancelReject(orderDbIds, orderItemIds)
       .then(async () => {
         await smtp.sendAlarm({
           toUserIds: shopIds,

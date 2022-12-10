@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ORDER_STATE, usePendingOrderCols } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
+import { uniqueArr } from "@/util";
+import { IoUser, USER_DB } from "@io-boxies/js-lib";
 
-import { onBeforeMount } from "vue";
+import { onBeforeMount, shallowRef, watch } from "vue";
 
 const auth = useAuthStore();
 const shopOrderStore = useShopOrderStore();
@@ -11,6 +13,14 @@ const inStates = ["BEFORE_READY"] as ORDER_STATE[];
 onBeforeMount(() => shopOrderStore.init(auth.currUser.userInfo.userId));
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 const orders = shopOrderStore.getOrders(inStates);
+const vendors = shallowRef<IoUser[]>([]);
+watch(
+  () => orders.value,
+  async (ords) => {
+    const ids = uniqueArr(ords.flatMap((o) => o.vendorIds));
+    vendors.value = await USER_DB.getUserByIds(ids);
+  }
+);
 </script>
 <template>
   <n-card v-if="orders && orders.length > 0">
@@ -23,8 +33,8 @@ const orders = shopOrderStore.getOrders(inStates);
         :columns="pendingOrderCols"
         :data="filteredOrders"
         :pagination="{
-          'show-size-picker': true,
-          'page-sizes': [5, 10, 25, 50, 100],
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
         }"
         :bordered="false"
       />

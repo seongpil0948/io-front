@@ -1,13 +1,14 @@
 import {
-  OrderCrt,
-  GARMENT_SIZE,
+  PRODUCT_SIZE,
+  IoOrder,
   GENDER,
   PART,
   StockCntObj,
   VendorProdCrt,
   VendorGarment,
   OrderAmount,
-  ProdOrder,
+  OrderItem,
+  PaginateParam,
 } from "@/composable";
 import { IoUser } from "@io-boxies/js-lib";
 import { Ref } from "vue";
@@ -18,7 +19,7 @@ export interface VendorGarmentCrt extends VendorProdCrt {
   ctgr: string;
   color: string;
   allowPending: boolean;
-  size: GARMENT_SIZE;
+  size: PRODUCT_SIZE;
   fabric: string;
 }
 
@@ -28,7 +29,7 @@ export interface VendorGarmentCombined
     "color" | "size" | "stockCnt" | "vendorProdId"
   > {
   colors: string[];
-  sizes: GARMENT_SIZE[];
+  sizes: PRODUCT_SIZE[];
   allStockCnt: number;
   stockCnt: StockCntObj;
 }
@@ -36,14 +37,23 @@ export interface VendorUserGarment extends IoUser, VendorGarmentCrt {}
 export interface VendorUserGarmentCombined
   extends IoUser,
     VendorGarmentCombined {}
-export interface VendorOrderGarment extends VendorGarmentCrt, OrderCrt {}
+export interface VendorOrderGarment extends VendorGarmentCrt, IoOrder {}
 export interface VendorUserOrderGarment
   extends VendorUserGarment,
-    OrderAmount,
-    ProdOrder {
+    Partial<OrderAmount>,
+    Omit<Partial<OrderItem>, "prodType" | "vendorId"> {
   shopUser?: IoUser;
 }
+export interface VendorProdSimilar {
+  vendorId: string;
+  vendorProdName: string;
+}
+export interface VendorProdSame extends VendorProdSimilar {
+  color: string;
+  size: string;
+}
 export interface VendorGarmentDB {
+  incrementStockCnt(cnt: number, vendorProdId: string): Promise<void>;
   batchReadListen(args: any[]): {
     items: Ref<VendorGarment[]>;
     unsubscribe: () => void;
@@ -51,4 +61,22 @@ export interface VendorGarmentDB {
   batchUpdate(args: VendorGarment[]): Promise<void>;
   batchCreate(userId: string, args: VendorGarment[]): Promise<void>;
   delete(prodId: string): Promise<void>;
+  list(d: { vendorId?: string }): Promise<VendorGarment[]>;
+  listByIds(vendorProdIds: string[]): Promise<VendorGarment[]>;
+  listByIdsWithUser(vendorProdIds: string[]): Promise<VendorUserGarment[]>;
+  listByVendorIds(vendorIds: string[]): Promise<VendorUserGarment[]>;
+  listUserGarmentCombined(
+    d: PaginateParam<VendorUserGarmentCombined>
+  ): Promise<{
+    data: VendorUserGarmentCombined[];
+    noMore: boolean;
+  }>;
+  getById(vendorProdId: string): Promise<VendorGarment | null>;
+  getByIdWithUser(vendorProdId: string): Promise<VendorUserGarment | null>;
+  getSimilarProds(d: VendorProdSimilar): Promise<VendorGarment[]>;
+  updateSimilarProd(
+    d: VendorProdSimilar,
+    data: { [k: string]: any }
+  ): Promise<void>;
+  existSameProd(d: VendorProdSame): Promise<boolean>;
 }

@@ -1,6 +1,5 @@
-import { MapKey, ShopUserGarment } from "@/composable";
-import { useVendorsStore } from "@/store";
-import { Ref, ref, watchEffect } from "vue";
+import { MapKey, ShopUserGarment, VENDOR_GARMENT_DB } from "@/composable";
+import { onBeforeUnmount, Ref, ref, watchEffect } from "vue";
 import { ShopGarment, GarmentOrderCondi, SHOP_GARMENT_DB } from "..";
 
 export function useShopUserGarments(
@@ -10,24 +9,24 @@ export function useShopUserGarments(
   const userProd: Ref<ShopUserGarment[]> = ref([]);
   const rowIdField: MapKey = "shopProdId";
   const { shopProds, unsubscribe } = useShopGarments(userId, shopCondi);
-  const vendorStore = useVendorsStore();
-  watchEffect(() => {
+
+  watchEffect(async () => {
     userProd.value = [];
-    vendorStore.vendorUserGarments.forEach((vendorUnit) => {
-      const prod = shopProds.value.find((p) => p.isSameWithVendor(vendorUnit));
-      if (!prod) return;
-      else if (vendorUnit.userInfo) {
-        userProd.value.push(
-          Object.assign(
-            { userName: vendorUnit.userInfo.userName },
-            vendorUnit,
-            prod
-          )
-        );
-      } else {
-        userProd.value.push(Object.assign({}, vendorUnit, prod));
-      }
-    });
+
+    for (let i = 0; i < shopProds.value.length; i++) {
+      const prod = shopProds.value[i];
+      const vendorUnit = await VENDOR_GARMENT_DB.getByIdWithUser(
+        prod.vendorProdId
+      );
+      if (!vendorUnit) continue;
+      userProd.value.push(
+        Object.assign(
+          { userName: vendorUnit.userInfo.userName },
+          vendorUnit,
+          prod
+        )
+      );
+    }
   });
   return { rowIdField, userProd, unsubscribe };
 }
@@ -49,6 +48,7 @@ export function useShopGarments(
     userId,
     matching
   );
+  onBeforeUnmount(() => unsubscribe());
 
   return { shopProds, unsubscribe };
 }

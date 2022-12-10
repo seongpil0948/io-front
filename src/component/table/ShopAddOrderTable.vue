@@ -27,7 +27,7 @@ const { existOrderIds } = storeToRefs(shopOrderStore);
 const filteredOrders = shopOrderStore.getFilteredOrder(props.inStates ?? []);
 const orders = shopOrderStore.getOrders(props.inStates ?? []);
 const { checkedDetailKeys, tableCol, tableRef, mapper } = useOrderTable({
-  garmentOrders: filteredOrders,
+  ioOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
 });
@@ -40,7 +40,7 @@ const {
   updateReqOrderShow,
   onReqOrderConfirm,
   deleteChecked,
-  downProdOrders,
+  downOrderItems,
 } = useOrderBasic(user, filteredOrders, orders, checkedDetailKeys);
 
 const sheetIdx = ref(0);
@@ -67,8 +67,8 @@ async function orderDelAll() {
   existOrderIds.value.clear();
 }
 // <<<<< COLUMNS <<<<<
-function downOrder() {
-  downProdOrders(filteredOrders.value);
+async function downOrder() {
+  await downOrderItems(filteredOrders.value);
 }
 function downSampleXlsx() {
   const a = document.createElement("a");
@@ -133,8 +133,8 @@ function downSampleXlsx() {
           { pageSize: 5 },
           showSizes
             ? {
-                'show-size-picker': true,
-                'page-sizes': [5, 10, 25, 50, 100],
+                showSizePicker: true,
+                pageSizes: [5, 10, 25, 50, 100],
               }
             : {}
         )

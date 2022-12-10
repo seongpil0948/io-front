@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NButton, NSpace } from "naive-ui";
-import { ORDER_STATE, ProdOrderByShop, useApproveOrder } from "@/composable";
+import { ORDER_STATE, OrderItemByShop, useApproveOrder } from "@/composable";
 import { useAuthStore } from "@/store";
 import { IO_COSTS } from "@/constants";
 import { useVendorOrderStore } from "@/store/vendorOrder";
@@ -12,8 +12,8 @@ const auth = useAuthStore();
 const u = auth.currUser;
 const store = useVendorOrderStore();
 const orders = store.getOrders(props.inStates ?? []);
-const garmentOrders = store.getFilteredOrder(props.inStates ?? []);
-const garmentOrdersByShop = store.getGarmentOrdersByShop(garmentOrders);
+const ioOrders = store.getFilteredOrder(props.inStates ?? []);
+const ioOrdersByShop = store.getGarmentOrdersByShop(ioOrders);
 const {
   showPartial,
   onCloseModal,
@@ -30,16 +30,17 @@ const {
   orderTargets,
   showPartialModal,
   numOfAllow,
-  completePay,
+  targetOrdDbIds,
+  targetShopIds,
   onProdReady,
 } = useApproveOrder({
-  garmentOrders,
+  ioOrders,
   orders,
   vendorId: u.userInfo.userId,
   expandCol: true,
   detailCol: false,
 });
-function getRowKey(row: ProdOrderByShop) {
+function getRowKey(row: OrderItemByShop) {
   return row.shopId;
 }
 </script>
@@ -63,9 +64,17 @@ function getRowKey(row: ProdOrderByShop) {
         </n-button>
       </n-space>
       <n-space v-else-if="inStates?.includes('BEFORE_PAYMENT')">
-        <n-button size="small" type="primary" @click="completePay">
+        <vendor-complete-pay-button
+          :target-ord-db-ids="[...targetOrdDbIds]"
+          :items="orderTargets"
+          :target-shop-ids="targetShopIds"
+          button-text="결제완료"
+          type="primary"
+          size="small"
+        />
+        <!-- <n-button size="small" type="primary" @click="completePay">
           결제완료
-        </n-button>
+        </n-button> -->
       </n-space>
       <n-space v-else-if="inStates?.includes('BEFORE_READY')">
         <n-button size="small" type="primary" @click="onProdReady">
@@ -76,7 +85,7 @@ function getRowKey(row: ProdOrderByShop) {
     <n-data-table
       :bordered="false"
       :columns="columns"
-      :data="garmentOrdersByShop"
+      :data="ioOrdersByShop"
       :table-layout="'fixed'"
       :scroll-x="800"
       :row-key="getRowKey"

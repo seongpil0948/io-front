@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { type FormInst, useMessage, useDialog } from "naive-ui";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { uuidv4 } from "@firebase/util";
 import { useRouter } from "vue-router";
-import { useLogger } from "vue-logger-plugin";
 import {
   catchError,
-  GARMENT_SIZE,
+  PRODUCT_SIZE,
   GENDER,
-  getVendorProdCombineId,
   PART,
+  PROD_TYPE,
   useBatchVendorProd,
   useVendorProdCols,
   VendorGarment,
@@ -28,7 +27,8 @@ import {
   genderOpts,
 } from "@/util";
 import { useEditor } from "@/plugin/editor";
-import { useAuthStore, useCommonStore, useVendorsStore } from "@/store";
+import { useAuthStore, useCommonStore } from "@/store";
+import { storeToRefs } from "pinia";
 
 const msg = useMessage();
 const dialog = useDialog();
@@ -46,13 +46,17 @@ const prodModel = ref({
   titleImgs: [] as string[],
   bodyImgs: [] as string[],
   colors: ["black"],
-  sizes: [] as GARMENT_SIZE[],
+  sizes: [] as PRODUCT_SIZE[],
   stockCnt: 10,
   fabric: "", // 혼용률 / 제조국
   info: "", // 상세정보
   description: "",
 });
-const ctgrOpts = computed(() => getCtgrOpts(prodModel.value.part));
+const cs = useCommonStore();
+const { locale } = storeToRefs(cs);
+const ctgrOpts = computed(() =>
+  getCtgrOpts(prodModel.value.part, locale.value)
+);
 const sizesOpts = computed(() => getSizeOpts(prodModel.value.part));
 const rules = {
   part: notNullRule,
@@ -67,7 +71,7 @@ const rules = {
   info: notNullRule, // 상세정보
   description: notNullRule,
 };
-type StockCnt = { [size in GARMENT_SIZE]: { [color: string]: number } };
+type StockCnt = { [size in PRODUCT_SIZE]: { [color: string]: number } };
 const stockCnts = ref<StockCnt | null>(null);
 
 watchEffect(() => {
@@ -95,8 +99,7 @@ watchEffect(
 function changePart() {
   prodModel.value.ctgr = ctgrOpts.value[0].value;
 }
-const { vendorGarments: existGarments } = useVendorsStore();
-const cs = useCommonStore();
+
 async function onRegister() {
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
@@ -107,34 +110,50 @@ async function onRegister() {
     let valid = true;
     const info = await saveEditor();
     const vendorId = auth.currUser.userInfo.userId;
-    const exist = existGarments.find(
-      (x) => x.combineId === getVendorProdCombineId(vendorId, v.name)
-    );
-    const vendorProdPkgId = exist ? exist.vendorProdPkgId : uuidv4();
-    prodModel.value.sizes.forEach((size) => {
-      prodModel.value.colors.forEach((color) => {
+    const similarProds = await VENDOR_GARMENT_DB.getSimilarProds({
+      vendorId: vendorId,
+      vendorProdName: v.name,
+    });
+    const vendorProdPkgId =
+      similarProds.length > 0 ? similarProds[0].vendorProdPkgId : uuidv4();
+    for (let i = 0; i < prodModel.value.sizes.length; i++) {
+      const size = prodModel.value.sizes[i];
+      for (let j = 0; j < prodModel.value.colors.length; j++) {
+        const color = prodModel.value.colors[j];
         if (stockCnts.value![size][color] < 1) {
           msg.error("상품의 재고량을 1이상으로 설정 해주십시오.");
           valid = false;
+        } else if (
+          await VENDOR_GARMENT_DB.existSameProd({
+            vendorId,
+            vendorProdName: v.name,
+            color,
+            size,
+          })
+        ) {
+          msg.error("같은 상품이 존재합니다.");
+          valid = false;
+        } else {
+          products.push(
+            new VendorGarment(
+              Object.assign({}, v, {
+                allowPending,
+                vendorProdName: v.name,
+                size,
+                color,
+                info,
+                vendorId,
+                vendorProdId: uuidv4(),
+                stockCnt: stockCnts.value![size][color],
+                TBD: {},
+                vendorProdPkgId,
+                prodType: "GARMENT" as PROD_TYPE,
+              })
+            )
+          );
         }
-        products.push(
-          new VendorGarment(
-            Object.assign({}, v, {
-              allowPending,
-              vendorProdName: v.name,
-              size,
-              color,
-              info,
-              vendorId,
-              vendorProdId: uuidv4(),
-              stockCnt: stockCnts.value![size][color],
-              TBD: {},
-              vendorProdPkgId,
-            })
-          )
-        );
-      });
-    });
+      }
+    }
     if (valid) {
       dialog.success({
         title: "상품을 등록합니다.",
@@ -212,8 +231,8 @@ function handleFileChange(evt: Event) {
       :columns="columns"
       :data="parsedGarments"
       :pagination="{
-        'show-size-picker': true,
-        'page-sizes': [5, 10, 25, 50, 100],
+        showSizePicker: true,
+        pageSizes: [5, 10, 25, 50, 100],
       }"
       :bordered="false"
     />
@@ -255,7 +274,7 @@ function handleFileChange(evt: Event) {
         <n-form-item-gi label="파트" path="part">
           <n-select
             v-model:value="prodModel.part"
-            :options="partOpts"
+            :options="partOpts(locale)"
             @update:value="changePart"
           />
         </n-form-item-gi>
@@ -321,13 +340,13 @@ function handleFileChange(evt: Event) {
             >
               <div v-for="(size, i) in Object.keys(stockCnts)" :key="i">
                 <div
-                  v-for="(color, j) in Object.keys(stockCnts[size as GARMENT_SIZE])"
+                  v-for="(color, j) in Object.keys(stockCnts[size as PRODUCT_SIZE])"
                   :key="j"
                 >
                   <n-space inline :wrap="false" style="margin-bottom: 1%">
                     <n-form-item-gi span="2" :label="`${color} ${size}`">
                       <n-input-number
-                        v-model:value="stockCnts[size as GARMENT_SIZE][color]"
+                        v-model:value="stockCnts[size as PRODUCT_SIZE][color]"
                         :show-button="false"
                         :min="1"
                         :validator="(x: number) => x % 1 === 0"

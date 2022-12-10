@@ -8,7 +8,6 @@ import {
 } from "@/composable";
 import {
   USER_DB,
-  getIoStore,
   batchInQuery,
   getIoCollection,
   IoCollection,
@@ -22,12 +21,32 @@ import {
   deleteDoc,
   doc,
   writeBatch,
-  QuerySnapshot,
   Unsubscribe,
+  QueryConstraint,
 } from "@firebase/firestore";
 import { Ref, ref } from "vue";
+import { ioFire } from "@/plugin/firebase";
+import { dataFromSnap } from "@/util";
 
 export const ShopGarmentFB: ShopGarmentDB = {
+  getShopGarments: async function (d) {
+    const constraints: QueryConstraint[] = [];
+    if (d.shopId) {
+      constraints.push(where("shopId", "==", d.shopId));
+    }
+    if (d.vendorId) {
+      constraints.push(where("vendorId", "==", d.vendorId));
+    }
+    const snap = await getDocs(
+      query(
+        getIoCollection({ c: IoCollection.SHOP_PROD }).withConverter(
+          ShopGarment.fireConverter()
+        ),
+        ...constraints
+      )
+    );
+    return dataFromSnap(snap);
+  },
   shopGarmentExist: async function (
     vendorProdId: string,
     shopUserId: string
@@ -62,7 +81,10 @@ export const ShopGarmentFB: ShopGarmentDB = {
           }
         });
       },
-      async (err) => await onFirestoreErr(name, err),
+      async (err) => {
+        await onFirestoreErr(name, err);
+        throw err;
+      },
       () => onFirestoreCompletion(name)
     );
 
@@ -74,7 +96,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
     else if (prodIds.length === 1) {
       await deleteDoc(doc(c, prodIds[0]));
     } else {
-      const batch = writeBatch(getIoStore());
+      const batch = writeBatch(ioFire.store);
       for (let i = 0; i < prodIds.length; i++) {
         batch.delete(doc(c, prodIds[i]));
       }
@@ -94,7 +116,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
       c,
       "shopId"
     );
-    const garments = snapshots.flatMap(_prodFromSnap);
+    const garments = snapshots.flatMap(dataFromSnap);
     return garments.reduce((acc, curr) => {
       const shop = users.find((u) => curr.shopId === u.userInfo.userId);
       if (!shop) {
@@ -108,15 +130,3 @@ export const ShopGarmentFB: ShopGarmentDB = {
     }, [] as ShopUserGarment[]);
   },
 };
-
-function _prodFromSnap(snap: QuerySnapshot<ShopGarment | null>): ShopGarment[] {
-  const garments: ShopGarment[] = [];
-
-  snap.docs.forEach((d) => {
-    const data = d.data();
-    if (data) {
-      garments.push(data);
-    }
-  });
-  return garments;
-}

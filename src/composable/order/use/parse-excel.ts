@@ -2,34 +2,39 @@ import {
   GarmentOrderCondi,
   useShopUserGarments,
   Mapper,
-  GarmentOrder,
-  garmentOrderFromCondi,
+  IoOrder,
+  ioOrderFromCondi,
   MapKey,
   synonymFilter,
   catchExcelError,
+  VendorGarment,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
-import { useVendorsStore } from "@/store";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { useMessage } from "naive-ui";
 import { MessageApiInjection } from "naive-ui/es/message/src/MessageProvider";
-import { Ref, ref, watch } from "vue";
+import { Ref, ref, shallowRef, watch, watchEffect } from "vue";
 
 export function useMappingOrderExcel(
   mapper: Ref<Mapper | null>,
   userId: string,
   fs: Ref<File[]>,
   existIds: Ref<Set<string>>,
-  onParse: (orders: GarmentOrder[]) => void,
+  onParse: (orders: IoOrder[]) => void,
   sheetIdx: Ref<number>,
   startRow: Ref<number>
 ) {
   const conditions = ref<GarmentOrderCondi[]>([]);
-  const vendorStore = useVendorsStore();
   const { userProd } = useShopUserGarments(userId, conditions);
   const msg = useMessage();
 
+  const vendorProds = shallowRef<VendorGarment[]>([]);
+  watchEffect(async () => {
+    const ids = userProd.value.map((x) => x.vendorProdId);
+    vendorProds.value = await VENDOR_GARMENT_DB.listByIds(ids);
+  });
   watch(
     () => fs.value,
     async (files) => {
@@ -76,9 +81,9 @@ export function useMappingOrderExcel(
         }
       }
       files = [];
-      const ords = garmentOrderFromCondi(
+      const ords = ioOrderFromCondi(
         conditions.value,
-        vendorStore.vendorUserGarments,
+        vendorProds.value,
         userProd.value
       );
 
@@ -107,7 +112,7 @@ export function mapDfToOrder(
         synonyms.includes(inputCol.toLowerCase())
       );
       if (!col) {
-        const message = `컬럼매핑 실패: 실패 엑셀파일에서 ${colName} 컬럼을 찾을 수 없습니다. \n ${synonyms}`;
+        const message = `컬럼매핑 실패: 실패 엑셀파일에서 ${colName.toString()} 컬럼을 찾을 수 없습니다. \n ${synonyms}`;
         msg.error(message);
         logger.error(userId, message);
         console.error(colName, synonyms);

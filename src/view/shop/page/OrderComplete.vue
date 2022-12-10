@@ -2,7 +2,7 @@
 import CancelButton from "@/component/button/CancelButton.vue";
 import {
   ORDER_STATE,
-  ProdOrderCombined,
+  OrderItemCombined,
   useOrderTable,
   OrderCancel,
 } from "@/composable";
@@ -15,7 +15,7 @@ const shopOrderStore = useShopOrderStore();
 
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 const orders = shopOrderStore.getOrders(inStates);
-const garmentOrdersByVendor =
+const ioOrdersByVendor =
   shopOrderStore.getGarmentOrdersByVendor(filteredOrders);
 const {
   tableRef,
@@ -24,7 +24,7 @@ const {
   selectedData, // selected
   tableCol,
 } = useOrderTable({
-  garmentOrders: filteredOrders,
+  ioOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
   useChecker: true,
@@ -33,7 +33,7 @@ const {
 
 function refreshSelected() {
   // selectedData.value =
-  //   garmentOrdersByVendor.value.find(
+  //   ioOrdersByVendor.value.find(
   //     (x) => x.vendorId === selectedData.value?.vendorId
   //   ) ?? null;
   selectedData.value = null;
@@ -43,11 +43,11 @@ const columns = computed(() => [
   {
     key: "cancel",
     title: "취소접수",
-    render: (prodOrder: ProdOrderCombined) =>
+    render: (orderItem: OrderItemCombined) =>
       h(
         CancelButton,
         {
-          prodOrder,
+          orderItem,
 
           onCancelDone: async (val: OrderCancel) => {
             console.log("cancel claim: ", val);
@@ -66,15 +66,15 @@ const columns = computed(() => [
         <n-h2> 승인 완료된 주문 </n-h2>
       </n-space>
       <n-data-table
-        v-if="garmentOrdersByVendor.length > 0"
+        v-if="ioOrdersByVendor.length > 0"
         ref="tableRef"
         :table-layout="'fixed'"
         :scroll-x="800"
         :columns="byVendorCol"
-        :data="garmentOrdersByVendor"
+        :data="ioOrdersByVendor"
         :pagination="{
-          'show-size-picker': true,
-          'page-sizes': [5, 10, 25, 50, 100],
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
         }"
         :bordered="false"
       />
@@ -93,7 +93,7 @@ const columns = computed(() => [
           :bordered="false"
           :columns="columns"
           :data="selectedData.items"
-          :row-key="(row: ProdOrderCombined) => row.id"
+          :row-key="(row: OrderItemCombined) => row.id"
         />
       </n-card>
     </n-space>

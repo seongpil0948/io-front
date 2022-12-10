@@ -6,6 +6,7 @@ import {
   DocumentData,
 } from "@firebase/firestore";
 import { ApiTokenCrt, API_SERVICE_EX } from "..";
+import { commonToJson } from "@io-boxies/js-lib";
 
 export class ApiToken extends CommonField implements ApiTokenCrt {
   dbId: string;
@@ -59,12 +60,7 @@ export class ApiToken extends CommonField implements ApiTokenCrt {
 
   static fireConverter(): FirestoreDataConverter<ApiToken | null> {
     return {
-      toFirestore: (u: ApiToken) => {
-        u.updatedAt = new Date();
-        return u instanceof CommonField
-          ? u.toJson()
-          : ApiToken.fromJson(u as any, (u as any).dbId)!.toJson();
-      },
+      toFirestore: (u: ApiToken) => commonToJson(u),
       fromFirestore: (
         snapshot: DocumentSnapshot<DocumentData>,
         options: any

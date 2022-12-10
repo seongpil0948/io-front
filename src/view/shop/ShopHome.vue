@@ -7,29 +7,29 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const shopOrderStore = useShopOrderStore();
-const { garmentOrders } = storeToRefs(shopOrderStore);
+const { ioOrders } = storeToRefs(shopOrderStore);
 
 const numOfApprove = computed(
-  () => garmentOrders.value.filter((x) => x.state === "BEFORE_PAYMENT").length
+  () => ioOrders.value.filter((x) => x.state === "BEFORE_PAYMENT").length
 );
 const numOfNotApprove = computed(
   () =>
-    garmentOrders.value.filter((x) =>
+    ioOrders.value.filter((x) =>
       ["BEFORE_ORDER", "BEFORE_APPROVE"].includes(x.state)
     ).length
 );
 const amountNotPaid = computed(() => {
-  return garmentOrders.value
-    .map((x) => x.actualAmount)
+  return ioOrders.value
+    .map((x) => x.amount)
     .reduce((acc, curr) => {
-      const notPaidAmount = curr.paid ? 0 : curr.orderAmount - curr.paidAmount;
+      const notPaidAmount = curr.orderAmount - curr.paidAmount;
       return acc + notPaidAmount;
     }, 0)
     .toLocaleString();
 });
 const numOfShipping = computed(
   () =>
-    garmentOrders.value.filter((x) =>
+    ioOrders.value.filter((x) =>
       [
         "BEFORE_APPROVE_PICKUP",
         "BEFORE_ASSIGN_PICKUP",

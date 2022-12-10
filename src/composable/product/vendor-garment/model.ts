@@ -1,10 +1,11 @@
 // import { logger } from "@/plugin/logger";
 import { CommonField } from "@/composable/common";
+import { commonToJson } from "@io-boxies/js-lib";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
-import type { GENDER, PART, GARMENT_SIZE } from "../domain";
-import { VendorGarmentCrt } from "./domain";
+import type { GENDER, PART, PRODUCT_SIZE, PROD_TYPE } from "../domain";
+import { VendorGarmentCrt, VendorProdSame, VendorProdSimilar } from "./domain";
 
 export class VendorGarment extends CommonField implements VendorGarmentCrt {
   gender: GENDER;
@@ -12,7 +13,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   ctgr: string;
   color: string;
   allowPending: boolean;
-  size: GARMENT_SIZE;
+  size: PRODUCT_SIZE;
   fabric: string;
   vendorId: string;
   vendorProdId: string;
@@ -25,6 +26,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   info: string | OutputData;
   description: string; // 상품요약
   TBD: { [k: string]: any };
+  prodType: PROD_TYPE;
 
   async update() {
     this.updatedAt = new Date();
@@ -37,7 +39,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     );
   }
 
-  constructor(d: Omit<VendorGarmentCrt, "combineId">) {
+  constructor(d: Omit<VendorGarmentCrt, "similarId">) {
     super(d.createdAt, d.updatedAt);
     this.gender = d.gender;
     this.part = d.part;
@@ -57,18 +59,22 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     this.info = d.info;
     this.description = d.description;
     this.TBD = d.TBD ?? {};
+    this.prodType = d.prodType;
   }
-  get combineId() {
-    return VendorGarment.combineId(this);
+  get similarId() {
+    return VendorGarment.similarId(this);
   }
-  static combineId(c: VendorGarmentCrt): string {
-    return getVendorProdCombineId(c.vendorId, c.vendorProdName);
+  static similarId(c: VendorGarmentCrt): string {
+    return getVendorProdSimilarId({
+      vendorId: c.vendorId,
+      vendorProdName: c.vendorProdName,
+    });
   }
   toJson(): { [x: string]: Partial<unknown> } {
     const j = super.toJson();
     j.titleImgs = saveImgs(j.titleImgs);
     j.bodyImgs = saveImgs(j.bodyImgs);
-    return j;
+    return commonToJson(j);
   }
   static fromJson(data: { [x: string]: any }): VendorGarment | null {
     if (data && data.vendorProdId) {
@@ -93,6 +99,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
         info: data.info,
         description: data.description,
         TBD: data.TBD ?? {},
+        prodType: data.prodType ?? "GARMENT",
       });
     } else {
       //   logger.error(null, "vendor product from json return null, data: ", data);
@@ -132,7 +139,11 @@ function saveImgs(imgs: any) {
   }
 }
 
-export const getVendorProdCombineId = (
-  vendorId: string,
-  vendorProdName: string
-) => vendorId + vendorProdName?.replaceAll(" ", "");
+export const getVendorProdSimilarId = (d: VendorProdSimilar) =>
+  d.vendorId + d.vendorProdName?.replaceAll(" ", "");
+
+export const sameVendorProd = (a: VendorProdSame, b: VendorProdSame) =>
+  a.vendorId === b.vendorId &&
+  a.vendorProdName === b.vendorProdName &&
+  a.color === b.color &&
+  a.size === b.size;

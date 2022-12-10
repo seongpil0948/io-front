@@ -1,12 +1,15 @@
 import { GENDER, PART } from "./../../composable/product/domain";
 import {
   CATEGORIES,
+  CtgrDict,
   FreeSize,
   GarmentSize,
-  GARMENT_SIZE,
+  LOCALE,
+  PartDict,
+  PRODUCT_SIZE,
   ShoesSize,
 } from "@/composable";
-
+import { PAY_METHOD } from "@/composable/payment/domain";
 import { range } from "lodash";
 import { computed } from "vue";
 import { LocateType, SHIP_METHOD } from "@io-boxies/js-lib";
@@ -14,9 +17,10 @@ import { LocateType, SHIP_METHOD } from "@io-boxies/js-lib";
 export const genderOpts = Object.keys(GENDER).map((x) => {
   return { label: x, value: x };
 });
-export const partOpts = Object.keys(PART).map((x) => {
-  return { label: x, value: x };
-});
+export const partOpts = (locale: LOCALE = "ko") =>
+  Object.keys(PART).map((x) => {
+    return { label: PartDict[locale][x as PART], value: x };
+  });
 
 export function rangeOpts(
   start: number,
@@ -30,17 +34,18 @@ export function rangeOpts(
   );
 }
 
-export const getCtgrOpts = (part: PART) =>
+export const getCtgrOpts = (part: PART, locale: LOCALE = "ko") =>
   Object.keys(CATEGORIES[part]).map((x) => {
-    return { label: x, value: x };
+    return { label: CtgrDict[locale][x], value: x };
   });
 export const getSizeOpts = (part: PART) => {
-  let obj: GARMENT_SIZE[] = [];
+  let obj: PRODUCT_SIZE[] = [];
   if (
     part === PART.TOP ||
     part === PART.BOTTOM ||
     part === PART.DRESS ||
-    part === PART.OUTER
+    part === PART.OUTER ||
+    part === PART.HAT
   ) {
     obj = GarmentSize;
   } else if (part === PART.SHOES) {
@@ -79,3 +84,14 @@ export const locateTypeOpt = computed(() =>
 );
 
 export const deadOpt = rangeOpts(1, 32, (n) => `${n}일`);
+
+export const payMethodOpts = [
+  {
+    label: "현금",
+    value: PAY_METHOD.CASH,
+  },
+  {
+    label: "입금",
+    value: PAY_METHOD.DEPOSIT,
+  },
+];

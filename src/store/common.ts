@@ -1,3 +1,4 @@
+import { LOCALE } from "@/composable";
 import { defineStore } from "pinia";
 import { VNodeChild } from "vue";
 
@@ -6,6 +7,7 @@ interface CommonStoreInterface {
   msgQueue: { isError: boolean; content: ContentType }[];
   loading: boolean;
   showSpin: boolean;
+  locale: LOCALE;
 }
 export const useCommonStore = defineStore({
   id: "common",
@@ -14,6 +16,7 @@ export const useCommonStore = defineStore({
       msgQueue: [],
       loading: false,
       showSpin: false,
+      locale: "ko",
     },
   getters: {
     isLoading: (state) => state.loading === true,

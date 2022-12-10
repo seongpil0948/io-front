@@ -1,23 +1,26 @@
 import { Ref } from "vue";
 import {
-  GarmentOrder,
+  IoOrder,
   GarmentOrderCondi,
   MatchGarment,
   ORDER_GARMENT_DB,
   sameGarment,
   ShopUserGarment,
-  VendorUserGarment,
+  newOrdFromItem,
+  newOrdItem,
+  VENDOR_GARMENT_DB,
+  VendorGarment,
 } from "@/composable";
 
-export function garmentOrderFromCondi(
+export function ioOrderFromCondi(
   conditions: GarmentOrderCondi[],
-  vendorGarments: VendorUserGarment[],
+  vendorProds: VendorGarment[],
   userGarments: ShopUserGarment[]
 ) {
   const infos: {
     [k: string]: {
       prod: ShopUserGarment;
-      vendorProd: VendorUserGarment;
+      vendorProd: VendorGarment;
       orderIds: string[];
       orderCnt: number;
     };
@@ -28,7 +31,7 @@ export function garmentOrderFromCondi(
     const orderCnt = d.orderCnt ?? 1;
     if (!prod) continue;
     else if (!infos[prod.shopProdId]) {
-      const vendorProd = vendorGarments.find(
+      const vendorProd = vendorProds.find(
         (g) =>
           g.vendorProdId === prod.vendorProdId && g.vendorId === prod.vendorId
       );
@@ -46,37 +49,63 @@ export function garmentOrderFromCondi(
     }
   }
   return Object.values(infos).reduce((acc, info) => {
-    const order = GarmentOrder.fromProd(
-      info.prod,
-      info.orderIds,
-      info.orderCnt,
-      info.vendorProd
-    );
+    const item = newOrdItem({
+      vendorProd: info.vendorProd,
+      shopProd: info.prod,
+      orderIds: info.orderIds,
+      orderCnt: info.orderCnt,
+      shipFeeAmount: 0,
+      shipFeeDiscountAmount: 0,
+      pickFeeAmount: 0,
+      pickFeeDiscountAmount: 0,
+      tax: 0,
+      paidAmount: 0,
+      paid: "NO",
+      paymentConfirm: false,
+    });
+    const order = newOrdFromItem([item]);
     acc.push(order);
     return acc;
-  }, [] as GarmentOrder[]);
+  }, [] as IoOrder[]);
 }
 
 export async function saveMatch(
   matchData: MatchGarment[],
   userProd: ShopUserGarment[],
-  vendorUserGarments: VendorUserGarment[],
   userId: string,
   existOrderIds: Ref<Set<string>>
 ) {
-  const orders: GarmentOrder[] = [];
+  const orders: IoOrder[] = [];
+  const ids = userProd.map((x) => x.vendorProdId);
+  const vendorProds = await VENDOR_GARMENT_DB.listByIds(ids);
+
   for (let i = 0; i < matchData.length; i++) {
     const data = matchData[i];
     if (!data.id) continue;
     const g = userProd.find((x) => x.shopProdId === data.id);
     if (!g) throw new Error("소매처 상품이 없습니다.");
-    const vendorProd = vendorUserGarments.find(
+    const vendorProd = vendorProds.find(
       (x) => x.vendorProdId === g?.vendorProdId
     );
     if (!vendorProd) throw new Error("도매처 상품이 없습니다.");
-    orders.push(
-      GarmentOrder.fromProd(g, [data.orderId], data.orderCnt, vendorProd)
-    );
+
+    const item = newOrdItem({
+      vendorProd,
+      shopProd: g,
+      orderIds: [data.orderId],
+      orderCnt: data.orderCnt,
+      shipFeeAmount: 0,
+      shipFeeDiscountAmount: 0,
+      pickFeeAmount: 0,
+      pickFeeDiscountAmount: 0,
+      tax: 0,
+      paidAmount: 0,
+      paid: "NO",
+      paymentConfirm: false,
+    });
+    const order = newOrdFromItem([item]);
+
+    orders.push(order);
   }
   await ORDER_GARMENT_DB.batchCreate(userId, orders);
   orders?.forEach((ord) => {

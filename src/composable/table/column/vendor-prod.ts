@@ -6,11 +6,12 @@ import {
   VendorGarment,
   VENDOR_GARMENT_DB,
 } from "@/composable/";
-import { useAuthStore } from "@/store";
+import { useAuthStore, useCommonStore } from "@/store";
 import { makeMsgOpt, getSizeOpts, getCtgrOpts } from "@/util";
 import { NButton, NInput, NInputNumber, NSelect, useMessage } from "naive-ui";
 import { computed, h, ref, defineAsyncComponent } from "vue";
 import { useLogger } from "vue-logger-plugin";
+import { storeToRefs } from "pinia";
 
 const LogoChecker = defineAsyncComponent(
   () => import("@/component/input/checker/LogoChecker.vue")
@@ -19,7 +20,8 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
   const logger = useLogger();
   const auth = useAuthStore();
   const msg = useMessage();
-
+  const cs = useCommonStore();
+  const { locale } = storeToRefs(cs);
   const showProdEdit = ref(false);
   const prodEditTarget = ref<VendorGarment | null>(null);
   function onShowProdEdit(row: VendorGarment | null) {
@@ -50,7 +52,7 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
           key: "part",
           cellRender: (row: VendorGarment) =>
             h(NSelect, {
-              options: partOpts,
+              options: partOpts(locale.value),
               value: row.part,
               onUpdateValue: (val) => {
                 row.part = val;
@@ -61,7 +63,7 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
           key: "ctgr",
           cellRender: (row: VendorGarment) =>
             h(NSelect, {
-              options: getCtgrOpts(row.part),
+              options: getCtgrOpts(row.part, locale.value),
               value: row.ctgr,
               onUpdateValue: (val) => {
                 row.ctgr = val;
@@ -140,7 +142,7 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
         "updatedAt",
         "orderCnt",
         "pendingCnt",
-        "actualAmount.orderAmount",
+        "amount.orderAmount",
       ].map((x) => {
         return { key: x } as IoColOpt;
       })

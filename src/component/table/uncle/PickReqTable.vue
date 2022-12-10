@@ -2,8 +2,8 @@
 import {
   getPickReqCols,
   pickReqDetailCols,
-  ProdOrderByShop,
-  ProdOrderCombined,
+  OrderItemByShop,
+  OrderItemCombined,
   SHIPMENT_DB,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ShipOrder,
@@ -21,20 +21,20 @@ const smtp = useAlarm();
 const {
   orders,
   checkedKeys,
-  garmentOrdersByShop,
-  garmentOrders,
+  ioOrdersByShop,
+  ioOrders,
   onCheckDetailRow,
   onCheckRow,
   checkedDetailKeys,
 } = useShipmentUncle(["BEFORE_APPROVE_PICKUP"]);
 
-const selectedData = ref<ProdOrderByShop | null>(null);
-function onClickDetail(data: ProdOrderByShop) {
+const selectedData = ref<OrderItemByShop | null>(null);
+function onClickDetail(data: OrderItemByShop) {
   selectedData.value = data;
 }
 
 const showApprovePickup = ref(false);
-const orderTargets = ref<ProdOrderCombined[]>([]);
+const orderTargets = ref<OrderItemCombined[]>([]);
 function updateReqOrderShow(val: boolean) {
   if (!val) orderTargets.value = [];
   showApprovePickup.value = val;
@@ -48,7 +48,7 @@ const expectedReduceCoin = computed(
 const u = auth.currUser;
 
 async function onReqOrderConfirm() {
-  // prodOrderIds
+  // orderItemIds
   const ids = orderTargets.value.map((x) => x.id);
   const targetOrd = orders.value.filter((y) =>
     y.items.some((item) => ids.includes(item.id))
@@ -97,13 +97,11 @@ const targetIds = computed(() => {
       }
     }
   }
-  // return garmentOrders.value.filter((z) => itemIds.has(z.id));
+  // return ioOrders.value.filter((z) => itemIds.has(z.id));
   return itemIds;
 });
 function approveSelected() {
-  orderTargets.value = garmentOrders.value.filter((x) =>
-    targetIds.value.has(x.id)
-  );
+  orderTargets.value = ioOrders.value.filter((x) => targetIds.value.has(x.id));
   showApprovePickup.value = true;
 }
 
@@ -119,12 +117,12 @@ const reqCols = getPickReqCols(onClickDetail);
     <n-data-table
       :bordered="false"
       :columns="reqCols"
-      :data="garmentOrdersByShop"
-      :row-key="(row: ProdOrderByShop) => row.shopId"
+      :data="ioOrdersByShop"
+      :row-key="(row: OrderItemByShop) => row.shopId"
       @update:checked-row-keys="onCheckRow"
     />
     <coin-reduce-confirm-modal
-      v-if="garmentOrdersByShop.length > 0"
+      v-if="ioOrdersByShop.length > 0"
       :show-modal="showApprovePickup"
       :user-id="u.userInfo.userId"
       :expected-reduce-coin="expectedReduceCoin"

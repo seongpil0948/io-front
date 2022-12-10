@@ -2,7 +2,7 @@
 import {
   getBasicColumns,
   ORDER_STATE,
-  ProdOrderCombined,
+  OrderItemCombined,
   useApproveOrder,
   useCancel,
 } from "@/composable";
@@ -20,9 +20,9 @@ const auth = useAuthStore();
 const u = auth.currUser;
 const store = useVendorOrderStore();
 const orders = store.getOrders(props.inStates ?? []);
-const garmentOrders = store.getFilteredOrder(props.inStates ?? []);
+const ioOrders = store.getFilteredOrder(props.inStates ?? []);
 const { checkedOrders, targetIds, targetOrdDbIds } = useApproveOrder({
-  garmentOrders,
+  ioOrders,
   orders,
   vendorId: u.userInfo.userId,
   expandCol: false,
@@ -30,7 +30,7 @@ const { checkedOrders, targetIds, targetOrdDbIds } = useApproveOrder({
 });
 const tableCol = computed(() => getBasicColumns(props.showPaidDate));
 
-const getRowKey = (row: ProdOrderCombined) => row.id;
+const getRowKey = (row: OrderItemCombined) => row.id;
 function onClickOrder(keys: string[]) {
   checkedOrders.value = keys;
 }
@@ -72,10 +72,10 @@ async function rejectCancel() {
     </template>
     <n-data-table
       :columns="tableCol"
-      :data="garmentOrders"
+      :data="ioOrders"
       :pagination="{
-        'show-size-picker': true,
-        'page-sizes': [5, 10],
+        showSizePicker: true,
+        pageSizes: [5, 10],
       }"
       :bordered="false"
       :row-key="getRowKey"

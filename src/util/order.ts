@@ -1,47 +1,46 @@
 import {
-  GarmentOrder,
+  IoOrder,
   ShopUserGarment,
   VendorUserGarment,
-  ProdOrderCombined,
+  OrderItemCombined,
+  getPendingCnt,
+  getActiveCnt,
 } from "@/composable";
 
 export function extractGarmentOrd(
-  orders: GarmentOrder[],
-  shopGarments: ShopUserGarment[],
-  vendorGarments: VendorUserGarment[]
+  orders: IoOrder[],
+  shopProds: ShopUserGarment[],
+  vendorProds: VendorUserGarment[]
 ) {
-  const garmentOrders: ProdOrderCombined[] = [];
+  const ioOrders: OrderItemCombined[] = [];
   orders.forEach((order) => {
     for (let i = 0; i < order.items.length; i++) {
-      const sId = order.items[i].shopProdId;
-      const shopGarment = shopGarments.find((j) => j.shopProdId === sId);
-      if (!shopGarment) {
+      const sId = order.items[i].shopProd.shopProdId;
+      const shopProd = shopProds.find((j) => j.shopProdId === sId);
+      if (!shopProd) {
         // console.warn(`not matched order(${order.dbId}) shop garment(${sId})`);
         continue;
       }
-      const vId = order.items[i].vendorProdId;
-      const vendorGarment = vendorGarments.find((k) => k.vendorProdId === vId);
-      if (!vendorGarment) {
+      const vId = order.items[i].vendorProd.vendorProdId;
+      const vendorProd = vendorProds.find((k) => k.vendorProdId === vId);
+      if (!vendorProd) {
         // console.warn(`not matched order(${order.dbId}) vendor garment(${vId})`);
         continue;
       }
-      const item: ProdOrderCombined = Object.assign({}, order.items[i], {
-        shopGarment,
-        vendorGarment,
+      const item: OrderItemCombined = Object.assign({}, order.items[i], {
+        shopProd: shopProd,
+        vendorProd: vendorProd,
       });
       // 2. set pending cnt
-      item.pendingCnt = GarmentOrder.getPendingCnt(
-        vendorGarment.stockCnt,
+      item.pendingCnt = getPendingCnt(
+        vendorProd.stockCnt,
         item.orderCnt,
-        vendorGarment.allowPending
+        vendorProd.allowPending
       );
       // 3. set active cnt
-      item.activeCnt = GarmentOrder.getActiveCnt(
-        item.orderCnt,
-        item.pendingCnt
-      );
-      garmentOrders.push(item);
+      item.activeCnt = getActiveCnt(item.orderCnt, item.pendingCnt);
+      ioOrders.push(item);
     }
   });
-  return garmentOrders;
+  return ioOrders;
 }

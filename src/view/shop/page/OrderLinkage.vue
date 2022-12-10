@@ -6,7 +6,7 @@ import {
   useMapper,
   ORDER_GARMENT_DB,
   API_SERVICE_EX,
-  GarmentOrder,
+  IoOrder,
   MatchGarment,
   ShopGarment,
   useShopGarmentTable,
@@ -18,7 +18,7 @@ import {
   saveMatch,
   getZigzagOrders,
 } from "@/composable";
-import { useAuthStore, useShopOrderStore, useVendorsStore } from "@/store";
+import { useAuthStore, useShopOrderStore } from "@/store";
 import { dateRanges } from "@/util";
 import { useMessage, NButton } from "naive-ui";
 import { onBeforeUnmount, computed, ref } from "vue";
@@ -48,7 +48,6 @@ const {
 const { authorizeCafe, mallId } = useCafeAuth();
 const { mapper } = useMapper(uid.value);
 const shopOrderStore = useShopOrderStore();
-const vendorStore = useVendorsStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
 const { parseCafeOrder } = useMappingOrderCafe(
   mapper,
@@ -126,7 +125,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
           uid.value,
           token.mallId!
         );
-        let orders: GarmentOrder[] | undefined = undefined;
+        let orders: IoOrder[] | undefined = undefined;
         if (useMapping) {
           orders = parseCafeOrder(cafeOrds);
         } else if (useMatching) {
@@ -184,13 +183,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
   }
 }
 async function onSaveMatch() {
-  await saveMatch(
-    matchData.value,
-    userProd.value,
-    vendorStore.vendorUserGarments,
-    uid.value,
-    existOrderIds
-  );
+  await saveMatch(matchData.value, userProd.value, uid.value, existOrderIds);
   matchData.value = [];
 }
 </script>
@@ -254,8 +247,8 @@ async function onSaveMatch() {
         :columns="matchCols"
         :single-line="false"
         :pagination="{
-          'show-size-picker': true,
-          'page-sizes': [5, 10, 25, 50, 100],
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
         }"
         :bordered="false"
         :table-layout="'fixed'"
@@ -281,8 +274,8 @@ async function onSaveMatch() {
         :columns="tableCols"
         :data="searchedData"
         :pagination="{
-          'show-size-picker': true,
-          'page-sizes': [5, 10, 25, 50, 100],
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
         }"
         :bordered="false"
         :table-layout="'fixed'"

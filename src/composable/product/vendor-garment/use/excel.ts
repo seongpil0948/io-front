@@ -2,11 +2,11 @@ import { useMessage } from "naive-ui";
 import {
   catchError,
   catchExcelError,
-  GARMENT_SIZE,
+  PRODUCT_SIZE,
   VendorGarment,
   VENDOR_GARMENT_DB,
 } from "@/composable";
-import { useAuthStore, useCommonStore, useVendorsStore } from "@/store";
+import { useAuthStore, useCommonStore } from "@/store";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { ref, watch } from "vue";
 import { uuidv4 } from "@firebase/util";
@@ -74,18 +74,28 @@ export function useBatchVendorProd() {
       }
     }
   );
-  const { vendorGarments: existGarments } = useVendorsStore();
   function parseDf(df: DataFrame) {
     // console.log("df.columns: ", df.columns);
-    const vendorGarments: VendorGarment[] = [];
-    df.apply((row: Series) => {
+    const vendorProds: VendorGarment[] = [];
+    df.apply(async (row: Series) => {
       const vendorProdName = String(row[0]);
       const vendorPrice = row[5];
       const color = row[1];
       const sizeStr = String(row[2]);
-      const size: GARMENT_SIZE = Object.keys(GARMENT_SIZE).includes(sizeStr)
-        ? (sizeStr as GARMENT_SIZE)
+      const size: PRODUCT_SIZE = Object.keys(PRODUCT_SIZE).includes(sizeStr)
+        ? (sizeStr as PRODUCT_SIZE)
         : "FREE";
+      if (
+        await VENDOR_GARMENT_DB.existSameProd({
+          vendorId: u.userInfo.userId,
+          vendorProdName,
+          color,
+          size,
+        })
+      ) {
+        console.log(vendorProdName, color, size, "is exist");
+        return row;
+      }
       const newGarment = new VendorGarment({
         gender: "UNISEX",
         part: "ETC",
@@ -105,19 +115,23 @@ export function useBatchVendorProd() {
         description: "",
         vendorProdPkgId: "",
         TBD: {},
+        prodType: "GARMENT",
       });
-      const exist = [...existGarments, ...vendorGarments].find(
-        (x) => x.combineId === newGarment.combineId
-      );
-      newGarment.vendorProdPkgId = exist ? exist.vendorProdPkgId : uuidv4();
+      const similarProds = await VENDOR_GARMENT_DB.getSimilarProds({
+        vendorId: u.userInfo.userId,
+        vendorProdName,
+      });
 
-      vendorGarments.push(newGarment);
+      newGarment.vendorProdPkgId =
+        similarProds.length > 0 ? similarProds[0].vendorProdPkgId : uuidv4();
+
+      vendorProds.push(newGarment);
       return row;
     });
 
-    console.log("vendorGarments:", vendorGarments);
-    vendorGarments.pop();
-    return vendorGarments;
+    console.log("vendorProds:", vendorProds);
+    vendorProds.pop();
+    return vendorProds;
   }
 
   function onBtnClick() {

@@ -2,7 +2,7 @@ import type { UserFields, IoUser } from "@io-boxies/js-lib";
 import type {
   OrderAmount,
   OrderCrt,
-  ProdOrder,
+  OrderItem,
   VendorGarmentCrt,
   ShopGarmentCrt,
 } from "@/composable";
@@ -14,14 +14,14 @@ interface AdditionalMap {
   orderId: string;
 }
 export type MapperFields = Partial<
-  ProdOrder &
+  OrderItem &
     OrderAmount &
     OrderCrt &
     VendorGarmentCrt &
     ShopGarmentCrt &
     IoUser &
     UserFields &
-    ProdOrder &
+    OrderItem &
     AdditionalMap & { accountStr: string }
 >;
 

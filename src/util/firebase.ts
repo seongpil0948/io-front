@@ -1,5 +1,9 @@
-import { QuerySnapshot } from "@firebase/firestore";
-
+import {
+  QuerySnapshot,
+  QueryDocumentSnapshot,
+  WithFieldValue,
+} from "@firebase/firestore";
+import { commonToJson, commonFromJson } from "@io-boxies/js-lib";
 export function handleReadSnap<T>(
   snap: QuerySnapshot<T | null>,
   arr: T[],
@@ -24,4 +28,22 @@ export function handleReadSnap<T>(
     }
   });
   return arr;
+}
+
+export const fireConverter = <T>() => ({
+  toFirestore: (data: WithFieldValue<T>) => commonToJson(data),
+  fromFirestore: (snap: QueryDocumentSnapshot) =>
+    commonFromJson(snap.data()) as T,
+});
+
+export function dataFromSnap<T>(snap: QuerySnapshot<T | null>): T[] {
+  const garments: T[] = [];
+
+  snap.docs.forEach((d) => {
+    const data = d.data();
+    if (data) {
+      garments.push(data);
+    }
+  });
+  return garments;
 }

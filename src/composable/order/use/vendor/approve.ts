@@ -1,11 +1,14 @@
 import { getUserName, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import {
-  GarmentOrder,
+  IoOrder,
   IoPay,
   ORDER_GARMENT_DB,
-  ProdOrderByShop,
-  ProdOrderCombined,
+  OrderItemByShop,
+  OrderItemCombined,
   useAlarm,
+  dividePartial,
+  VendorGarment,
+  OrderItem,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { logger } from "@/plugin/logger";
@@ -24,9 +27,24 @@ import { doc, getDoc, updateDoc } from "@firebase/firestore";
 const GarmentOrderRow = defineAsyncComponent(
   () => import("@/component/table/vendor/GarmentOrderRow.vue")
 );
+export async function reduceStockCnt(
+  vendorProd: VendorGarment,
+  orderItem: OrderItem
+) {
+  if (vendorProd.stockCnt < orderItem.orderCnt)
+    throw new Error(
+      `${vendorProd.vendorProdName}상품의 재고개수(${vendorProd.stockCnt})가 주문개수(${orderItem.orderCnt}) 보다 적습니다.`
+    );
+  else {
+    vendorProd.stockCnt -= orderItem.orderCnt;
+    await vendorProd.update();
+  }
+  return orderItem;
+}
+
 interface ApproveParam {
-  garmentOrders: Ref<ProdOrderCombined[]>;
-  orders: Ref<GarmentOrder[]>;
+  ioOrders: Ref<OrderItemCombined[]>;
+  orders: Ref<IoOrder[]>;
   vendorId: string;
   expandCol: boolean;
   detailCol: boolean;
@@ -60,18 +78,23 @@ export function useApproveOrder(p: ApproveParam) {
       return msg.error("부분승인은 개수는 0이상 이어야 합니다.");
     }
 
-    const targetProdOrderId = checkedOrders.value[0];
+    const targetOrderItemId = checkedOrders.value[0];
     for (let i = 0; i < p.orders.value.length; i++) {
       const o = p.orders.value[i];
       for (let j = 0; j < o.items.length; j++) {
         const item = o.items[j];
-        if (item.id === targetProdOrderId) {
+        if (item.id === targetOrderItemId) {
           if (numOfAllow.value > item.orderCnt) {
             return msg.error(
               "부분승인은 개수는 주문개수 이하로 설정 되어야합니다."
             );
           }
-          const newId = await o.dividePartial(item.id, numOfAllow.value, false);
+          const newId = await dividePartial({
+            order: o,
+            itemId: item.id,
+            orderCnt: numOfAllow.value,
+            update: false,
+          });
           const docRef = doc(
             getIoCollection({ c: IoCollection.IO_PAY }),
             o.shopId
@@ -81,22 +104,23 @@ export function useApproveOrder(p: ApproveParam) {
           if (docSnap.exists() && userPay) {
             updateDoc(docRef, { pendingBudget: userPay.pendingBudget + 1 });
           }
-          o.update().then(() =>
-            ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [newId])
-              .then(async () => {
-                msg.success("부분승인 완료", makeMsgOpt());
-              })
-              .catch((err) => {
-                const message = `부분승인 실패 ${
-                  err instanceof Error ? err.message : JSON.stringify(err)
-                }`;
-                msg.error(message, makeMsgOpt());
-                logger.error(p.vendorId, message);
-              })
-              .finally(() => {
-                onCloseModal(false);
-              })
-          );
+          await ORDER_GARMENT_DB.updateOrder(o);
+          ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [newId])
+            .then(async () => {
+              msg.success("부분승인 완료", makeMsgOpt());
+            })
+            .catch((err) => {
+              const message = `부분승인 실패 ${
+                err instanceof Error ? err.message : JSON.stringify(err)
+              }`;
+              msg.error(message, makeMsgOpt());
+              logger.error(p.vendorId, message);
+            })
+            .finally(() => {
+              onCloseModal(false);
+            });
+          targetIds.value.clear();
+          checkedShops.value = [];
 
           break;
         }
@@ -104,7 +128,9 @@ export function useApproveOrder(p: ApproveParam) {
     }
   }
   // >>> Order >>>
-  const orderTargets = ref<ProdOrderCombined[]>([]);
+  const orderTargets = computed<OrderItemCombined[]>(() =>
+    p.ioOrders.value.filter((x) => targetIds.value.has(x.id))
+  );
   const targetIds = computed(() => {
     const itemIds = new Set<string>();
     for (let i = 0; i < p.orders.value.length; i++) {
@@ -119,7 +145,7 @@ export function useApproveOrder(p: ApproveParam) {
         }
       }
     }
-    // return garmentOrders.value.filter((z) => itemIds.has(z.id));
+    // return ioOrders.value.filter((z) => itemIds.has(z.id));
     return itemIds;
   });
   const targetOrdDbIds = computed(() => {
@@ -151,7 +177,7 @@ export function useApproveOrder(p: ApproveParam) {
   }
 
   async function approveGarments() {
-    const prodIds = orderTargets.value.map((x) => x.id);
+    const prodIds = [...targetIds.value];
     const orderDBIds: string[] = [];
     const shopIds = [] as string[];
     for (let i = 0; i < p.orders.value.length; i++) {
@@ -187,20 +213,18 @@ export function useApproveOrder(p: ApproveParam) {
         logger.error(p.vendorId, message);
       })
       .finally(() => {
-        orderTargets.value = [];
+        targetIds.value.clear();
+        checkedOrders.value = [];
         updateOrderModal(false);
       });
   }
 
   function approveSelected() {
-    orderTargets.value = p.garmentOrders.value.filter((x) =>
-      targetIds.value.has(x.id)
-    );
     showOrderModal.value = true;
   }
 
   function approveAll() {
-    orderTargets.value = p.garmentOrders.value;
+    p.ioOrders.value.forEach((po) => targetIds.value.add(po.id));
     showOrderModal.value = true;
   }
 
@@ -236,33 +260,12 @@ export function useApproveOrder(p: ApproveParam) {
         logger.error(p.vendorId, message);
       })
       .finally(() => {
-        orderTargets.value = [];
+        targetIds.value.clear();
+        checkedShops.value = [];
         updateOrderModal(false);
       });
   }
-  function completePay() {
-    ORDER_GARMENT_DB.completePay(
-      [...targetOrdDbIds.value],
-      [...targetIds.value]
-    )
-      .then(async () => {
-        msg.success("결제승인 완료", makeMsgOpt());
-        await smtp.sendAlarm({
-          toUserIds: targetShopIds.value,
-          subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${getUserName(auth.currUser)} 에서 결제를 승인 하였습니다. `,
-          notiLoadUri: "/",
-          uriArgs: {},
-        });
-      })
-      .catch((err) => {
-        const message = `결제승인 실패 ${
-          err instanceof Error ? err.message : JSON.stringify(err)
-        }`;
-        msg.error(message, makeMsgOpt());
-        logger.error(p.vendorId, message);
-      });
-  }
+
   function returnApproved() {
     ORDER_GARMENT_DB.returnApprove(
       [...targetOrdDbIds.value],
@@ -341,7 +344,7 @@ export function useApproveOrder(p: ApproveParam) {
       {
         type: "selection",
       },
-    ] as DataTableColumns<ProdOrderByShop>;
+    ] as DataTableColumns<OrderItemByShop>;
     if (p.expandCol)
       cols.push({
         type: "expand",
@@ -350,14 +353,14 @@ export function useApproveOrder(p: ApproveParam) {
           const children: VNode[] = [];
           for (let i = 0; i < row.items.length; i++) {
             const item = row.items[i];
-            const garmentOrder = p.orders.value.find(
+            const ioOrder = p.orders.value.find(
               (o) => o.dbId === item.orderDbId
             );
-            if (garmentOrder)
+            if (ioOrder)
               children.push(
                 h(GarmentOrderRow, {
-                  garmentOrder,
-                  prodOrder: item,
+                  ioOrder,
+                  orderItem: item,
                   checked: checkedOrders.value.includes(item.id),
                   onClick: () => {
                     const cs = checkedOrders.value;
@@ -410,10 +413,10 @@ export function useApproveOrder(p: ApproveParam) {
           key: "orderAmount",
           render: (row) =>
             row.items
-              .reduce((acc, curr) => acc + curr.actualAmount.orderAmount, 0)
+              .reduce((acc, curr) => acc + curr.amount.orderAmount, 0)
               .toLocaleString(),
         },
-      ] as DataTableColumns<ProdOrderByShop>)
+      ] as DataTableColumns<OrderItemByShop>)
     );
     if (p.detailCol)
       cols.push({
@@ -460,7 +463,6 @@ export function useApproveOrder(p: ApproveParam) {
     orderTargets,
     showPartialModal,
     numOfAllow,
-    completePay,
     onProdReady,
     detailShopIds,
     checkedOrders,
@@ -468,5 +470,6 @@ export function useApproveOrder(p: ApproveParam) {
     returnReject,
     targetIds,
     targetOrdDbIds,
+    targetShopIds,
   };
 }

@@ -1,21 +1,32 @@
 <script setup lang="ts">
 import {
   ORDER_GARMENT_DB,
-  GarmentOrder,
+  IoOrder,
   useShopGarmentTable,
+  newOrdFromItem,
+  newOrdItem,
+  VENDOR_GARMENT_DB,
+  VendorGarment,
 } from "@/composable";
-import { useAuthStore, useVendorsStore } from "@/store";
+import { useAuthStore } from "@/store";
 import { makeMsgOpt, isMobile } from "@/util";
-import { NButton, useMessage } from "naive-ui";
+import {
+  NButton,
+  NCard,
+  NDataTable,
+  NDynamicTags,
+  NH3,
+  NH4,
+  NSpace,
+  useMessage,
+} from "naive-ui";
 import { uuidv4 } from "@firebase/util";
-import { computed } from "vue";
+import { computed, shallowRef, watch } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const authStore = useAuthStore();
 const msg = useMessage();
-
 const log = useLogger();
-const vendorStore = useVendorsStore();
 const {
   tableCols,
   mapper,
@@ -45,37 +56,54 @@ async function mapperUpdate() {
       log.error(authStore.currUser.userInfo.userId, message, err);
     });
 }
+const vendorProds = shallowRef<VendorGarment[]>([]);
+watch(
+  () => userProd.value,
+  async (prods) => {
+    const ids = prods.map((x) => x.vendorProdId);
+    vendorProds.value = await VENDOR_GARMENT_DB.listByIds(ids);
+  }
+);
+
 async function onCheckedOrder() {
-  const orders: GarmentOrder[] = [];
+  const orders: IoOrder[] = [];
   for (let i = 0; i < checkedKeys.value.length; i++) {
     const prod = userProd.value.find(
       (x) => x.shopProdId === checkedKeys.value[i]
     )!;
     if (!prod) continue;
 
-    const vendorProd = vendorStore.vendorUserGarments.find(
+    const vendorProd = vendorProds.value.find(
       (y) => y.vendorProdId === prod.vendorProdId
     );
     if (!vendorProd) {
       return msg.error("도매 상품정보가 존재하지 않습니다", makeMsgOpt());
     }
-    const order = GarmentOrder.fromProd(prod, [uuidv4()], 1, vendorProd);
+    const item = newOrdItem({
+      vendorProd,
+      shopProd: prod,
+      orderIds: [uuidv4()],
+      orderCnt: 1,
+      shipFeeAmount: 0,
+      shipFeeDiscountAmount: 0,
+      pickFeeAmount: 0,
+      pickFeeDiscountAmount: 0,
+      tax: 0,
+      paidAmount: 0,
+      paid: "NO",
+      paymentConfirm: false,
+    });
+    const order = newOrdFromItem([item]);
     orders.push(order);
   }
-  ORDER_GARMENT_DB.batchCreate(authStore.currUser.userInfo.userId, orders)
-    .then(() =>
-      msg.success(
-        `${orders.length} 개 상품 주문데이터 생성이 완료 되었습니다.`,
-        makeMsgOpt()
-      )
-    )
-    .catch((err) => {
-      const message = `상품 데이터 생성에 실패 하였습니다. ${
-        err instanceof Error ? err.message : JSON.stringify(err)
-      }`;
-      msg.error(message, makeMsgOpt());
-      log.error(authStore.currUser.userInfo.userId, message, err);
-    });
+  await ORDER_GARMENT_DB.batchCreate(
+    authStore.currUser.userInfo.userId,
+    orders
+  );
+  msg.success(
+    `${orders.length} 개 상품 주문데이터 생성이 완료 되었습니다.`,
+    makeMsgOpt()
+  );
 }
 function updateOrderId(arr: string[]) {
   mapper?.value?.setSyno("orderId", arr);
@@ -120,8 +148,8 @@ function updateOrderId(arr: string[]) {
         :columns="cols"
         :data="userProd"
         :pagination="{
-          'show-size-picker': true,
-          'page-sizes': [5, 10, 25, 50, 100],
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
         }"
         :bordered="false"
         :table-layout="'fixed'"

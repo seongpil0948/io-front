@@ -1,8 +1,8 @@
 import {
-  GARMENT_SIZE,
+  PRODUCT_SIZE,
   ShopGarmentCrt,
-  VendorGarmentCrt,
   GarmentOrderCondi,
+  PROD_TYPE,
 } from "@/composable";
 import { CommonField } from "@/composable/common";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
@@ -13,7 +13,7 @@ export function sameGarment(p: ShopGarmentCrt, g: GarmentOrderCondi) {
   return p.prodName === g.prodName && p.color === g.color && p.size === g.size;
 }
 export class ShopGarment extends CommonField implements ShopGarmentCrt {
-  size: GARMENT_SIZE;
+  size: PRODUCT_SIZE;
   color: string;
   vendorId: string;
   vendorProdId: string;
@@ -26,14 +26,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   cafeProdId?: string;
   zigzagProdId?: string;
   TBD: { [k: string]: any };
-
-  isSameWithVendor(p: VendorGarmentCrt) {
-    return (
-      this.vendorProdId === p.vendorProdId &&
-      this.color === p.color &&
-      this.size === p.size
-    );
-  }
+  prodType: PROD_TYPE;
 
   async update() {
     await insertById<ShopGarment>(
@@ -60,6 +53,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
     this.cafeProdId = d.cafeProdId;
     this.zigzagProdId = d.zigzagProdId;
     this.TBD = d.TBD;
+    this.prodType = d.prodType;
   }
   static fromJson(data: { [x: string]: any }): ShopGarment | null {
     if (data && data.vendorProdId) {
@@ -79,6 +73,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
         cafeProdId: data.cafeProdId,
         zigzagProdId: data.zigzagProdId,
         TBD: data.TBD,
+        prodType: data.prodType ?? "GARMENT",
       });
     } else {
       //   logger.error(null, "vendor product from json return null, data: ", data);

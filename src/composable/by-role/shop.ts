@@ -14,7 +14,7 @@ export function useContactUncle() {
       if (ids === prev) return;
       contractUncles.value = await USER_DB.getUserByIds(ids);
     },
-    { immediate: true }
+    { immediate: true, deep: true }
   );
 
   const contactUncleOpts = computed(() =>

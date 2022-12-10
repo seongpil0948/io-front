@@ -1,4 +1,7 @@
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
+import { ShopGarment, VendorGarment } from ".";
+
+export type PROD_TYPE = "GARMENT" | "GROCERY";
 
 export interface ProductCrt {
   createdAt?: Date;
@@ -6,6 +9,7 @@ export interface ProductCrt {
   info: string | OutputData;
   description: string;
   TBD: { [k: string]: any };
+  prodType: PROD_TYPE;
 }
 export interface VendorProdCrt extends ProductCrt {
   vendorId: string;
@@ -18,7 +22,12 @@ export interface VendorProdCrt extends ProductCrt {
   bodyImgs: string[];
 }
 
-export const GarmentSize: GARMENT_SIZE[] = [
+export interface ShopVendorGarment {
+  vendorGarment: VendorGarment;
+  shopGarment: ShopGarment;
+}
+
+export const GarmentSize: PRODUCT_SIZE[] = [
   "FREE",
   "XXS",
   "XS",
@@ -29,7 +38,7 @@ export const GarmentSize: GARMENT_SIZE[] = [
   "XXL",
   "XXXL",
 ];
-export const ShoesSize: GARMENT_SIZE[] = [
+export const ShoesSize: PRODUCT_SIZE[] = [
   "200",
   "205",
   "210",
@@ -52,8 +61,8 @@ export const ShoesSize: GARMENT_SIZE[] = [
   "295",
   "300",
 ];
-export const FreeSize: GARMENT_SIZE[] = ["FREE"];
-export type GARMENT_SIZE =
+export const FreeSize: PRODUCT_SIZE[] = ["FREE"];
+export type PRODUCT_SIZE =
   | "FREE"
   | "XXXS"
   | "XXS"
@@ -91,7 +100,7 @@ export type GARMENT_SIZE =
   | "77"
   | "88";
 
-export const GARMENT_SIZE: { [key in GARMENT_SIZE]: GARMENT_SIZE } =
+export const PRODUCT_SIZE: { [key in PRODUCT_SIZE]: PRODUCT_SIZE } =
   Object.freeze({
     FREE: "FREE",
     XXXS: "XXXS",
@@ -146,6 +155,7 @@ export type PART =
   | "DRESS"
   | "SHOES"
   | "BAG"
+  | "HAT"
   | "ETC";
 export const PART: { [key in PART]: PART } = Object.freeze({
   TOP: "TOP",
@@ -154,6 +164,7 @@ export const PART: { [key in PART]: PART } = Object.freeze({
   DRESS: "DRESS",
   SHOES: "SHOES",
   BAG: "BAG",
+  HAT: "HAT",
   ETC: "ETC",
 });
 export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
@@ -178,6 +189,7 @@ export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
       PANTS: "PANTS",
       SHORTS: "SHORTS",
       SKIRTS: "SKIRTS",
+      SLACKS: "SLACKS",
       TRAINING_PANT: "TRAINING_PANT",
       ETC: "ETC",
     },
@@ -189,6 +201,7 @@ export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
       PUFFER_DOWN: "PUFFER_DOWN",
       VEST: "VEST",
       ETC: "ETC",
+      SUIT: "SUIT",
     },
     DRESS: {
       DRESS: "DRESS",
@@ -205,22 +218,53 @@ export const CATEGORIES: { [key in PART]: { [ctgr: string]: string } } =
       FLATS: "FLATS",
       LOAFERS: "LOAFERS",
       ATHLETIC: "ATHLETIC",
+      WEDGE_HEEL: "WEDGE_HEEL",
+      HAND_MADE: "HAND_MADE",
+      DRESS: "DRESS",
       ETC: "ETC",
     },
     BAG: {
       BACKPACK: "BACKPACK",
+      LEATHER: "LEATHER",
       CROSS: "CROSS",
+      CLUTCH: "CLUTCH",
       HANDBAG: "HANDBAG",
       MINI_BAG: "MINI_BAG",
       TOD_BAG: "TOD_BAG",
       ECO_BAG: "ECO_BAG",
+      SHOULDER: "SHOULDER",
+      WALLET: "WALLET",
       ETC: "ETC",
     },
-    ETC: {
+    ACCESSORY: {
       NECKLACE: "NECKLACE",
       RING: "RING",
       WATCH: "WATCH",
       SCARP: "SCARP",
       ETC: "ETC",
+      BELT: "BELT",
+      BAND: "BAND",
+      GLASSES: "GLASSES",
+      SUN_GLASSES: "SUN_GLASSES",
+    },
+    HAT: {
+      ETC: "ETC",
+      CAP: "CAP",
+      FEDORA: "FEDORA",
+      BERET: "BERET",
+      FLOPPY: "FLOPPY",
+      SNAPBACK: "SNAPBACK",
+      BEANIE: "BEANIE",
+      CLOCHE: "CLOCHE",
+      TRAPPER: "TRAPPER",
+      BUCKET: "BUCKET",
+      BOATER: "BOATER",
+    },
+    ETC: {
+      ETC: "ETC",
+      TOP_BOTTOM_SET: "TOP_BOTTOM_SET",
+      SUIT_SET: "SUIT_SET",
+      BIG_SIZE: "BIG_SIZE",
+      MATERNITY: "MATERNITY",
     },
   });

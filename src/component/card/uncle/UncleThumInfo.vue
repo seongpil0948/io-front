@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { uncleAvailShip } from "@/composable";
 import { useAuthStore } from "@/store";
 import { IoUser } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
+import { storeToRefs } from "pinia";
 import { computed, onBeforeMount, toRefs } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { useRouter } from "vue-router";
@@ -13,13 +15,14 @@ const { uncleUser: uncle } = toRefs(props);
 const msg = useMessage();
 const router = useRouter();
 const auth = useAuthStore();
-const u = auth.currUser; // shop user
+const { user: u } = storeToRefs(auth);
+
 const logger = useLogger();
 onBeforeMount(() => {
   if (uncle.value.userInfo.role !== "UNCLE") {
     logger.error(uncle.value.userInfo.userId, "props user is not uncle");
     router.goHome(u);
-  } else if (!u.companyInfo!.shipLocate) {
+  } else if (!u.value?.companyInfo!.shipLocate) {
     msg.error("대표 배송지를 설정 해주세요.");
     router.goHome(u);
   }
@@ -28,10 +31,13 @@ const info = uncle.value.userInfo;
 const uInfo = uncle.value.uncleInfo!;
 const title = info.displayName ?? info.userName;
 const shipAmount = computed(() => {
-  const userCode = u.companyInfo!.shipLocate?.code;
-  const locates = uncle.value.uncleInfo?.shipLocates ?? [];
-  const userLocate = locates.find((x) => x.locate.code === userCode);
-  return userLocate ? userLocate.amount.toLocaleString() : "배송불가";
+  const userLocate = u.value?.companyInfo!.shipLocate;
+  if (!userLocate) return "배송불가";
+  const uncleLocates = uncle.value.uncleInfo?.shipLocates ?? [];
+  const availLocate = uncleLocates.find((x) =>
+    uncleAvailShip(x.locate, userLocate)
+  );
+  return availLocate ? availLocate.amount.toLocaleString() : "배송불가";
 });
 
 const emits = defineEmits<{

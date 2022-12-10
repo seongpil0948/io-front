@@ -2,7 +2,7 @@
 import {
   getBasicColumns,
   ORDER_STATE,
-  ProdOrderCombined,
+  OrderItemCombined,
   useApproveOrder,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
@@ -18,8 +18,8 @@ const auth = useAuthStore();
 const u = auth.currUser;
 const store = useVendorOrderStore();
 const orders = store.getOrders(props.inStates ?? []);
-const garmentOrders = store.getFilteredOrder(props.inStates ?? []);
-const garmentOrdersByShop = store.getGarmentOrdersByShop(garmentOrders);
+const ioOrders = store.getFilteredOrder(props.inStates ?? []);
+const ioOrdersByShop = store.getGarmentOrdersByShop(ioOrders);
 const {
   showPartial,
   onCloseModal,
@@ -34,15 +34,16 @@ const {
   orderTargets,
   showPartialModal,
   numOfAllow,
-  completePay,
   returnApproved,
   returnReject,
   onProdReady,
   detailShopIds,
   columns,
   checkedOrders,
+  targetOrdDbIds,
+  targetShopIds,
 } = useApproveOrder({
-  garmentOrders,
+  ioOrders,
   orders,
   vendorId: u.userInfo.userId,
   expandCol: false,
@@ -53,9 +54,7 @@ const shopTableCol = computed(() =>
 );
 const tableCol = computed(() => getBasicColumns(props.showPaidDate));
 const targetShops = computed(() =>
-  garmentOrdersByShop.value.filter((x) =>
-    detailShopIds.value.includes(x.shopId)
-  )
+  ioOrdersByShop.value.filter((x) => detailShopIds.value.includes(x.shopId))
 );
 
 const currTab = ref<string | null>(null);
@@ -67,7 +66,7 @@ watchEffect(() => {
   }
 });
 
-const getRowKey = (row: ProdOrderCombined) => row.id;
+const getRowKey = (row: OrderItemCombined) => row.id;
 function onClickOrder(keys: string[]) {
   checkedOrders.value = keys;
 }
@@ -78,7 +77,7 @@ function onClickOrder(keys: string[]) {
     <n-data-table
       :bordered="false"
       :columns="shopTableCol"
-      :data="garmentOrdersByShop"
+      :data="ioOrdersByShop"
       style="min-width: 65vw"
     />
     <n-card v-if="targetShops.length > 0" style="width: 65vw; margin-top: 5vh">
@@ -103,9 +102,14 @@ function onClickOrder(keys: string[]) {
           </n-button>
         </n-space>
         <n-space v-else-if="inStates?.includes('BEFORE_PAYMENT')">
-          <n-button text class="under-bar" @click="completePay">
-            결제완료
-          </n-button>
+          <vendor-complete-pay-button
+            :target-ord-db-ids="[...targetOrdDbIds]"
+            :items="orderTargets"
+            :target-shop-ids="targetShopIds"
+            button-text="결제완료"
+            type="primary"
+            size="small"
+          />
         </n-space>
         <n-space v-else-if="inStates?.includes('RETURN_REQ')">
           <n-button text class="under-bar" @click="returnApproved">
@@ -133,8 +137,8 @@ function onClickOrder(keys: string[]) {
             :columns="tableCol"
             :data="data.items"
             :pagination="{
-              'show-size-picker': true,
-              'page-sizes': [5, 10, 25, 50, 100],
+              showSizePicker: true,
+              pageSizes: [5, 10, 25, 50, 100],
             }"
             :bordered="false"
             :row-key="getRowKey"

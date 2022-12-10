@@ -1,5 +1,4 @@
 export * from "./auth";
-export * from "./vendorProd";
 export * from "./common";
 export * from "./shop";
 export * from "./shopOrder";
@@ -12,11 +11,15 @@ import _axios from "@/plugin/axios";
 import router from "@/plugin/router";
 import debounce from "lodash.debounce";
 import { markRaw } from "vue";
+import cloneDeep from "lodash.clonedeep";
 const pinia = createPinia();
 
 pinia.use(({ options, store }) => {
   store.$router = markRaw(router);
   store.$http = _axios;
+
+  const initialState = cloneDeep(store.$state);
+  store.$reset = () => store.$patch(cloneDeep(initialState));
 
   if (options.debounce) {
     // we are overriding the actions with new ones

@@ -1,81 +1,79 @@
 import {
-  emptyAmount,
-  emptyProdOrder,
-  GarmentOrder,
+  OrderItemByShop,
+  IoOrder,
   SHOP_GARMENT_DB,
-  mergeProdOrder,
   ORDER_GARMENT_DB,
   ORDER_STATE,
-  ProdOrderByShop,
-  ProdOrderCombined,
+  OrderItemCombined,
   ShopUserGarment,
   VendorUserOrderGarment,
+  mergeOrderItem,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { uniqueArr, extractGarmentOrd } from "@/util";
 import { Unsubscribe } from "@firebase/util";
 import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
-import { useVendorsStore, useAuthStore } from "./";
+import { useAuthStore } from "./";
 
 export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   console.log(`=== called useVendorOrderStore === `);
   // >>> state >>>
   const authStore = useAuthStore();
-  const vendorStore = useVendorsStore();
   const inStates = ref<ORDER_STATE[]>([]);
   const vendorId = ref<string | null>(null);
-  const _orders = ref<GarmentOrder[]>([]);
+  const _orders = ref<IoOrder[]>([]);
   let orderUnSub: null | Unsubscribe = null;
-  const shopGarments = ref<ShopUserGarment[]>([]);
-  const _garmentOrders = ref<ProdOrderCombined[]>([]);
+  const shopProds = ref<ShopUserGarment[]>([]);
+  const _ioOrders = ref<OrderItemCombined[]>([]);
   let initial = true;
   // >>> getter >>>
   const orders = computed(() => [..._orders.value]);
-  const vendorGarments = computed(() =>
-    vendorId.value
-      ? vendorStore.vendorUserGarments.filter(
-          (x) => x.vendorId === vendorId.value
-        )
-      : vendorStore.vendorUserGarments
+
+  const { items: prods, unsubscribe: garmentUnSub } =
+    VENDOR_GARMENT_DB.batchReadListen([authStore.currUser.userInfo.userId]);
+  const vendorProds = computed(() =>
+    prods.value.map((prod) => Object.assign({}, prod, authStore.currUser))
   );
+
   function getVendorOrderGarments(orders: typeof _orders) {
-    return computed(() =>
-      vendorGarments.value.map((x) => {
-        const garment: VendorUserOrderGarment = Object.assign(
-          {},
-          emptyProdOrder(),
-          emptyAmount(),
-          x
-        );
-        orders.value.forEach((o) => {
-          o.items.forEach((item) => {
-            if (item.vendorProdId === garment.vendorProdId) {
-              mergeProdOrder(garment, item);
+    return computed<VendorUserOrderGarment[]>(
+      () =>
+        vendorProds.value
+          .map((vendorProd) => {
+            for (let i = 0; i < orders.value.length; i++) {
+              const o = orders.value[i];
+              for (let j = 0; j < o.items.length; j++) {
+                const item = o.items[j];
+                if (item.vendorProd.vendorProdId === vendorProd.vendorProdId) {
+                  mergeOrderItem(vendorProd, item);
+                }
+              }
             }
-          });
-        });
-        return garment;
-      })
+
+            return vendorProd;
+          })
+          .filter((y) => y !== null) as VendorUserOrderGarment[]
     );
   }
-  function getGarmentOrdersByShop(garmentOrders: typeof _garmentOrders) {
+  function getGarmentOrdersByShop(ioOrders: typeof _ioOrders) {
     return computed(() =>
-      garmentOrders.value.reduce((acc, curr) => {
-        const exist = acc.find((x) => x.shopId === curr.shopGarment.shopId);
+      ioOrders.value.reduce((acc, curr) => {
+        const exist = acc.find((x) => x.shopId === curr.shopProd.shopId);
         if (!exist) {
           acc.push({
-            shopId: curr.shopGarment.shopId,
+            shopId: curr.shopProd.shopId,
             shopName:
-              curr.shopGarment.userInfo.displayName ??
-              curr.shopGarment.userInfo.userName,
+              curr.shopProd.userInfo.displayName ??
+              curr.shopProd.userInfo.userName,
             items: [curr],
           });
           return acc;
         }
         exist.items.push(curr);
         return acc;
-      }, [] as ProdOrderByShop[])
+      }, [] as OrderItemByShop[])
     );
   }
   function getOrders(inStates: ORDER_STATE[]) {
@@ -90,8 +88,8 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   function getFilteredOrder(inStates: ORDER_STATE[]) {
     return computed(() =>
       inStates.length > 0
-        ? _garmentOrders.value.filter((x) => inStates.includes(x.state))
-        : _garmentOrders.value
+        ? _ioOrders.value.filter((x) => inStates.includes(x.state))
+        : _ioOrders.value
     );
   }
   // >>> connection >>>
@@ -121,13 +119,13 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   watch(
     () => orders.value,
     async function () {
-      shopGarments.value = [];
+      shopProds.value = [];
       const shopIds = uniqueArr(orders.value.map((x) => x.shopId));
-      shopGarments.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
-      _garmentOrders.value = extractGarmentOrd(
+      shopProds.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
+      _ioOrders.value = extractGarmentOrd(
         orders.value,
-        shopGarments.value,
-        vendorGarments.value
+        shopProds.value,
+        vendorProds.value
       );
     },
     { deep: true, immediate: false }
@@ -159,20 +157,21 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
     if (orderUnSub) {
       orderUnSub();
       orderUnSub = null;
+      garmentUnSub();
     }
-    shopGarments.value = [];
+    shopProds.value = [];
     inStates.value = [];
     vendorId.value = null;
     _orders.value = [];
-    _garmentOrders.value = [];
-    shopGarments.value = [];
+    _ioOrders.value = [];
+    shopProds.value = [];
     initial = true;
   }
   return {
     getGarmentOrdersByShop,
     getOrders,
     getFilteredOrder,
-    vendorGarments,
+    vendorProds,
     orders,
     init,
     discard,

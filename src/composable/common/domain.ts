@@ -1,8 +1,9 @@
-export type BOOL_M = "T" | "F" | "M";
-export const BOOL_M: { [key in BOOL_M]: BOOL_M } = Object.freeze({
-  T: "T",
-  F: "F",
-  M: "M",
+export type PAID_INFO = "OVERCOME" | "CREDIT" | "EXACT" | "NO";
+export const PAID_INFO: { [key in PAID_INFO]: PAID_INFO } = Object.freeze({
+  OVERCOME: "OVERCOME",
+  CREDIT: "CREDIT",
+  EXACT: "EXACT",
+  NO: "NO",
 });
 
 export type TryStr = string | undefined | null;

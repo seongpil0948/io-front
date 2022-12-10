@@ -1,11 +1,12 @@
 import { createApp } from "vue";
+
 import router from "./plugin/router";
 import _axios from "./plugin/axios";
-
 import App from "./App.vue";
 import vueKakao from "./plugin/kakao";
 import { getMessaging, onMessage } from "@firebase/messaging";
 import { logger } from "./plugin/logger";
+import { ioFire } from "./plugin/firebase";
 import { pinia } from "./store";
 // import { ioFire } from "@io-boxies/js-lib";
 // import { connectFirestoreEmulator } from "@firebase/firestore";
@@ -24,9 +25,6 @@ logger.debug(
   "in-out box front(web) has Ignited, with Env: ",
   import.meta.env
 );
-Date.prototype.toJSON = function () {
-  return this.toISOString();
-};
 
 const app = createApp(App);
 app.use(pinia);
@@ -41,7 +39,7 @@ app.use(logger);
 app.config.globalProperties.$http = _axios;
 app.mount("#app");
 
-const messaging = getMessaging();
+const messaging = getMessaging(ioFire.app);
 onMessage(messaging, (payload) => {
   logger.debug(null, "Foreground Message received. in onMessage ", payload);
 });
