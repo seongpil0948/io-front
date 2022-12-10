@@ -50,11 +50,11 @@ const handleScroll = throttle(
     const el = e.target as HTMLElement;
 
     const distance = el.scrollHeight - (el.scrollTop + el.clientHeight);
-    if (distance < 500) {
+    if (distance < el.scrollHeight / 1.5) {
       await loadData();
     }
   },
-  200,
+  1000,
   { trailing: false, leading: true }
 );
 
@@ -62,7 +62,7 @@ const noMore = ref(false);
 async function loadData() {
   if (searchData.value.length < 1 && !noMore.value) {
     const obj = await VENDOR_GARMENT_DB.listUserGarmentCombined({
-      pageSize: 30,
+      pageSize: 40,
       lastData: data.value[data.value.length - 1],
       // lastData: data.value[0],
     });
