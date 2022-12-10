@@ -81,12 +81,12 @@ const getElastic = () => {
 };
 exports.scheduledFirestoreExport = functions
   .region("asia-northeast3")
-  .https.onCall(() => {
-    // .pubsub.schedule("0 4 * * *") // at 00:00 (midnight) every days.
-    // .onRun((context) => {
-    // functions.logger.info("hello scheduledFirestoreExport logs!", {
-    //   context,
-    // });
+  // .https.onCall(() => {
+  .pubsub.schedule("0 5 * * *") // at 00:00 (midnight) every days.
+  .onRun((context) => {
+    functions.logger.info("hello scheduledFirestoreExport logs!", {
+      context,
+    });
     const date = new Date();
     const bucket = backupBucket + date.toISOString().split("T")[0];
     functions.logger.info("target today bucket: ", bucket);
