@@ -55,7 +55,7 @@ function printReceipt() {
   if (!card || !html) return msg.error("다시 시도 해주세요.");
   const printContents = card.innerHTML;
   const printDiv = document.createElement("DIV");
-  printDiv.className = "print-div";
+  printDiv.id = "print-div";
 
   html.appendChild(printDiv);
   printDiv.innerHTML = printContents;
@@ -120,7 +120,7 @@ defineExpose({ printReceipt });
       <n-divider class="black-divider" />
       <n-space vertical align="center" item-style="width: 100%">
         <div id="io-editor" class="io-editor-border" />
-        <n-table :bordered="false" :single-line="false" size="small">
+        <n-table :bordered="true" :single-line="false" size="small">
           <thead>
             <tr>
               <th>품목</th>
@@ -172,7 +172,57 @@ defineExpose({ printReceipt });
   min-height: 60vh;
   overflow: auto;
 }
+#io-editor {
+  width: 95%;
+}
+
 .black-divider {
   border-top: 1px solid black;
+}
+
+#print-div {
+  margin-right: 10px;
+  zoom: 220%;
+  margin-bottom: 120px;
+}
+#print-div * {
+  font-size: 6px;
+  color: black !important;
+  font-weight: 900 !important;
+  margin: 0;
+  padding: 0;
+  height: min-content;
+}
+#print-div .n-text {
+  font-size: 6px;
+  color: black !important;
+  font-weight: 900 !important;
+}
+#print-div .n-space {
+  gap: 2px 4px !important;
+}
+#print-div th {
+  padding: 2px;
+}
+#print-div td {
+  padding: 1px;
+}
+#print-div .n-table {
+  border-radius: 0;
+  color: black !important;
+  font-weight: 900 !important;
+}
+
+#print-div #io-editor {
+  font-size: 2px !important;
+}
+#print-div .codex-editor__redactor {
+  padding-bottom: 0 !important;
+}
+#print-div .io-editor-border {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 </style>
