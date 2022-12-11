@@ -480,7 +480,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
         orderFireConverter
       ),
-      where("doneAt", "==", null),
+      // FIXME: where("isDone", "!=", false),
       where("vendorIds", "array-contains", p.vendorId)
     );
     const name = "vendorReadListen snapshot";
