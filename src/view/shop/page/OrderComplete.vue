@@ -80,7 +80,6 @@ const columns = computed(() => [
       />
       <n-result
         v-else
-        style="margin-top: 30%"
         status="error"
         title="주문 완료 및 결제 대상 데이터가 없습니다"
       />

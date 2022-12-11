@@ -121,6 +121,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
       vendorProdC,
       "vendorProdId"
     );
+
     return prodSnaps.flatMap(dataFromSnap<VendorGarment>);
   },
   listByIdsWithUser: async function (vendorProdIds: string[]) {

@@ -60,11 +60,11 @@ export function matchCafeOrder(
 
 export function useMappingOrderCafe(
   mapper: Ref<Mapper | null>,
-  userId: string,
+  shopId: string,
   existIds: Ref<Set<string>>
 ) {
   const conditions = ref<GarmentOrderCondi[]>([]);
-  const { userProd } = useShopUserGarments(userId, conditions);
+  const { userProd } = useShopUserGarments({ shopId, shopCondi: conditions });
   const msg = useMessage();
   const vendorProds = shallowRef<VendorGarment[]>([]);
   watchEffect(async () => {
@@ -92,7 +92,7 @@ export function useMappingOrderCafe(
     }
     reporter.forEach((err) => {
       msg.error(err, makeMsgOpt({ duration: 20000 }));
-      logger.error(userId, err);
+      logger.error(shopId, err);
     });
 
     return ioOrderFromCondi(

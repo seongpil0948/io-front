@@ -21,7 +21,7 @@ import {
   useMessage,
 } from "naive-ui";
 import { uuidv4 } from "@firebase/util";
-import { computed, shallowRef, watch } from "vue";
+import { computed, shallowRef, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 
 const authStore = useAuthStore();
@@ -57,14 +57,11 @@ async function mapperUpdate() {
     });
 }
 const vendorProds = shallowRef<VendorGarment[]>([]);
-watch(
-  () => userProd.value,
-  async (prods) => {
-    const ids = prods.map((x) => x.vendorProdId);
-    vendorProds.value = await VENDOR_GARMENT_DB.listByIds(ids);
-  }
-);
-
+watchEffect(async () => {
+  const ids = userProd.value.map((x) => x.vendorProdId);
+  const result = await VENDOR_GARMENT_DB.listByIds(ids);
+  vendorProds.value = result;
+});
 async function onCheckedOrder() {
   const orders: IoOrder[] = [];
   for (let i = 0; i < checkedKeys.value.length; i++) {

@@ -1,17 +1,21 @@
 import { MapKey, ShopUserGarment, VENDOR_GARMENT_DB } from "@/composable";
-import { onBeforeUnmount, Ref, ref, watchEffect } from "vue";
+import { onBeforeUnmount, Ref, ref, watchEffect, watch } from "vue";
 import { ShopGarment, GarmentOrderCondi, SHOP_GARMENT_DB } from "..";
 
-export function useShopUserGarments(
-  userId: string,
-  shopCondi: Ref<GarmentOrderCondi[]> | null
-) {
+export function useShopUserGarments(d: {
+  shopId: string;
+  shopCondi?: Ref<GarmentOrderCondi[]>;
+  onChanged?: (prods: ShopUserGarment[]) => Promise<void> | void;
+}) {
   const userProd: Ref<ShopUserGarment[]> = ref([]);
   const rowIdField: MapKey = "shopProdId";
-  const { shopProds, unsubscribe } = useShopGarments(userId, shopCondi);
+  const { shopProds, unsubscribe } = useShopGarments(
+    d.shopId,
+    d.shopCondi ?? null
+  );
 
   watchEffect(async () => {
-    userProd.value = [];
+    const userProds: typeof userProd.value = [];
 
     for (let i = 0; i < shopProds.value.length; i++) {
       const prod = shopProds.value[i];
@@ -19,7 +23,7 @@ export function useShopUserGarments(
         prod.vendorProdId
       );
       if (!vendorUnit) continue;
-      userProd.value.push(
+      userProds.push(
         Object.assign(
           { userName: vendorUnit.userInfo.userName },
           vendorUnit,
@@ -27,7 +31,19 @@ export function useShopUserGarments(
         )
       );
     }
+    userProd.value = userProds;
   });
+  if (d.onChanged) {
+    watch(
+      () => userProd.value,
+      async (prods) => {
+        if (d.onChanged) {
+          d.onChanged(prods);
+        }
+      }
+    );
+  }
+
   return { rowIdField, userProd, unsubscribe };
 }
 

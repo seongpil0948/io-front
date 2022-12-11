@@ -4,7 +4,7 @@ import { useAuthStore, useShopOrderStore } from "@/store";
 import { uniqueArr } from "@/util";
 import { IoUser, USER_DB } from "@io-boxies/js-lib";
 
-import { onBeforeMount, shallowRef, watch } from "vue";
+import { onBeforeMount, shallowRef, watch, computed } from "vue";
 
 const auth = useAuthStore();
 const shopOrderStore = useShopOrderStore();
@@ -21,6 +21,7 @@ watch(
     vendors.value = await USER_DB.getUserByIds(ids);
   }
 );
+const columns = computed(() => pendingOrderCols(vendors.value));
 </script>
 <template>
   <n-card v-if="orders && orders.length > 0">
@@ -30,7 +31,7 @@ watch(
         ref="tableRef"
         :table-layout="'fixed'"
         :scroll-x="800"
-        :columns="pendingOrderCols"
+        :columns="columns"
         :data="filteredOrders"
         :pagination="{
           showSizePicker: true,
