@@ -32,10 +32,7 @@ export function useCompletePay(param: CompleteParam) {
   );
 
   const orderAmounts = computed(() =>
-    items.value.reduce((acc, curr) => {
-      acc += curr.amount.orderAmount;
-      return acc;
-    }, 0)
+    items.value.reduce((acc, curr) => acc + curr.amount.orderAmount, 0)
   );
 
   const newCredit = computed(

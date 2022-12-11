@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { formatDate, getUserName, IoUser, USER_DB } from "@io-boxies/js-lib";
-import { toRefs, watch, ref, onBeforeUnmount } from "vue";
+import { toRefs, onBeforeUnmount, computed } from "vue";
 import { useMessage } from "naive-ui";
 import { OrderItem } from "@/composable";
 import { useEditor } from "@/plugin/editor";
@@ -65,32 +65,34 @@ function printReceipt() {
   printDiv.style.display = "none";
 }
 
-const cntObj = ref<{ [k: string]: number }>({
-  orderCnt: 0,
-  tax: 0,
-  pureAmount: 0,
-  paidAmount: 0,
-  credit: 0,
-  orderAmount: 0,
-});
-
-watch(
-  () => items.value,
-  (is) => {
-    Object.keys(cntObj.value).forEach((k) => {
-      cntObj.value[k] = 0;
-    });
-    is.forEach((item) => {
-      cntObj.value.orderCnt += item.orderCnt;
-      cntObj.value.tax += item.amount.tax;
-      cntObj.value.pureAmount += item.amount.pureAmount;
-      cntObj.value.orderAmount += item.amount.orderAmount;
-    });
-    cntObj.value.credit = cntObj.value.orderAmount - cntObj.value.paidAmount;
-  },
-  {
-    deep: true,
-  }
+const ordCnts = computed(() =>
+  items.value.reduce((acc, curr) => acc + curr.orderCnt, 0).toLocaleString()
+);
+const taxs = computed(() =>
+  items.value.reduce((acc, curr) => acc + curr.amount.tax, 0).toLocaleString()
+);
+const pureAmounts = computed(() =>
+  items.value
+    .reduce((acc, curr) => acc + curr.amount.pureAmount, 0)
+    .toLocaleString()
+);
+const orderAmounts = computed(() =>
+  items.value
+    .reduce((acc, curr) => acc + curr.amount.orderAmount, 0)
+    .toLocaleString()
+);
+const paidAmounts = computed(() =>
+  items.value
+    .reduce((acc, curr) => acc + curr.amount.paidAmount, 0)
+    .toLocaleString()
+);
+const credits = computed(() =>
+  items.value
+    .reduce(
+      (acc, curr) => acc + (curr.amount.orderAmount - curr.amount.paidAmount),
+      0
+    )
+    .toLocaleString()
 );
 
 defineExpose({ printReceipt });
@@ -141,24 +143,25 @@ defineExpose({ printReceipt });
 
         <n-divider class="black-divider" />
         <n-space justify="space-between">
-          <n-text type="info">수량합계</n-text
-          ><n-text>{{ cntObj.orderCnt.toLocaleString() }}</n-text>
+          <n-text type="info">수량합계</n-text><n-text>{{ ordCnts }}</n-text>
         </n-space>
         <n-space justify="space-between">
-          <n-text type="info">부가세</n-text
-          ><n-text>{{ cntObj.tax.toLocaleString() }}</n-text>
+          <n-text type="info">부가세</n-text><n-text>{{ taxs }}</n-text>
         </n-space>
         <n-space justify="space-between">
-          <n-text type="info">금액 합계</n-text
-          ><n-text>{{ cntObj.pureAmount.toLocaleString() }}</n-text>
+          <n-text type="info">상품금액 합계</n-text
+          ><n-text>{{ pureAmounts }}</n-text>
         </n-space>
         <n-space justify="space-between">
-          <n-text type="info">미결제 금액</n-text
-          ><n-text>{{ cntObj.credit.toLocaleString() }}</n-text>
+          <n-text type="info">총 결제 금액</n-text>
+          <n-text>{{ orderAmounts }}</n-text>
         </n-space>
         <n-space justify="space-between">
-          <n-text type="info">총 결제 금액</n-text
-          ><n-text>{{ cntObj.orderAmount.toLocaleString() }}</n-text>
+          <n-text type="info">받은 금액</n-text
+          ><n-text>{{ paidAmounts }}</n-text>
+        </n-space>
+        <n-space justify="space-between">
+          <n-text type="info">미결제 금액</n-text><n-text>{{ credits }}</n-text>
         </n-space>
         <n-divider class="black-divider" />
       </n-space>
