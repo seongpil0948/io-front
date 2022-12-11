@@ -3,7 +3,6 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useLogin } from "@io-boxies/vue-lib";
 import { useAuthStore } from "@/store";
-import { IoFireApp } from "@io-boxies/js-lib";
 const router = useRouter();
 const isTest = import.meta.env.VITE_IS_TEST;
 const showTos = ref(false);
@@ -11,7 +10,9 @@ function onTos() {
   showTos.value = true;
 }
 const authS = useAuthStore();
-const { emailLogin } = useLogin(IoFireApp.getInst());
+const { emailLogin } = useLogin(
+  import.meta.env.MODE === "production" ? "io-prod" : "io-dev"
+);
 async function loginShop() {
   const data = await emailLogin("junhoi90@gmail.com", "0525cc");
   if (data && data.user) {

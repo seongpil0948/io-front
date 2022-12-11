@@ -91,10 +91,7 @@ const rule = {
         />
       </n-form-item-gi>
       <n-form-item-gi label="이메일" path="email">
-        <n-input
-          v-model:value="formModel.email"
-          placeholder="이메일을 입력 해주세요"
-        />
+        <n-input v-model:value="formModel.email" disabled />
       </n-form-item-gi>
       <n-form-item-gi path="account">
         <bank-account-form @submit:account="onSubmitAccount" />
