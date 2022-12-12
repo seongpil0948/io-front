@@ -160,5 +160,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
     getGarmentOrdersByShop,
     init,
     getOrdersByShop,
+    shopProds,
+    _ioOrders,
   };
 });
