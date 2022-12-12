@@ -50,7 +50,7 @@ const data = computed(() =>
 );
 </script>
 <template>
-  <n-space style="margin-top: 2.5%; margin-bottom: 2.5%">
+  <n-space justify="end" style="margin-top: 2.5%; margin-bottom: 2.5%">
     <pick-area-selector v-model:pickId="pickId" />
     <n-input-number
       v-model:value="pickAmount"
