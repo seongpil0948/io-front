@@ -182,7 +182,7 @@ export function useOrderTable(d: orderTableParam) {
             {
               key: "info",
               title: "상품정보",
-              minWidth: "150",
+              minWidth: "250",
               render: (x) =>
                 h(
                   InfoCell,
