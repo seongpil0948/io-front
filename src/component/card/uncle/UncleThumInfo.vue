@@ -21,10 +21,10 @@ const logger = useLogger();
 onBeforeMount(() => {
   if (uncle.value.userInfo.role !== "UNCLE") {
     logger.error(uncle.value.userInfo.userId, "props user is not uncle");
-    router.goHome(u);
+    router.goHome(u.value);
   } else if (!u.value?.companyInfo!.shipLocate) {
     msg.error("대표 배송지를 설정 해주세요.");
-    router.goHome(u);
+    router.goHome(u.value);
   }
 });
 const info = uncle.value.userInfo;

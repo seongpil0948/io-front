@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { formatDate, getUserName, IoUser, USER_DB } from "@io-boxies/js-lib";
-import { toRefs, watch, ref, onBeforeUnmount } from "vue";
+import { toRefs, onBeforeUnmount, computed } from "vue";
 import { useMessage } from "naive-ui";
 import { OrderItem } from "@/composable";
 import { useEditor } from "@/plugin/editor";
@@ -55,7 +55,7 @@ function printReceipt() {
   if (!card || !html) return msg.error("다시 시도 해주세요.");
   const printContents = card.innerHTML;
   const printDiv = document.createElement("DIV");
-  printDiv.className = "print-div";
+  printDiv.id = "print-div";
 
   html.appendChild(printDiv);
   printDiv.innerHTML = printContents;
@@ -65,32 +65,34 @@ function printReceipt() {
   printDiv.style.display = "none";
 }
 
-const cntObj = ref<{ [k: string]: number }>({
-  orderCnt: 0,
-  tax: 0,
-  pureAmount: 0,
-  paidAmount: 0,
-  credit: 0,
-  orderAmount: 0,
-});
-
-watch(
-  () => items.value,
-  (is) => {
-    Object.keys(cntObj.value).forEach((k) => {
-      cntObj.value[k] = 0;
-    });
-    is.forEach((item) => {
-      cntObj.value.orderCnt += item.orderCnt;
-      cntObj.value.tax += item.amount.tax;
-      cntObj.value.pureAmount += item.amount.pureAmount;
-      cntObj.value.orderAmount += item.amount.orderAmount;
-    });
-    cntObj.value.credit = cntObj.value.orderAmount - cntObj.value.paidAmount;
-  },
-  {
-    deep: true,
-  }
+const ordCnts = computed(() =>
+  items.value.reduce((acc, curr) => acc + curr.orderCnt, 0).toLocaleString()
+);
+const taxs = computed(() =>
+  items.value.reduce((acc, curr) => acc + curr.amount.tax, 0).toLocaleString()
+);
+const pureAmounts = computed(() =>
+  items.value
+    .reduce((acc, curr) => acc + curr.amount.pureAmount, 0)
+    .toLocaleString()
+);
+const orderAmounts = computed(() =>
+  items.value
+    .reduce((acc, curr) => acc + curr.amount.orderAmount, 0)
+    .toLocaleString()
+);
+const paidAmounts = computed(() =>
+  items.value
+    .reduce((acc, curr) => acc + curr.amount.paidAmount, 0)
+    .toLocaleString()
+);
+const credits = computed(() =>
+  items.value
+    .reduce(
+      (acc, curr) => acc + (curr.amount.orderAmount - curr.amount.paidAmount),
+      0
+    )
+    .toLocaleString()
 );
 
 defineExpose({ printReceipt });
@@ -120,7 +122,7 @@ defineExpose({ printReceipt });
       <n-divider class="black-divider" />
       <n-space vertical align="center" item-style="width: 100%">
         <div id="io-editor" class="io-editor-border" />
-        <n-table :bordered="false" :single-line="false" size="small">
+        <n-table :bordered="true" :single-line="false" size="small">
           <thead>
             <tr>
               <th>품목</th>
@@ -141,24 +143,25 @@ defineExpose({ printReceipt });
 
         <n-divider class="black-divider" />
         <n-space justify="space-between">
-          <n-text type="info">수량합계</n-text
-          ><n-text>{{ cntObj.orderCnt.toLocaleString() }}</n-text>
+          <n-text type="info">수량합계</n-text><n-text>{{ ordCnts }}</n-text>
         </n-space>
         <n-space justify="space-between">
-          <n-text type="info">부가세</n-text
-          ><n-text>{{ cntObj.tax.toLocaleString() }}</n-text>
+          <n-text type="info">부가세</n-text><n-text>{{ taxs }}</n-text>
         </n-space>
         <n-space justify="space-between">
-          <n-text type="info">금액 합계</n-text
-          ><n-text>{{ cntObj.pureAmount.toLocaleString() }}</n-text>
+          <n-text type="info">상품금액 합계</n-text
+          ><n-text>{{ pureAmounts }}</n-text>
         </n-space>
         <n-space justify="space-between">
-          <n-text type="info">미결제 금액</n-text
-          ><n-text>{{ cntObj.credit.toLocaleString() }}</n-text>
+          <n-text type="info">총 결제 금액</n-text>
+          <n-text>{{ orderAmounts }}</n-text>
         </n-space>
         <n-space justify="space-between">
-          <n-text type="info">총 결제 금액</n-text
-          ><n-text>{{ cntObj.orderAmount.toLocaleString() }}</n-text>
+          <n-text type="info">받은 금액</n-text
+          ><n-text>{{ paidAmounts }}</n-text>
+        </n-space>
+        <n-space justify="space-between">
+          <n-text type="info">미결제 금액</n-text><n-text>{{ credits }}</n-text>
         </n-space>
         <n-divider class="black-divider" />
       </n-space>
@@ -172,7 +175,57 @@ defineExpose({ printReceipt });
   min-height: 60vh;
   overflow: auto;
 }
+#io-editor {
+  width: 95%;
+}
+
 .black-divider {
   border-top: 1px solid black;
+}
+
+#print-div {
+  margin-right: 10px;
+  zoom: 220%;
+  margin-bottom: 120px;
+}
+#print-div * {
+  font-size: 6px;
+  color: black !important;
+  font-weight: 900 !important;
+  margin: 0;
+  padding: 0;
+  height: min-content;
+}
+#print-div .n-text {
+  font-size: 6px;
+  color: black !important;
+  font-weight: 900 !important;
+}
+#print-div .n-space {
+  gap: 2px 4px !important;
+}
+#print-div th {
+  padding: 2px;
+}
+#print-div td {
+  padding: 1px;
+}
+#print-div .n-table {
+  border-radius: 0;
+  color: black !important;
+  font-weight: 900 !important;
+}
+
+#print-div #io-editor {
+  font-size: 2px !important;
+}
+#print-div .codex-editor__redactor {
+  padding-bottom: 0 !important;
+}
+#print-div .io-editor-border {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 </style>

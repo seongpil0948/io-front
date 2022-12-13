@@ -27,7 +27,10 @@ export function useMappingOrderExcel(
   startRow: Ref<number>
 ) {
   const conditions = ref<GarmentOrderCondi[]>([]);
-  const { userProd } = useShopUserGarments(userId, conditions);
+  const { userProd } = useShopUserGarments({
+    shopId: userId,
+    shopCondi: conditions,
+  });
   const msg = useMessage();
 
   const vendorProds = shallowRef<VendorGarment[]>([]);

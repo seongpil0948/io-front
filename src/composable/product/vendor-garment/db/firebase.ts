@@ -121,6 +121,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
       vendorProdC,
       "vendorProdId"
     );
+
     return prodSnaps.flatMap(dataFromSnap<VendorGarment>);
   },
   listByIdsWithUser: async function (vendorProdIds: string[]) {
@@ -139,14 +140,14 @@ export const VendorGarmentFB: VendorGarmentDB = {
       .filter((x) => x) as VendorUserGarment[];
   },
   listByVendorIds: async function (vendorIds: string[]) {
-    const vendors = await USER_DB.getUserByIds(vendorIds);
+    const vendors = await USER_DB.getUserByIds([...vendorIds]);
     const prodSnaps = await batchInQuery<VendorGarment>(
-      vendorIds,
+      [...vendorIds],
       vendorProdC,
       "vendorId"
     );
-    return prodSnaps
-      .flatMap(dataFromSnap<VendorGarment>)
+    const vendorProds = prodSnaps.flatMap(dataFromSnap<VendorGarment>);
+    return vendorProds
       .map((prod) => {
         const vendor = vendors.find(
           (vendor) => prod.vendorId === vendor.userInfo.userId

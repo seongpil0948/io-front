@@ -33,9 +33,10 @@ export interface IoOrder extends CommonField {
   updatedAt?: Date;
   approvedAt?: Date;
   paidAt?: Date;
-  doneAt?: Date;
   tossAt?: Date;
+  DoneAt?: Date;
 
+  isDone?: boolean;
   dbId: string;
   shopId: string;
 
@@ -88,7 +89,6 @@ export interface OrderParent {
   dbId: string;
   effect: OrderEffect[];
 }
-
 export type ORDER_STATE =
   | "BEFORE_ORDER"
   | "BEFORE_APPROVE"
@@ -140,6 +140,14 @@ export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   CANCEL: "취소중",
   ORDER_DONE: "거래종료",
 });
+export const DONE_STATES: ORDER_STATE[] = [
+  "RETURN_DONE",
+  "REFUND_DONE",
+  "CHANGE_DONE",
+  "ORDER_DONE",
+  "CANCEL",
+];
+
 export type REASON_TYPE =
   | "CHANGE_MIND"
   | "DELIVERY_DELAY"

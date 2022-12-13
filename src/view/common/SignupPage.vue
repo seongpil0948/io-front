@@ -54,19 +54,19 @@ const smtp = useAlarm();
 const state = window.history.state;
 
 console.log("state:", state);
-// if (state.providerId === "EMAIL") {
-//   if (!state.email || !state.password) {
-//     log.error(null, "email, password not received in signup page", state);
-//     router.replace({ name: "Login" });
-//   } else if (!state.userId) {
-//     state.userId = "";
-//   }
-// } else {
-//   if (!state.userId) {
-//     log.error(null, "user id not received in signup page", state);
-//     router.replace({ name: "Login" });
-//   }
-// }
+if (state.providerId === "EMAIL") {
+  if (!state.email || !state.password) {
+    log.error(null, "email, password not received in signup page", state);
+    router.replace({ name: "Login" });
+  } else if (!state.userId) {
+    state.userId = "";
+  }
+} else {
+  if (!state.userId) {
+    log.error(null, "user id not received in signup page", state);
+    router.replace({ name: "Login" });
+  }
+}
 
 onMounted(() => {
   if (step.value === 0) {
@@ -496,9 +496,8 @@ async function onSignUp() {
   transition: opacity 1s ease 1s;
 }
 .one-leave-active {
-  transition: opacity 0.5s ease;
+  transition: opacity 1s ease;
 }
-
 .one-enter-from,
 .one-leave-to {
   opacity: 0;

@@ -11,7 +11,7 @@ import {
   VENDOR_GARMENT_DB,
 } from "@/composable";
 import { defineStore } from "pinia";
-import { ref, computed, onBeforeUnmount, watch } from "vue";
+import { ref, computed, onBeforeUnmount, watchEffect } from "vue";
 import { useAuthStore } from "./auth";
 import { Unsubscribe } from "@firebase/firestore";
 import { logger } from "@/plugin/logger";
@@ -24,11 +24,17 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   const shopId = ref<string | null>(null);
   const _orders = ref<IoOrder[]>([]);
   let orderUnSub: null | Unsubscribe = null;
-  let shopProds = ref<ShopUserGarment[]>([]);
+  const shopProds = ref<ShopUserGarment[]>([]);
   let shopGarmentUnSub: null | Unsubscribe = null;
   const _ioOrders = ref<OrderItemCombined[]>([]);
   let initial = true;
-
+  const existOrderIds = ref<Set<string>>(new Set());
+  async function setExistOrderIds() {
+    if (shopId.value)
+      existOrderIds.value = await ORDER_GARMENT_DB.getExistOrderIds(
+        shopId.value
+      );
+  }
   // >>> getter >>>
   function getOrders(inStates: ORDER_STATE[]) {
     return computed(() =>
@@ -37,7 +43,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   }
   function getFilteredOrder(inStates: ORDER_STATE[]) {
     return computed(() =>
-      _ioOrders.value.filter((x) => inStates.includes(x.state))
+      ioOrders.value.filter((x) => inStates.includes(x.state))
     );
   }
 
@@ -98,27 +104,22 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     },
     true
   );
-  watch(
-    () => orders.value,
-    async () => {
-      if (shopId.value && orders.value) {
-        await setExistOrderIds();
-        if (shopProds.value) {
-          const ids = orders.value.flatMap((o) =>
-            o.items.map((i) => i.vendorProd.vendorProdId)
-          );
-          const prods = await VENDOR_GARMENT_DB.listByIdsWithUser(ids);
-          _ioOrders.value = extractGarmentOrd(
-            _orders.value,
-            shopProds.value,
-            prods
-          );
-        }
-      } else {
-        existOrderIds.value.clear();
-      }
+  watchEffect(async () => {
+    if (shopId.value && orders.value.length > 0 && shopProds.value.length > 0) {
+      await setExistOrderIds();
+      const vendorProdIds = orders.value.flatMap((o) =>
+        o.items.map((i) => i.vendorProd.vendorProdId)
+      );
+      const prods = await VENDOR_GARMENT_DB.listByIdsWithUser(vendorProdIds);
+      _ioOrders.value = extractGarmentOrd(
+        _orders.value,
+        shopProds.value,
+        prods
+      );
+    } else {
+      existOrderIds.value.clear();
     }
-  );
+  });
   onBeforeUnmount(() => {
     inStates.value = [];
   });
@@ -134,9 +135,13 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     });
     orderUnSub = orderUnsubscribe;
     initial = false;
-    const { userProd, unsubscribe } = useShopUserGarments(shopId.value, null);
+    const { userProd, unsubscribe } = useShopUserGarments({
+      shopId: shopId.value,
+      onChanged: (prods) => {
+        shopProds.value = prods;
+      },
+    });
     // eslint-disable-next-line vue/no-ref-as-operand
-    shopProds = userProd;
     shopGarmentUnSub = unsubscribe;
   }
 
@@ -161,13 +166,6 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     inStates.value = states;
   }
 
-  const existOrderIds = ref<Set<string>>(new Set());
-  async function setExistOrderIds() {
-    if (shopId.value)
-      existOrderIds.value = await ORDER_GARMENT_DB.getExistOrderIds(
-        shopId.value
-      );
-  }
   // const setExistOrderIds = debounce(async () => {
   //   if (shopId.value)
   //     existOrderIds.value = await ORDER_GARMENT_DB.getExistOrderIds(

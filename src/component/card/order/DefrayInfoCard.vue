@@ -6,7 +6,7 @@ import {
   getTax,
   defrayAmount,
 } from "@/composable";
-import { ref, toRefs, onBeforeMount } from "vue";
+import { ref, toRefs, onBeforeMount, watch } from "vue";
 import { payMethodOpts } from "@/util";
 const props = defineProps<{
   defray: DefrayParam;
@@ -17,8 +17,9 @@ const emits = defineEmits<{
   (e: "update:item", value: OrderItem): void;
 }>();
 const { item, defray } = toRefs(props);
-function updatePaidAmount(paidAmount: number) {
-  defray.value.paidAmount = paidAmount;
+const paidAmount = ref(defray.value.paidAmount);
+function updatePaidAmount() {
+  defray.value.paidAmount = paidAmount.value;
   emits("update:defray", defray.value);
   updateAmount();
 }
@@ -29,18 +30,21 @@ function updatePayMethod(payMethod: PAY_METHOD) {
 }
 
 const isTax = ref(false);
-function updateTax() {
-  isTax.value = !isTax.value;
-  applyTax(isTax.value);
-}
 function applyTax(useTax: boolean) {
   if (useTax === isTax.value) return;
   isTax.value = useTax;
-  const tax = useTax ? getTax(item.value.amount.orderAmount) : 0;
-  defray.value.tax = tax;
-  emits("update:defray", defray.value);
-  updateAmount();
 }
+watch(
+  () => isTax.value,
+  (isTax, prev) => {
+    if (isTax === prev) return console.log("???");
+    const tax = isTax ? getTax(item.value.amount.orderAmount) : 0;
+    defray.value.tax = tax;
+    emits("update:defray", defray.value);
+    updateAmount();
+  }
+);
+
 function updateAmount() {
   console.log("defray", defray.value);
   const { newAmount } = defrayAmount(item.value.amount, defray.value);
@@ -76,11 +80,11 @@ defineExpose({ applyTax });
 
         <n-text>받은금액</n-text>
         <n-input-number
+          v-model:value="paidAmount"
           :step="10"
           :show-button="true"
-          :value="defray.paidAmount"
           style="width: 70%"
-          @update:value="updatePaidAmount"
+          @blur="updatePaidAmount"
         />
       </n-space>
       <n-space justify="space-around" vertical>
@@ -91,7 +95,7 @@ defineExpose({ applyTax });
           @update:value="updatePayMethod"
         />
 
-        <n-button @click="updateTax"
+        <n-button @click="() => applyTax(!isTax)"
           >부가세 {{ isTax ? "해제" : "적용" }}</n-button
         >
       </n-space>

@@ -3,7 +3,12 @@ import { toRefs, ref } from "vue";
 import { NCard, NIcon, NImage, NSpace, NSpin, useMessage } from "naive-ui";
 import { CloseCircle } from "@vicons/ionicons5";
 import { makeMsgOpt } from "@/util";
-import { STORAGE_SVC, getParentRef, uploadFile } from "@io-boxies/js-lib";
+import {
+  STORAGE_SVC,
+  getParentRef,
+  uploadFile,
+  IoFireApp,
+} from "@io-boxies/js-lib";
 import { getStorage } from "@firebase/storage";
 
 const props = defineProps<{
@@ -28,7 +33,7 @@ async function loadFile() {
   } else if (input.value.files && input.value.files.length > 0) {
     loading.value = true;
     const parent = getParentRef({
-      storage: getStorage(),
+      storage: getStorage(IoFireApp.getInst().app),
       svc: props.svc,
       parentId: props.parentId,
       userId: props.userId,

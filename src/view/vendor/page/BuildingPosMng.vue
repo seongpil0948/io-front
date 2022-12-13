@@ -230,6 +230,7 @@ watch(
       >
         <n-gi v-for="(prod, i) in searchedData" :key="i">
           <n-card
+            v-if="prod.vendorGarment"
             style="margin: auto; width: 190px; height: 120px; cursor: pointer"
             @click="onClickProd(prod)"
           >

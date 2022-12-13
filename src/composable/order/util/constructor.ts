@@ -11,6 +11,7 @@ import {
   OrderItemCombined,
   IoOrder,
   OrderAmount,
+  DONE_STATES,
 } from "../domain";
 import { getPureAmount, getOrderAmount } from "./getter";
 import { isValidOrder } from "./validate";
@@ -103,6 +104,7 @@ export function refreshOrder(o: IoOrder) {
     o.pendingCnts += item.pendingCnt;
     mergeOrderAmount(o.amount, item.amount);
   }
+  o.isDone = o.states.every((state) => DONE_STATES.includes(state));
   isValidOrder(o);
 }
 export function mergeOrderItem(origin: Partial<OrderItem>, y: OrderItem) {
@@ -155,6 +157,7 @@ function emptyOrder(shopId: string): IoOrder {
     itemIds: [],
     items: [],
     states: [],
+    isDone: false,
     cancellations: [],
     prodTypes: [],
     orderTypes: [],

@@ -10,7 +10,7 @@ const { user: u } = storeToRefs(authStore);
 </script>
 <template>
   <n-card>
-    <n-space vertical align="center" justify="center">
+    <n-space item-style="width: 100%">
       <n-h1>활동지역 관리</n-h1>
       <n-tabs v-model:value="currTab">
         <n-tab-pane
@@ -32,7 +32,7 @@ const { user: u } = storeToRefs(authStore);
           tab="배송료 설정"
           name="SHIP_FEE"
         >
-          <n-space vertical>
+          <n-space vertical justify="center" align="center">
             <n-h2>사이즈별 비용</n-h2>
             <ship-unit-list :u="u" :edit="true" unit-key="amountBySize" />
             <div style="height: 1vh" />

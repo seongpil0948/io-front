@@ -20,10 +20,9 @@ export function useShopGarmentTable(briefly: boolean) {
   const tableRef = ref<any>(null);
   const dialog = useDialog();
   const openSelectList = ref(false);
-  const { rowIdField, userProd } = useShopUserGarments(
-    authStore.currUser.userInfo.userId,
-    null
-  );
+  const { rowIdField, userProd } = useShopUserGarments({
+    shopId: authStore.currUser.userInfo.userId,
+  });
   const selectFunc = ref<((s: ShopUserGarment) => Promise<void>) | null>(null);
   const logger = useLogger();
 
