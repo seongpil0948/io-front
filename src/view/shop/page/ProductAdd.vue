@@ -81,7 +81,6 @@ const { searchInputVal, searchData, search, msg } = useElasticSearch({
   onSearch: async (result) => {
     const data: any = result.data;
     const prodIds: string[] = data.hits.hits.map((x: any) => x._id);
-    console.log("prodIds: ", prodIds);
     if (prodIds.length > 0) {
       return VENDOR_GARMENT_DB.listByIds(prodIds)
         .then(async (prods) => {
@@ -98,6 +97,14 @@ const { searchInputVal, searchData, search, msg } = useElasticSearch({
       msg.info("검색 결과가 없습니다.");
       searchData.value = [];
     }
+  },
+  makeInput: (input) => {
+    let base = input;
+    if (part.value) base += " " + part.value;
+    if (gender.value) base += " " + gender.value;
+    if (ctgr.value) base += " " + ctgr.value;
+    console.log("search value: ", base);
+    return base;
   },
 });
 

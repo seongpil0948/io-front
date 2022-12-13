@@ -6,6 +6,7 @@ import { useMessage } from "naive-ui";
 
 export function useElasticSearch(d: {
   onSearch: (result: any) => void;
+  makeInput: (val: string) => string;
   funcName: string;
 }) {
   const searchInputVal = ref<string | null>(null);
@@ -21,7 +22,7 @@ export function useElasticSearch(d: {
       searchData.value = [];
       return msg.warning("검색어를 두글자 이상 입력해주세요!");
     }
-    return searchFunc({ input: searchVal.value })
+    return searchFunc({ input: d.makeInput(searchVal.value) })
       .then(d.onSearch)
       .catch((err) => console.error(`error in ${d.funcName}`, err));
   }

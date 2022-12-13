@@ -58,6 +58,15 @@ exports.elasticVendorProdSearch = functions
           //   ],
           // },
         },
+        sort: [
+          {
+            "createdat.date": {
+              order: "desc",
+            },
+          },
+        ],
+        from: 0,
+        size: 200,
       })
       .then((result) => {
         return result;
