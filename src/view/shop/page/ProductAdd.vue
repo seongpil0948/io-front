@@ -108,17 +108,17 @@ const { searchInputVal, searchData, search, msg } = useElasticSearch({
   },
 });
 
-const targetData = computed(() => {
-  const d = searchData.value.length > 0 ? searchData.value : data.value;
-  return part.value || ctgr.value || gender.value
-    ? d.filter(
-        (x) =>
-          (part.value === null ? true : x.part === part.value) &&
-          (gender.value === null ? true : x.gender === gender.value) &&
-          (ctgr.value === null ? true : x.ctgr === ctgr.value)
-      )
-    : d;
-});
+const targetData = computed(
+  () => (searchData.value.length > 0 ? searchData.value : data.value)
+  // return part.value || ctgr.value || gender.value
+  //   ? d.filter(
+  //       (x) =>
+  //         (part.value === null ? true : x.part === part.value) &&
+  //         (gender.value === null ? true : x.gender === gender.value) &&
+  //         (ctgr.value === null ? true : x.ctgr === ctgr.value)
+  //     )
+  //   : d;
+);
 </script>
 <template>
   <shop-add-prod-card
