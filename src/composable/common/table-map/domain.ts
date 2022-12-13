@@ -1,7 +1,7 @@
 import type { UserFields, IoUser } from "@io-boxies/js-lib";
 import type {
   OrderAmount,
-  OrderCrt,
+  IoOrder,
   OrderItem,
   VendorGarmentCrt,
   ShopGarmentCrt,
@@ -16,7 +16,7 @@ interface AdditionalMap {
 export type MapperFields = Partial<
   OrderItem &
     OrderAmount &
-    OrderCrt &
+    IoOrder &
     VendorGarmentCrt &
     ShopGarmentCrt &
     IoUser &

@@ -221,15 +221,17 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
       col.sorter = "default";
     } else if ((["createdAt", "updatedAt"] as any[]).includes(col.key)) {
       col.width = 200;
-      col.sorter = "default";
+      col.sorter = (row1: any, row2: any) =>
+        row1[col.key].seconds
+          ? row1[col.key].seconds - row2[col.key].seconds
+          : row1[col.key].valueOf() - row2[col.key].valueOf();
+
       col.render = (row: any) =>
         h(
           NText,
           {},
           {
-            default: () => {
-              return formatDate(loadDate(row[col.key]), "MIN");
-            },
+            default: () => formatDate(loadDate(row[col.key]), "MIN"),
           }
         );
     }

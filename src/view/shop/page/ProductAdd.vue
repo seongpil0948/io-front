@@ -8,7 +8,7 @@ import {
 } from "@/composable";
 import { useCommonStore } from "@/store";
 import { computed, onBeforeMount, ref, watchEffect } from "vue";
-import { getCtgrOpts, partOpts } from "@/util";
+import { genderOpts, getCtgrOpts, partOpts } from "@/util";
 import { storeToRefs } from "pinia";
 import throttle from "lodash.throttle";
 
@@ -71,6 +71,7 @@ onBeforeMount(async () => await loadData());
 
 const part = ref(null);
 const ctgr = ref(null);
+const gender = ref(null);
 const ctgrOpts = computed(() =>
   part.value !== null ? getCtgrOpts(part.value, locale.value) : []
 );
@@ -80,7 +81,6 @@ const { searchInputVal, searchData, search, msg } = useElasticSearch({
   onSearch: async (result) => {
     const data: any = result.data;
     const prodIds: string[] = data.hits.hits.map((x: any) => x._id);
-    console.log("prodIds: ", prodIds);
     if (prodIds.length > 0) {
       return VENDOR_GARMENT_DB.listByIds(prodIds)
         .then(async (prods) => {
@@ -98,14 +98,23 @@ const { searchInputVal, searchData, search, msg } = useElasticSearch({
       searchData.value = [];
     }
   },
+  makeInput: (input) => {
+    let base = input;
+    if (part.value) base += " " + part.value;
+    if (gender.value) base += " " + gender.value;
+    if (ctgr.value) base += " " + ctgr.value;
+    console.log("search value: ", base);
+    return base;
+  },
 });
 
 const targetData = computed(() => {
   const d = searchData.value.length > 0 ? searchData.value : data.value;
-  return part.value || ctgr.value
+  return part.value || ctgr.value || gender.value
     ? d.filter(
         (x) =>
           (part.value === null ? true : x.part === part.value) &&
+          (gender.value === null ? true : x.gender === gender.value) &&
           (ctgr.value === null ? true : x.ctgr === ctgr.value)
       )
     : d;
@@ -137,6 +146,7 @@ const targetData = computed(() => {
         clearable
         :options="ctgrOpts"
       />
+      <n-select v-model:value="gender" :options="genderOpts" />
     </n-space>
     <n-space
       v-if="targetData.length > 0"
