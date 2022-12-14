@@ -1,4 +1,4 @@
-// FIXME: deprecated
+// DEPRECATED: pagination
 // interface IoPageParam<T> {
 //   cntByPage?: number;
 //   initPage?: number;

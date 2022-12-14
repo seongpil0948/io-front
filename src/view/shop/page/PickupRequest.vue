@@ -18,7 +18,7 @@ import {
   NSpace,
   useMessage,
 } from "naive-ui";
-
+// BUG 체크박스가 체크가 안되는 이슈가 있음..
 const msg = useMessage();
 const inStates: ORDER_STATE[] = ["BEFORE_PICKUP_REQ"];
 const shopOrderStore = useShopOrderStore();
