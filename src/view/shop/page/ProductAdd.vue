@@ -126,14 +126,8 @@ const targetData = computed(
     v-model:showAddModal="showAddModal"
     :prod="selectedProd"
   />
-  <n-space vertical style="width: 100%" item-style="width: 100%">
-    <n-space justify="center">
-      <n-input
-        v-model:value="searchInputVal"
-        placeholder="상품검색 - 오늘도 신상을 잘 찾아보즈아!"
-        style="width: 30vw"
-      />
-      <n-button @click="search"> 검색 </n-button>
+  <n-space vertical item-style="width: 100%">
+    <n-space :wrap-item="false" :wrap="false" justify="end">
       <n-select
         v-model:value="part"
         placeholder="파트선택"
@@ -148,6 +142,14 @@ const targetData = computed(
       />
       <n-select v-model:value="gender" :options="genderOpts" />
     </n-space>
+    <n-space :wrap-item="false" justify="end" :wrap="false">
+      <n-input
+        v-model:value="searchInputVal"
+        placeholder="상품검색 - 오늘도 신상을 잘 찾아보즈아!"
+      />
+      <n-button @click="search"> 검색 </n-button>
+    </n-space>
+
     <n-space
       v-if="targetData.length > 0"
       justify="center"

@@ -1,17 +1,14 @@
 <template>
-  <n-card style="margin: 2.5% 0">
+  <n-card style="margin: 2% 0%">
     <n-space
-      v-if="posts.length > 0"
+      v-if="title && posts.length > 0"
       vertical
       align="center"
       justify="space-around"
       item-style="width: 100%; height: 100%"
     >
-      <n-h2 v-if="title" style="text-align: start">
-        {{ title }}
-      </n-h2>
       <n-data-table
-        :columns="columns"
+        :columns="columns(title)"
         :data="posts"
         :pagination="{ pageSize: 5 }"
         :bordered="false"
@@ -27,7 +24,7 @@
 
 <script setup lang="ts">
 import { CsPost } from "@/composable";
-import { NButton, DataTableColumns, NText } from "naive-ui";
+import { NThing, DataTableColumns, NText, NButton } from "naive-ui";
 import { computed, h, toRefs } from "vue";
 import { useRouter } from "vue-router";
 import { useCsStore } from "@/store";
@@ -47,38 +44,30 @@ function goDetail(detailPost: CsPost) {
   router.push({ name: "CsDetail" });
 }
 
-const columns = computed(
-  () =>
-    [
-      {
-        title: "제목",
-        key: "title",
-        minWidth: 200,
-        render: (row) =>
-          h(
-            NButton,
-            {
-              onClick: () => goDetail(row),
-              text: true,
-            },
-            { default: () => row.title ?? "" }
-          ),
-      },
-      {
-        title: "게시일",
-        key: "createdAt",
-        minWidth: 150,
-        render: (row: any) =>
-          h(
-            NText,
-            {},
-            {
-              default: () => {
-                return formatDate(loadDate(row.createdAt), "MIN");
-              },
-            }
-          ),
-      },
-    ] as DataTableColumns<CsPost>
-);
+const columns = (title: string) =>
+  [
+    {
+      title,
+      key: "title",
+      minWidth: 200,
+      render: (row) =>
+        h(
+          NThing,
+          {
+            description: formatDate(loadDate(row.createdAt), "MIN"),
+          },
+          {
+            header: () =>
+              h(
+                NButton,
+                {
+                  onClick: () => goDetail(row),
+                  text: true,
+                },
+                { default: () => row.title ?? "" }
+              ),
+          }
+        ),
+    },
+  ] as DataTableColumns<CsPost>;
 </script>

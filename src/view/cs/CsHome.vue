@@ -30,16 +30,17 @@ function callCsChat() {
 </script>
 
 <template>
-  <n-card style="margin: 2.5% 0">
+  <n-card>
     <n-space
       v-if="faqCtgrList.length > 0"
       vertical
       align="center"
       justify="space-around"
+      item-style="width: 100%"
     >
-      <n-space align="center">
+      <n-space align="center" justify="center">
         <logo-image
-          style="margin-top: 47%"
+          style="margin-top: 30%"
           size="2.0rem"
           @click="router.goHome(auth.currUser)"
         />
@@ -51,7 +52,7 @@ function callCsChat() {
           v-for="ctgr in faqCtgrList"
           :key="ctgr.value"
           quaternary
-          style="width: 6rem; height: 6rem; padding-top: 10%"
+          style="width: 3rem; height: 3rem; padding-top: 5%"
           @click="() => goFaqCtgr(ctgr.value, 'FAQ')"
         >
           <n-space vertical align="center" justify="space-around">

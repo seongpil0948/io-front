@@ -11,6 +11,7 @@ import { ref } from "vue";
 import { IO_COSTS } from "@/constants";
 import { storeToRefs } from "pinia";
 import { useMessage } from "naive-ui";
+import { isMobile } from "@io-boxies/js-lib";
 interface Props {
   inStates?: ORDER_STATE[];
   showSizes: boolean;
@@ -84,43 +85,32 @@ function downSampleXlsx() {
     v-model:fileModel="fileModel"
     :listen-click="!(filteredOrders.length > 0)"
   >
-    <template #header>
-      <n-space justify="start">
-        <n-button size="small" type="primary" @click="downSampleXlsx">
-          주문취합 엑셀양식 다운
-        </n-button>
-        <n-button size="small" type="primary" @click="downOrder">
-          주문정보 다운
-        </n-button>
-        <n-input-number v-model:value="sheetIdx" placeholder="시트번호입력">
-          <template #prefix> 시트번호 </template>
-        </n-input-number>
-        <n-input-number v-model:value="startRow" placeholder="시작행번호입력">
-          <template #prefix> 시작행번호 </template>
-        </n-input-number>
-      </n-space>
-    </template>
-    <template #header-extra>
-      <n-space
-        v-if="orders && orders.length > 0"
-        justify="start"
-        style="margin-left: 5px"
-        :wrap="false"
-      >
-        <n-button size="small" type="primary" @click="orderChecked">
-          선택주문
-        </n-button>
-        <n-button size="small" type="primary" @click="orderAll">
-          전체주문
-        </n-button>
-        <n-button size="small" type="primary" @click="deleteChecked">
-          선택삭제
-        </n-button>
-        <n-button size="small" type="primary" @click="orderDelAll">
-          전체삭제
-        </n-button>
-      </n-space>
-    </template>
+    <n-space justify="start">
+      <n-button size="small" type="primary" @click="orderChecked">
+        선택주문
+      </n-button>
+      <n-button size="small" type="primary" @click="orderAll">
+        전체주문
+      </n-button>
+      <n-button size="small" type="primary" @click="deleteChecked">
+        선택삭제
+      </n-button>
+      <n-button size="small" type="primary" @click="orderDelAll">
+        전체삭제
+      </n-button>
+      <n-button size="small" type="primary" @click="downSampleXlsx">
+        주문취합 엑셀양식 다운
+      </n-button>
+      <n-button size="small" type="primary" @click="downOrder">
+        주문정보 다운
+      </n-button>
+      <n-input-number v-model:value="sheetIdx" placeholder="시트번호입력">
+        <template #prefix> 시트번호 </template>
+      </n-input-number>
+      <n-input-number v-model:value="startRow" placeholder="시작행번호입력">
+        <template #prefix> 시작행번호 </template>
+      </n-input-number>
+    </n-space>
     <n-data-table
       v-if="filteredOrders.length > 0"
       ref="tableRef"

@@ -33,7 +33,7 @@ export const FAQ_CATEGORIES: {
       icon: BookIcon,
     },
     {
-      showName: "인아웃배송",
+      showName: "배송",
       value: "io-ship",
       icon: LocalShippingFilled,
     },
@@ -60,7 +60,7 @@ export const FAQ_CATEGORIES: {
       icon: BookIcon,
     },
     {
-      showName: "인아웃배송",
+      showName: "배송",
       value: "io-ship",
       icon: LocalShippingFilled,
     },
