@@ -173,7 +173,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
         }
       }
     } catch (err) {
-      console.error(err);
+      log.error(uid.value, err);
       return msg.error(
         `${token.service} ${
           token.alias ?? token.mallId

@@ -118,7 +118,6 @@ export function mapDfToOrder(
         const message = `컬럼매핑 실패: 실패 엑셀파일에서 ${colName.toString()} 컬럼을 찾을 수 없습니다. \n ${synonyms}`;
         msg.error(message);
         logger.error(userId, message);
-        console.error(colName, synonyms);
       } else {
         curr[colName] = col;
       }

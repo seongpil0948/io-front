@@ -45,8 +45,11 @@ export function useShopGarmentTable(briefly: boolean) {
       },
     });
   }
+  async function onCheckedDelete() {
+    await deleteGarments(authStore.currUser.userInfo.userId, checkedKeys.value);
+  }
 
-  const { columns, mapper, checkedKeys } = useTable<
+  const { columns, mapper, checkedKeys, mapperUpdate } = useTable<
     Omit<ShopUserGarment, "account">
   >(
     {
@@ -171,6 +174,7 @@ export function useShopGarmentTable(briefly: boolean) {
   return {
     tableCols,
     mapper,
+    mapperUpdate,
     checkedKeys,
     userProd,
     popVal,
@@ -178,5 +182,6 @@ export function useShopGarmentTable(briefly: boolean) {
     selectFunc,
     openSelectList,
     deleteGarments,
+    onCheckedDelete,
   };
 }
