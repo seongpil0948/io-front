@@ -1,5 +1,6 @@
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { ShopGarment, VendorGarment } from ".";
+import { VISIBILITY } from "..";
 
 export type PROD_TYPE = "GARMENT" | "GROCERY";
 
@@ -20,6 +21,8 @@ export interface VendorProdCrt extends ProductCrt {
   vendorProdName: string;
   titleImgs: string[];
   bodyImgs: string[];
+  visible: VISIBILITY;
+  primeCost: number;
 }
 
 export interface ShopVendorGarment {

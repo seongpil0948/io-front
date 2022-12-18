@@ -34,8 +34,8 @@ const menuOptions: MenuOption[] = [
         key: "ProductManage",
       },
       {
-        label: () => renderRoute("상품 맵핑 관리", "MappingManage"),
-        key: "MappingManage",
+        label: () => renderRoute("가상 상품 관리", "VirtualManage"),
+        key: "VirtualManage",
       },
     ],
   },

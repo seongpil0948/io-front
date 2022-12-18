@@ -199,9 +199,9 @@ export const routes: Array<RouteRecordRaw> = [
         },
       },
       {
-        path: "mapmng",
-        name: "MappingManage",
-        component: () => import("@/view/shop/page/MappingManage.vue"),
+        path: "virtualManage",
+        name: "VirtualManage",
+        component: () => import("@/view/shop/page/VirtualManage.vue"),
         meta: {
           allowRoles: ["SHOP", "ADMIN"],
         },

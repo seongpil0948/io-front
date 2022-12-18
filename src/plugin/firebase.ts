@@ -1,6 +1,6 @@
 import {
-  getAuth,
   setPersistence,
+  initializeAuth,
   browserSessionPersistence,
 } from "firebase/auth";
 import { IoFireApp } from "@io-boxies/js-lib";
@@ -13,6 +13,6 @@ export async function initIoFirebase() {
   const ioFire = IoFireApp.getInst(
     import.meta.env.MODE === "production" ? "io-prod" : "io-dev"
   );
-  const auth = getAuth(ioFire.app);
+  const auth = initializeAuth(ioFire.app);
   await setPersistence(auth, browserSessionPersistence);
 }

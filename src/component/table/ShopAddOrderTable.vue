@@ -11,7 +11,6 @@ import { ref } from "vue";
 import { IO_COSTS } from "@/constants";
 import { storeToRefs } from "pinia";
 import { useMessage } from "naive-ui";
-import { isMobile } from "@io-boxies/js-lib";
 interface Props {
   inStates?: ORDER_STATE[];
   showSizes: boolean;

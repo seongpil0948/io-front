@@ -41,6 +41,7 @@ import {
 import { ref } from "vue";
 import { ioFire } from "@/plugin/firebase";
 import { VendorProdSame, VendorUserGarment } from "../domain";
+import { CollectionReference } from "firebase/firestore";
 
 export const VendorGarmentFB: VendorGarmentDB = {
   incrementStockCnt: async function (cnt: number, vendorProdId: string) {
@@ -58,26 +59,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
     await batch.commit();
   },
   batchCreate: async function (userId: string, args: VendorGarment[]) {
-    for (let i = 0; i < args.length; i++) {
-      const prod = args[i];
-      const snapshot = await getCountFromServer(
-        query(
-          vendorProdC,
-          where("vendorId", "==", userId),
-          where("vendorProdName", "==", prod.vendorProdName),
-          where("color", "==", prod.color),
-          where("size", "==", prod.size)
-        )
-      );
-      const cnt = snapshot.data().count;
-      if (cnt > 0)
-        throw new Error(
-          `${prod.vendorProdName}, ${prod.color}, ${prod.size} 는 이미 존재하는 상품입니다.`
-        );
-      else {
-        await setDoc(doc(vendorProdC, prod.vendorProdId), prod);
-      }
-    }
+    return createGarments(vendorProdC, userId, args);
   },
   batchReadListen: function (vendorIds: any[]) {
     const items = ref<VendorGarment[]>([]);
@@ -197,22 +179,58 @@ export const VendorGarmentFB: VendorGarmentDB = {
   ) {
     const batch = writeBatch(ioFire.store);
     const prods = await this.getSimilarProds(d);
-    console.log("getSimilarProds", prods);
     for (let i = 0; i < prods.length; i++) {
       batch.update(doc(vendorProdC, prods[i].vendorProdId), data);
     }
     batch.commit();
   },
-  getSimilarProds: async function (d: VendorProdSimilar) {
-    const q = query(vendorProdC, ...similarConst(d.vendorId, d.vendorProdName));
-    const snap = await getDocs(q);
-    return dataFromSnap(snap);
-  },
-  existSameProd: async function (d: VendorProdSame): Promise<boolean> {
-    const constraints = similarConst(d.vendorId, d.vendorProdName);
-    constraints.push(where("color", "==", d.color));
-    constraints.push(where("size", "==", d.size));
-    const snap = await getDocs(query(vendorProdC, ...constraints));
-    return snap.empty === false;
-  },
+  getSimilarProds: async (d: VendorProdSimilar) =>
+    getSimilarProducts(vendorProdC, d),
+  existSameProd: async (d: VendorProdSame) => existSameProduct(vendorProdC, d),
 };
+export async function existSameProduct(
+  c: CollectionReference<VendorGarment | null>,
+  d: VendorProdSame
+) {
+  const constraints = similarConst(d.vendorId, d.vendorProdName);
+  constraints.push(where("color", "==", d.color));
+  constraints.push(where("size", "==", d.size));
+  const snap = await getDocs(query(vendorProdC, ...constraints));
+  return snap.empty === false;
+}
+
+export async function createGarments(
+  c: CollectionReference<VendorGarment | null>,
+  userId: string,
+  args: VendorGarment[]
+) {
+  for (let i = 0; i < args.length; i++) {
+    const prod = args[i];
+    const snapshot = await getCountFromServer(
+      query(
+        c,
+        where("vendorId", "==", userId),
+        where("vendorProdName", "==", prod.vendorProdName),
+        where("color", "==", prod.color),
+        where("size", "==", prod.size)
+      )
+    );
+    const cnt = snapshot.data().count;
+    if (cnt > 0)
+      throw new Error(
+        `${prod.vendorProdName}, ${prod.color}, ${prod.size} 는 이미 존재하는 상품입니다.`
+      );
+    else {
+      await setDoc(doc(c, prod.vendorProdId), prod);
+    }
+  }
+}
+
+export async function getSimilarProducts(
+  c: CollectionReference<VendorGarment | null>,
+  d: VendorProdSimilar
+) {
+  const q = query(c, ...similarConst(d.vendorId, d.vendorProdName));
+  const snap = await getDocs(q);
+  return dataFromSnap(snap);
+}
