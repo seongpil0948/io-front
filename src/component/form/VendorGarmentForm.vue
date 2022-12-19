@@ -31,6 +31,9 @@ import { useAuthStore, useCommonStore } from "@/store";
 import { storeToRefs } from "pinia";
 
 const props = defineProps<{ minimal: boolean; virtual: boolean }>();
+const emits = defineEmits<{
+  (e: "onRegistered", value: VendorGarment[]): void;
+}>();
 const { minimal, virtual } = toRefs(props);
 
 const msg = useMessage();
@@ -40,7 +43,7 @@ const formRef = ref<FormInst | null>(null);
 const auth = useAuthStore();
 const uid = computed(() => auth.currUser.userInfo.userId);
 const { getVirSimilarProds, existVirSameProd, createVirVendorGarments } =
-  useVirtualVendorProd(uid);
+  useVirtualVendorProd(auth.currUser);
 const router = useRouter();
 const { saveEditor, clearEditor } = useEditor({
   readOnly: false,
@@ -191,6 +194,7 @@ async function onRegister() {
           )
             .then(() => {
               clearEditor();
+              emits("onRegistered", products);
               msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
               if (!virtual.value) {
                 router.replace({ name: "VendorProductList" });

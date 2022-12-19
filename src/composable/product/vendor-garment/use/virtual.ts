@@ -1,17 +1,35 @@
-import { VendorProdSimilar, VendorProdSame, VendorGarment } from "@/composable";
-import { getIoCollection } from "@io-boxies/js-lib";
+import {
+  VendorProdSimilar,
+  VendorProdSame,
+  VendorGarment,
+  onFirestoreCompletion,
+  onFirestoreErr,
+  ShopGarment,
+} from "@/composable";
+import { getIoCollection, IoUser } from "@io-boxies/js-lib";
 import {
   createGarments,
   existSameProduct,
   getSimilarProducts,
 } from "@/composable/product/vendor-garment/db/firebase";
-import { Ref, shallowRef } from "vue";
-import { getDocs } from "@firebase/firestore";
+import { ref, onBeforeUnmount } from "vue";
+import { handleReadSnap } from "@/util";
+import { onSnapshot, query, orderBy, where } from "firebase/firestore";
+import { uuidv4 } from "@firebase/util";
+import { shopProdC } from "../../shop-garment/db/firebase";
+import { useShopOrderStore } from "@/store";
 
-export function useVirtualVendorProd(uid: Ref<string>) {
+export function useVirtualVendorProd(user: IoUser) {
+  const uid = user.userInfo.userId;
+  if (user.userInfo.role !== "SHOP") {
+    throw new Error(`허용되지 않은 유저(${uid}) 권한 입니다.`);
+  }
+  const name = "VirtualVendorProd snapshot";
+  const shopOrdStore = useShopOrderStore();
+
   // >>> virtual
   const virVendorProdC = getIoCollection({
-    uid: uid.value,
+    uid,
     c: "VIRTUAL_VENDOR_PROD",
   }).withConverter(VendorGarment.fireConverter());
 
@@ -23,21 +41,77 @@ export function useVirtualVendorProd(uid: Ref<string>) {
   const createVirVendorGarments = async (
     userId: string,
     args: VendorGarment[]
-  ) => createGarments(virVendorProdC, userId, args);
-  const virProds = shallowRef<VendorGarment[]>([]);
-  async function getVirProds() {
-    const docSnap = await getDocs(virVendorProdC);
-    virProds.value = docSnap.docs
-      .map((x) => x.data())
-      .filter((x) => x !== null) as VendorGarment[];
-  }
+  ) => {
+    await createGarments(virVendorProdC, userId, args);
+    for (let i = 0; i < args.length; i++) {
+      const virProd = args[i];
+      if (virProd.vendorId !== userId) {
+        throw new Error("virtual garment 생성 에러");
+      }
+      const shopProd = new ShopGarment({
+        vendorId: virProd.vendorId,
+        vendorProdId: virProd.vendorProdId,
+        shopProdId: uuidv4(),
+        shopId: uid,
+        prodPrice: virProd.vendorPrice,
+        prodName: virProd.vendorProdName,
+        info: virProd.info,
+        description: virProd.description,
+        size: virProd.size,
+        color: virProd.color,
+        TBD: {},
+        prodType: "GARMENT",
+        visible: "ME",
+      });
+      await shopProd.update();
+    }
+  };
 
+  const virVendorProds = ref<VendorGarment[]>([]);
+  const unsubscribeVirtual = onSnapshot(
+    query(virVendorProdC, orderBy("createdAt", "desc")),
+    (snap) =>
+      handleReadSnap<VendorGarment>(
+        snap,
+        virVendorProds.value,
+        (x) => x.vendorProdId
+      ),
+    async (err) => {
+      await onFirestoreErr(name, err);
+      throw err;
+    },
+    () => onFirestoreCompletion(name)
+  );
+  const virShopProds = ref<ShopGarment[]>([]);
+  const unsubscribeShopProd = onSnapshot(
+    query(
+      shopProdC,
+      where("shopId", "==", uid),
+      where("visible", "==", "ME"),
+      orderBy("createdAt", "desc")
+    ),
+    (snap) =>
+      handleReadSnap<ShopGarment>(
+        snap,
+        virShopProds.value,
+        (x) => x.vendorProdId
+      ),
+    async (err) => {
+      await onFirestoreErr(name, err);
+      throw err;
+    },
+    () => onFirestoreCompletion(name)
+  );
+  onBeforeUnmount(() => {
+    unsubscribeVirtual();
+    unsubscribeShopProd();
+  });
   return {
     virVendorProdC,
     getVirSimilarProds,
     existVirSameProd,
     createVirVendorGarments,
-    getVirProds,
-    virProds,
+    virVendorProds,
+    virShopProds,
   };
 }

@@ -2,7 +2,6 @@ import {
   Mapper,
   onFirestoreCompletion,
   onFirestoreErr,
-  ShopGarment,
   ShopGarmentDB,
   ShopUserGarment,
 } from "@/composable";
@@ -27,6 +26,8 @@ import {
 import { Ref, ref } from "vue";
 import { ioFire } from "@/plugin/firebase";
 import { dataFromSnap } from "@/util";
+import { getDoc } from "firebase/firestore";
+import { ShopGarment } from "@/composable/product/shop-garment/model";
 
 export const ShopGarmentFB: ShopGarmentDB = {
   getShopGarments: async function (d) {
@@ -37,14 +38,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
     if (d.vendorId) {
       constraints.push(where("vendorId", "==", d.vendorId));
     }
-    const snap = await getDocs(
-      query(
-        getIoCollection({ c: IoCollection.SHOP_PROD }).withConverter(
-          ShopGarment.fireConverter()
-        ),
-        ...constraints
-      )
-    );
+    const snap = await getDocs(query(shopProdC, ...constraints));
     return dataFromSnap(snap);
   },
   shopGarmentExist: async function (
@@ -52,7 +46,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
     shopUserId: string
   ): Promise<boolean> {
     const q = query(
-      getIoCollection({ c: IoCollection.SHOP_PROD }),
+      shopProdC,
       where("shopId", "==", shopUserId),
       where("vendorProdId", "==", vendorProdId)
     );
@@ -66,12 +60,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
     const shopProds = ref<ShopGarment[]>([]);
     const name = "useGetShopGarments snapshot";
     const unsubscribe = onSnapshot(
-      query(
-        getIoCollection({ c: IoCollection.SHOP_PROD }).withConverter(
-          ShopGarment.fireConverter()
-        ),
-        where("shopId", "==", shopId)
-      ),
+      query(shopProdC, where("shopId", "==", shopId)),
       (snapshot) => {
         shopProds.value = [];
         snapshot.forEach((doc) => {
@@ -91,14 +80,13 @@ export const ShopGarmentFB: ShopGarmentDB = {
     return { shopProds, unsubscribe };
   },
   deleteShopGarments: async function (userId: string, prodIds: string[]) {
-    const c = getIoCollection({ c: IoCollection.SHOP_PROD });
     if (prodIds.length < 1) return;
     else if (prodIds.length === 1) {
-      await deleteDoc(doc(c, prodIds[0]));
+      await deleteDoc(doc(shopProdC, prodIds[0]));
     } else {
       const batch = writeBatch(ioFire.store);
       for (let i = 0; i < prodIds.length; i++) {
-        batch.delete(doc(c, prodIds[i]));
+        batch.delete(doc(shopProdC, prodIds[i]));
       }
       await batch.commit();
     }
@@ -108,12 +96,9 @@ export const ShopGarmentFB: ShopGarmentDB = {
     shopIds: string[]
   ): Promise<ShopUserGarment[]> {
     const users = await USER_DB.getUserByIds([...shopIds]);
-    const c = getIoCollection({ c: IoCollection.SHOP_PROD }).withConverter(
-      ShopGarment.fireConverter()
-    );
     const snapshots = await batchInQuery<ShopGarment | null>(
       [...shopIds],
-      c,
+      shopProdC,
       "shopId"
     );
     const garments = snapshots.flatMap(dataFromSnap);
@@ -129,4 +114,22 @@ export const ShopGarmentFB: ShopGarmentDB = {
       return acc;
     }, [] as ShopUserGarment[]);
   },
+  listByIds: async function (shopProdIds: string[]) {
+    const prodSnaps = await batchInQuery<ShopGarment>(
+      shopProdIds,
+      shopProdC,
+      "shopProdId"
+    );
+
+    return prodSnaps.flatMap(dataFromSnap<ShopGarment>);
+  },
+  getById: async function (shopProdId) {
+    const docSnap = await getDoc(doc(shopProdC, shopProdId));
+    const data = docSnap.data();
+    return data ?? null;
+  },
 };
+export const shopProdC = getIoCollection({
+  c: IoCollection.SHOP_PROD,
+}).withConverter(ShopGarment.fireConverter());
+// shopProdId;

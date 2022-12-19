@@ -15,8 +15,12 @@ export function extractGarmentOrd(
   const ioOrders: OrderItemCombined[] = [];
   orders.forEach((order) => {
     for (let i = 0; i < order.items.length; i++) {
-      const sId = order.items[i].shopProd.shopProdId;
-      const shopProd = shopProds.find((j) => j.shopProdId === sId);
+      const ordShopProd = order.items[i].shopProd;
+      const sId = ordShopProd.shopProdId;
+      const shopProd =
+        ordShopProd.visible && ordShopProd.visible === "ME"
+          ? (ordShopProd as ShopUserGarment)
+          : shopProds.find((j) => j.shopProdId === sId);
       if (!shopProd) {
         console.warn(`not matched order(${order.dbId}) shop garment(${sId})`);
         continue;

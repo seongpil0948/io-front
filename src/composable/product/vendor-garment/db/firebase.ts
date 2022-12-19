@@ -107,6 +107,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
     return prodSnaps.flatMap(dataFromSnap<VendorGarment>);
   },
   listByIdsWithUser: async function (vendorProdIds: string[]) {
+    if (vendorProdIds.length < 1) return [];
     const prods = await this.listByIds(vendorProdIds);
     const vendors = await USER_DB.getUserByIds(
       uniqueArr(prods.map((x) => x.vendorId))

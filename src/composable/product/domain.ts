@@ -11,6 +11,7 @@ export interface ProductCrt {
   description: string;
   TBD: { [k: string]: any };
   prodType: PROD_TYPE;
+  visible: VISIBILITY;
 }
 export interface VendorProdCrt extends ProductCrt {
   vendorId: string;
@@ -21,7 +22,6 @@ export interface VendorProdCrt extends ProductCrt {
   vendorProdName: string;
   titleImgs: string[];
   bodyImgs: string[];
-  visible: VISIBILITY;
   primeCost: number;
 }
 

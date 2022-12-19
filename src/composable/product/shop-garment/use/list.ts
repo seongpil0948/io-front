@@ -17,11 +17,12 @@ import { useShopUserGarments } from "./by-user";
 export function useShopGarmentTable(briefly: boolean) {
   const msg = useMessage();
   const authStore = useAuthStore();
+  const shopId = authStore.currUser.userInfo.userId;
   const tableRef = ref<any>(null);
   const dialog = useDialog();
   const openSelectList = ref(false);
   const { rowIdField, userProd } = useShopUserGarments({
-    shopId: authStore.currUser.userInfo.userId,
+    shopId,
   });
   const selectFunc = ref<((s: ShopUserGarment) => Promise<void>) | null>(null);
   const logger = useLogger();
@@ -39,21 +40,21 @@ export function useShopGarmentTable(briefly: boolean) {
             const message = `삭제 실패 ${
               err instanceof Error ? err.message : JSON.stringify(err)
             }`;
-            logger.error(authStore.currUser.userInfo.userId, message);
+            logger.error(shopId, message);
             msg.error(message, makeMsgOpt());
           });
       },
     });
   }
   async function onCheckedDelete() {
-    await deleteGarments(authStore.currUser.userInfo.userId, checkedKeys.value);
+    await deleteGarments(shopId, checkedKeys.value);
   }
 
   const { columns, mapper, checkedKeys, mapperUpdate } = useTable<
     Omit<ShopUserGarment, "account">
   >(
     {
-      userId: authStore.currUser.userInfo.userId,
+      userId: shopId,
       useChecker: !briefly,
       keyField: rowIdField,
       data: userProd,
@@ -112,9 +113,7 @@ export function useShopGarmentTable(briefly: boolean) {
   const popVal = ref("");
   watchEffect(async () => {
     if (popVal.value === "Delete" && selectedRow.value) {
-      await deleteGarments(authStore.currUser.userInfo.userId, [
-        selectedRow.value.shopProdId,
-      ]);
+      await deleteGarments(shopId, [selectedRow.value.shopProdId]);
     }
   });
   const tableCols = computed((): DataTableColumns<ShopUserGarment> => {
