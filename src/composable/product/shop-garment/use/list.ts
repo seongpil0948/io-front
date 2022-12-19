@@ -14,7 +14,10 @@ import { useLogger } from "vue-logger-plugin";
 import { ShopUserGarment } from "../domain";
 import { useShopUserGarments } from "./by-user";
 
-export function useShopGarmentTable(briefly: boolean) {
+export function useShopGarmentTable(
+  briefly: boolean,
+  userData = ref<ShopUserGarment[]>([])
+) {
   const msg = useMessage();
   const authStore = useAuthStore();
   const shopId = authStore.currUser.userInfo.userId;
@@ -24,6 +27,7 @@ export function useShopGarmentTable(briefly: boolean) {
   const { rowIdField, userProd } = useShopUserGarments({
     shopId,
   });
+  const data = computed(() => [...userProd.value, ...userData.value]);
   const selectFunc = ref<((s: ShopUserGarment) => Promise<void>) | null>(null);
   const logger = useLogger();
 
@@ -57,7 +61,7 @@ export function useShopGarmentTable(briefly: boolean) {
       userId: shopId,
       useChecker: !briefly,
       keyField: rowIdField,
-      data: userProd,
+      data,
       siblingFields: ["prodName"],
       onCheckAll: (to) => {
         if (tableRef.value) {
@@ -65,7 +69,7 @@ export function useShopGarmentTable(briefly: boolean) {
             (x) => x.index
           );
           checkedKeys.value = to
-            ? userProd.value
+            ? data.value
                 .filter((o, idx) => idxes.includes(idx))
                 .map((p: any) => p[rowIdField])
             : [];
@@ -175,7 +179,7 @@ export function useShopGarmentTable(briefly: boolean) {
     mapper,
     mapperUpdate,
     checkedKeys,
-    userProd,
+    userProd: data,
     popVal,
     selectedRow,
     selectFunc,

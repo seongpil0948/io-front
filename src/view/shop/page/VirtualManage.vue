@@ -15,8 +15,6 @@ import { computed, ref } from "vue";
 import { uuidv4 } from "@firebase/util";
 import { makeMsgOpt } from "@io-boxies/vue-lib";
 import { isMobile } from "@io-boxies/js-lib";
-// TODO: 가상 상품건에 대한 매핑 정보 관리
-// TODO: 가상 주문건 등록. (요청전까지)
 // TODO: 상품 수정 및 삭제 기능 추가
 // 주문 번호등 정보는 가상에서 전환했을때나 실제 주문에서도 중복을 방지하기 위해... 기존 컬렉션과 겹쳐야 할듯. 다음단계로만 못넘어가게. (완료처리론 넘겨도 되지않나?)
 // 회의필요.
@@ -31,17 +29,23 @@ function onRegistered(vGarments: VendorGarment[]) {
 }
 const msg = useMessage();
 const auth = useAuthStore();
-const { tableCols, checkedKeys, popVal, selectedRow } =
-  useShopGarmentTable(false);
+const { virShopProds, virVendorProds } = useVirtualVendorProd(auth.currUser);
+const userVirProds = computed(() =>
+  virShopProds.value.map((x) => Object.assign({}, x, auth.currUser))
+);
+const { tableCols, checkedKeys, popVal, selectedRow } = useShopGarmentTable(
+  false,
+  userVirProds
+);
 const cols = computed(() =>
   tableCols.value.filter(
     (x: any) =>
       !["select", "userName", "vendorPrice", "stockCnt"].includes(x.key)
   )
 );
-const { virShopProds, virVendorProds } = useVirtualVendorProd(auth.currUser);
+
 const { search, searchedData, searchInputVal } = useSearch({
-  data: virShopProds,
+  data: userVirProds,
   filterFunc: (x, searchVal) => {
     const v: typeof searchVal = searchVal;
     return v === null

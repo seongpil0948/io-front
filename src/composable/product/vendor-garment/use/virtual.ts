@@ -17,7 +17,6 @@ import { handleReadSnap } from "@/util";
 import { onSnapshot, query, orderBy, where } from "firebase/firestore";
 import { uuidv4 } from "@firebase/util";
 import { shopProdC } from "../../shop-garment/db/firebase";
-import { useShopOrderStore } from "@/store";
 
 export function useVirtualVendorProd(user: IoUser) {
   const uid = user.userInfo.userId;
@@ -25,7 +24,6 @@ export function useVirtualVendorProd(user: IoUser) {
     throw new Error(`허용되지 않은 유저(${uid}) 권한 입니다.`);
   }
   const name = "VirtualVendorProd snapshot";
-  const shopOrdStore = useShopOrderStore();
 
   // >>> virtual
   const virVendorProdC = getIoCollection({
