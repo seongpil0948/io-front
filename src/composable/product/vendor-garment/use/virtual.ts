@@ -18,7 +18,7 @@ import { onSnapshot, query, orderBy, where } from "firebase/firestore";
 import { uuidv4 } from "@firebase/util";
 import { shopProdC } from "../../shop-garment/db/firebase";
 
-export function useVirtualVendorProd(user: IoUser) {
+export function useShopVirtualProd(user: IoUser) {
   const uid = user.userInfo.userId;
   const name = "VirtualVendorProd snapshot";
 

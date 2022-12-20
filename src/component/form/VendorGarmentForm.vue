@@ -13,7 +13,7 @@ import {
   VendorGarment,
   VENDOR_GARMENT_DB,
   VISIBILITY,
-  useVirtualVendorProd,
+  useShopVirtualProd,
 } from "@/composable";
 import {
   getCtgrOpts,
@@ -43,7 +43,7 @@ const formRef = ref<FormInst | null>(null);
 const auth = useAuthStore();
 const uid = computed(() => auth.currUser.userInfo.userId);
 const { getVirSimilarProds, existVirSameProd, createVirVendorGarments } =
-  useVirtualVendorProd(auth.currUser);
+  useShopVirtualProd(auth.currUser);
 const router = useRouter();
 const { saveEditor, clearEditor } = useEditor({
   readOnly: false,

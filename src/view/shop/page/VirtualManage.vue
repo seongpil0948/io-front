@@ -3,7 +3,7 @@ import {
   IoOrder,
   useSearch,
   useShopGarmentTable,
-  useVirtualVendorProd,
+  useShopVirtualProd,
   VendorGarment,
   newOrdFromItem,
   newOrdItem,
@@ -29,7 +29,7 @@ function onRegistered(vGarments: VendorGarment[]) {
 }
 const msg = useMessage();
 const auth = useAuthStore();
-const { virShopProds, virVendorProds } = useVirtualVendorProd(auth.currUser);
+const { virShopProds, virVendorProds } = useShopVirtualProd(auth.currUser);
 const userVirProds = computed(() =>
   virShopProds.value.map((x) => Object.assign({}, x, auth.currUser))
 );
