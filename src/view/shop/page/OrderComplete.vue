@@ -29,6 +29,7 @@ const {
   updateOrderCnt: true,
   useChecker: true,
   useState: true,
+  useAllAmount: true,
 });
 
 function refreshSelected() {

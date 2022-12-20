@@ -26,6 +26,7 @@ interface orderTableParam {
   useChecker?: boolean;
   useAccountStr?: boolean;
   useState?: boolean;
+  useAllAmount?: boolean;
 }
 export function useOrderTable(d: orderTableParam) {
   const auth = useAuthStore();
@@ -62,6 +63,22 @@ export function useOrderTable(d: orderTableParam) {
             },
           },
           { default: () => row.accountStr }
+        ),
+    });
+  if (d.useAllAmount)
+    byVendorColKeys.push({
+      key: "amount",
+      colRender: () => h(NText, {}, { default: () => "주문금액" }),
+      cellRender: (row: OrderItemByVendor) =>
+        h(
+          NText,
+          {},
+          {
+            default: () =>
+              row.items
+                .reduce((acc, curr) => acc + curr.amount.orderAmount, 0)
+                .toLocaleString(),
+          }
         ),
     });
   byVendorColKeys.push({
