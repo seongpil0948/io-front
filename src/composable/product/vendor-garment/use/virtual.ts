@@ -20,9 +20,6 @@ import { shopProdC } from "../../shop-garment/db/firebase";
 
 export function useVirtualVendorProd(user: IoUser) {
   const uid = user.userInfo.userId;
-  if (user.userInfo.role !== "SHOP") {
-    throw new Error(`허용되지 않은 유저(${uid}) 권한 입니다.`);
-  }
   const name = "VirtualVendorProd snapshot";
 
   // >>> virtual

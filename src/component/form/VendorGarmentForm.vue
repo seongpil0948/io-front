@@ -271,6 +271,12 @@ async function onRegister() {
           <template #suffix> 원 </template>
         </n-input-number>
       </n-form-item-gi>
+      <n-form-item-gi v-if="!minimal" label="혼용률/제조국" path="fabric">
+        <n-input
+          v-model:value="prodModel.fabric"
+          placeholder="원단 정보 입력"
+        />
+      </n-form-item-gi>
       <n-grid-item span="2">
         <n-space
           :wrap="false"
@@ -342,17 +348,6 @@ async function onRegister() {
         <n-input
           v-model:value="prodModel.description"
           placeholder="개요 입력"
-        />
-      </n-form-item-gi>
-      <n-form-item-gi
-        v-if="!minimal"
-        span="2"
-        label="혼용률/제조국"
-        path="fabric"
-      >
-        <n-input
-          v-model:value="prodModel.fabric"
-          placeholder="원단 정보 입력"
         />
       </n-form-item-gi>
       <n-form-item-gi
