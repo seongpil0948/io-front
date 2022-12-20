@@ -42,14 +42,12 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
   function onClickDetail(data: ShipOrderByShop) {
     selectedData.value = data;
   }
-  const selectedOrderProdId = ref<string | null>(null);
   const openWorkerModal = ref(false);
 
   watch(
     () => openWorkerModal.value,
     (val) => {
       if (val === false) {
-        selectedOrderProdId.value = null;
         selectedData.value = null;
       }
     }
@@ -58,14 +56,10 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
   function renderWorker(row: ShipOrder) {
     const worker = workers.value.find((x) => x.userInfo.userId === row.uncleId);
     const btn = h(
-      NButton,
-      {
-        size: "small",
-        onClick: () => {
-          selectedOrderProdId.value = row.orderItemId;
-          openWorkerModal.value = true;
-        },
-      },
+      NText,
+      // {
+      //   onClick: () => (openWorkerModal.value = true),
+      // },
       { default: () => (worker ? getUserName(worker) : "미배정") }
     );
     return btn;
@@ -199,7 +193,7 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
       },
       {
         title: "담당자",
-        key: "",
+        key: "shipManager",
         render: renderWorker,
       },
       {
@@ -251,7 +245,6 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
     onCheckDetailRow,
     selectedData,
     onClickDetail,
-    selectedOrderProdId,
     openWorkerModal,
     byShopDetailCols,
     ioOrdersByShop,
