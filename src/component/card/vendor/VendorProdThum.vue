@@ -17,15 +17,19 @@
       />
     </template>
     <n-space
-      style="margin-top: 3%"
+      style="margin-top: 3%; position: relative; gap: 0; margin-bottom: 1rem"
       :item-style="`width: ${width - 10}px; text-align:start`"
       vertical
       justify="start"
       align="start"
     >
-      <n-text style="font-size: 0.9rem" class="txt">
+      <n-text>
         {{ prod.vendorProdName }}
       </n-text>
+      <n-text
+        style="font-size: 0.5rem; position: absolute; bottom: -25%; right: 5%"
+        >{{ prod.part }} / {{ prod.ctgr }}</n-text
+      >
       <n-space inline justify="start" align="start">
         <n-text class="txt"> {{ prod.colors.length }} Color </n-text>
         <n-text class="txt">

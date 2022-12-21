@@ -77,7 +77,7 @@ const ctgrOpts = computed(() =>
 );
 
 const { searchInputVal, searchData, search, msg } = useElasticSearch({
-  funcName: "elasticVendorProdSearch",
+  funcName: "elasticInoutBoxSearch",
   onSearch: async (result) => {
     const data: any = result.data;
     const prodIds: string[] = data.hits.hits.map((x: any) => x._id);
@@ -98,26 +98,56 @@ const { searchInputVal, searchData, search, msg } = useElasticSearch({
       searchData.value = [];
     }
   },
-  makeInput: (input) => {
-    let base = input;
-    if (part.value) base += " " + part.value;
-    if (gender.value) base += " " + gender.value;
-    if (ctgr.value) base += " " + ctgr.value;
-    console.log("search value: ", base);
-    return base;
+  makeParam: (input) => {
+    const query = { bool: {} as any };
+    const musts = [];
+    if (part.value)
+      musts.push({
+        match: { part: part.value },
+      });
+    if (ctgr.value)
+      musts.push({
+        match: { ctgr: ctgr.value },
+      });
+    if (gender.value)
+      musts.push({
+        match: { gender: gender.value },
+      });
+    if (musts.length > 0) {
+      query["bool"]["must"] = musts;
+    }
+    if (input.length > 0) {
+      query["bool"]["should"] = [
+        {
+          multi_match: {
+            query: input,
+            fields: ["vendorprodname", "fabric", "info", "description"],
+          },
+        },
+      ];
+    }
+
+    return {
+      index:
+        import.meta.env.MODE === "production"
+          ? ".ent-search-engine-documents-io-box-vendor-prod-search"
+          : ".ent-search-engine-documents-io-box-dev-search",
+      query,
+      sort: [
+        {
+          "createdat.date": {
+            order: "desc",
+          },
+        },
+      ],
+      from: 0,
+      size: 100,
+    };
   },
 });
 
-const targetData = computed(
-  () => (searchData.value.length > 0 ? searchData.value : data.value)
-  // return part.value || ctgr.value || gender.value
-  //   ? d.filter(
-  //       (x) =>
-  //         (part.value === null ? true : x.part === part.value) &&
-  //         (gender.value === null ? true : x.gender === gender.value) &&
-  //         (ctgr.value === null ? true : x.ctgr === ctgr.value)
-  //     )
-  //   : d;
+const targetData = computed(() =>
+  searchData.value.length > 0 ? searchData.value : data.value
 );
 </script>
 <template>
