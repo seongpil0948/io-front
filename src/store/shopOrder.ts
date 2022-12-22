@@ -9,6 +9,7 @@ import {
   IoOrder,
   ShopUserGarment,
   VENDOR_GARMENT_DB,
+  VendorUserGarment,
 } from "@/composable";
 import { defineStore } from "pinia";
 import { ref, computed, onBeforeUnmount, watchEffect } from "vue";
@@ -107,14 +108,30 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   watchEffect(async () => {
     if (shopId.value && orders.value.length > 0 && shopProds.value.length > 0) {
       await setExistOrderIds();
-      const vendorProdIds = orders.value.flatMap((o) =>
-        o.items.map((i) => i.vendorProd.vendorProdId)
+      const vendorProdIds: string[] = [];
+      const vendorProds: VendorUserGarment[] = [];
+      const items = orders.value.flatMap((o) => o.items);
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (!item.shopProd.visible || item.shopProd.visible === "GLOBAL") {
+          vendorProdIds.push(item.vendorProd.vendorProdId);
+        } else if (item.shopProd.visible === "ME") {
+          vendorProds.push(
+            Object.assign({}, item.vendorProd, authStore.currUser)
+          );
+        }
+      }
+
+      // const vendorProdIds = orders.value.flatMap((o) =>
+      //   o.items.map((i) => i.vendorProd.vendorProdId)
+      // );
+      vendorProds.push(
+        ...(await VENDOR_GARMENT_DB.listByIdsWithUser(vendorProdIds))
       );
-      const prods = await VENDOR_GARMENT_DB.listByIdsWithUser(vendorProdIds);
       _ioOrders.value = extractGarmentOrd(
         _orders.value,
         shopProds.value,
-        prods
+        vendorProds
       );
     } else {
       existOrderIds.value.clear();

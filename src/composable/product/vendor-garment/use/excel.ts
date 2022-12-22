@@ -5,6 +5,7 @@ import {
   PRODUCT_SIZE,
   VendorGarment,
   VENDOR_GARMENT_DB,
+  VISIBILITY,
 } from "@/composable";
 import { useAuthStore, useCommonStore } from "@/store";
 import { readExcel, DataFrame, Series } from "danfojs";
@@ -13,7 +14,7 @@ import { uuidv4 } from "@firebase/util";
 import { useRouter } from "vue-router";
 import { makeMsgOpt } from "@/util";
 
-export function useBatchVendorProd() {
+export function useBatchVendorProd(d: { visible: VISIBILITY }) {
   const fileModel = ref<FileList | null>();
   const excelInputRef = ref<null | HTMLInputElement>(null);
   const authStore = useAuthStore();
@@ -107,6 +108,7 @@ export function useBatchVendorProd() {
         vendorId: u.userInfo.userId,
         vendorProdId: uuidv4(),
         vendorPrice,
+        primeCost: vendorPrice,
         stockCnt: parseInt(row[9]),
         vendorProdName,
         titleImgs: [],
@@ -116,6 +118,7 @@ export function useBatchVendorProd() {
         vendorProdPkgId: "",
         TBD: {},
         prodType: "GARMENT",
+        ...d,
       });
       const similarProds = await VENDOR_GARMENT_DB.getSimilarProds({
         vendorId: u.userInfo.userId,

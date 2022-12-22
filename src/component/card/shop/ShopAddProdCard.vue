@@ -80,6 +80,7 @@ async function onSubmit() {
       color: optById[vendorProdId].color,
       TBD: {},
       prodType: "GARMENT",
+      visible: "GLOBAL",
     });
     await shopProd.update();
     if (
@@ -94,19 +95,20 @@ async function onSubmit() {
         return msg.error("상품정보가 없습니다.");
       }
 
-      const vendor = await USER_DB.getUserById(vendorUnit.vendorId);
-      if (!vendor) {
-        log.error(
-          uid,
-          `vendor id(${vendorUnit.vendorId})is not exist in shop add card`
-        );
-        return msg.error("도매처 정보가 없습니다.");
-      }
+      // const vendor = await USER_DB.getUserById(vendorUnit.vendorId);
+      // if (!vendor) {
+      //   log.error(
+      //     uid,
+      //     `vendor id(${vendorUnit.vendorId})is not exist in shop add card`
+      //   );
+      //   return msg.error("도매처 정보가 없습니다.");
+      // }
       const userGarment: ShopUserGarment = Object.assign(
         {},
         vendorUnit,
         shopProd,
-        vendor
+        auth.currUser
+        // vendor
       );
       shopOrdStore.$patch({
         shopProds: [

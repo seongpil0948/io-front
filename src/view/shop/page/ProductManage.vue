@@ -22,40 +22,23 @@ import {
 } from "naive-ui";
 import { uuidv4 } from "@firebase/util";
 import { computed, shallowRef, watchEffect } from "vue";
-import { useLogger } from "vue-logger-plugin";
 
 const authStore = useAuthStore();
 const msg = useMessage();
-const log = useLogger();
 const {
   tableCols,
   mapper,
+  mapperUpdate,
   checkedKeys,
   userProd,
   popVal,
   selectedRow,
-  deleteGarments,
+  onCheckedDelete,
 } = useShopGarmentTable(false);
-
-async function onCheckedDelete() {
-  await deleteGarments(authStore.currUser.userInfo.userId, checkedKeys.value);
-}
 const cols = computed(() =>
   tableCols.value.filter((x) => (x as any).key !== "select")
 );
 
-async function mapperUpdate() {
-  mapper.value
-    ?.update()
-    .then(() => msg.success("업데이트 성공", makeMsgOpt()))
-    .catch((err) => {
-      const message = `업데이트 실패 ${
-        err instanceof Error ? err.message : JSON.stringify(err)
-      }`;
-      msg.error(message, makeMsgOpt());
-      log.error(authStore.currUser.userInfo.userId, message, err);
-    });
-}
 const vendorProds = shallowRef<VendorGarment[]>([]);
 watchEffect(async () => {
   const ids = userProd.value.map((x) => x.vendorProdId);

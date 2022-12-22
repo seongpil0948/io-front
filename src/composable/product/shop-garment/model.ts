@@ -4,7 +4,7 @@ import {
   GarmentOrderCondi,
   PROD_TYPE,
 } from "@/composable";
-import { CommonField } from "@/composable/common";
+import { CommonField, VISIBILITY } from "@/composable/common";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
@@ -27,6 +27,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   zigzagProdId?: string;
   TBD: { [k: string]: any };
   prodType: PROD_TYPE;
+  visible: VISIBILITY;
 
   async update() {
     await insertById<ShopGarment>(
@@ -54,6 +55,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
     this.zigzagProdId = d.zigzagProdId;
     this.TBD = d.TBD;
     this.prodType = d.prodType;
+    this.visible = d.visible;
   }
   static fromJson(data: { [x: string]: any }): ShopGarment | null {
     if (data && data.vendorProdId) {
@@ -74,6 +76,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
         zigzagProdId: data.zigzagProdId,
         TBD: data.TBD,
         prodType: data.prodType ?? "GARMENT",
+        visible: data.visible ?? "GLOBAL",
       });
     } else {
       //   logger.error(null, "vendor product from json return null, data: ", data);

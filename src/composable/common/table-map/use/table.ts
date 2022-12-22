@@ -29,7 +29,7 @@ export function useTable<T extends MapperFields>(
   p: useTableParam,
   onSelect?: (g: T) => Promise<void>
 ) {
-  const { mapper } = useMapper(p.userId);
+  const { mapper, mapperUpdate } = useMapper(p.userId);
   const columns = ref<TableBaseColumn<T>[]>([]);
   const openKey = ref("");
   const checkedKeys = ref<string[]>([]);
@@ -177,6 +177,7 @@ export function useTable<T extends MapperFields>(
     checkedKeys,
     colKoMapper,
     rendorTableBtn,
+    mapperUpdate,
   };
 }
 

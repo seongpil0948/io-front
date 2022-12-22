@@ -1,7 +1,7 @@
 echo "ELASTIC_DEV_USER_NAME: $ELASTIC_DEV_USER_NAME" 
 echo "ELASTIC_DEV_PASSWORD: $ELASTIC_DEV_PASSWORD" 
 echo "ELASTIC_DEV_END_POINT: $ELASTIC_DEV_END_POINT" 
-echo "ELASTIC_VENDOR_PROD_INDEX: $ELASTIC_VENDOR_PROD_INDEX" 
+# echo "ELASTIC_VENDOR_PROD_INDEX: $ELASTIC_VENDOR_PROD_INDEX" 
 firebase use io-box
 firebase projects:list
 
@@ -13,10 +13,12 @@ then
         elasticsearch.username=$ELASTIC_DEV_USER_NAME \
         elasticsearch.password=$ELASTIC_DEV_PASSWORD \
         elasticsearch.url=$ELASTIC_DEV_END_POINT \
-        elasticsearch.vendor_prod_index=$ELASTIC_VENDOR_PROD_INDEX
+        # elasticsearch.vendor_prod_index=$ELASTIC_VENDOR_PROD_INDEX
 
     # firebase deploy --only functions:scheduledElasticHealthCheck,functions:elasticVendorProdSearch
-    firebase deploy --only functions:elasticVendorProdSearch
+    # DEPRECATED: elasticVendorProdSearch
+    # firebase deploy --only functions:elasticVendorProdSearch
+    firebase deploy --only functions:elasticInoutBoxSearch
     # firebase deploy --only functions:elastic.scheduledElasticHealthCheck
 else
     echo "exit"

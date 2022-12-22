@@ -17,6 +17,7 @@ import {
   useMappingOrderCafe,
   saveMatch,
   getZigzagOrders,
+  useShopVirtualProd,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { dateRanges } from "@/util";
@@ -54,8 +55,14 @@ const { parseCafeOrder } = useMappingOrderCafe(
   uid.value,
   existOrderIds
 );
-const { selectFunc, userProd, tableCols, openSelectList } =
-  useShopGarmentTable(true);
+const { virShopProds } = useShopVirtualProd(auth.currUser);
+const userVirProds = computed(() =>
+  virShopProds.value.map((x) => Object.assign({}, x, auth.currUser))
+);
+const { selectFunc, userProd, tableCols, openSelectList } = useShopGarmentTable(
+  true,
+  userVirProds
+);
 function goAuthorizeCafe() {
   if (
     tokens.value.filter(
@@ -173,7 +180,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
         }
       }
     } catch (err) {
-      console.error(err);
+      log.error(uid.value, err);
       return msg.error(
         `${token.service} ${
           token.alias ?? token.mallId

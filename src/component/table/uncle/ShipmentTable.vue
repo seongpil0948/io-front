@@ -22,7 +22,7 @@ const {
   byShopCols,
   orders,
   selectedData,
-  selectedOrderProdId,
+  checkedDetailKeys,
   openWorkerModal,
   onCheckRow,
   byShopDetailCols,
@@ -36,31 +36,38 @@ const msg = useMessage();
 // }>();
 
 async function onSelectWorker(val: IoUser) {
-  const item = selectedData.value?.items.find(
-    (x) => x.id === selectedOrderProdId.value
+  if (!selectedData.value) return;
+  const items = selectedData.value.items.filter((x) =>
+    checkedDetailKeys.value.includes(x.shippingId)
   );
-
-  if (selectedData.value && item) {
+  const userIds = new Set<string>();
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
     const shipment = IoShipment.fromJson(item);
     shipment.uncleId = val.userInfo.userId;
     const order = orders.value.find((x) => x.dbId === shipment.orderDbId);
     if (!order) throw new Error("order not exist");
     setState(order, item.id, "BEFORE_PICKUP");
-    return Promise.all([
-      ORDER_GARMENT_DB.updateOrder(order),
-      shipment.update(),
-    ]).then(async () => {
-      msg.success("담당자 배정이 완료되었습니다.");
-      await smtp.sendAlarm({
-        toUserIds: [order.shopId, ...order.vendorIds, val.userInfo.userId],
-        subject: `inoutbox 주문 처리내역 알림.`,
-        body: `배송 담당자 ${getUserName(val)} 님이 배정되었습니다.`,
-        notiLoadUri: "/",
-        uriArgs: {},
-      });
-      openWorkerModal.value = false;
-    });
+    await Promise.all([ORDER_GARMENT_DB.updateOrder(order), shipment.update()]);
+    [order.shopId, ...order.vendorIds, val.userInfo.userId].forEach((uid) =>
+      userIds.add(uid)
+    );
   }
+  msg.success("담당자 배정이 완료되었습니다.");
+  await smtp.sendAlarm({
+    toUserIds: [...userIds],
+    subject: `inoutbox 주문 처리내역 알림.`,
+    body: `배송 담당자 ${getUserName(val)} 님이 배정되었습니다.`,
+    notiLoadUri: "/",
+    uriArgs: {},
+  });
+  openWorkerModal.value = false;
+}
+function tryOpen() {
+  if (checkedDetailKeys.value.length < 1) {
+    msg.error("배송건을 한개이상 선택해주세요!");
+  }
+  openWorkerModal.value = true;
 }
 </script>
 <template>
@@ -77,6 +84,9 @@ async function onSelectWorker(val: IoUser) {
       :bordered="false"
       :title="selectedData.shopName"
     >
+      <template #header-extra>
+        <n-button type="primary" @click="tryOpen">선택 담당자 배정</n-button>
+      </template>
       <n-data-table
         :bordered="false"
         :columns="byShopDetailCols"

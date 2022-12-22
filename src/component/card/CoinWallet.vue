@@ -8,7 +8,7 @@ import { Bootpay } from "@bootpay/client-js";
 import { uuidv4 } from "@firebase/util";
 import { useLogger } from "vue-logger-plugin";
 import { useMessage, useDialog, NSpace, NText } from "naive-ui";
-import { formatDate, loadDate } from "@io-boxies/js-lib";
+import { formatDate, loadDate, locateToStr } from "@io-boxies/js-lib";
 
 const inst = getCurrentInstance();
 const APP_ID = "62b45e0fe38c3000215aec6b";
@@ -23,37 +23,38 @@ async function reqPay() {
   const uuid = uuidv4();
   const date = new Date();
   const price = IoPay.coinToMoney(chargeCoin.value);
-  const data = {
-    price,
-    application_id: APP_ID,
-    order_name: `order-in-coin_${price}`,
-    order_id: "charge_" + uuid, //고유 주문번호로, 생성하신 값을 보내주셔야 합니다
-    uuid,
-    user: {
-      uid,
-      username: user.userInfo.userName,
-      email: user.userInfo.email,
-      addr: "",
-      phone: user.userInfo.phone ?? "",
-    },
-    metadata: {
-      uid,
-      m: ee(price),
-    },
-    extra: {
-      separately_confirmed: true, // 승인(done) 전 서버확인(confirm) 이벤트가 호출됨
-      display_error_result: true,
-      test_deposit: true,
-      deposit_expiration: date
-        .toLocaleDateString()
-        .split(".")
-        .filter((x) => x)
-        .map((x) => x.trim())
-        .join("-"),
-    },
-  };
   try {
-    const resp = await Bootpay.requestPayment(data);
+    const resp = await Bootpay.requestPayment({
+      price,
+      application_id: APP_ID,
+      order_name: `order in-coin ${chargeCoin.value} 개`,
+      order_id: "charge_" + uuid, //고유 주문번호로, 생성하신 값을 보내주셔야 합니다
+      uuid,
+      user: {
+        id: uid,
+        username: user.userInfo.userName,
+        email: user.userInfo.email,
+        addr: user.companyInfo?.shipLocate
+          ? locateToStr(user.companyInfo?.shipLocate)
+          : undefined,
+        phone: user.userInfo.phone ?? "",
+      },
+      metadata: {
+        uid,
+        m: ee(price),
+      },
+      extra: {
+        separately_confirmed: true, // 승인(done) 전 서버확인(confirm) 이벤트가 호출됨
+        display_error_result: true,
+        test_deposit: true,
+        deposit_expiration: date
+          .toLocaleDateString()
+          .split(".")
+          .filter((x) => x)
+          .map((x) => x.trim())
+          .join("-"),
+      },
+    });
     console.log("bootpay resp ", resp);
     const pre = "in Bootpay.requestPayment >";
     if (resp.event === "issued") {
@@ -65,7 +66,7 @@ async function reqPay() {
         return log.error(uid, pre + "confirm, $http is null");
       }
       const verifyResp = await http.get(
-        `/payment/verifyReceipt?price=${data.price}&receiptId=${resp.receipt_id}&order_id=${resp.order_id}`
+        `/payment/verifyReceipt?price=${price}&receiptId=${resp.receipt_id}&order_id=${resp.order_id}`
       );
       console.log(null, "/payment/verifyReceipt Response: ", verifyResp);
       const ok = verifyResp.data === "sp"; // 재고 수량 관리 로직 혹은 다른 처리

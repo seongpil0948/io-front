@@ -24,8 +24,8 @@
 
 <script setup lang="ts">
 import { CsPost } from "@/composable";
-import { NThing, DataTableColumns, NText, NButton } from "naive-ui";
-import { computed, h, toRefs } from "vue";
+import { NThing, DataTableColumns, NButton } from "naive-ui";
+import { h, toRefs } from "vue";
 import { useRouter } from "vue-router";
 import { useCsStore } from "@/store";
 import { loadDate, formatDate } from "@io-boxies/js-lib";

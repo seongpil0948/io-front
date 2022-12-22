@@ -23,57 +23,45 @@ exports.scheduledElasticHealthCheck = functions
     });
   });
 
-exports.elasticVendorProdSearch = functions
+exports.elasticInoutBoxSearch = functions
   .region("asia-northeast3")
-  .https.onCall((d: { input: string }) => {
-    const env = functions.config();
+  .https.onCall((d: { searchParam: any }) => {
     const client = getElastic();
-    if (!(typeof d.input === "string") || d.input.length === 0) {
-      // Throwing an HttpsError so that the client gets the error details.
-      throw new functions.https.HttpsError(
-        "invalid-argument",
-        "The function must be called with " +
-          "one arguments 'input' containing the query text to add."
-      );
-    }
-    functions.logger.debug("elasticVendorProdSearch search word: ", d.input);
-    return client
-      .search({
-        index: env.elasticsearch.vendor_prod_index,
-        query: {
-          query_string: {
-            query: d.input,
-          },
-          // multi_match: {
-          //   query: d.input,
-          //   fields: [
-          //     "vendorprodname",
-          //     "fabric",
-          //     "info",
-          //     "description",
-          //     "createdat",
-          //     "updatedat",
-          //     "part",
-          //     "ctgr",
-          //   ],
-          // },
-        },
-        sort: [
-          {
-            "createdat.date": {
-              order: "desc",
-            },
-          },
-        ],
-        from: 0,
-        size: 200,
-      })
-      .then((result) => {
-        return result;
-      })
-      .catch((e) => {
-        functions.logger.error("error in elasticVendorProdSearch :  ", e);
-      });
+    const p = JSON.stringify(d.searchParam);
+    functions.logger.debug("elasticInoutBoxSearch param: " + p);
+    return (
+      client
+        .search(d.searchParam)
+        // return client
+        //   .search({
+        //     // index: env.elasticsearch.vendor_prod_index,
+        //     index: d.index,
+        //     query: {
+        //       query_string: {
+        //         query: d.input,
+        //       },
+        //       // multi_match: {
+        //       //   query: d.input,
+        //       //   fields: [
+        //       //     "vendorprodname",
+        //       //   ],
+        //       // },
+        //     },
+        //     sort: [
+        //       {
+        //         "createdat.date": {
+        //           order: "desc",
+        //         },
+        //       },
+        //     ],
+        //     from: 0,
+        //     size: 200,
+        //   })
+        .catch((e) => {
+          functions.logger.error("error in elasticInoutBoxSearch" + e);
+          throw e;
+        })
+    );
   });
 
 const getElastic = () => {

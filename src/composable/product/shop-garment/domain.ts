@@ -47,6 +47,8 @@ export interface ShopGarmentDB {
   ): { shopProds: Ref<ShopGarment[]>; unsubscribe: Unsubscribe };
   deleteShopGarments(userId: string, prodIds: string[]): Promise<void>;
   getBatchShopProds(shopIds: string[]): Promise<ShopUserGarment[]>;
+  listByIds(shopProdIds: string[]): Promise<ShopGarment[]>;
+  getById(shopProdId: string): Promise<ShopGarment | null>;
 }
 
 export interface ShopUserGarment extends IoUser, ShopGarmentCrt {}

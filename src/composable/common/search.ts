@@ -6,7 +6,7 @@ import { useMessage } from "naive-ui";
 
 export function useElasticSearch(d: {
   onSearch: (result: any) => void;
-  makeInput: (val: string) => string;
+  makeParam: (val: string) => any;
   funcName: string;
 }) {
   const searchInputVal = ref<string | null>(null);
@@ -18,11 +18,9 @@ export function useElasticSearch(d: {
     searchVal.value = searchInputVal.value;
     const functions = getFunctions(ioFire.app, "asia-northeast3");
     const searchFunc = httpsCallable(functions, d.funcName);
-    if (!searchVal.value || searchVal.value.length < 2) {
-      searchData.value = [];
-      return msg.warning("검색어를 두글자 이상 입력해주세요!");
-    }
-    return searchFunc({ input: d.makeInput(searchVal.value) })
+    const param = d.makeParam(searchVal.value ?? "");
+    console.log("searchFunc param: ", param);
+    return searchFunc({ searchParam: param })
       .then(d.onSearch)
       .catch((err) => console.error(`error in ${d.funcName}`, err));
   }

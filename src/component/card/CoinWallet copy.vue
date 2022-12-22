@@ -24,7 +24,6 @@ async function reqPay() {
     name: "인코인 구매", //결제창에서 보여질 이름
     show_agree_window: 1, // 부트페이 정보 동의 창 보이기 여부
     user_info: {
-      // TODO
       username: user.userInfo.userName,
       email: user.userInfo.email,
       addr: null,

@@ -1,5 +1,5 @@
 // import { logger } from "@/plugin/logger";
-import { CommonField } from "@/composable/common";
+import { CommonField, VISIBILITY } from "@/composable/common";
 import { commonToJson } from "@io-boxies/js-lib";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
@@ -27,6 +27,8 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   description: string; // 상품요약
   TBD: { [k: string]: any };
   prodType: PROD_TYPE;
+  visible: VISIBILITY;
+  primeCost: number;
 
   async update() {
     this.updatedAt = new Date();
@@ -60,6 +62,8 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     this.description = d.description;
     this.TBD = d.TBD ?? {};
     this.prodType = d.prodType;
+    this.visible = d.visible;
+    this.primeCost = d.primeCost;
   }
   get similarId() {
     return VendorGarment.similarId(this);
@@ -100,6 +104,8 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
         description: data.description,
         TBD: data.TBD ?? {},
         prodType: data.prodType ?? "GARMENT",
+        visible: data.visible ?? "GLOBAL",
+        primeCost: data.primeCost ?? data.vendorPrice ?? -1,
       });
     } else {
       //   logger.error(null, "vendor product from json return null, data: ", data);
