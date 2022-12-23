@@ -99,6 +99,7 @@ const { searchInputVal, searchData, search, msg } = useElasticSearch({
     }
   },
   makeParam: (input) => {
+    // TODO: should fuzzy(typo correction)..
     const query = { bool: {} as any };
     const musts = [];
     if (part.value)
@@ -170,7 +171,7 @@ const targetData = computed(() =>
         clearable
         :options="ctgrOpts"
       />
-      <n-select v-model:value="gender" :options="genderOpts" />
+      <n-select v-model:value="gender" :options="genderOpts" clearable />
     </n-space>
     <n-space :wrap-item="false" justify="end" :wrap="false">
       <n-input

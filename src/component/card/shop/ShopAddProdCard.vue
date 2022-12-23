@@ -9,7 +9,7 @@ import {
   ShopUserGarment,
   VENDOR_GARMENT_DB,
 } from "@/composable";
-import { getUserLocate, USER_DB } from "@io-boxies/js-lib";
+import { getUserLocate } from "@io-boxies/js-lib";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { Home24Filled, Phone20Filled } from "@vicons/fluent";
@@ -146,18 +146,18 @@ useEditor({
     close-on-esc
     size="huge"
     preset="card"
-    style="margin: 0 10%"
+    style="margin: 0 2%"
   >
     <n-space vertical style="overflow: auto; max-height: 75vh">
       <n-card>
-        <n-space size="large" inline justify="space-between" style="width: 98%">
+        <n-space size="large" inline justify="space-around" style="width: 100%">
           <carousel-img-card
             :img-urls="imgUrls"
-            :width="30"
-            :height="30"
-            unit="vw"
+            :width="300"
+            :height="300"
+            unit="px"
           />
-          <n-space vertical style="width: 35vw">
+          <n-space vertical style="min-width: 35vw">
             <n-space v-if="getUserLocate(prod)" justify="space-between">
               <n-button text>
                 <template #icon>
@@ -182,7 +182,7 @@ useEditor({
               <n-card
                 v-for="(opt, i) in prodOpts"
                 :key="i"
-                style="width: 25vw; margin: auto; margin-bottom: 10px"
+                style="margin: auto; margin-bottom: 10px"
                 content-style="
                   padding: 10px;
                   display: inline-flex;

@@ -53,6 +53,7 @@ declare module '@vue/runtime-core' {
     MngMaintainCost: typeof import('./src/view/uncle/page/MngMaintainCost.vue')['default']
     MngSalary: typeof import('./src/view/uncle/page/MngSalary.vue')['default']
     NA: typeof import('naive-ui')['NA']
+    NAutoComplete: typeof import('naive-ui')['NAutoComplete']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
