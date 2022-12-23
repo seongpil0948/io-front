@@ -20,7 +20,7 @@
     "@editorjs/list": "^1.7.0",
     "@editorjs/table": "^2.0.4",
     "@io-boxies/js-lib": "^0.0.11",
-    "@io-boxies/vue-lib": "0.1.14",
+    "@io-boxies/vue-lib": "^0.1.18",
     "axios": "1.2.1",
     "clipboardy": "^3.0.0",
     "danfojs": "1.1.1",

@@ -1,9 +1,9 @@
-import { NCheckbox, NGradientText, NButton, NText } from "naive-ui";
+import { NCheckbox, NGradientText, NButton, NText, NImage } from "naive-ui";
 import {
   TableBaseColumn,
   ColumnKey,
 } from "naive-ui/es/data-table/src/interface";
-import { ref, watchEffect, h, Ref, defineAsyncComponent } from "vue";
+import { ref, watchEffect, h, Ref, defineAsyncComponent, Component } from "vue";
 import { IoColOpt, MapperFields, IoColOptInner } from "../domain";
 import { colKoMapper } from "./colDict";
 import { useMapper } from "./mapper";
@@ -105,12 +105,17 @@ export function useTable<T extends MapperFields>(
           } else if (typeof row[opt.key] === "string") {
             src = row[opt.key];
           }
+
           return h(
-            "img",
+            NImage as Component,
             {
               src,
+              fallbackSrc: "/img/no_image.png",
+              alt: "X",
+              objectFit: "contain",
               width: "50",
               height: "50",
+              previewDisabled: true,
             },
             {}
           );

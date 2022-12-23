@@ -296,7 +296,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         if (ord.items.length < 1) continue;
         for (let j = 0; j < ord.items.length; j++) {
           const item = ord.items[j];
-          if (item.vendorProd.visible || item.vendorProd.visible !== "GLOBAL") {
+          if (item.vendorProd.visible && item.vendorProd.visible !== "GLOBAL") {
             throw new Error("가상 상품은 주문 할 수 없습니다.");
           } else if (!orderItemIds.includes(item.id)) continue;
           const vendorRef = await transaction.get(
@@ -795,7 +795,7 @@ async function stateModify(d: {
         const item = d.onItem
           ? await d.onItem(o.items[j] as OrderItem)
           : o.items[j];
-        if (item.vendorProd.visible || item.vendorProd.visible !== "GLOBAL") {
+        if (item.vendorProd.visible && item.vendorProd.visible !== "GLOBAL") {
           throw new Error("가상 상품은 주문 할 수 없습니다.");
         }
         setState(o, item.id, d.afterState);

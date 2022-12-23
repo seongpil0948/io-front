@@ -51,6 +51,17 @@ async function onLogin(data: LoginReturn | undefined) {
 }
 const env = import.meta.env.MODE === "production" ? "io-prod" : "io-dev";
 console.log("env: ", typeof env, env);
+
+function onInternalError(err: any) {
+  if (err.code === "auth/custom-token-mismatch") {
+    const msgStr =
+      "인증과정에서 auth/custom-token-mismatch 에러가 발생했습니다.";
+    msg.error(msgStr);
+    log.error(null, msgStr);
+  } else {
+    console.log(`code: ${err.code}, message: ${err.message}`, err);
+  }
+}
 </script>
 
 <template>
@@ -63,6 +74,7 @@ console.log("env: ", typeof env, env);
         kakao-img-path="/img/icon-kakao-talk.png"
         logo-img-path="/logo.png"
         @on-login="onLogin"
+        @on-internal-error="onInternalError"
       />
       <io-footer />
     </n-space>
