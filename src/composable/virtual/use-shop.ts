@@ -5,6 +5,12 @@ import {
   onFirestoreCompletion,
   onFirestoreErr,
   ShopGarment,
+  newOrdFromItem,
+  newOrdItem,
+  IoOrder,
+  useSearch,
+  useShopGarmentTable,
+  ORDER_GARMENT_DB,
 } from "@/composable";
 import { getIoCollection, IoUser } from "@io-boxies/js-lib";
 import {
@@ -12,16 +18,18 @@ import {
   existSameProduct,
   getSimilarProducts,
 } from "@/composable/product/vendor-garment/db/firebase";
-import { ref, onBeforeUnmount } from "vue";
+import { ref, onBeforeUnmount, computed } from "vue";
 import { handleReadSnap } from "@/util";
 import { onSnapshot, query, orderBy, where } from "firebase/firestore";
 import { uuidv4 } from "@firebase/util";
 import { shopProdC } from "../product/shop-garment/db/firebase";
+import { makeMsgOpt } from "@io-boxies/vue-lib";
+import { useMessage } from "naive-ui";
 
 export function useShopVirtualProd(user: IoUser) {
   const uid = user.userInfo.userId;
   const name = "VirtualVendorProd snapshot";
-
+  const msg = useMessage();
   // >>> virtual
   const virVendorProdC = getIoCollection({
     uid,
@@ -101,6 +109,75 @@ export function useShopVirtualProd(user: IoUser) {
     unsubscribeVirtual();
     unsubscribeShopProd();
   });
+
+  const regitProdModal = ref(false);
+  function changeRegitProdModal() {
+    regitProdModal.value = !regitProdModal.value;
+  }
+  function onRegistered(vGarments: VendorGarment[]) {
+    console.info("registered virtual garment: ", vGarments);
+    regitProdModal.value = false;
+  }
+
+  const userVirProds = computed(() =>
+    virShopProds.value.map((x) => Object.assign({}, x, user))
+  );
+  const { tableCols, checkedKeys, popVal, selectedRow } = useShopGarmentTable(
+    false,
+    userVirProds
+  );
+  const virShopCols = computed(() =>
+    tableCols.value.filter(
+      (x: any) =>
+        !["select", "userName", "vendorPrice", "stockCnt"].includes(x.key)
+    )
+  );
+
+  const { search, searchedData, searchInputVal } = useSearch({
+    data: userVirProds,
+    filterFunc: (x, searchVal) => {
+      const v: typeof searchVal = searchVal;
+      return v === null
+        ? true
+        : x.size.includes(v) || x.color.includes(v) || x.prodName.includes(v);
+    },
+  });
+
+  async function onCheckedOrder() {
+    const orders: IoOrder[] = [];
+    for (let i = 0; i < checkedKeys.value.length; i++) {
+      const prod = virShopProds.value.find(
+        (x) => x.shopProdId === checkedKeys.value[i]
+      )!;
+      if (!prod) continue;
+
+      const vendorProd = virVendorProds.value.find(
+        (y) => y.vendorProdId === prod.vendorProdId
+      )!;
+      const item = newOrdItem({
+        vendorProd,
+        shopProd: prod,
+        orderIds: [uuidv4()],
+        orderCnt: 1,
+        shipFeeAmount: 0,
+        shipFeeDiscountAmount: 0,
+        pickFeeAmount: 0,
+        pickFeeDiscountAmount: 0,
+        tax: 0,
+        paidAmount: 0,
+        paid: "NO",
+        paymentConfirm: false,
+      });
+      const order = newOrdFromItem([item]);
+      orders.push(order);
+    }
+    await ORDER_GARMENT_DB.batchCreate(user.userInfo.userId, orders);
+    msg.success(
+      `${orders.length} 개 상품 주문데이터 생성이 완료 되었습니다.`,
+      makeMsgOpt()
+    );
+  }
+
   return {
     virVendorProdC,
     getVirSimilarProds,
@@ -108,5 +185,15 @@ export function useShopVirtualProd(user: IoUser) {
     createVirVendorGarments,
     virVendorProds,
     virShopProds,
+    regitProdModal,
+    changeRegitProdModal,
+    onRegistered,
+    searchInputVal,
+    search,
+    onCheckedOrder,
+    popVal,
+    selectedRow,
+    virShopCols,
+    searchedData,
   };
 }
