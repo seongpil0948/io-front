@@ -84,7 +84,7 @@ function downSampleXlsx() {
     v-model:fileModel="fileModel"
     :listen-click="!(filteredOrders.length > 0)"
   >
-    <n-space justify="start">
+    <n-space justify="start" style="margin-bottom: 5px">
       <n-button size="small" type="primary" @click="orderChecked">
         선택주문
       </n-button>

@@ -17,11 +17,17 @@ export function matchZigzagOrder(
   userProd: ShopUserGarment[]
 ) {
   const result: MatchGarment[] = [];
+  const cnt = { orderCnt: ords.length, exist: 0, invalid: 0 };
   for (let i = 0; i < ords.length; i++) {
     const ord = ords[i];
     const orderId = ord.order.order_number;
-    if (existOrderIds.has(orderId)) continue;
-    else if (!validStatus.includes(ord.status)) continue;
+    if (existOrderIds.has(orderId)) {
+      cnt.exist += 1;
+      continue;
+    } else if (!validStatus.includes(ord.status)) {
+      cnt.invalid += 1;
+      continue;
+    }
     const item = ord.product_info;
     const inputProdName: TryStr = item.name;
     const orderCnt: TryNum = ord.quantity;
@@ -44,5 +50,5 @@ export function matchZigzagOrder(
       orderId,
     });
   }
-  return result;
+  return { result, cnt };
 }

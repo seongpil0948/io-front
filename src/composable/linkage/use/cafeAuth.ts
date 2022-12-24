@@ -10,6 +10,14 @@ export function useCafeAuth() {
   const CAFE_CLIENT_ID = "mnhAX4sDM9UmCchzOwzTAA";
   const inst = getCurrentInstance();
   const http = inst?.appContext.config.globalProperties.$http ?? _axios;
+
+  const path = "/shop/orderlinkage";
+  const baseUri =
+    import.meta.env.MODE === "production"
+      ? "https://inout-box.com"
+      : "https://io-box--dev-pcug7p0p.web.app";
+  const redirectUri = baseUri + path;
+
   onBeforeMount(async () => {
     const urlParameter = window.location.search;
     const params = new URLSearchParams(urlParameter);
@@ -21,7 +29,7 @@ export function useCafeAuth() {
       console.log(urlParameter, "stateObj ", stateObj, "code", code);
       const formData = new FormData();
       formData.set("code", code);
-      formData.set("redirectUri", "https://inout-box.com/orderlinkage");
+      formData.set("redirectUri", redirectUri);
       formData.set("mallId", stateObj.mallId);
       formData.set("userId", stateObj.userId);
       const saveCafeTokenRes = await http.post(
@@ -44,9 +52,10 @@ export function useCafeAuth() {
       userId: auth.currUser.userInfo.userId,
     })
   );
+
   const authUrl = computed(
     () =>
-      `https://${mallId.value}.cafe24api.com/api/v2/oauth/authorize?response_type=code&client_id=${CAFE_CLIENT_ID}&state=${stateStr.value}&redirect_uri=https://inout-box.com/orderlinkage&scope=mall.read_product mall.read_order`
+      `https://${mallId.value}.cafe24api.com/api/v2/oauth/authorize?response_type=code&client_id=${CAFE_CLIENT_ID}&state=${stateStr.value}&redirect_uri=${redirectUri}&scope=mall.read_product mall.read_order`
   );
   return {
     authorizeCafe,

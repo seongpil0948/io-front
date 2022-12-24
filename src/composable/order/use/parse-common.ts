@@ -73,11 +73,15 @@ export async function saveMatch(
   matchData: MatchGarment[],
   userProd: ShopUserGarment[],
   userId: string,
-  existOrderIds: Ref<Set<string>>
+  existOrderIds: Ref<Set<string>>,
+  baseVendorGarments: VendorGarment[] = []
 ) {
   const orders: IoOrder[] = [];
   const ids = userProd.map((x) => x.vendorProdId);
-  const vendorProds = await VENDOR_GARMENT_DB.listByIds(ids);
+  const vendorProds = [
+    ...(await VENDOR_GARMENT_DB.listByIds(ids)),
+    ...baseVendorGarments,
+  ];
 
   for (let i = 0; i < matchData.length; i++) {
     const data = matchData[i];

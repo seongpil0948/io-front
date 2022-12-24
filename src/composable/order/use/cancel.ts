@@ -8,7 +8,7 @@ import {
 import { makeMsgOpt } from "@/util";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
-import axios, { axiosConfig } from "@/plugin/axios";
+import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
 
 export function useCancel() {

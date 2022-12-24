@@ -20,7 +20,7 @@ import {
   useShopVirtualProd,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
-import { dateRanges } from "@/util";
+import { dateRanges, makeMsgOpt } from "@/util";
 import { useMessage, NButton } from "naive-ui";
 import { onBeforeUnmount, computed, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
@@ -169,13 +169,16 @@ async function onGetOrder(useMatching = true, useMapping = true) {
           uid.value
         );
         if (useMatching) {
-          matchData.value.push(
-            ...matchZigzagOrder(
-              zigOrds,
-              existOrderIds.value,
-              token.alias,
-              userProd.value
-            )
+          const { result, cnt } = matchZigzagOrder(
+            zigOrds,
+            existOrderIds.value,
+            token.alias,
+            userProd.value
+          );
+          matchData.value = result;
+          msg.info(
+            `지그재그 전체 주문건: ${cnt.orderCnt}, 유효하지 않은 주문건: ${cnt.invalid}, 이미 진행된 주문건: ${cnt.exist}`,
+            makeMsgOpt()
           );
         }
       }
@@ -189,8 +192,15 @@ async function onGetOrder(useMatching = true, useMapping = true) {
     }
   }
 }
+const { virVendorProds } = useShopVirtualProd(auth.currUser);
 async function onSaveMatch() {
-  await saveMatch(matchData.value, userProd.value, uid.value, existOrderIds);
+  await saveMatch(
+    matchData.value,
+    userProd.value,
+    uid.value,
+    existOrderIds,
+    virVendorProds.value
+  );
   matchData.value = [];
 }
 </script>
