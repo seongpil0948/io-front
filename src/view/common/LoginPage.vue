@@ -7,6 +7,7 @@ import { useRouter } from "vue-router";
 import { getUserName, USER_ROLE } from "@io-boxies/js-lib";
 import { makeMsgOpt } from "@/util";
 import { useLogger } from "vue-logger-plugin";
+import { axiosConfig } from "@/plugin/axios";
 
 const msg = useMessage();
 const authS = useAuthStore();
@@ -39,7 +40,7 @@ async function onLogin(data: LoginReturn | undefined) {
     if (validRoles.includes(role)) {
       msg.success(`안녕하세요 ${getUserName(data.user)}님`, makeMsgOpt());
       authS.login(data.user);
-      router.goHome();
+      router.goHome(data.user);
     } else {
       const m = `유효하지 않은 유저권한입니다.`;
       msg.error(m, makeMsgOpt());
@@ -50,7 +51,6 @@ async function onLogin(data: LoginReturn | undefined) {
   }
 }
 const env = import.meta.env.MODE === "production" ? "io-prod" : "io-dev";
-console.log("env: ", typeof env, env);
 
 function onInternalError(err: any) {
   if (err.code === "auth/custom-token-mismatch") {
@@ -69,6 +69,7 @@ function onInternalError(err: any) {
     <n-space id="login-page-container" vertical>
       <LoginView
         :env="env"
+        :custom-token-url="`${axiosConfig.baseURL}/auth/customToken`"
         style="max-width: 500px"
         kakao-img-other-path="/img/icon-kakao-talk-black.png"
         kakao-img-path="/img/icon-kakao-talk.png"

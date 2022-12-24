@@ -3,7 +3,6 @@ import {
   IoShipment,
   ORDER_STATE,
   useShipmentUncle,
-  useAlarm,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ShipOrderByShop,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -11,7 +10,9 @@ import {
   ORDER_GARMENT_DB,
   setState,
 } from "@/composable";
+import { axiosConfig } from "@/plugin/axios";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
+import { useAlarm } from "@io-boxies/vue-lib";
 import { useMessage } from "naive-ui";
 
 const props = defineProps<{
@@ -60,6 +61,8 @@ async function onSelectWorker(val: IoUser) {
     body: `배송 담당자 ${getUserName(val)} 님이 배정되었습니다.`,
     notiLoadUri: "/",
     uriArgs: {},
+    sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+    pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
   });
   openWorkerModal.value = false;
 }

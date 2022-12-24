@@ -8,6 +8,7 @@ import { NButton, useMessage } from "naive-ui";
 import { Size, Type } from "naive-ui/es/button/src/interface";
 import { ref, toRefs, watchEffect, computed } from "vue";
 import ReceiptCard from "@/component/card/vendor/ReceiptCard.vue";
+import { axiosConfig } from "@/plugin/axios";
 
 const props = defineProps<{
   targetOrdDbIds: string[];
@@ -66,6 +67,8 @@ async function completePay() {
         body: `${getUserName(auth.currUser)} 에서 결제를 승인 하였습니다. `,
         notiLoadUri: "/",
         uriArgs: {},
+        sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+        pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
       });
     })
     .catch((err) => {

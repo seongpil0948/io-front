@@ -3,7 +3,6 @@ import {
   useOrderTable,
   ORDER_STATE,
   ORDER_GARMENT_DB,
-  useAlarm, // eslint-disable-next-line
   OrderItemCombined,
   useContactUncle,
 } from "@/composable";
@@ -18,10 +17,13 @@ import {
   NSpace,
   useMessage,
 } from "naive-ui";
-// BUG 체크박스가 체크가 안되는 이슈가 있음..
+import axios, { axiosConfig } from "@/plugin/axios";
+import { useAlarm } from "@io-boxies/vue-lib";
+
 const msg = useMessage();
 const inStates: ORDER_STATE[] = ["BEFORE_PICKUP_REQ"];
 const shopOrderStore = useShopOrderStore();
+
 const smtp = useAlarm();
 const auth = useAuthStore();
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
@@ -65,6 +67,8 @@ async function pickupRequest() {
     body: `${getUserName(auth.currUser)} 으로부터 픽업요청이 도착하였습니다. `,
     notiLoadUri: "/",
     uriArgs: {},
+    sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+    pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
   });
 }
 </script>

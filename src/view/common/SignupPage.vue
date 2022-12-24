@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { catchError, useAlarm } from "@/composable";
+import { catchError } from "@/composable";
 import { makeMsgOpt, useFireWork, isMobile } from "@/util";
 import { FormInst, useMessage, useDialog } from "naive-ui";
 import { lightTheme } from "naive-ui";
@@ -27,6 +27,9 @@ import {
 } from "@io-boxies/js-lib";
 import { createUserWithEmailAndPassword, getAuth } from "@firebase/auth";
 import { ioFire } from "@/plugin/firebase";
+import { axiosConfig } from "@/plugin/axios";
+import { useAlarm } from "@io-boxies/vue-lib";
+
 const UserInfoForm = defineAsyncComponent(
   () => import("@/component/form/UserInfoForm.vue")
 );
@@ -50,6 +53,7 @@ const userRole = ref<USER_ROLE | null>(null);
 const user = ref<IoUser | null>(null);
 const acceptTerms = ref(false);
 const { play, stop } = useFireWork();
+
 const smtp = useAlarm();
 const state = window.history.state;
 
@@ -195,6 +199,7 @@ function onStep7() {
 
 async function onSignUp() {
   const u = user.value;
+  console.log("in signup:  ", u);
 
   if (!acceptTerms.value) {
     return msg.error("이용약관에 동의 해주세요", makeMsgOpt());
@@ -204,53 +209,41 @@ async function onSignUp() {
   } else if (u.userInfo.providerId === "EMAIL") {
     if (!u.userInfo.email)
       return msg.error("(오류) 이메일이 없습니다.", makeMsgOpt());
+    const credential = await createUserWithEmailAndPassword(
+      getAuth(ioFire.app),
+      u.userInfo.email,
+      state.password
+    );
+    u.userInfo.userId = credential.user.uid;
+    log.info(null, "createUserWithEmailAndPassword: ", credential);
+  }
+  if (!u.userInfo.userId) {
+    log.error(null, "u.userInfo.userId is null in signup");
+  } else {
+    log.debug(u.userInfo.userId, "signup user: ", u);
+    await USER_DB.updateUser(u);
+    logEvent(getAnalytics(IoFireApp.getInst().app), "sign_up", {
+      method: u.userInfo.providerId,
+      userRole: u.userInfo.role,
+    });
     try {
-      const credential = await createUserWithEmailAndPassword(
-        getAuth(ioFire.app),
-        u.userInfo.email,
-        state.password
-      );
-      u.userInfo.userId = credential.user.uid;
-      log.info(null, "createUserWithEmailAndPassword: ", credential);
-    } catch (e: any) {
-      if (typeof e.code === "string") {
-        if (e.code.includes("email-already-in-use")) {
-          log.debug(
-            null,
-            `user${u.userInfo.userId} login return in email-already-in-use`
-          );
-        } else {
-          throw e;
-        }
-      }
-    } finally {
-      if (!u.userInfo.userId) {
-        log.error(null, "u.userInfo.userId is null in signup");
-      } else {
-        log.debug(u.userInfo.userId, "signup user: ", u);
-        await USER_DB.updateUser(u);
-        logEvent(getAnalytics(IoFireApp.getInst().app), "sign_up", {
-          method: u.userInfo.providerId,
-          userRole: u.userInfo.role,
-        });
-        try {
-          msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
-          await smtp.sendAlarm({
-            toUserIds: [u.userInfo.userId],
-            subject: `inoutbox 회원가입 처리내역 알림.`,
-            body: `${getUserName(
-              u
-            )} 께서 제출하신 정보를 바탕으로 계정 검토 및 승인 후 홈페이지 및 어플 이용이 가능합니다.`,
-            notiLoadUri: "/",
-            uriArgs: {},
-          });
-        } catch (err) {
-          catchError({ err, msg });
-        }
-        play();
-        step.value = 9;
-      }
+      msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
+      await smtp.sendAlarm({
+        toUserIds: [u.userInfo.userId],
+        subject: `inoutbox 회원가입 처리내역 알림.`,
+        body: `${getUserName(
+          u
+        )} 께서 제출하신 정보를 바탕으로 계정 검토 및 승인 후 홈페이지 및 어플 이용이 가능합니다.`,
+        notiLoadUri: "/",
+        uriArgs: {},
+        sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+        pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
+      });
+    } catch (err) {
+      catchError({ err, msg });
     }
+    play();
+    step.value = 9;
   }
 }
 </script>

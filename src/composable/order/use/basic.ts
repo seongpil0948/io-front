@@ -1,4 +1,4 @@
-import { IoOrder, useAlarm, VENDOR_GARMENT_DB } from "@/composable";
+import { IoOrder, VENDOR_GARMENT_DB } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
@@ -8,6 +8,8 @@ import { ORDER_GARMENT_DB } from "../db";
 import { OrderItemCombined } from "../domain";
 import { DataFrame, toExcel } from "danfojs";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
+import { useAlarm } from "@io-boxies/vue-lib";
+import { axiosConfig } from "@/plugin/axios";
 
 export function useOrderBasic(
   user: IoUser,
@@ -17,6 +19,7 @@ export function useOrderBasic(
 ) {
   const log = useLogger();
   const msg = useMessage();
+
   const smtp = useAlarm();
   const orderTargets = ref<OrderItemCombined[]>([]);
   const expectedReduceCoin = computed(
@@ -49,6 +52,8 @@ export function useOrderBasic(
           body: `${getUserName(user)} 으로부터 주문 요청이 도착하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
+          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
       })
       .catch((err) => {

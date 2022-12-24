@@ -13,6 +13,7 @@ import {
 import { useShopStore, useAuthStore } from "@/store";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
 import { useAlarm } from "@io-boxies/vue-lib";
+import axios, { axiosConfig } from "@/plugin/axios";
 import { NButton, useMessage } from "naive-ui";
 import { storeToRefs } from "pinia";
 import {
@@ -59,6 +60,8 @@ async function onComplete(addedCredit: number) {
     body: `${getUserName(auth.currUser)} 에서 결제를 승인 하였습니다. `,
     notiLoadUri: "/",
     uriArgs: {},
+    sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+    pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
   });
 }
 const shopOpts = computed(() =>

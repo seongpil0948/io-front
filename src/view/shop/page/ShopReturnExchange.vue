@@ -4,7 +4,6 @@ import {
   catchError,
   ORDER_GARMENT_DB,
   ORDER_STATE,
-  useAlarm,
   useOrderTable,
   useContactUncle,
 } from "@/composable";
@@ -13,6 +12,8 @@ import { uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
 import { validateUser } from "@/composable/order/db/firebase";
+import axios, { axiosConfig } from "@/plugin/axios";
+import { useAlarm } from "@io-boxies/vue-lib";
 
 const auth = useAuthStore();
 const inStates: ORDER_STATE[] = [
@@ -74,6 +75,8 @@ async function returnReq() {
         body: `반품을 요청이 도착 하였습니다. `,
         notiLoadUri: "/",
         uriArgs: {},
+        sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+        pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
       });
     })
     .catch((err) =>

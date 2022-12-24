@@ -5,7 +5,6 @@ import {
   ORDER_GARMENT_DB,
   OrderItemByShop,
   OrderItemCombined,
-  useAlarm,
   dividePartial,
   VendorGarment,
   OrderItem,
@@ -23,7 +22,8 @@ import {
 import { computed, h, ref, Ref, VNode, defineAsyncComponent } from "vue";
 import { useAuthStore } from "@/store";
 import { doc, getDoc, updateDoc } from "@firebase/firestore";
-
+import { axiosConfig } from "@/plugin/axios";
+import { useAlarm } from "@io-boxies/vue-lib";
 const GarmentOrderRow = defineAsyncComponent(
   () => import("@/component/table/vendor/GarmentOrderRow.vue")
 );
@@ -202,6 +202,8 @@ export function useApproveOrder(p: ApproveParam) {
           )} 에서 주문 요청을 승인하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
+          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
         msg.success("주문승인 완료", makeMsgOpt());
       })
@@ -249,6 +251,8 @@ export function useApproveOrder(p: ApproveParam) {
           )} 에서 주문 요청을 거절 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
+          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
         msg.success("주문거절 완료", makeMsgOpt());
       })
@@ -279,6 +283,8 @@ export function useApproveOrder(p: ApproveParam) {
           body: `${getUserName(auth.currUser)} 에서 반품을 승인 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
+          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
       })
       .catch((err) => {
@@ -302,6 +308,8 @@ export function useApproveOrder(p: ApproveParam) {
           body: `${getUserName(auth.currUser)} 에서 반품을 거절 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
+          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
       })
       .catch((err) => {
@@ -328,6 +336,8 @@ export function useApproveOrder(p: ApproveParam) {
           )} 에서 출고리스트에 주문을 업로드 하였습니다. 이제 배송요청이 가능합니다. `,
           notiLoadUri: "/",
           uriArgs: {},
+          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
       })
       .catch((err) => {

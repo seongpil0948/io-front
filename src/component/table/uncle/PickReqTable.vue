@@ -7,7 +7,6 @@ import {
   SHIPMENT_DB,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ShipOrder,
-  useAlarm,
   useShipmentUncle,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
@@ -16,7 +15,8 @@ import { makeMsgOpt } from "@/util";
 import { NButton, useMessage } from "naive-ui";
 import { computed, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
-
+import { useAlarm } from "@io-boxies/vue-lib";
+import { axiosConfig } from "@/plugin/axios";
 const smtp = useAlarm();
 const {
   orders,
@@ -69,6 +69,8 @@ async function onReqOrderConfirm() {
         body: `${targetOrd.length} 건의  픽업승인이 완료되었습니다. `,
         notiLoadUri: "/",
         uriArgs: {},
+        sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+        pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
       });
     })
     .catch((err) => {

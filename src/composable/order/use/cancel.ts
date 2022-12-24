@@ -4,11 +4,12 @@ import {
   ORDER_GARMENT_DB,
   ORDER_STATE,
   REASON_TYPE,
-  useAlarm,
 } from "@/composable";
 import { makeMsgOpt } from "@/util";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
+import axios, { axiosConfig } from "@/plugin/axios";
+import { useAlarm } from "@io-boxies/vue-lib";
 
 export function useCancel() {
   const msg = useMessage();
@@ -56,6 +57,8 @@ export function useCancel() {
           body: `${shopName} 에서 주문을 취소 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
+          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
         msg.success("주문취소 완료", makeMsgOpt());
       })
@@ -84,6 +87,8 @@ export function useCancel() {
           body: `${vendorName} 에서 주문취소를 승인 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
+          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
         msg.success("주문취소 완료", makeMsgOpt());
       })
@@ -111,6 +116,8 @@ export function useCancel() {
           body: `${vendorName} 에서 주문취소를 반려 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
+          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
         msg.success("주문취소 반려 완료", makeMsgOpt());
       })

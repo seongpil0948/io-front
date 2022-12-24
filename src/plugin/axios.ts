@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Full config:  https://github.com/axios/axios#request-config
 // https://axios-http.com/docs/req_config
-const config = {
+export const axiosConfig = {
   baseURL: import.meta.env.VITE_WEB_SERVER_API_URL,
   //   timeout: 300 * 1000, // Timeout
   withCredentials: false, // Check cross-site Access-Control
@@ -16,7 +16,7 @@ const config = {
   },
 };
 
-const _axios = axios.create(config);
+const _axios = axios.create(axiosConfig);
 
 // _axios.interceptors.request.use((config) => {
 //   // console.log("Axios Intercept Request Config: ", config, "Store: ", store);

@@ -20,11 +20,7 @@ window.onerror = function (errorMsg, url, errorObj) {
     errorObj
   );
 };
-logger.debug(
-  null,
-  "in-out box front(web) has Ignited, with Env: ",
-  import.meta.env
-);
+console.log("in-out box front(web) has Ignited, with Env: ", import.meta.env);
 
 const app = createApp(App);
 app.use(pinia);
