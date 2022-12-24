@@ -16,7 +16,7 @@ import { ref, onBeforeUnmount } from "vue";
 import { handleReadSnap } from "@/util";
 import { onSnapshot, query, orderBy, where } from "firebase/firestore";
 import { uuidv4 } from "@firebase/util";
-import { shopProdC } from "../../shop-garment/db/firebase";
+import { shopProdC } from "../product/shop-garment/db/firebase";
 
 export function useShopVirtualProd(user: IoUser) {
   const uid = user.userInfo.userId;
