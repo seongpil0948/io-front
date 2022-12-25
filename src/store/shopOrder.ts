@@ -2,7 +2,7 @@
 import { extractGarmentOrd } from "@/util";
 import {
   ORDER_GARMENT_DB,
-  useShopUserGarments,
+  useShopUserProds,
   OrderItemCombined,
   OrderItemByVendor,
   ORDER_STATE,
@@ -138,7 +138,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     });
     orderUnSub = orderUnsubscribe;
     initial = false;
-    const { unsubscribe } = useShopUserGarments({
+    const { unsubscribe } = useShopUserProds({
       shopId: shopId.value,
       onChanged: (prods) => {
         shopProds.value = prods;

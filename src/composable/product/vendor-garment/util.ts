@@ -1,5 +1,5 @@
 import { VENDOR_GARMENT_DB } from "@/composable";
-import { IoOrder, OrderItem, OrderItemCombined } from "@/composable/order";
+import { OrderItem } from "@/composable/order";
 import {
   USER_DB,
   uniqueArr,

@@ -1,19 +1,10 @@
-import { MapKey, ShopUserGarment } from "@/composable";
+import { MapKey, ShopUserGarment, VENDOR_GARMENT_DB } from "@/composable";
 import { USER_DB } from "@io-boxies/js-lib";
 import { onBeforeUnmount, Ref, ref, watchEffect, watch } from "vue";
 import { ShopGarment, GarmentOrderCondi, SHOP_GARMENT_DB } from "..";
 
-export function useShopUserGarments(d: {
-  shopId: string;
-  shopCondi?: Ref<GarmentOrderCondi[]>;
-  onChanged?: (prods: ShopUserGarment[]) => Promise<void> | void;
-}) {
-  const userProd: Ref<ShopUserGarment[]> = ref([]);
-  const rowIdField: MapKey = "shopProdId";
-  const { shopProds, unsubscribe } = useShopGarments(
-    d.shopId,
-    d.shopCondi ?? null
-  );
+export function useShopUserProds(d: GetShopProdParam) {
+  const { shopProds, unsubscribe, rowIdField, userProd } = base(d);
 
   watchEffect(async () => {
     const userProds: typeof userProd.value = [];
@@ -25,6 +16,43 @@ export function useShopUserGarments(d: {
     }
     userProd.value = userProds;
   });
+
+  if (d.onChanged) {
+    watch(
+      () => userProd.value,
+      async (prods) => {
+        if (d.onChanged) {
+          d.onChanged(prods);
+        }
+      }
+    );
+  }
+
+  return { rowIdField, userProd, unsubscribe };
+}
+export function useShopVendorUnits(d: GetShopProdParam) {
+  const { shopProds, unsubscribe, rowIdField, userProd } = base(d);
+
+  watchEffect(async () => {
+    const userProds: typeof userProd.value = [];
+
+    for (let i = 0; i < shopProds.value.length; i++) {
+      const prod = shopProds.value[i];
+      const vendorUnit = await VENDOR_GARMENT_DB.getByIdWithUser(
+        prod.vendorProdId
+      );
+      if (!vendorUnit) continue;
+      userProds.push(
+        Object.assign(
+          { userName: vendorUnit.userInfo.userName },
+          vendorUnit,
+          prod
+        )
+      );
+    }
+    userProd.value = userProds;
+  });
+
   if (d.onChanged) {
     watch(
       () => userProd.value,
@@ -39,13 +67,21 @@ export function useShopUserGarments(d: {
   return { rowIdField, userProd, unsubscribe };
 }
 
-export function useShopGarments(
-  userId: string,
-  condi: Ref<GarmentOrderCondi[]> | null
-) {
+const base = (d: GetShopProdParam) => {
+  const userProd: Ref<ShopUserGarment[]> = ref([]);
+  const rowIdField: MapKey = "shopProdId";
+  const zz = useShopGarments(d);
+  return {
+    userProd,
+    rowIdField,
+    ...zz,
+  };
+};
+
+export function useShopGarments(d: GetShopProdParam) {
   const matching = (p: ShopGarment) =>
-    condi && condi.value.length > 0
-      ? condi.value.some(
+    d.shopCondi && d.shopCondi.value.length > 0
+      ? d.shopCondi.value.some(
           (x) =>
             x.color === p.color &&
             x.size === p.size &&
@@ -53,10 +89,16 @@ export function useShopGarments(
         )
       : true;
   const { shopProds, unsubscribe } = SHOP_GARMENT_DB.useGetShopGarments(
-    userId,
+    d.shopId,
     matching
   );
   onBeforeUnmount(() => unsubscribe());
 
   return { shopProds, unsubscribe };
+}
+
+interface GetShopProdParam {
+  shopId: string;
+  shopCondi?: Ref<GarmentOrderCondi[]>;
+  onChanged?: (prods: ShopUserGarment[]) => Promise<void> | void;
 }

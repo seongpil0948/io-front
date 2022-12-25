@@ -1,8 +1,4 @@
-import {
-  IoOrder,
-  vendorUserProdFromOrders,
-  VENDOR_GARMENT_DB,
-} from "@/composable";
+import { IoOrder, vendorUserProdFromOrders } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";

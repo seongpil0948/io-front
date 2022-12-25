@@ -12,7 +12,7 @@ import {
 import { ref, computed, h, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { ShopUserGarment } from "../domain";
-import { useShopUserGarments } from "./by-user";
+import { useShopVendorUnits } from "./by-user";
 
 export function useShopGarmentTable(
   briefly: boolean,
@@ -24,7 +24,7 @@ export function useShopGarmentTable(
   const tableRef = ref<any>(null);
   const dialog = useDialog();
   const openSelectList = ref(false);
-  const { rowIdField, userProd } = useShopUserGarments({
+  const { rowIdField, userProd } = useShopVendorUnits({
     shopId,
   });
   const data = computed(() => [...userProd.value, ...userData.value]);

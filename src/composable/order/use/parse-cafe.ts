@@ -1,6 +1,6 @@
 import {
   GarmentOrderCondi,
-  useShopUserGarments,
+  useShopUserProds,
   Mapper,
   ioOrderFromCondi,
   AnyOrder,
@@ -64,7 +64,7 @@ export function useMappingOrderCafe(
   existIds: Ref<Set<string>>
 ) {
   const conditions = ref<GarmentOrderCondi[]>([]);
-  const { userProd } = useShopUserGarments({ shopId, shopCondi: conditions });
+  const { userProd } = useShopUserProds({ shopId, shopCondi: conditions });
   const msg = useMessage();
   const vendorProds = shallowRef<VendorGarment[]>([]);
   watchEffect(async () => {

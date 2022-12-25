@@ -1,6 +1,6 @@
 import {
   GarmentOrderCondi,
-  useShopUserGarments,
+  useShopUserProds,
   Mapper,
   IoOrder,
   ioOrderFromCondi,
@@ -27,7 +27,7 @@ export function useMappingOrderExcel(
   startRow: Ref<number>
 ) {
   const conditions = ref<GarmentOrderCondi[]>([]);
-  const { userProd } = useShopUserGarments({
+  const { userProd } = useShopUserProds({
     shopId: userId,
     shopCondi: conditions,
   });
