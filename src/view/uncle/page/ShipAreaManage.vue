@@ -32,12 +32,15 @@ const { user: u } = storeToRefs(authStore);
           tab="배송료 설정"
           name="SHIP_FEE"
         >
-          <n-space vertical justify="center" align="center">
-            <n-h2>사이즈별 비용</n-h2>
-            <ship-unit-list :u="u" :edit="true" unit-key="amountBySize" />
-            <div style="height: 1vh" />
-            <n-h2>중량별 비용</n-h2>
-            <ship-unit-list :u="u" :edit="true" unit-key="amountByWeight" />
+          <n-space justify="center">
+            <n-space vertical>
+              <n-h2>사이즈별 비용</n-h2>
+              <ship-unit-list :u="u" :edit="true" unit-key="amountBySize" />
+            </n-space>
+            <n-space vertical>
+              <n-h2>중량별 비용</n-h2>
+              <ship-unit-list :u="u" :edit="true" unit-key="amountByWeight" />
+            </n-space>
           </n-space>
         </n-tab-pane>
       </n-tabs>

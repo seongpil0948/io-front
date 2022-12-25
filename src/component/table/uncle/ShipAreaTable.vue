@@ -72,7 +72,7 @@ async function addShipArea() {
 const { shipAreaCols } = useShipAreaCols();
 </script>
 <template>
-  <n-space justify="end" style="margin-top: 2.5%; margin-bottom: 2.5%">
+  <n-space style="margin-top: 2.5%; margin-bottom: 2.5%">
     <area-selector v-model:area="selectedArea" />
     <n-input-number
       v-model:value="selectedArea.amount"
