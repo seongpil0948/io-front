@@ -123,6 +123,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
       .filter((x) => x) as VendorUserGarment[];
   },
   listByVendorIds: async function (vendorIds: string[]) {
+    // DEPRECATED: will be....
     const vendors = await USER_DB.getUserByIds([...vendorIds]);
     const prodSnaps = await batchInQuery<VendorGarment>(
       [...vendorIds],

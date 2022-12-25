@@ -30,7 +30,11 @@ import { useEditor } from "@/plugin/editor";
 import { useAuthStore, useCommonStore } from "@/store";
 import { storeToRefs } from "pinia";
 
-const props = defineProps<{ minimal: boolean; virtual: boolean }>();
+const props = defineProps<{
+  minimal: boolean;
+  virtual: boolean;
+  vendorId: string;
+}>();
 const emits = defineEmits<{
   (e: "onRegistered", value: VendorGarment[]): void;
 }>();
@@ -41,7 +45,6 @@ const dialog = useDialog();
 const formRef = ref<FormInst | null>(null);
 
 const auth = useAuthStore();
-const uid = computed(() => auth.currUser.userInfo.userId);
 const { getVirSimilarProds, existVirSameProd, createVirVendorGarments } =
   useShopVirtualProd(auth.currUser);
 const router = useRouter();
@@ -126,9 +129,8 @@ async function onRegister() {
     const allowPending = v.allowPending[0] === "받기" ? true : false;
     let valid = true;
     const info = await saveEditor();
-    const vendorId = uid.value;
     const similarParam = {
-      vendorId,
+      vendorId: props.vendorId,
       vendorProdName: v.name,
     };
     const similarProds = virtual.value
@@ -141,7 +143,7 @@ async function onRegister() {
       for (let j = 0; j < prodModel.value.colors.length; j++) {
         const color = prodModel.value.colors[j];
         const sameParam = {
-          vendorId,
+          vendorId: props.vendorId,
           vendorProdName: v.name,
           color,
           size,
@@ -165,7 +167,7 @@ async function onRegister() {
                 size,
                 color,
                 info,
-                vendorId,
+                vendorId: props.vendorId,
                 vendorProdId: uuidv4(),
                 stockCnt: stockCnts.value![size][color],
                 TBD: {},
@@ -189,8 +191,8 @@ async function onRegister() {
           cs.$patch({ showSpin: true });
           return (
             virtual.value
-              ? createVirVendorGarments(vendorId, products)
-              : VENDOR_GARMENT_DB.batchCreate(vendorId, products)
+              ? createVirVendorGarments(props.vendorId, products)
+              : VENDOR_GARMENT_DB.batchCreate(props.vendorId, products)
           )
             .then(() => {
               clearEditor();
@@ -202,7 +204,7 @@ async function onRegister() {
             })
             .catch((err) =>
               catchError({
-                userId: vendorId,
+                userId: props.vendorId,
                 err,
                 opt: makeMsgOpt(),
                 prefix: "상품등록 실패",
@@ -362,8 +364,8 @@ async function onRegister() {
           size="100"
           :max="1"
           svc="VENDOR_PRODUCT"
-          :user-id="uid"
-          :role="auth.currUserRole"
+          :user-id="vendorId"
+          role="VENDOR"
           parent-id="titleImgs"
         >
           <add-circle-outline style="cursor: pointer" />
@@ -381,8 +383,8 @@ async function onRegister() {
           size="100"
           :max="20"
           svc="VENDOR_PRODUCT"
-          :user-id="uid"
-          :role="auth.currUserRole"
+          :user-id="vendorId"
+          role="VENDOR"
           parent-id="bodyImgs"
         >
           <add-circle-outline style="cursor: pointer" />

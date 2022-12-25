@@ -3,6 +3,7 @@ import {
   useOrderTable,
   ORDER_STATE,
   ORDER_GARMENT_DB,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OrderItemCombined,
   useContactUncle,
 } from "@/composable";
@@ -17,7 +18,7 @@ import {
   NSpace,
   useMessage,
 } from "naive-ui";
-import axios, { axiosConfig } from "@/plugin/axios";
+import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
 
 const msg = useMessage();

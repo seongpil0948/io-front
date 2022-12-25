@@ -12,7 +12,7 @@ import { uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
 import { validateUser } from "@/composable/order/db/firebase";
-import axios, { axiosConfig } from "@/plugin/axios";
+import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
 
 const auth = useAuthStore();

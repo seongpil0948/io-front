@@ -10,6 +10,7 @@ const {
   onPreviewConfirm,
   onPreviewCancel,
   disableModalSave,
+  authStore,
 } = useBatchVendorProd({ visible: "GLOBAL" });
 
 const { columns } = useVendorProdCols(false, true);
@@ -62,6 +63,10 @@ function handleFileChange(evt: Event) {
         엑셀 일괄 등록
       </n-button>
     </template>
-    <vendor-garment-form :minimal="false" :virtual="false" />
+    <vendor-garment-form
+      :minimal="false"
+      :virtual="false"
+      :vendor-id="authStore.currUser.userInfo.userId"
+    />
   </n-card>
 </template>

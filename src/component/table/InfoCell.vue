@@ -11,13 +11,13 @@ const { first, second, third } = toRefs(props);
 
 <template>
   <n-space vertical>
-    <n-text v-if="first" style="font-size: large" type="primary" depth="1">
+    <n-text v-if="first" type="primary" depth="1">
       {{ first }}
     </n-text>
     <n-text v-if="second" style="font-size: small" type="primary" depth="3">
       {{ second }}
     </n-text>
-    <n-text v-if="third" style="font-size: large" type="primary" depth="2">
+    <n-text v-if="third" type="primary" depth="2">
       {{ third }}
     </n-text>
   </n-space>

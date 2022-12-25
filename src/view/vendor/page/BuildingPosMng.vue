@@ -13,7 +13,7 @@ import {
 import { useShopStore, useAuthStore } from "@/store";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
 import { useAlarm } from "@io-boxies/vue-lib";
-import axios, { axiosConfig } from "@/plugin/axios";
+import { axiosConfig } from "@/plugin/axios";
 import { NButton, useMessage } from "naive-ui";
 import { storeToRefs } from "pinia";
 import {

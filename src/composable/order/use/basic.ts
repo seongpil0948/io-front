@@ -1,4 +1,8 @@
-import { IoOrder, VENDOR_GARMENT_DB } from "@/composable";
+import {
+  IoOrder,
+  vendorUserProdFromOrders,
+  VENDOR_GARMENT_DB,
+} from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
@@ -7,7 +11,7 @@ import { useLogger } from "vue-logger-plugin";
 import { ORDER_GARMENT_DB } from "../db";
 import { OrderItemCombined } from "../domain";
 import { DataFrame, toExcel } from "danfojs";
-import { IoUser, getUserName } from "@io-boxies/js-lib";
+import { IoUser, getUserName, locateToStr } from "@io-boxies/js-lib";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { axiosConfig } from "@/plugin/axios";
 
@@ -153,28 +157,33 @@ export function useOrderBasic(
   };
 }
 
-export async function downOrderItems(gOrders: OrderItemCombined[]) {
-  const df = await pOrdersToFrame(gOrders);
-  toExcel(df, { fileName: "testOut.xlsx" });
+export async function downOrderItems(
+  gOrders: OrderItemCombined[],
+  virtualVendors: IoUser[]
+) {
+  const df = await pOrdersToFrame(gOrders, virtualVendors);
+  const date = new Date();
+  const fileName = `${date.toLocaleString()}.xlsx`;
+  toExcel(df, { fileName });
   const a = document.createElement("a");
   // a.href = url
-  a.href = "testOut.xlsx";
-  a.download = "testOut.xlsx";
+  a.href = fileName;
+  a.download = fileName;
   // a.click();
   a.remove();
 }
 
 export async function pOrdersToFrame(
-  gOrders: OrderItemCombined[]
+  gOrders: OrderItemCombined[],
+  virtualVendors: IoUser[]
 ): Promise<DataFrame> {
-  const vendors = await VENDOR_GARMENT_DB.listByVendorIds(
-    uniqueArr(gOrders.map((x) => x.vendorId))
-  );
-
+  const vendorProds = await vendorUserProdFromOrders(gOrders, virtualVendors);
   const df = new DataFrame(
     gOrders
       .map((x) => {
-        const vendor = vendors.find((v) => v.userInfo.userId === x.vendorId);
+        const vendor = vendorProds.find(
+          (v) => v.userInfo.userId === x.vendorId
+        );
         if (!vendor || !vendor.companyInfo) return null;
         const locate =
           vendor?.companyInfo.shipLocate ?? vendor?.companyInfo?.locations[0];
@@ -191,7 +200,7 @@ export async function pOrdersToFrame(
           도매가: x.vendorProd.vendorPrice,
           합계: x.orderCnt * x.vendorProd.vendorPrice,
           "도매처 건물명": locate.alias,
-          "도매처 상세주소": locate.detailLocate ?? "",
+          "도매처 상세주소": locateToStr(locate),
           핸드폰번호: locate.phone,
         };
       })

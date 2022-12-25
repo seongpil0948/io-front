@@ -68,7 +68,8 @@ function onKakaoAuth() {
   });
 }
 const { googleLogin } = useLogin(
-  import.meta.env.MODE === "production" ? "io-prod" : "io-dev"
+  import.meta.env.MODE === "production" ? "io-prod" : "io-dev",
+  "/auth/customToken"
 );
 async function onGoogleAuth() {
   const u = (await googleLogin(false)) as any;

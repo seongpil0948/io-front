@@ -30,7 +30,6 @@ export function useShopVirtualProd(user: IoUser) {
   const uid = user.userInfo.userId;
   const name = "VirtualVendorProd snapshot";
   const msg = useMessage();
-  // >>> virtual
   const virVendorProdC = getIoCollection({
     uid,
     c: "VIRTUAL_VENDOR_PROD",
@@ -39,8 +38,10 @@ export function useShopVirtualProd(user: IoUser) {
   const getVirSimilarProds = async (
     d: VendorProdSimilar
   ): Promise<VendorGarment[]> => getSimilarProducts(virVendorProdC, d);
+
   const existVirSameProd = async (d: VendorProdSame): Promise<boolean> =>
     existSameProduct(virVendorProdC, d);
+
   const createVirVendorGarments = async (
     userId: string,
     args: VendorGarment[]
@@ -114,14 +115,24 @@ export function useShopVirtualProd(user: IoUser) {
   function changeRegitProdModal() {
     regitProdModal.value = !regitProdModal.value;
   }
-  function onRegistered(vGarments: VendorGarment[]) {
-    console.info("registered virtual garment: ", vGarments);
+  function onRegistered() {
     regitProdModal.value = false;
   }
-
   const userVirProds = computed(() =>
     virShopProds.value.map((x) => Object.assign({}, x, user))
   );
+
+  //   const vendorVirProds = computed(() => {
+  //     const uProds: any[] = [];
+  //     virShopProds.value.forEach((x) => {
+  //       const vendor = virtualVendors.value.find((v) => v.id === x.vendorId);
+  //       if (vendor) {
+  //         uProds.push(Object.assign({}, x, vendor));
+  //       }
+  //     });
+  //     return uProds;
+  //   });
+
   const { tableCols, checkedKeys, popVal, selectedRow } = useShopGarmentTable(
     false,
     userVirProds
@@ -129,7 +140,15 @@ export function useShopVirtualProd(user: IoUser) {
   const virShopCols = computed(() =>
     tableCols.value.filter(
       (x: any) =>
-        !["select", "userName", "vendorPrice", "stockCnt"].includes(x.key)
+        ![
+          "select",
+          "titleImgs",
+          "userName",
+          "vendorPrice",
+          "stockCnt",
+          "updatedAt",
+          "option",
+        ].includes(x.key)
     )
   );
 
@@ -195,5 +214,6 @@ export function useShopVirtualProd(user: IoUser) {
     selectedRow,
     virShopCols,
     searchedData,
+    userVirProds,
   };
 }

@@ -55,10 +55,8 @@ const { parseCafeOrder } = useMappingOrderCafe(
   uid.value,
   existOrderIds
 );
-const { virShopProds } = useShopVirtualProd(auth.currUser);
-const userVirProds = computed(() =>
-  virShopProds.value.map((x) => Object.assign({}, x, auth.currUser))
-);
+const { userVirProds } = useShopVirtualProd(auth.currUser);
+
 const { selectFunc, userProd, tableCols, openSelectList } = useShopGarmentTable(
   true,
   userVirProds
@@ -119,6 +117,7 @@ const filteredMatchData = computed(() =>
 );
 
 async function onGetOrder(useMatching = true, useMapping = true) {
+  matchData.value = [];
   if (!startDate.value || !endDate.value)
     return msg.error("일자가 입력되지 않았습니다.");
   for (let i = 0; i < tokens.value.length; i++) {
@@ -136,11 +135,13 @@ async function onGetOrder(useMatching = true, useMapping = true) {
         if (useMapping) {
           orders = parseCafeOrder(cafeOrds);
         } else if (useMatching) {
-          matchData.value = matchCafeOrder(
-            cafeOrds,
-            token,
-            existOrderIds.value,
-            userProd.value
+          matchData.value.push(
+            ...matchCafeOrder(
+              cafeOrds,
+              token,
+              existOrderIds.value,
+              userProd.value
+            )
           );
         }
         if ((!orders || orders.length < 1) && matchData.value.length < 1) {
@@ -175,7 +176,7 @@ async function onGetOrder(useMatching = true, useMapping = true) {
             token.alias,
             userProd.value
           );
-          matchData.value = result;
+          matchData.value.push(...result);
           msg.info(
             `지그재그 전체 주문건: ${cnt.orderCnt}, 유효하지 않은 주문건: ${cnt.invalid}, 이미 진행된 주문건: ${cnt.exist}`,
             makeMsgOpt()

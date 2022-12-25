@@ -1,3 +1,5 @@
+import { VENDOR_GARMENT_DB } from "@/composable";
+import { IoOrder, OrderItem, OrderItemCombined } from "@/composable/order";
 import {
   USER_DB,
   uniqueArr,
@@ -5,10 +7,11 @@ import {
   dataFromSnap,
   getIoCollection,
   IoCollection,
+  IoUser,
 } from "@io-boxies/js-lib";
 import { where, QueryConstraint } from "firebase/firestore";
 import { StockCntObj } from "../shop-garment";
-import { VendorUserGarmentCombined } from "./domain";
+import { VendorUserGarment, VendorUserGarmentCombined } from "./domain";
 import { VendorGarment } from "./model";
 
 export async function toVendorUserGarmentCombined(
@@ -67,3 +70,34 @@ export const similarConst = (vendorId: string, vendorProdName: string) =>
     where("vendorId", "==", vendorId),
     where("vendorProdName", "==", vendorProdName),
   ] as QueryConstraint[];
+
+export async function vendorUserProdFromOrders(
+  items: OrderItem[],
+  virtualVendors: IoUser[]
+) {
+  const vendorProdIds: string[] = [];
+  const vendorProds: VendorUserGarment[] = [];
+  // const items = orders.flatMap((o) => o.items); ;
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const sp = item.shopProd;
+    if (!sp.visible || sp.visible === "GLOBAL") {
+      vendorProdIds.push(item.vendorProd.vendorProdId);
+    } else if (sp.visible === "ME") {
+      const vendor = virtualVendors.find(
+        (v) => sp.vendorId === v.userInfo.userId
+      );
+      if (vendor) {
+        vendorProds.push(Object.assign({}, item.vendorProd, vendor));
+      }
+    }
+  }
+
+  // const vendorProdIds = orders.value.flatMap((o) =>
+  //   o.items.map((i) => i.vendorProd.vendorProdId)
+  // );
+  vendorProds.push(
+    ...(await VENDOR_GARMENT_DB.listByIdsWithUser(vendorProdIds))
+  );
+  return vendorProds;
+}

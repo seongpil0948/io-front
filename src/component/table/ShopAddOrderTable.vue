@@ -5,6 +5,7 @@ import {
   useMappingOrderExcel,
   useOrderBasic,
   useOrderTable,
+  useVirtualVendor,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { ref } from "vue";
@@ -67,8 +68,9 @@ async function orderDelAll() {
   existOrderIds.value.clear();
 }
 // <<<<< COLUMNS <<<<<
+const { virtualVendors } = useVirtualVendor(user.userInfo.userId);
 async function downOrder() {
-  await downOrderItems(filteredOrders.value);
+  await downOrderItems(filteredOrders.value, virtualVendors.value);
 }
 function downSampleXlsx() {
   const a = document.createElement("a");

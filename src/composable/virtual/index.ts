@@ -1,2 +1,2 @@
 export * from "./use-shop";
-export * from "./domain";
+export * from "./use-virtual-vendor";

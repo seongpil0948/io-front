@@ -11,7 +11,8 @@ function onTos() {
 }
 const authS = useAuthStore();
 const { emailLogin } = useLogin(
-  import.meta.env.MODE === "production" ? "io-prod" : "io-dev"
+  import.meta.env.MODE === "production" ? "io-prod" : "io-dev",
+  "/auth/customToken"
 );
 async function loginShop() {
   const data = await emailLogin("junhoi90@gmail.com", "0525cc");

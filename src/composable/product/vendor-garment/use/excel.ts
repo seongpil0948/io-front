@@ -152,5 +152,6 @@ export function useBatchVendorProd(d: { visible: VISIBILITY }) {
     onPreviewConfirm,
     onPreviewCancel,
     disableModalSave,
+    authStore,
   };
 }
