@@ -281,8 +281,8 @@ async function onSaveMatch() {
     <n-h2>API 계정 관리</n-h2>
     <n-data-table :columns="apiTokenCol" :data="tokens" />
   </n-space>
-  <n-modal v-model:show="openSelectList">
-    <n-card title="상품선택" :bordered="false" size="large">
+  <n-modal v-model:show="openSelectList" style="margin: 1%">
+    <n-card title="상품선택">
       <template #header-extra>
         <n-input v-model:value="searchInputVal" placeholder="상품검색" />
         <n-button @click="search"> 검색 </n-button>

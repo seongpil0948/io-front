@@ -196,7 +196,8 @@ export async function pOrdersToFrame(
           도매가: x.vendorProd.vendorPrice,
           합계: x.orderCnt * x.vendorProd.vendorPrice,
           "도매처 건물명": locate.alias,
-          "도매처 상세주소": locateToStr(locate),
+          "도매처 상세주소": locate.detailLocate ?? "",
+          "도매처 주소": locateToStr(locate),
           핸드폰번호: locate.phone,
         };
       })
