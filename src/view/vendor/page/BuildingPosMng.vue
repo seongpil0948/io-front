@@ -10,41 +10,34 @@ import {
   VENDOR_GARMENT_DB,
   VendorGarment,
 } from "@/composable/";
-import { useShopStore, useAuthStore } from "@/store";
+import { useAuthStore } from "@/store";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
-import { useAlarm } from "@io-boxies/vue-lib";
+import { useAlarm, SearchUserAuto } from "@io-boxies/vue-lib";
 import { axiosConfig } from "@/plugin/axios";
 import { NButton, useMessage } from "naive-ui";
-import { storeToRefs } from "pinia";
-import {
-  ref,
-  onBeforeMount,
-  computed,
-  watch,
-  shallowRef,
-  watchEffect,
-} from "vue";
+import { ref, computed, watch, shallowRef, watchEffect } from "vue";
 
 const msg = useMessage();
 const auth = useAuthStore();
-const shopStore = useShopStore();
-const { shops } = storeToRefs(shopStore);
 const { sendAlarm } = useAlarm();
-onBeforeMount(async () => shopStore.setShops());
+
 const targetShop = ref<IoUser | null>();
 const shopProds = ref<ShopGarment[]>([]);
 const partner = ref<IoPartner | null>(null);
-async function updateShop(shopId: string) {
-  console.log("updateShop: ", shopId);
-  targetShop.value = await shopStore.getShop(shopId);
+
+async function updateShop(shop: IoUser) {
+  console.log("updateShop: ", shop);
+  targetShop.value = shop;
   if (!targetShop.value) return msg.error("존재하지 않는 유저입니다.");
   const param = {
-    shopId,
+    shopId: shop.userInfo.userId,
     vendorId: auth.currUser.userInfo.userId,
   };
   shopProds.value = await SHOP_GARMENT_DB.getShopGarments(param);
   partner.value = await loadPartner(param);
 }
+const env = import.meta.env.MODE === "production" ? "io-prod" : "io-dev";
+
 async function onComplete(addedCredit: number) {
   msg.success("성공!");
   orderCnts.value = {};
@@ -64,12 +57,6 @@ async function onComplete(addedCredit: number) {
     pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
   });
 }
-const shopOpts = computed(() =>
-  shops.value.map((shop) => ({
-    label: getUserName(shop),
-    value: shop.userInfo.userId,
-  }))
-);
 
 const vendorProds = shallowRef<VendorGarment[]>([]);
 watchEffect(async () => {
@@ -204,13 +191,16 @@ watch(
     <n-card class="container" style="width: 100%">
       <template #header> 상품목록 </template>
       <template #header-extra>
-        <n-select
-          filterable
-          style="width: 80%; margin-left: auto"
-          placeholder="소매처 검색"
-          :options="shopOpts"
-          @update:value="updateShop"
-        />
+        <n-space>
+          <n-text type="primary">소매처 검색</n-text>
+          <SearchUserAuto
+            :search-size="10"
+            :show-role-selector="false"
+            :env="env"
+            default-role="SHOP"
+            @on-select="updateShop"
+          />
+        </n-space>
       </template>
       <n-space
         justify="end"

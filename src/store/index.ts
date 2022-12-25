@@ -1,6 +1,5 @@
 export * from "./auth";
 export * from "./common";
-export * from "./shop";
 export * from "./shopOrder";
 export * from "./vendorOrder";
 export * from "./uncleOrder";
