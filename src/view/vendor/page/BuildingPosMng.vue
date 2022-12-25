@@ -190,22 +190,20 @@ watch(
     </n-card>
     <n-card class="container" style="width: 100%">
       <template #header> 상품목록 </template>
-      <template #header-extra>
+      <n-space justify="end" style="margin-bottom: 5px">
+        <n-text type="primary">소매처 검색</n-text>
+        <SearchUserAuto
+          :search-size="10"
+          :show-role-selector="false"
+          :env="env"
+          default-role="SHOP"
+          @on-select="updateShop"
+        />
         <n-space>
-          <n-text type="primary">소매처 검색</n-text>
-          <SearchUserAuto
-            :search-size="10"
-            :show-role-selector="false"
-            :env="env"
-            default-role="SHOP"
-            @on-select="updateShop"
-          />
-          <n-space>
-            <n-input v-model:value="searchInputVal" placeholder="상품검색" />
-            <n-button @click="search"> 검색 </n-button>
-          </n-space>
+          <n-input v-model:value="searchInputVal" placeholder="상품검색" />
+          <n-button @click="search"> 검색 </n-button>
         </n-space>
-      </template>
+      </n-space>
 
       <n-grid
         x-gap="12"

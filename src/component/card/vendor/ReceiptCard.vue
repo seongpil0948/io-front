@@ -4,21 +4,22 @@ import { toRefs, onBeforeUnmount, computed } from "vue";
 import { useMessage } from "naive-ui";
 import { OrderItem } from "@/composable";
 import { useEditor } from "@/plugin/editor";
+import { useAuthStore } from "@/store";
 
 const props = defineProps<{
   customer?: IoUser | null;
-  vendor: IoUser;
   items: OrderItem[];
 }>();
-const { customer, vendor, items } = toRefs(props);
+const { customer, items } = toRefs(props);
 const msg = useMessage();
-
+const auth = useAuthStore();
+const u = auth.currUser;
 const { toggleEditor, saveEditor, editor } = useEditor({
   readOnly: true,
   elementId: "io-editor",
   placeholder: "메모 입력",
   // data: prod.value!.info,
-  data: vendor.value.orderMemo ?? {
+  data: u.orderMemo ?? {
     blocks: [
       {
         type: "paragraph",
@@ -36,8 +37,9 @@ async function onToggle() {
       console.log("save!");
       const orderMemo = await saveEditor();
       if (orderMemo) {
-        vendor.value.orderMemo = orderMemo;
-        await USER_DB.updateUser(vendor.value);
+        u.orderMemo = orderMemo;
+        await USER_DB.updateUser(u);
+        auth.setUser(u);
       }
     }
     await toggleEditor();
@@ -56,9 +58,9 @@ function printReceipt() {
   const printContents = card.innerHTML;
   const printDiv = document.createElement("DIV");
   printDiv.id = "print-div";
-
   html.appendChild(printDiv);
-  printDiv.innerHTML = printContents;
+  printDiv.innerHTML =
+    `<h2 style="text-align: center;width: 100%;">영수증</h2>` + printContents;
   document.body.style.display = "none";
   window.print();
   document.body.style.display = "block";
@@ -107,10 +109,10 @@ defineExpose({ printReceipt });
     </template>
     <div id="receipt-card">
       <n-divider class="black-divider" />
-      <n-space justify="space-between">
+      <n-space justify="center">
         <n-space vertical>
           <n-text> {{ formatDate(new Date(), "MIN") }}</n-text>
-          <n-h2>{{ getUserName(vendor) }}</n-h2>
+          <n-h2>{{ getUserName(u) }}</n-h2>
           <n-h2 v-if="customer">{{ getUserName(customer) }} 귀하</n-h2>
         </n-space>
 
@@ -121,7 +123,7 @@ defineExpose({ printReceipt });
       </n-space>
       <n-divider class="black-divider" />
       <n-space vertical align="center" item-style="width: 100%">
-        <div id="io-editor" class="io-editor-border" />
+        <div id="io-editor" />
         <n-table :bordered="true" :single-line="false" size="small">
           <thead>
             <tr>
@@ -175,57 +177,52 @@ defineExpose({ printReceipt });
   min-height: 60vh;
   overflow: auto;
 }
-#io-editor {
-  width: 95%;
-}
-
 .black-divider {
   border-top: 1px solid black;
 }
 
-#print-div {
-  margin-right: 10px;
-  zoom: 220%;
-  margin-bottom: 120px;
+@media print {
+  #print-div {
+    /* zoom: 850%; */
+    zoom: 250%;
+    margin-bottom: 120px;
+  }
+  #print-div * {
+    /* font-size: 1px; */
+    font-size: 5px;
+    font-weight: 900 !important;
+    color: black !important;
+    margin: 0;
+    padding: 0;
+    border-width: 0.01px;
+  }
+  #print-div .n-text {
+    color: black !important;
+    font-weight: 900 !important;
+  }
+  #print-div .n-space {
+    gap: 2px 4px !important;
+  }
+  #print-div img {
+    width: 10px !important;
+  }
+  #print-div th {
+    padding: 2px;
+  }
+  #print-div td {
+    padding: 1px;
+  }
+  #print-div .n-table {
+    border-radius: 0;
+    color: black !important;
+    font-weight: 900 !important;
+  }
 }
-#print-div * {
-  font-size: 6px;
-  color: black !important;
-  font-weight: 900 !important;
-  margin: 0;
-  padding: 0;
-  height: min-content;
-}
-#print-div .n-text {
-  font-size: 6px;
-  color: black !important;
-  font-weight: 900 !important;
-}
-#print-div .n-space {
-  gap: 2px 4px !important;
-}
-#print-div th {
-  padding: 2px;
-}
-#print-div td {
-  padding: 1px;
-}
-#print-div .n-table {
-  border-radius: 0;
-  color: black !important;
-  font-weight: 900 !important;
-}
-
 #print-div #io-editor {
-  font-size: 2px !important;
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 #print-div .codex-editor__redactor {
   padding-bottom: 0 !important;
-}
-#print-div .io-editor-border {
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
 }
 </style>

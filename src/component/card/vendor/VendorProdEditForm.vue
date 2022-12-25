@@ -114,7 +114,7 @@ const { saveEditor, clearEditor } = useEditor({
           type="textarea"
           placeholder="상품 정보 입력"
         /> -->
-        <div id="io-editor" class="io-editor-border" />
+        <div id="io-editor" />
       </n-form-item-gi>
       <n-form-item-gi span="6" label="상품 요약" path="description">
         <n-input v-model:value="prod.description" placeholder="개요 입력" />

@@ -97,12 +97,7 @@ async function completePay() {
     size="huge"
   >
     <n-space justify="space-around">
-      <ReceiptCard
-        ref="receiptRef"
-        :customer="targetShop"
-        :vendor="auth.currUser"
-        :items="items"
-      />
+      <ReceiptCard ref="receiptRef" :customer="targetShop" :items="items" />
       <n-space v-if="showModal" vertical>
         <n-card>
           <n-space justify="space-between">

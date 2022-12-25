@@ -12,7 +12,6 @@ import { uuidv4 } from "@firebase/util";
 import { toRefs, watch, ref } from "vue";
 import { Size, Type } from "naive-ui/es/button/src/interface";
 import type ReceiptCard from "@/component/card/vendor/ReceiptCard.vue";
-import { useAuthStore } from "@/store";
 import { IoUser } from "@io-boxies/js-lib";
 
 const props = defineProps<{
@@ -30,7 +29,7 @@ const { products, orderCnts } = toRefs(props);
 const emits = defineEmits<{
   (e: "complete", value: number): void;
 }>();
-const auth = useAuthStore();
+
 const items = ref<OrderItem[]>([]);
 watch(
   () => products.value,
@@ -118,12 +117,7 @@ const { showModal, defrayInfo, orderAmounts, receiptRef, newCredit } =
     size="huge"
   >
     <n-space justify="space-around">
-      <ReceiptCard
-        ref="receiptRef"
-        :customer="targetShop"
-        :vendor="auth.currUser"
-        :items="items"
-      />
+      <ReceiptCard ref="receiptRef" :customer="targetShop" :items="items" />
       <n-space v-if="showModal" vertical>
         <n-card>
           <n-space justify="space-between">

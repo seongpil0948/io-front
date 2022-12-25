@@ -339,7 +339,7 @@ async function onRegister() {
         </n-space>
       </n-grid-item>
       <n-form-item-gi span="2" label="상품정보" path="info">
-        <div id="io-editor" class="io-editor-border" />
+        <div id="io-editor" />
       </n-form-item-gi>
       <n-form-item-gi
         v-if="!minimal"
