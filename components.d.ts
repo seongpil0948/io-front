@@ -45,6 +45,8 @@ declare module '@vue/runtime-core' {
     LoginPage: typeof import('./src/view/common/LoginPage.vue')['default']
     LogoChecker: typeof import('./src/component/input/checker/LogoChecker.vue')['default']
     LogoImage: typeof import('./src/component/common/LogoImage.vue')['default']
+    LogoutMenu: typeof import('./src/component/button/LogoutMenu.vue')['default']
+    LogoutMenuOpt: typeof import('./src/component/button/logout-menu-opt.tsx')['default']
     MainView: typeof import('./src/view/MainView.vue')['default']
     ManageVirVendor: typeof import('./src/component/table/shop/ManageVirVendor.vue')['default']
     MapperSaver: typeof import('./src/component/input/MapperSaver.vue')['default']

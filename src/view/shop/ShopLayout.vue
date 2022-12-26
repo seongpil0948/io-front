@@ -7,7 +7,7 @@ import { renderIcon, renderRoute, getScreenSize, isMobile } from "@/util";
 import { LocalShippingRound } from "@vicons/material";
 import { People16Regular, News16Regular } from "@vicons/fluent";
 import { onBeforeMount, h, defineAsyncComponent } from "vue";
-
+import { logoutMenuOpt } from "@/component/button/logout-menu-opt";
 const LogoImageVue = defineAsyncComponent(
   () => import("@/component/common/LogoImage.vue")
 );
@@ -135,6 +135,7 @@ const mobileOpts = [
       }),
   },
   ...menuOptions,
+  logoutMenuOpt(),
 ];
 </script>
 
@@ -143,8 +144,9 @@ const mobileOpts = [
     v-if="getScreenSize() === 'S' || isMobile()"
     :style="`height: ${minHeight}`"
   >
-    <n-layout-header>
+    <n-layout-header style="overflow: auto; width: 100%">
       <n-menu
+        style="width: max-content"
         :collapsed-width="64"
         :collapsed-icon-size="22"
         :options="mobileOpts"

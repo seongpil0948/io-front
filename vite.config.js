@@ -3,6 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import { NaiveUiResolver } from "unplugin-vue-components/resolvers";
 import Components from "unplugin-vue-components/vite";
 import eslintPlugin from "vite-plugin-eslint";
+import vueJsx from "@vitejs/plugin-vue-jsx";
 
 export default defineConfig({
   resolve: {
@@ -66,8 +67,9 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    vueJsx(),
     Components({
-      extensions: ["vue", "md", "svg"],
+      extensions: ["vue", "md", "svg", "tsx"],
       // directoryAsNamespace: true,
       dts: true,
       // globalNamespaces: ["global"],
@@ -83,7 +85,7 @@ export default defineConfig({
         /[\\/]\.assets[\\/]/,
         /[\\/]\.store[\\/]/,
       ],
-      include: [/\.vue$/, /\.md$/, /\.vue\?vue/],
+      include: [/\.vue$/, /\.md$/, /\.vue\?vue/, /\.tsx/],
       resolvers: [
         NaiveUiResolver(),
         // (name) => {

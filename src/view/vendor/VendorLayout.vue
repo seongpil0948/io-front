@@ -11,6 +11,7 @@ import {
 import { useAuthStore, useVendorOrderStore } from "@/store";
 import { onBeforeMount, h, defineAsyncComponent } from "vue";
 import { useRouter } from "vue-router";
+import { logoutMenuOpt } from "@/component/button/logout-menu-opt";
 const LogoImageVue = defineAsyncComponent(
   () => import("@/component/common/LogoImage.vue")
 );
@@ -113,6 +114,7 @@ const mobileOpts = [
       }),
   },
   ...menuOptions,
+  logoutMenuOpt(),
 ];
 const minHeight = "100vh";
 </script>
@@ -121,8 +123,9 @@ const minHeight = "100vh";
     v-if="getScreenSize() === 'S' || isMobile()"
     :style="`height: ${minHeight}`"
   >
-    <n-layout-header>
+    <n-layout-header style="overflow: auto; width: 100%">
       <n-menu
+        style="width: max-content"
         :collapsed-width="64"
         :collapsed-icon-size="22"
         :options="mobileOpts"
