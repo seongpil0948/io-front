@@ -12,7 +12,7 @@ export function useShopUserProds(d: GetShopProdParam) {
     if (!shop) return;
     for (let i = 0; i < shopProds.value.length; i++) {
       const prod = shopProds.value[i];
-      userProds.push(Object.assign(shop, prod));
+      userProds.push(Object.assign({}, shop, prod));
     }
     userProd.value = userProds;
   });

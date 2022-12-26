@@ -62,10 +62,13 @@ class Mapper implements MapperCRT {
     await m.update();
   }
   getSyno(key: MapKey, upsert = true): string[] {
+    if (!this.colSynonyms) {
+      this.colSynonyms = {} as typeof this.colSynonyms;
+    }
     if (!this.colSynonyms[key] && upsert) {
       this.colSynonyms[key] = [];
     }
-    return this.colSynonyms[key];
+    return this.colSynonyms[key] ?? [];
   }
   setSyno(key: MapKey, val: string[]): void {
     this.colSynonyms[key] = uniqueArr(val.map(mapTxt));

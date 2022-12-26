@@ -86,67 +86,82 @@ function downSampleXlsx() {
     v-model:fileModel="fileModel"
     :listen-click="!(filteredOrders.length > 0)"
   >
-    <n-space justify="start" style="margin-bottom: 5px">
-      <n-button size="small" type="primary" @click="orderChecked">
-        선택주문
-      </n-button>
-      <n-button size="small" type="primary" @click="orderAll">
-        전체주문
-      </n-button>
-      <n-button size="small" type="primary" @click="deleteChecked">
-        선택삭제
-      </n-button>
-      <n-button size="small" type="primary" @click="orderDelAll">
-        전체삭제
-      </n-button>
-      <n-button size="small" type="primary" @click="downSampleXlsx">
-        주문취합 엑셀양식 다운
-      </n-button>
-      <n-button size="small" type="primary" @click="downOrder">
-        주문정보 다운
-      </n-button>
-      <n-input-number v-model:value="sheetIdx" placeholder="시트번호입력">
-        <template #prefix> 시트번호 </template>
-      </n-input-number>
-      <n-input-number v-model:value="startRow" placeholder="시작행번호입력">
-        <template #prefix> 시작행번호 </template>
-      </n-input-number>
+    <template #header> <div></div> </template>
+    <template #header-extra>
+      <n-space style="width: 100%" inline item-style="max-width: 100%">
+        <n-button type="primary" @click="downSampleXlsx">
+          주문취합 엑셀양식 다운
+        </n-button>
+        <n-input-number
+          v-model:value="sheetIdx"
+          :show-button="false"
+          placeholder="시트번호입력"
+        >
+          <template #prefix> 시트번호 </template>
+        </n-input-number>
+        <n-input-number
+          v-model:value="startRow"
+          :show-button="false"
+          placeholder="시작행번호입력"
+        >
+          <template #prefix> 시작행번호 </template>
+        </n-input-number>
+      </n-space>
+    </template>
+    <n-space v-if="filteredOrders.length > 0" vertical>
+      <n-space justify="start">
+        <n-button size="small" type="primary" @click="orderChecked">
+          선택주문
+        </n-button>
+        <n-button size="small" type="primary" @click="orderAll">
+          전체주문
+        </n-button>
+        <n-button size="small" type="primary" @click="deleteChecked">
+          선택삭제
+        </n-button>
+        <n-button size="small" type="primary" @click="orderDelAll">
+          전체삭제
+        </n-button>
+
+        <n-button size="small" type="primary" @click="downOrder">
+          주문정보 다운
+        </n-button>
+      </n-space>
+      <n-data-table
+        ref="tableRef"
+        :table-layout="'fixed'"
+        :scroll-x="800"
+        :columns="tableCol"
+        :data="filteredOrders"
+        :pagination="
+          Object.assign(
+            { pageSize: 5 },
+            showSizes
+              ? {
+                  showSizePicker: true,
+                  pageSizes: [5, 10, 25, 50, 100],
+                }
+              : {}
+          )
+        "
+        :bordered="false"
+      />
     </n-space>
-    <n-data-table
-      v-if="filteredOrders.length > 0"
-      ref="tableRef"
-      :table-layout="'fixed'"
-      :scroll-x="800"
-      :columns="tableCol"
-      :data="filteredOrders"
-      :pagination="
-        Object.assign(
-          { pageSize: 5 },
-          showSizes
-            ? {
-                showSizePicker: true,
-                pageSizes: [5, 10, 25, 50, 100],
-              }
-            : {}
-        )
-      "
-      :bordered="false"
-    />
-    <coin-reduce-confirm-modal
-      v-if="orders && orders.length > 0"
-      :show-modal="showReqOrderModal"
-      :user-id="user.userInfo.userId"
-      :expected-reduce-coin="expectedReduceCoin"
-      @update:show-modal="updateReqOrderShow"
-      @on-confirm="onReqOrderConfirm"
-    >
-      <template #title> 주문을 전송 하시겠습니까? </template>
-      <template #default>
-        도매처에 주문 데이터를 전송 후
-        <br />
-        도매처에서 [<n-text class="under-bar"> 승인 </n-text>]할 경우 상품당
-        {{ IO_COSTS.REQ_ORDER }} 코인이 소모 됩니다.
-      </template>
-    </coin-reduce-confirm-modal>
   </drop-zone-card>
+  <coin-reduce-confirm-modal
+    v-if="orders && orders.length > 0"
+    :show-modal="showReqOrderModal"
+    :user-id="user.userInfo.userId"
+    :expected-reduce-coin="expectedReduceCoin"
+    @update:show-modal="updateReqOrderShow"
+    @on-confirm="onReqOrderConfirm"
+  >
+    <template #title> 주문을 전송 하시겠습니까? </template>
+    <template #default>
+      도매처에 주문 데이터를 전송 후
+      <br />
+      도매처에서 [<n-text class="under-bar"> 승인 </n-text>]할 경우 상품당
+      {{ IO_COSTS.REQ_ORDER }} 코인이 소모 됩니다.
+    </template>
+  </coin-reduce-confirm-modal>
 </template>

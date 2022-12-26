@@ -197,12 +197,12 @@ export function mapDfToOrder(
       if (!synoColor || !synoSize) {
         let message = `${
           row[idx.prodNameIdx]
-        } 상품의 옵션 매핑에 실패 하였습니다.`;
+        } 상품의 옵션 매핑에 실패 하였습니다. `;
         if (!synoColor) {
-          message += ` 컬러 매핑실패정보,${row[idx.colorIdx]} `;
+          message += `  컬러(${row[idx.colorIdx]}) 매핑실패 `;
         }
         if (!synoSize) {
-          message += ` 사이즈 매핑실패정보: ${row[idx.sizeIdx]} `;
+          message += `  사이즈(${row[idx.sizeIdx]}) 매핑실패정보: `;
         }
         reporter[orderId] = message;
         return row;

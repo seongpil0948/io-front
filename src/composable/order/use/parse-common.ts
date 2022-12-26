@@ -11,6 +11,7 @@ import {
   VENDOR_GARMENT_DB,
   VendorGarment,
 } from "@/composable";
+import { logger } from "@/plugin/logger";
 
 export function ioOrderFromCondi(
   conditions: GarmentOrderCondi[],
@@ -29,8 +30,14 @@ export function ioOrderFromCondi(
     const d = conditions[j];
     const prod = userGarments.find((x) => sameGarment(x, d))!;
     const orderCnt = d.orderCnt ?? 1;
-    if (!prod) continue;
-    else if (!infos[prod.shopProdId]) {
+    if (!prod) {
+      logger.error(
+        null,
+        "[ioOrderFromCondi] 소매 상품이 존재하지 않습니다.",
+        d
+      );
+      continue;
+    } else if (!infos[prod.shopProdId]) {
       const vendorProd = vendorProds.find(
         (g) =>
           g.vendorProdId === prod.vendorProdId && g.vendorId === prod.vendorId
@@ -42,6 +49,12 @@ export function ioOrderFromCondi(
           orderIds: [d.orderId],
           orderCnt: orderCnt,
         };
+      } else {
+        logger.error(
+          null,
+          "[ioOrderFromCondi] 도매 상품이 존재하지 않습니다.",
+          d
+        );
       }
     } else {
       infos[prod.shopProdId].orderCnt += orderCnt;
