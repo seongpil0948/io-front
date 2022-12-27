@@ -8,14 +8,13 @@ import {
   synonymFilter,
   catchExcelError,
   VendorGarment,
-  VENDOR_GARMENT_DB,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { readExcel, DataFrame, Series } from "danfojs";
 import { useMessage } from "naive-ui";
 import { MessageApiInjection } from "naive-ui/es/message/src/MessageProvider";
-import { Ref, ref, shallowRef, watch, watchEffect } from "vue";
+import { Ref, ref, watch } from "vue";
 
 export function useMappingOrderExcel(
   mapper: Ref<Mapper | null>,
@@ -24,7 +23,8 @@ export function useMappingOrderExcel(
   existIds: Ref<Set<string>>,
   onParse: (orders: IoOrder[]) => void,
   sheetIdx: Ref<number>,
-  startRow: Ref<number>
+  startRow: Ref<number>,
+  vendorProds: Ref<VendorGarment[]>
 ) {
   const conditions = ref<GarmentOrderCondi[]>([]);
   const { userProd } = useShopUserProds({
@@ -33,11 +33,6 @@ export function useMappingOrderExcel(
   });
   const msg = useMessage();
 
-  const vendorProds = shallowRef<VendorGarment[]>([]);
-  watchEffect(async () => {
-    const ids = userProd.value.map((x) => x.vendorProdId);
-    vendorProds.value = await VENDOR_GARMENT_DB.listByIds(ids);
-  });
   watch(
     () => fs.value,
     async (files) => {
@@ -94,7 +89,7 @@ export function useMappingOrderExcel(
     }
   );
 
-  return { conditions, userProd };
+  return { conditions, userProd, msg };
 }
 
 export function mapDfToOrder(

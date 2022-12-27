@@ -6,12 +6,15 @@ import {
   useOrderBasic,
   useOrderTable,
   useVirtualVendor,
+  useShopVirtualProd,
+  VendorGarment,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
-import { ref } from "vue";
+import { ref, shallowRef, watchEffect } from "vue";
 import { IO_COSTS } from "@/constants";
 import { storeToRefs } from "pinia";
-import { useMessage } from "naive-ui";
+import { NButton, NDataTable, NInputNumber, NSpace, NText } from "naive-ui";
 interface Props {
   inStates?: ORDER_STATE[];
   showSizes: boolean;
@@ -21,7 +24,6 @@ const props = defineProps<Props>();
 const auth = useAuthStore();
 const user = auth.currUser;
 const fileModel = ref<File[]>([]);
-const msg = useMessage();
 
 const shopOrderStore = useShopOrderStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
@@ -46,7 +48,9 @@ const {
 
 const sheetIdx = ref(0);
 const startRow = ref(0);
-useMappingOrderExcel(
+const { virVendorProds } = useShopVirtualProd(auth.currUser);
+const vendorProds = shallowRef<VendorGarment[]>([]);
+const { userProd, msg } = useMappingOrderExcel(
   mapper,
   user.userInfo.userId,
   fileModel,
@@ -60,8 +64,16 @@ useMappingOrderExcel(
     });
   },
   sheetIdx,
-  startRow
+  startRow,
+  vendorProds
 );
+watchEffect(async () => {
+  const ids = userProd.value.map((x) => x.vendorProdId);
+  vendorProds.value = [
+    ...virVendorProds.value,
+    ...(await VENDOR_GARMENT_DB.listByIds(ids)),
+  ];
+});
 
 async function orderDelAll() {
   await deleteAll();

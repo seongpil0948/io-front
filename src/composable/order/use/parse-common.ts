@@ -8,7 +8,6 @@ import {
   ShopUserGarment,
   newOrdFromItem,
   newOrdItem,
-  VENDOR_GARMENT_DB,
   VendorGarment,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
@@ -87,14 +86,9 @@ export async function saveMatch(
   userProd: ShopUserGarment[],
   userId: string,
   existOrderIds: Ref<Set<string>>,
-  baseVendorGarments: VendorGarment[] = []
+  vendorProds: VendorGarment[] = []
 ) {
   const orders: IoOrder[] = [];
-  const ids = userProd.map((x) => x.vendorProdId);
-  const vendorProds = [
-    ...(await VENDOR_GARMENT_DB.listByIds(ids)),
-    ...baseVendorGarments,
-  ];
 
   for (let i = 0; i < matchData.length; i++) {
     const data = matchData[i];

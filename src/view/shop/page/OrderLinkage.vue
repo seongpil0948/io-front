@@ -18,11 +18,13 @@ import {
   saveMatch,
   getZigzagOrders,
   useShopVirtualProd,
+  VendorGarment,
+  VENDOR_GARMENT_DB,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { dateRanges, makeMsgOpt } from "@/util";
 import { useMessage, NButton } from "naive-ui";
-import { onBeforeUnmount, computed, ref } from "vue";
+import { onBeforeUnmount, computed, ref, shallowRef, watchEffect } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { storeToRefs } from "pinia";
 import { matchZigzagOrder } from "@/composable/order/use/parse-zigzag";
@@ -50,17 +52,28 @@ const { authorizeCafe, mallId } = useCafeAuth();
 const { mapper } = useMapper(uid.value);
 const shopOrderStore = useShopOrderStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
-const { parseCafeOrder } = useMappingOrderCafe(
-  mapper,
-  uid.value,
-  existOrderIds
-);
 const { userVirProds } = useShopVirtualProd(auth.currUser);
 
 const { selectFunc, userProd, tableCols, openSelectList } = useShopGarmentTable(
   true,
   userVirProds
 );
+const { virVendorProds } = useShopVirtualProd(auth.currUser);
+const vendorProds = shallowRef<VendorGarment[]>([]);
+watchEffect(async () => {
+  const ids = userProd.value.map((x) => x.vendorProdId);
+  vendorProds.value = [
+    ...virVendorProds.value,
+    ...(await VENDOR_GARMENT_DB.listByIds(ids)),
+  ];
+});
+const { parseCafeOrder } = useMappingOrderCafe(
+  mapper,
+  uid.value,
+  existOrderIds,
+  vendorProds
+);
+
 function goAuthorizeCafe() {
   if (
     tokens.value.filter(
@@ -193,14 +206,14 @@ async function onGetOrder(useMatching = true, useMapping = true) {
     }
   }
 }
-const { virVendorProds } = useShopVirtualProd(auth.currUser);
+
 async function onSaveMatch() {
   await saveMatch(
     matchData.value,
     userProd.value,
     uid.value,
     existOrderIds,
-    virVendorProds.value
+    vendorProds.value
   );
   matchData.value = [];
 }
