@@ -23,6 +23,7 @@ const {
   searchInputVal,
   search,
   onCheckedOrder,
+  tableRef,
 } = useShopVirtualProd(auth.currUser);
 </script>
 <template>
@@ -69,6 +70,7 @@ const {
         </n-space>
       </template>
       <n-data-table
+        ref="tableRef"
         :scroll-x="1200"
         :columns="virShopCols"
         :data="searchedData"

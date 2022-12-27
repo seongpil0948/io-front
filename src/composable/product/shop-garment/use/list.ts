@@ -186,5 +186,6 @@ export function useShopGarmentTable(
     openSelectList,
     deleteGarments,
     onCheckedDelete,
+    tableRef,
   };
 }

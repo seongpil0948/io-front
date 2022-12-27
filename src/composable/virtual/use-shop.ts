@@ -133,10 +133,8 @@ export function useShopVirtualProd(user: IoUser) {
   //     return uProds;
   //   });
 
-  const { tableCols, checkedKeys, popVal, selectedRow } = useShopGarmentTable(
-    false,
-    userVirProds
-  );
+  const { tableCols, checkedKeys, popVal, selectedRow, tableRef } =
+    useShopGarmentTable(false, userVirProds);
   const virShopCols = computed(() =>
     tableCols.value.filter(
       (x: any) =>
@@ -215,5 +213,6 @@ export function useShopVirtualProd(user: IoUser) {
     virShopCols,
     searchedData,
     userVirProds,
+    tableRef,
   };
 }
