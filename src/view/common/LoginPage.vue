@@ -32,7 +32,7 @@ async function onLogin(data: LoginReturn | undefined) {
     });
   } else if (!data.user)
     return msg.error("유저가 있어야 하는데 없습니다.(bug)", makeMsgOpt());
-  else if (data.noConfirm && import.meta.env.MODE === "production") {
+  else if (data.noConfirm) {
     authS.logout(false);
     return msg.error("관리자가 검토중인 계정입니다.", makeMsgOpt());
   } else if (data.user) {
@@ -77,6 +77,7 @@ function onInternalError(err: any) {
         @on-login="onLogin"
         @on-internal-error="onInternalError"
       />
+      <forget-password-btn />
       <io-footer />
     </n-space>
   </n-config-provider>

@@ -34,6 +34,7 @@ declare module '@vue/runtime-core' {
     FaqByCtgr: typeof import('./src/view/cs/FaqByCtgr.vue')['default']
     FloatActionButton: typeof import('./src/component/layout/FloatActionButton.vue')['default']
     FollowPartner: typeof import('./src/view/shop/page/FollowPartner.vue')['default']
+    ForgetPasswordBtn: typeof import('./src/component/button/ForgetPasswordBtn.vue')['default']
     GarmentOrderRow: typeof import('./src/component/table/vendor/GarmentOrderRow.vue')['default']
     InfoCell: typeof import('./src/component/table/InfoCell.vue')['default']
     IoFast: typeof import('./src/view/shop/page/IoFast.vue')['default']
