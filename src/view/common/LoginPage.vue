@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { lightThemeOver } from "@/composable/config";
 import { lightTheme, NSpace, useMessage } from "naive-ui";
-import { LoginReturn, LoginView } from "@io-boxies/vue-lib";
+import { LoginReturn } from "@io-boxies/vue-lib";
 import { useAuthStore } from "@/store";
 import { useRouter } from "vue-router";
 import { getUserName, USER_ROLE } from "@io-boxies/js-lib";
 import { makeMsgOpt } from "@/util";
 import { useLogger } from "vue-logger-plugin";
 import { axiosConfig } from "@/plugin/axios";
+import { ioFireStore } from "@/plugin/firebase";
+import { defineAsyncComponent } from "vue";
+
+const LoginView = defineAsyncComponent(
+  () => import("@/component/common/login/login-view")
+);
 
 const msg = useMessage();
 const authS = useAuthStore();
@@ -62,12 +68,14 @@ function onInternalError(err: any) {
     console.log(`code: ${err.code}, message: ${err.message}`, err);
   }
 }
+console.log("ioFireStore: ", ioFireStore);
 </script>
 
 <template>
   <n-config-provider :theme="lightTheme" :theme-overrides="lightThemeOver">
     <n-space id="login-page-container" vertical>
       <LoginView
+        :store="ioFireStore"
         :env="env"
         :custom-token-url="`${axiosConfig.baseURL}/auth/customToken`"
         style="max-width: 500px"

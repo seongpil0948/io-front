@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useLogin } from "@io-boxies/vue-lib";
 import { useAuthStore } from "@/store";
+import { useLogin } from "../common/login/login";
+import { ioFireStore } from "@/plugin/firebase";
 const router = useRouter();
 const showTos = ref(false);
 function onTos() {
@@ -15,21 +16,21 @@ const { emailLogin } = useLogin(
   "/auth/customToken"
 );
 async function loginShop() {
-  const data = await emailLogin("junhoi90@gmail.com", "0525cc");
+  const data = await emailLogin(ioFireStore, "junhoi90@gmail.com", "0525cc");
   if (data && data.user) {
     authS.login(data.user);
     router.goHome();
   }
 }
 async function loginVendor() {
-  const data = await emailLogin("spchoi@gmail.com", "0525cc");
+  const data = await emailLogin(ioFireStore, "spchoi@gmail.com", "0525cc");
   if (data && data.user) {
     authS.login(data.user);
     router.goHome();
   }
 }
 async function loginUncle() {
-  const data = await emailLogin("bereshith_@naver.com", "0525cc");
+  const data = await emailLogin(ioFireStore, "bereshith_@naver.com", "0525cc");
   if (data && data.user) {
     authS.login(data.user);
     router.goHome();

@@ -12,15 +12,26 @@ import {
 } from "@/composable/";
 import { useAuthStore } from "@/store";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
-import { useAlarm, SearchUserAuto } from "@io-boxies/vue-lib";
+import { useAlarm } from "@io-boxies/vue-lib";
 import { axiosConfig } from "@/plugin/axios";
+import { ioFireStore } from "@/plugin/firebase";
 import { NButton, useMessage } from "naive-ui";
-import { ref, computed, watch, shallowRef, watchEffect } from "vue";
+import {
+  ref,
+  computed,
+  watch,
+  shallowRef,
+  watchEffect,
+  defineAsyncComponent,
+} from "vue";
+
+const SearchUserAuto = defineAsyncComponent(
+  () => import("@/component/input/search-user-auto")
+);
 
 const msg = useMessage();
 const auth = useAuthStore();
 const { sendAlarm } = useAlarm();
-
 const targetShop = ref<IoUser | null>();
 const shopProds = ref<ShopGarment[]>([]);
 const partner = ref<IoPartner | null>(null);
@@ -193,6 +204,7 @@ watch(
       <n-space justify="end" style="margin-bottom: 5px">
         <n-text type="primary">소매처 검색</n-text>
         <SearchUserAuto
+          :store="ioFireStore"
           :search-size="10"
           :show-role-selector="false"
           :env="env"
