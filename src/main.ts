@@ -8,10 +8,6 @@ import { getMessaging, onMessage } from "@firebase/messaging";
 import { logger } from "./plugin/logger";
 import { ioFire } from "./plugin/firebase";
 import { pinia } from "./store";
-// import { ioFire } from "@io-boxies/js-lib";
-// import { connectFirestoreEmulator } from "@firebase/firestore";
-// import { connectStorageEmulator } from "@firebase/storage";
-// import { connectAuthEmulator, getAuth } from "@firebase/auth";
 
 window.onerror = function (errorMsg, url, errorObj) {
   logger.error(
@@ -20,14 +16,14 @@ window.onerror = function (errorMsg, url, errorObj) {
     errorObj
   );
 };
-console.log("in-out box front(web) has Ignited, with Env: ", import.meta.env);
+console.info("in-out box front(web) has Ignited, with Env: ", import.meta.env);
 
 const app = createApp(App);
 app.use(pinia);
 app.use(vueKakao, {
   apiKey: "96b525bca68b5ec991f5e96c39db8111",
   callback: () => {
-    logger.debug(null, "KAKAKO SDK is installed");
+    logger.debug(null, "KAKAO SDK is installed");
   },
 });
 app.use(router);
@@ -47,6 +43,3 @@ channel.addEventListener("message", function (event) {
     event
   );
 });
-// connectFirestoreEmulator(ioFire.store, "127.0.0.1", 8080);
-// connectStorageEmulator(ioFire.storage, "127.0.0.1", 9199);
-// connectAuthEmulator(getAuth(), "127.0.0.1:9099");

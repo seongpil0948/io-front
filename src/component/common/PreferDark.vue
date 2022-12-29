@@ -2,6 +2,7 @@
 import { useAuthStore } from "@/store";
 import { USER_DB } from "@io-boxies/js-lib";
 import { DarkModeOutlined } from "@vicons/material";
+import { ioFireStore } from "@/plugin/firebase";
 
 const auth = useAuthStore();
 
@@ -9,7 +10,7 @@ defineProps<{ text: boolean }>();
 async function changeDark(val: boolean) {
   if (auth.user) {
     auth.user.preferDark = val;
-    await USER_DB.updateUser(auth.user);
+    await USER_DB.updateUser(ioFireStore, auth.user);
   }
 }
 </script>

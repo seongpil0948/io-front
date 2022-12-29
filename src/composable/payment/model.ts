@@ -9,6 +9,7 @@ import {
 import { DocumentData, DocumentSnapshot } from "firebase/firestore";
 import { CommonField } from "../common";
 import { IO_BANKS, IoPayCRT, PayHistoryCRT } from "./domain";
+import { ioFireStore } from "@/plugin/firebase";
 
 export class IoAccount {
   accountName: string;
@@ -79,7 +80,7 @@ export class IoPay extends CommonField implements IoPayCRT {
   async update() {
     await insertById<IoPay>(
       this,
-      getIoCollection({ c: IoCollection.IO_PAY }),
+      getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }),
       this.userId,
       true,
       IoPay.fireConverter()

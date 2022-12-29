@@ -19,6 +19,7 @@ import ag from "naive-ui/es/avatar-group/src/AvatarGroup";
 import { ref, computed, watchEffect, h, watch } from "vue";
 import { ORDER_STATE, ShipOrder, ShipOrderByShop } from "../domain";
 import { IoShipment } from "../model";
+import { ioFireStore } from "@/plugin/firebase";
 
 export function useShipmentUncle(inStates: ORDER_STATE[]) {
   const auth = useAuthStore();
@@ -98,7 +99,7 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
 
       const snapshots = await batchInQuery<IoShipment | null>(
         shipIds,
-        getIoCollection({
+        getIoCollection(ioFireStore, {
           c: IoCollection.SHIPMENT,
           uid: u.userInfo.userId,
         }).withConverter(IoShipment.fireConverter()),

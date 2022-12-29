@@ -13,8 +13,11 @@ import { csPostFireConverter } from "@/composable";
 import { USER_ROLE, getIoCollection } from "@io-boxies/js-lib";
 import { KAKAO_CHANNEL_ID } from "@/constants";
 import { ComponentInternalInstance } from "vue";
+import { ioFireStore } from "@/plugin/firebase";
 const getCollection = () =>
-  getIoCollection({ c: "CS_POST" }).withConverter(csPostFireConverter);
+  getIoCollection(ioFireStore, { c: "CS_POST" }).withConverter(
+    csPostFireConverter
+  );
 
 export function postTypeToKo(postType: POST_TYPE) {
   switch (postType) {

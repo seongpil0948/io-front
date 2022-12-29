@@ -9,6 +9,7 @@ import {
 import { getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { ref } from "vue";
 import { PaymentDB, IoPay } from "..";
+import { ioFireStore } from "@/plugin/firebase";
 
 export const IopayFB: PaymentDB = {
   getIoPayByUserListen: function (uid: string) {
@@ -71,8 +72,7 @@ async function getPayFromDoc(d: DocumentSnapshot<IoPay | null>, uid: string) {
   return d.data()!;
 }
 
-function getPayCollection() {
-  return getIoCollection({ c: IoCollection.IO_PAY }).withConverter(
+const getPayCollection = () =>
+  getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }).withConverter(
     IoPay.fireConverter()
   );
-}

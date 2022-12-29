@@ -6,6 +6,7 @@ import { IoUser, getUserName, USER_DB } from "@io-boxies/js-lib";
 import { NButton, FormInst, useMessage } from "naive-ui";
 import { computed, ref, toRefs } from "vue";
 import { useLogger } from "vue-logger-plugin";
+import { ioFireStore } from "@/plugin/firebase";
 
 const logger = useLogger();
 const auth = useAuthStore();
@@ -50,7 +51,7 @@ async function onAdd() {
     if (!errors) {
       const val = formValue.value;
       target[val.unit] = val.amount;
-      await USER_DB.updateUser(u.value);
+      await USER_DB.updateUser(ioFireStore, u.value);
       auth.setUser(u.value);
       message.success("추가완료 ");
       showModal.value = false;

@@ -20,10 +20,11 @@ import { uuidv4 } from "@firebase/util";
 import { fireConverter, notNullRule, strLenRule } from "@/util";
 import { useAuthStore } from "@/store";
 import { setDoc, doc } from "@firebase/firestore";
+import { ioFireStore } from "@/plugin/firebase";
 
 const auth = useAuthStore();
 const virVendorConverter = fireConverter<IoUser>();
-const virVendorC = getIoCollection({
+const virVendorC = getIoCollection(ioFireStore, {
   uid: auth.currUser.userInfo.userId,
   c: "VIRTUAL_USER",
 }).withConverter(virVendorConverter);

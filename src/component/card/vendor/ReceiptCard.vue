@@ -5,6 +5,7 @@ import { useMessage } from "naive-ui";
 import { OrderItem } from "@/composable";
 import { useEditor } from "@/plugin/editor";
 import { useAuthStore } from "@/store";
+import { ioFireStore } from "@/plugin/firebase";
 
 const props = defineProps<{
   customer?: IoUser | null;
@@ -38,7 +39,7 @@ async function onToggle() {
       const orderMemo = await saveEditor();
       if (orderMemo) {
         u.orderMemo = orderMemo;
-        await USER_DB.updateUser(u);
+        await USER_DB.updateUser(ioFireStore, u);
         auth.setUser(u);
       }
     }

@@ -14,7 +14,6 @@ import {
 } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { useRouter } from "vue-router";
-import { IoFireApp } from "@io-boxies/js-lib";
 import { logEvent, getAnalytics } from "@firebase/analytics";
 import {
   IoUser,
@@ -25,8 +24,12 @@ import {
   USER_PROVIDER,
   getUserName,
 } from "@io-boxies/js-lib";
-import { createUserWithEmailAndPassword, getAuth } from "@firebase/auth";
-import { ioFire } from "@/plugin/firebase";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  UserCredential,
+} from "@firebase/auth";
+import { ioFire, ioFireStore } from "@/plugin/firebase";
 import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
 
@@ -209,11 +212,26 @@ async function onSignUp() {
   } else if (u.userInfo.providerId === "EMAIL") {
     if (!u.userInfo.email)
       return msg.error("(오류) 이메일이 없습니다.", makeMsgOpt());
-    const credential = await createUserWithEmailAndPassword(
-      getAuth(ioFire.app),
-      u.userInfo.email,
-      state.password
-    );
+    let credential: UserCredential | null = null;
+    try {
+      credential = await createUserWithEmailAndPassword(
+        getAuth(ioFire.app),
+        u.userInfo.email,
+        state.password
+      );
+    } catch (e: any) {
+      if (typeof e.code === "string") {
+        if (e.code.includes("email-already-in-use")) {
+          router.replace({ name: "Login" });
+          msg.error(
+            "이미 존재하는 이메일 입니다. 다른 이메일로 가입 해주세요.",
+            makeMsgOpt()
+          );
+        }
+      }
+      throw e;
+    }
+
     u.userInfo.userId = credential.user.uid;
     log.info(null, "createUserWithEmailAndPassword: ", credential);
   }
@@ -221,8 +239,8 @@ async function onSignUp() {
     log.error(null, "u.userInfo.userId is null in signup");
   } else {
     log.debug(u.userInfo.userId, "signup user: ", u);
-    await USER_DB.updateUser(u);
-    logEvent(getAnalytics(IoFireApp.getInst().app), "sign_up", {
+    await USER_DB.updateUser(ioFireStore, u);
+    logEvent(getAnalytics(ioFire.app), "sign_up", {
       method: u.userInfo.providerId,
       userRole: u.userInfo.role,
     });

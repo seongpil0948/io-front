@@ -3,7 +3,7 @@ import { deleteDoc, doc, onSnapshot, setDoc } from "@firebase/firestore";
 import { getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { ref } from "vue";
 import { ApiToken, ApiTokenCrt, LinkageDB } from "..";
-
+import { ioFireStore } from "@/plugin/firebase";
 export const LinkageFB: LinkageDB = {
   getTokensByIdListen: function (uid: string) {
     const c = getC(uid);
@@ -39,6 +39,6 @@ export const LinkageFB: LinkageDB = {
 };
 
 const getC = (uid: string) =>
-  getIoCollection({ c: IoCollection.TOKENS, uid }).withConverter(
+  getIoCollection(ioFireStore, { c: IoCollection.TOKENS, uid }).withConverter(
     ApiToken.fireConverter()
   );

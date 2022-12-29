@@ -13,6 +13,7 @@ import {
 } from "naive-ui";
 import { computed, onBeforeMount, ref } from "vue";
 import { storeToRefs } from "pinia";
+import { ioFireStore } from "@/plugin/firebase";
 
 const msg = useMessage();
 const auth = useAuthStore();
@@ -35,7 +36,7 @@ onBeforeMount(async () => {
   if (!user.value) {
     user.value = auth.currUser;
   }
-  allUncles.value = await USER_DB.getUsersByRole("UNCLE");
+  allUncles.value = await USER_DB.getUsersByRole(ioFireStore, "UNCLE");
 });
 // modal
 const selectedUser = ref<IoUser | null>(null);
@@ -54,7 +55,7 @@ async function onDelete() {
     user.value!.shopInfo?.uncleUserIds.findIndex((x) => x === uId),
     1
   );
-  await USER_DB.updateUser(user.value!);
+  await USER_DB.updateUser(ioFireStore, user.value!);
   auth.setUser(user.value!);
   msg.success("삭제 완료.");
 }
@@ -68,7 +69,7 @@ async function onContract() {
     msg.success("추가 완료.");
   } else if (!user.value!.shopInfo.uncleUserIds.includes(uId)) {
     user.value!.shopInfo?.uncleUserIds.push(uId);
-    await USER_DB.updateUser(user.value!);
+    await USER_DB.updateUser(ioFireStore, user.value!);
     auth.setUser(user.value!);
     msg.success("추가 완료.");
   } else {

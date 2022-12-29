@@ -9,6 +9,7 @@ import {
   usersFromSnap,
 } from "@io-boxies/js-lib";
 import { onBeforeUnmount, ref, computed } from "vue";
+import { ioFireStore } from "@/plugin/firebase";
 
 export function useUncleWorkers() {
   const auth = useAuthStore();
@@ -21,9 +22,9 @@ export function useUncleWorkers() {
       return acc;
     }, {} as { [uid: string]: string })
   );
-  const c = getIoCollection({ c: IoCollection.USER }).withConverter(
-    userFireConverter
-  );
+  const c = getIoCollection(ioFireStore, {
+    c: IoCollection.USER,
+  }).withConverter(userFireConverter);
   const name = "uncleWorkers snapshot";
   const unsubscribe = onSnapshot(
     query(

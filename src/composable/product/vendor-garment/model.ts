@@ -6,6 +6,7 @@ import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import type { GENDER, PART, PRODUCT_SIZE, PROD_TYPE } from "../domain";
 import { VendorGarmentCrt, VendorProdSame, VendorProdSimilar } from "./domain";
+import { ioFireStore } from "@/plugin/firebase";
 
 export class VendorGarment extends CommonField implements VendorGarmentCrt {
   gender: GENDER;
@@ -34,7 +35,7 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
     this.updatedAt = new Date();
     await insertById<VendorGarment>(
       this,
-      getIoCollection({ c: IoCollection.VENDOR_PROD }),
+      getIoCollection(ioFireStore, { c: IoCollection.VENDOR_PROD }),
       this.vendorProdId,
       true,
       VendorGarment.fireConverter()

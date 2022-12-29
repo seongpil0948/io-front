@@ -5,7 +5,6 @@ import {
   insertById,
   userFireConverter,
 } from "@io-boxies/js-lib";
-import { ioFire } from "@/plugin/firebase";
 import { uniqueArr } from "@/util";
 import {
   doc,
@@ -45,6 +44,7 @@ import {
   VENDOR_GARMENT_DB,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
+import { ioFireStore } from "@/plugin/firebase";
 
 const cancelTargetState = [
   "BEFORE_ORDER",
@@ -57,7 +57,7 @@ async function getOrders(constraints: QueryConstraint[]) {
   const orders: IoOrder[] = [];
   const docs = await getDocs(
     query(
-      getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
+      getIoCollectionGroup(ioFireStore, IoCollection.ORDER_PROD).withConverter(
         orderFireConverter
       ),
       ...constraints
@@ -82,7 +82,10 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
   updateOrder: async function (order) {
     return insertById<IoOrder>(
       order,
-      getIoCollection({ c: IoCollection.ORDER_PROD, uid: order.shopId }),
+      getIoCollection(ioFireStore, {
+        c: IoCollection.ORDER_PROD,
+        uid: order.shopId,
+      }),
       order.dbId,
       true,
       orderFireConverter
@@ -161,7 +164,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       acc[curr] = 0;
       return acc;
     }, {} as { [shopId: string]: number });
-    await runTransaction(ioFire.store, async (transaction) => {
+    await runTransaction(ioFireStore, async (transaction) => {
       const { getOrdRef, converterGarment } = getSrc();
       // 2. update order state, reduce shop coin
       for (let i = 0; i < orders.length; i++) {
@@ -188,7 +191,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         const shopPay = await IO_PAY_DB.getIoPayByUser(shopId);
         const cost = IO_COSTS.REQ_ORDER * cnt;
         transaction.update(
-          doc(getIoCollection({ c: IoCollection.IO_PAY }), shopId),
+          doc(getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }), shopId),
           {
             pendingBudget: shopPay.pendingBudget - cost,
             budget: shopPay.budget + cost,
@@ -212,7 +215,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       acc[curr] = 0;
       return acc;
     }, {} as { [shopId: string]: number });
-    await runTransaction(ioFire.store, async (transaction) => {
+    await runTransaction(ioFireStore, async (transaction) => {
       const { getOrdRef, converterGarment } = getSrc();
       // 1. vendor pay
       const vendorPay = await IO_PAY_DB.getIoPayByUser(vendorId);
@@ -222,7 +225,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       }
       vendorPay.budget -= vReduceCoin;
       transaction.update(
-        doc(getIoCollection({ c: IoCollection.IO_PAY }), vendorId),
+        doc(getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }), vendorId),
         {
           budget: vendorPay.budget,
         }
@@ -256,7 +259,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
             `shop(${shopId}) not enough pendingBudget(${cost}) for request order`
           );
         transaction.update(
-          doc(getIoCollection({ c: IoCollection.IO_PAY }), shopId),
+          doc(getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }), shopId),
           {
             pendingBudget: shopPay.pendingBudget - cost,
           }
@@ -281,7 +284,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     const reduceCoin = IO_COSTS.REQ_ORDER * orderItemIds.length;
     if (userPay.budget < reduceCoin) throw new Error("보유 코인이 부족합니다.");
 
-    const result = runTransaction(ioFire.store, async (transaction) => {
+    const result = runTransaction(ioFireStore, async (transaction) => {
       const newOrds: IoOrder[] = [];
       for (let i = 0; i < orders.length; i++) {
         const order = orders[i];
@@ -301,9 +304,9 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
           } else if (!orderItemIds.includes(item.id)) continue;
           const vendorRef = await transaction.get(
             doc(
-              getIoCollection({ c: IoCollection.USER }).withConverter(
-                userFireConverter
-              ),
+              getIoCollection(ioFireStore, {
+                c: IoCollection.USER,
+              }).withConverter(userFireConverter),
               item.vendorId
             )
           );
@@ -335,7 +338,10 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         );
       }
       transaction.update(
-        doc(getIoCollection({ c: IoCollection.IO_PAY }), userPay.userId),
+        doc(
+          getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }),
+          userPay.userId
+        ),
         {
           pendingBudget: userPay.pendingBudget + reduceCoin,
           budget: userPay.budget - reduceCoin,
@@ -347,7 +353,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     return result;
   },
   batchCreate: async function (uid: string, orders: IoOrder[]) {
-    return await runTransaction(ioFire.store, async (transaction) => {
+    return await runTransaction(ioFireStore, async (transaction) => {
       const { getOrdRef, getOrderNumberRef, converterGarment } = getSrc();
       const ordRef = getOrdRef(uid);
       const ordNumRef = getOrderNumberRef(uid);
@@ -447,7 +453,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       constraints.push(where("states", "array-contains-any", p.inStates));
     }
     const q = query(
-      getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
+      getIoCollectionGroup(ioFireStore, IoCollection.ORDER_PROD).withConverter(
         orderFireConverter
       ),
       ...constraints
@@ -479,7 +485,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     orders: Ref<IoOrder[]>;
   }) {
     const orderQ = query(
-      getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
+      getIoCollectionGroup(ioFireStore, IoCollection.ORDER_PROD).withConverter(
         orderFireConverter
       ),
       // FIXME: where("isDone", "!=", false),
@@ -522,7 +528,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
   }) {
     console.log("p.uncleId: ", p.uncleId);
     const orderQ = query(
-      getIoCollectionGroup(IoCollection.ORDER_PROD).withConverter(
+      getIoCollectionGroup(ioFireStore, IoCollection.ORDER_PROD).withConverter(
         orderFireConverter
       ),
       where("shipManagerId", "==", p.uncleId)
@@ -558,7 +564,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     return { unsubscribe };
   },
   getExistOrderIds: async function (shopId: string) {
-    const ioc = getIoCollection({
+    const ioc = getIoCollection(ioFireStore, {
       c: IoCollection.ORDER_PROD_NUMBER,
       uid: shopId,
     });
@@ -619,7 +625,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
   ): Promise<void> {
     const { getOrdRef, converterGarment } = getSrc();
     const data: { [shopId: string]: ORDER_STATE } = {};
-    await runTransaction(ioFire.store, async (transaction) => {
+    await runTransaction(ioFireStore, async (transaction) => {
       const orders = await OrderGarmentFB.batchRead(orderDbIds);
       for (let i = 0; i < orders.length; i++) {
         const o = orders[i];
@@ -753,14 +759,14 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
 
 export function getSrc() {
   const converterGarment = orderFireConverter;
-  const batch = writeBatch(ioFire.store);
+  const batch = writeBatch(ioFireStore);
   const getOrdRef = (shopId: string) =>
-    getIoCollection({
+    getIoCollection(ioFireStore, {
       c: IoCollection.ORDER_PROD,
       uid: shopId,
     }).withConverter(converterGarment);
   const getOrderNumberRef = (shopId: string) =>
-    getIoCollection({
+    getIoCollection(ioFireStore, {
       c: IoCollection.ORDER_PROD_NUMBER,
       uid: shopId,
     });
@@ -778,7 +784,7 @@ async function stateModify(d: {
 
   const { getOrdRef, converterGarment } = getSrc();
   const shopIds: string[] = [];
-  await runTransaction(ioFire.store, async (transaction) => {
+  await runTransaction(ioFireStore, async (transaction) => {
     for (let i = 0; i < orders.length; i++) {
       const o = orders[i];
       if (!shopIds.includes(o.shopId)) shopIds.push(o.shopId);
@@ -811,7 +817,7 @@ async function stateModify(d: {
 }
 
 async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
-  return await runTransaction(ioFire.store, async (transaction) => {
+  return await runTransaction(ioFireStore, async (transaction) => {
     const { getOrdRef, converterGarment } = getSrc();
     const ordRef = getOrdRef(shopId);
     const orders: IoOrder[] = await getOrders([

@@ -1,6 +1,7 @@
 import { ref, computed, watch } from "vue";
 import { useAuthStore } from "@/store";
 import { IoUser, USER_DB, getUserName } from "@io-boxies/js-lib";
+import { ioFireStore } from "@/plugin/firebase";
 
 export function useContactUncle() {
   const auth = useAuthStore();
@@ -12,7 +13,7 @@ export function useContactUncle() {
     () => uncleUserIds.value,
     async function (ids, prev) {
       if (ids === prev) return;
-      contractUncles.value = await USER_DB.getUserByIds(ids);
+      contractUncles.value = await USER_DB.getUserByIds(ioFireStore, ids);
     },
     { immediate: true, deep: true }
   );

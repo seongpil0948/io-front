@@ -3,11 +3,12 @@ import { getIoCollection, IoUser } from "@io-boxies/js-lib";
 import { handleReadSnap, fireConverter } from "@/util";
 import { onSnapshot } from "@firebase/firestore";
 import { onBeforeUnmount, ref } from "vue";
+import { ioFireStore } from "@/plugin/firebase";
 
 export function useVirtualVendor(uid: string) {
   const name = "VirtualVendor snapshot";
   const virVendorConverter = fireConverter<IoUser>();
-  const virVendorC = getIoCollection({
+  const virVendorC = getIoCollection(ioFireStore, {
     uid,
     c: "VIRTUAL_USER",
   }).withConverter(virVendorConverter);

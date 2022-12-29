@@ -9,6 +9,7 @@ import { Size, Type } from "naive-ui/es/button/src/interface";
 import { ref, toRefs, watchEffect, computed } from "vue";
 import ReceiptCard from "@/component/card/vendor/ReceiptCard.vue";
 import { axiosConfig } from "@/plugin/axios";
+import { ioFireStore } from "@/plugin/firebase";
 
 const props = defineProps<{
   targetOrdDbIds: string[];
@@ -36,7 +37,7 @@ watchEffect(async () => {
     return;
   } else if (targetShop.value && targetShop.value.userInfo.userId === ids[0])
     return;
-  targetShop.value = await USER_DB.getUserById(ids[0]);
+  targetShop.value = await USER_DB.getUserById(ioFireStore, ids[0]);
 });
 
 const { showModal, defrayInfo, orderAmounts, receiptRef, newCredit } =

@@ -3,6 +3,7 @@ import { useAuthStore } from "@/store";
 import { IoUser, LocateAmount, USER_DB } from "@io-boxies/js-lib";
 import { DataTableColumns, NText, NButton, useMessage } from "naive-ui";
 import { Ref, h } from "vue";
+import { ioFireStore } from "@/plugin/firebase";
 
 export function useShipUnitCols(
   showModal: Ref<boolean>,
@@ -48,7 +49,7 @@ export function useShipUnitCols(
             type: "error",
             onClick: async () => {
               delete target[row.unit];
-              await USER_DB.updateUser(u);
+              await USER_DB.updateUser(ioFireStore, u);
             },
             size: "small",
           },
@@ -109,7 +110,7 @@ export function useShipAreaCols() {
                   l.town === e.locate.town
               );
               u.value?.uncleInfo!.shipLocates.splice(idx ?? -1, 1);
-              await USER_DB.updateUser(u.value!);
+              await USER_DB.updateUser(ioFireStore, u.value!);
               auth.setUser(u.value!);
               msg.success("삭제완료.");
             },

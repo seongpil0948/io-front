@@ -3,7 +3,7 @@ import { ORDER_STATE, usePendingOrderCols } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { uniqueArr } from "@/util";
 import { IoUser, USER_DB } from "@io-boxies/js-lib";
-
+import { ioFireStore } from "@/plugin/firebase";
 import { onBeforeMount, shallowRef, watch, computed } from "vue";
 
 const auth = useAuthStore();
@@ -18,7 +18,7 @@ watch(
   () => orders.value,
   async (ords) => {
     const ids = uniqueArr(ords.flatMap((o) => o.vendorIds));
-    vendors.value = await USER_DB.getUserByIds(ids);
+    vendors.value = await USER_DB.getUserByIds(ioFireStore, ids);
   }
 );
 const columns = computed(() => pendingOrderCols(vendors.value));

@@ -24,6 +24,8 @@ import { useAuthStore } from "@/store";
 import { doc, getDoc, updateDoc } from "@firebase/firestore";
 import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
+import { ioFireStore } from "@/plugin/firebase";
+
 const GarmentOrderRow = defineAsyncComponent(
   () => import("@/component/table/vendor/GarmentOrderRow.vue")
 );
@@ -96,7 +98,7 @@ export function useApproveOrder(p: ApproveParam) {
             update: false,
           });
           const docRef = doc(
-            getIoCollection({ c: IoCollection.IO_PAY }),
+            getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }),
             o.shopId
           ).withConverter(IoPay.fireConverter());
           const docSnap = await getDoc(docRef);

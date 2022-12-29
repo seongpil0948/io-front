@@ -13,11 +13,13 @@ import { where, QueryConstraint } from "firebase/firestore";
 import { StockCntObj } from "../shop-garment";
 import { VendorUserGarment, VendorUserGarmentCombined } from "./domain";
 import { VendorGarment } from "./model";
+import { ioFireStore } from "@/plugin/firebase";
 
 export async function toVendorUserGarmentCombined(
   prods: VendorGarment[]
 ): Promise<VendorUserGarmentCombined[]> {
   const vendors = await USER_DB.getUserByIds(
+    ioFireStore,
     uniqueArr(prods.map((x) => x.vendorId))
   );
   const pkgIds = prods.map((y) => y.vendorProdPkgId);
@@ -61,7 +63,7 @@ export async function toVendorUserGarmentCombined(
   return Object.values(obj);
 }
 
-export const vendorProdC = getIoCollection({
+export const vendorProdC = getIoCollection(ioFireStore, {
   c: IoCollection.VENDOR_PROD,
 }).withConverter(VendorGarment.fireConverter());
 

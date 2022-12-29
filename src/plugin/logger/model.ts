@@ -11,13 +11,15 @@ import {
   query,
   where,
   onSnapshot,
+  QueryConstraint,
 } from "firebase/firestore";
 import { logger } from "@/plugin/logger";
 import { onBeforeMount, ref } from "vue";
 import { CommonField } from "@/composable/common/model";
 import { getIoCollection, IoCollection, loadDate } from "@io-boxies/js-lib";
 import { onFirestoreErr, onFirestoreCompletion } from "@/composable";
-import { ioFire } from "../firebase";
+import { ioFireStore } from "@/plugin/firebase";
+
 export interface IoLogCRT {
   createdAt?: Date;
   uid?: string;
@@ -61,7 +63,7 @@ export class IoLog extends CommonField implements IoLogCRT {
       return logger.error(null, "user-log save fail: user id is required: ");
     await setDoc(
       doc(
-        getIoCollection({
+        getIoCollection(ioFireStore, {
           c: IoCollection.USER_LOG,
           uid: this.uid,
         }).withConverter(ioLogConverter)
@@ -106,7 +108,7 @@ export function useReadLogger(param: ReadLogParam) {
   const lastLog = ref<any | null>(null);
   const noMore = ref(false);
   function getQuery() {
-    const constraints = [
+    const constraints: QueryConstraint[] = [
       where("uid", "in", param.uids),
       orderBy("createdAt", "desc"),
     ];
@@ -120,7 +122,7 @@ export function useReadLogger(param: ReadLogParam) {
     }
     constraints.push(limit(param.limit));
     return query(
-      collectionGroup(ioFire.store, "logs").withConverter(ioLogConverter),
+      collectionGroup(ioFireStore, "logs").withConverter(ioLogConverter),
       ...constraints
     );
   }

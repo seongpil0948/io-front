@@ -25,12 +25,13 @@ import { uuidv4 } from "@firebase/util";
 import { shopProdC } from "../product/shop-garment/db/firebase";
 import { makeMsgOpt } from "@io-boxies/vue-lib";
 import { useMessage } from "naive-ui";
+import { ioFireStore } from "@/plugin/firebase";
 
 export function useShopVirtualProd(user: IoUser) {
   const uid = user.userInfo.userId;
   const name = "VirtualVendorProd snapshot";
   const msg = useMessage();
-  const virVendorProdC = getIoCollection({
+  const virVendorProdC = getIoCollection(ioFireStore, {
     uid,
     c: "VIRTUAL_VENDOR_PROD",
   }).withConverter(VendorGarment.fireConverter());

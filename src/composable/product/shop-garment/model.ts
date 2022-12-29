@@ -8,6 +8,7 @@ import { CommonField, VISIBILITY } from "@/composable/common";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
+import { ioFireStore } from "@/plugin/firebase";
 
 export function sameGarment(p: ShopGarmentCrt, g: GarmentOrderCondi) {
   return p.prodName === g.prodName && p.color === g.color && p.size === g.size;
@@ -32,7 +33,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   async update() {
     await insertById<ShopGarment>(
       this,
-      getIoCollection({ c: IoCollection.SHOP_PROD }),
+      getIoCollection(ioFireStore, { c: IoCollection.SHOP_PROD }),
       this.shopProdId,
       true,
       ShopGarment.fireConverter()

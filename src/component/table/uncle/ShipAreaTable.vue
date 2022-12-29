@@ -7,6 +7,8 @@ import { ref, computed } from "vue";
 import { shipAreas } from "@/asset/administrationAreas";
 import { useLogger } from "vue-logger-plugin";
 import { storeToRefs } from "pinia";
+import { ioFireStore } from "@/plugin/firebase";
+
 const logger = useLogger();
 const msg = useMessage();
 const auth = useAuthStore();
@@ -63,7 +65,7 @@ async function addShipArea() {
         amount: v.amount as number,
       };
       u.value!.uncleInfo!.shipLocates.push(locate);
-      await USER_DB.updateUser(u.value!);
+      await USER_DB.updateUser(ioFireStore, u.value!);
       auth.setUser(u.value!);
       msg.success("지역 추가 완료");
     }

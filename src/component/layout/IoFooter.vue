@@ -4,14 +4,14 @@ import { useRouter } from "vue-router";
 import { useLogin } from "@io-boxies/vue-lib";
 import { useAuthStore } from "@/store";
 const router = useRouter();
-const isTest = import.meta.env.VITE_IS_TEST;
 const showTos = ref(false);
 function onTos() {
   showTos.value = true;
 }
 const authS = useAuthStore();
+const isProd = import.meta.env.MODE === "production";
 const { emailLogin } = useLogin(
-  import.meta.env.MODE === "production" ? "io-prod" : "io-dev",
+  isProd ? "io-prod" : "io-dev",
   "/auth/customToken"
 );
 async function loginShop() {
@@ -60,7 +60,7 @@ async function loginUncle() {
         고객센터 번호 : 010-7727-7428
         <n-button size="small" @click="onTos"> 이용약관 보기 </n-button>
       </n-text>
-      <n-space v-if="isTest === 'true'" justify="center">
+      <n-space v-if="!isProd" justify="center">
         <!-- <<< TEMP <<< -->
         <n-button @click="router.push({ name: 'PlayGround' })">
           PlayGround

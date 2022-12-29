@@ -13,10 +13,9 @@ export default defineConfig({
     exclude: [
       // 여기에 넣으면 모듈을 아예 불러오질 못함..
       // "danfojs",
-      // "firebase",
-      // "@io-boxies/js-lib",
-      // "@io-boxies/vue-lib",
+      // "firebase"
     ],
+    include: ["@io-boxies/js-lib", "@io-boxies/vue-lib"],
   },
   build: {
     chunkSizeWarningLimit: 1000,

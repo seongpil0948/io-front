@@ -16,6 +16,7 @@ import {
   MappingJson,
   ProdMapper,
 } from "./domain";
+import { ioFireStore } from "@/plugin/firebase";
 
 class Mapper implements MapperCRT {
   userId: string;
@@ -31,7 +32,7 @@ class Mapper implements MapperCRT {
   async update(merge = true) {
     await insertById<Mapper>(
       this,
-      getIoCollection({ c: IoCollection.MAPPER }),
+      getIoCollection(ioFireStore, { c: IoCollection.MAPPER }),
       this.userId,
       merge,
       Mapper.fireConverter()

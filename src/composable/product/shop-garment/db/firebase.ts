@@ -24,10 +24,10 @@ import {
   QueryConstraint,
 } from "@firebase/firestore";
 import { Ref, ref } from "vue";
-import { ioFire } from "@/plugin/firebase";
 import { dataFromSnap } from "@/util";
 import { getDoc } from "firebase/firestore";
 import { ShopGarment } from "@/composable/product/shop-garment/model";
+import { ioFireStore } from "@/plugin/firebase";
 
 export const ShopGarmentFB: ShopGarmentDB = {
   getShopGarments: async function (d) {
@@ -84,7 +84,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
     else if (prodIds.length === 1) {
       await deleteDoc(doc(shopProdC, prodIds[0]));
     } else {
-      const batch = writeBatch(ioFire.store);
+      const batch = writeBatch(ioFireStore);
       for (let i = 0; i < prodIds.length; i++) {
         batch.delete(doc(shopProdC, prodIds[i]));
       }
@@ -95,7 +95,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
   getBatchShopProds: async function (
     shopIds: string[]
   ): Promise<ShopUserGarment[]> {
-    const users = await USER_DB.getUserByIds([...shopIds]);
+    const users = await USER_DB.getUserByIds(ioFireStore, [...shopIds]);
     const snapshots = await batchInQuery<ShopGarment | null>(
       [...shopIds],
       shopProdC,
@@ -129,7 +129,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
     return data ?? null;
   },
 };
-export const shopProdC = getIoCollection({
+export const shopProdC = getIoCollection(ioFireStore, {
   c: IoCollection.SHOP_PROD,
 }).withConverter(ShopGarment.fireConverter());
 // shopProdId;

@@ -17,6 +17,7 @@ import {
 } from "naive-ui";
 import { getCurrentInstance, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
+import { ioFireStore } from "@/plugin/firebase";
 
 const auth = useAuthStore();
 const msg = useMessage();
@@ -52,7 +53,7 @@ function onKakaoAuth() {
         success: async function (res: any) {
           console.log("Kakao User Res: ", res);
           const uid = res.id.toString();
-          const user = await USER_DB.getUserById(uid);
+          const user = await USER_DB.getUserById(ioFireStore, uid);
           if (user) return msg.error("이미 존재하는 유저입니다.");
           email.value = res.kakao_account.email;
           profileImg.value = res.properties.profile_image;
@@ -76,7 +77,7 @@ async function onGoogleAuth() {
   console.log("Google Login  Res: ", u);
 
   const uid = u.uid;
-  const user = await USER_DB.getUserById(uid);
+  const user = await USER_DB.getUserById(ioFireStore, uid);
   if (user) return msg.error("이미 존재하는 유저입니다.");
   email.value = u.email ?? "";
   profileImg.value = u.photoURL ?? "";
@@ -143,7 +144,7 @@ async function onSignUp() {
       },
     };
     console.log("Signed User: ", user);
-    await USER_DB.updateUser(user);
+    await USER_DB.updateUser(ioFireStore, user);
     await setWorkerId(auth.currUser, userId.value!);
     msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
     authed.value = false;

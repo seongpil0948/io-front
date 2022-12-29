@@ -39,9 +39,9 @@ import {
   getCountFromServer,
 } from "@firebase/firestore";
 import { ref } from "vue";
-import { ioFire } from "@/plugin/firebase";
 import { VendorProdSame, VendorUserGarment } from "../domain";
 import { CollectionReference } from "firebase/firestore";
+import { ioFireStore } from "@/plugin/firebase";
 
 export const VendorGarmentFB: VendorGarmentDB = {
   incrementStockCnt: async function (cnt: number, vendorProdId: string) {
@@ -51,7 +51,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
   },
   batchUpdate: async function (args: VendorGarment[]) {
     // vendorProdsModify;
-    const batch = writeBatch(ioFire.store);
+    const batch = writeBatch(ioFireStore);
     for (let i = 0; i < args.length; i++) {
       const prod = args[i];
       batch.update(doc(vendorProdC, prod.vendorProdId), prod.toJson());
@@ -80,7 +80,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
   },
   delete: async function (prodId) {
     const query_ = query(
-      getIoCollection({ c: "SHOP_PROD" }),
+      getIoCollection(ioFireStore, { c: "SHOP_PROD" }),
       where("vendorProdId", "==", prodId)
     );
     // https://firebase.google.com/docs/firestore/query-data/aggregation-queries
@@ -110,6 +110,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
     if (vendorProdIds.length < 1) return [];
     const prods = await this.listByIds(vendorProdIds);
     const vendors = await USER_DB.getUserByIds(
+      ioFireStore,
       uniqueArr(prods.map((x) => x.vendorId))
     );
     return prods
@@ -124,7 +125,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
   },
   listByVendorIds: async function (vendorIds: string[]) {
     // DEPRECATED: will be....
-    const vendors = await USER_DB.getUserByIds([...vendorIds]);
+    const vendors = await USER_DB.getUserByIds(ioFireStore, [...vendorIds]);
     const prodSnaps = await batchInQuery<VendorGarment>(
       [...vendorIds],
       vendorProdC,
@@ -171,7 +172,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
     const docSnap = await getDoc(doc(vendorProdC, vendorProdId));
     const data = docSnap.data();
     if (!data) return null;
-    const vendor = await USER_DB.getUserById(data.vendorId);
+    const vendor = await USER_DB.getUserById(ioFireStore, data.vendorId);
     if (!vendor) return null;
     return Object.assign({}, data, vendor);
   },
@@ -179,7 +180,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
     d: VendorProdSimilar,
     data: { [k: string]: any }
   ) {
-    const batch = writeBatch(ioFire.store);
+    const batch = writeBatch(ioFireStore);
     const prods = await this.getSimilarProds(d);
     for (let i = 0; i < prods.length; i++) {
       batch.update(doc(vendorProdC, prods[i].vendorProdId), data);

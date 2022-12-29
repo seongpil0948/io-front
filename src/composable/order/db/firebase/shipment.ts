@@ -13,8 +13,9 @@ import { uuidv4 } from "@firebase/util";
 import { IoUser, userFireConverter } from "@io-boxies/js-lib";
 import { doc, runTransaction } from "firebase/firestore";
 import { getSrc } from "./order";
-import { ioFire } from "@/plugin/firebase";
+import { ioFireStore } from "@/plugin/firebase";
 // import { uuidv4 } from "@firebase/util";
+
 export const ShipmentFB: ShipDB<IoOrder> = {
   approvePickUp: async function (row: IoOrder, expectedReduceCoin: number) {
     isValidOrder(row);
@@ -25,7 +26,7 @@ export const ShipmentFB: ShipDB<IoOrder> = {
       throw new Error("보유 코인이 부족합니다.");
     const ordRef = getOrdRef(row.shopId);
     const ordDocRef = doc(ordRef, row.dbId).withConverter(converterGarment);
-    return runTransaction(ioFire.store, async (t) => {
+    return runTransaction(ioFireStore, async (t) => {
       // >>> read order
       const ordDoc = await t.get(ordDocRef);
       if (!ordDoc.exists()) throw new Error("order doc does not exist!");
@@ -47,7 +48,10 @@ export const ShipmentFB: ShipDB<IoOrder> = {
           throw new Error(
             `도매처 상품이 없습니다.: ${item.vendorProd.vendorProdId}`
           );
-        const vendorUser = await USER_DB.getUserById(item.vendorId);
+        const vendorUser = await USER_DB.getUserById(
+          ioFireStore,
+          item.vendorId
+        );
         const vendor = validateUser(vendorUser, item.vendorId);
         const isReturn = item.orderType === "RETURN";
         const shopLocate = shop.companyInfo!.shipLocate;
@@ -95,7 +99,7 @@ export const ShipmentFB: ShipDB<IoOrder> = {
         });
         t.set(
           doc(
-            getIoCollection({
+            getIoCollection(ioFireStore, {
               c: IoCollection.SHIPMENT,
               uid: uncle.userInfo.userId,
             }),
@@ -108,7 +112,10 @@ export const ShipmentFB: ShipDB<IoOrder> = {
       }
       t.update(ordDocRef, converterGarment.toFirestore(ord));
       t.update(
-        doc(getIoCollection({ c: IoCollection.IO_PAY }), userPay.userId),
+        doc(
+          getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }),
+          userPay.userId
+        ),
         {
           pendingBudget: userPay.pendingBudget + expectedReduceCoin,
           budget: userPay.budget - expectedReduceCoin,
@@ -141,6 +148,6 @@ export function validateUser(
     throw new Error("엉클 배송지와 요금 설정을 해주세요");
   return u!;
 }
-const uConverter = getIoCollection({ c: IoCollection.USER }).withConverter(
-  userFireConverter
-);
+const uConverter = getIoCollection(ioFireStore, {
+  c: IoCollection.USER,
+}).withConverter(userFireConverter);

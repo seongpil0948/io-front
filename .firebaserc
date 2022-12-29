@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "io-box"
+    "default": "io-box-develop"
   },
   "targets": {
     "io-box": {

@@ -2,13 +2,14 @@ import { MapKey, ShopUserGarment, VENDOR_GARMENT_DB } from "@/composable";
 import { USER_DB } from "@io-boxies/js-lib";
 import { onBeforeUnmount, Ref, ref, watchEffect, watch } from "vue";
 import { ShopGarment, GarmentOrderCondi, SHOP_GARMENT_DB } from "..";
+import { ioFireStore } from "@/plugin/firebase";
 
 export function useShopUserProds(d: GetShopProdParam) {
   const { shopProds, unsubscribe, rowIdField, userProd } = base(d);
 
   watchEffect(async () => {
     const userProds: typeof userProd.value = [];
-    const shop = await USER_DB.getUserById(d.shopId);
+    const shop = await USER_DB.getUserById(ioFireStore, d.shopId);
     if (!shop) return;
     for (let i = 0; i < shopProds.value.length; i++) {
       const prod = shopProds.value[i];

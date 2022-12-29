@@ -1,5 +1,5 @@
 // TODO: Require Refactoring
-import { ioFire } from "@/plugin/firebase";
+import { ioFireStore } from "@/plugin/firebase";
 import { fireConverter } from "@/util";
 import {
   doc,
@@ -55,5 +55,6 @@ const partnerPath = "partner";
 export const getPartnerDoc = (d: { shopId: string; vendorId: string }) =>
   doc(getPartnerCollection(), getDocId(d)).withConverter(partnerConverter);
 
+console.log("ioFireStore: ", ioFireStore);
 const getPartnerCollection = () =>
-  collection(ioFire.store, partnerPath).withConverter(partnerConverter);
+  collection(ioFireStore, partnerPath).withConverter(partnerConverter);

@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store";
 import { useMessage } from "naive-ui";
 import { ref, computed, onBeforeUnmount } from "vue";
 import { storeToRefs } from "pinia";
+import { ioFireStore } from "@/plugin/firebase";
 
 const msg = useMessage();
 const auth = useAuthStore();
@@ -34,7 +35,7 @@ async function onClickAdd() {
       ...user.value.uncleInfo!.pickupLocates,
       lAmount,
     ];
-    USER_DB.updateUser(user.value)
+    USER_DB.updateUser(ioFireStore, user.value)
       .then(() => {
         auth.setUser(user.value!);
         msg.success("성공!");

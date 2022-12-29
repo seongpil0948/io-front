@@ -7,7 +7,7 @@ import {
   Locate,
   locateFireConverter,
 } from "@io-boxies/js-lib";
-
+import { ioFireStore } from "@/plugin/firebase";
 export function usePickArea() {
   const msg = useMessage();
   const locates = ref<Locate[]>([]);
@@ -20,7 +20,7 @@ export function usePickArea() {
     return target;
   }
 
-  const locateCollection = getIoCollection({
+  const locateCollection = getIoCollection(ioFireStore, {
     c: "PICKUP_LOCATES",
   }).withConverter(locateFireConverter);
   const name = "pickupArea snapshot";

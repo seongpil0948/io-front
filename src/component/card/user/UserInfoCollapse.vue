@@ -12,6 +12,7 @@ import {
   USER_DB,
 } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
+import { ioFireStore } from "@/plugin/firebase";
 
 const authStore = useAuthStore();
 const msg = useMessage();
@@ -31,7 +32,7 @@ onBeforeMount(() => {
 // );
 async function updateUser() {
   if (authModel.value) {
-    await USER_DB.updateUser(authModel.value);
+    await USER_DB.updateUser(ioFireStore, authModel.value);
     authStore.setUser(authModel.value);
     msg.info("변경 완료.");
   }

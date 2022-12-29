@@ -13,7 +13,7 @@ import {
   DocumentData,
 } from "@firebase/firestore";
 import { commonToJson } from "@io-boxies/js-lib";
-
+import { ioFireStore } from "@/plugin/firebase";
 export class IoShipment extends CommonField {
   shippingId: string;
   orderDbId: string;
@@ -93,7 +93,10 @@ export class IoShipment extends CommonField {
   async update() {
     return insertById<IoShipment>(
       this,
-      getIoCollection({ c: IoCollection.SHIPMENT, uid: this.managerId }),
+      getIoCollection(ioFireStore, {
+        c: IoCollection.SHIPMENT,
+        uid: this.managerId,
+      }),
       this.shippingId,
       true,
       IoShipment.fireConverter()

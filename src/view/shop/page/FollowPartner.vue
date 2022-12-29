@@ -3,6 +3,7 @@ import { IoPartner, loadPartnerVendors } from "@/composable";
 import { useAuthStore } from "@/store";
 import { getUserName, IoUser, USER_DB } from "@io-boxies/js-lib";
 import { onBeforeMount, shallowRef } from "vue";
+import { ioFireStore } from "@/plugin/firebase";
 
 const auth = useAuthStore();
 
@@ -11,6 +12,7 @@ const vendorById = shallowRef<{ [userId: string]: IoUser }>({});
 onBeforeMount(async () => {
   partners.value = await loadPartnerVendors(auth.currUser.userInfo.userId);
   const vendors = await USER_DB.getUserByIds(
+    ioFireStore,
     partners.value.map((x) => x.vendorId)
   );
   vendorById.value = vendors.reduce((acc: any, user: any) => {

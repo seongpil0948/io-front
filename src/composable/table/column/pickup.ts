@@ -6,6 +6,7 @@ import { uniqueArr } from "@/util";
 import { LocateAmount, USER_DB } from "@io-boxies/js-lib";
 import { DataTableColumns, NText, NButton, useMessage } from "naive-ui";
 import { computed, h } from "vue";
+import { ioFireStore } from "@/plugin/firebase";
 
 export function usePickAreaCols() {
   const auth = useAuthStore();
@@ -59,7 +60,7 @@ export function usePickAreaCols() {
                 isSamePickLocate(l, e.locate)
               );
               user.value.uncleInfo!.pickupLocates.splice(idx, 1);
-              await USER_DB.updateUser(user.value);
+              await USER_DB.updateUser(ioFireStore, user.value);
               auth.setUser(user.value!);
               msg.success("삭제완료.");
             },
