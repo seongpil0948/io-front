@@ -170,6 +170,7 @@ declare module '@vue/runtime-core' {
     ShopUncleManage: typeof import('./src/view/shop/page/ShopUncleManage.vue')['default']
     SignupPage: typeof import('./src/view/common/SignupPage.vue')['default']
     SingleImageInput: typeof import('./src/component/input/SingleImageInput.vue')['default']
+    Stepper: typeof import('./src/component/test/Stepper.vue')['default']
     TaxReport: typeof import('./src/view/shop/page/TaxReport.vue')['default']
     TeamUncleSider: typeof import('./src/component/layout/TeamUncleSider.vue')['default']
     TermOfService: typeof import('./src/component/card/TermOfService.vue')['default']

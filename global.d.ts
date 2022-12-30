@@ -4,6 +4,7 @@ import "pinia";
 import "vue-router";
 import "vue";
 import type { Kakao } from "@types/kakao-js-sdk";
+import { mount } from "cypress/vue";
 
 declare global {
   interface Window {
@@ -50,3 +51,14 @@ type NonFunctionPropertyNames<T> = {
   [K in keyof T]: T[K] extends Function ? never : K;
 }[keyof T];
 type NonFunctionProperties<T> = Pick<T, NonFunctionPropertyNames<T>>;
+
+type MountParams = Parameters<typeof mount>;
+type OptionsParam = MountParams[1];
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      mount: typeof mount;
+    }
+  }
+}
