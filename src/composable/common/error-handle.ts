@@ -9,7 +9,7 @@ interface CatchParam {
   err: unknown;
   msg?: MessageApiInjection;
   opt?: MessageOptions;
-  userId?: string;
+  uid?: string;
   prefix?: string;
 }
 
@@ -23,11 +23,11 @@ export function catchError(p: CatchParam) {
 }
 
 export function catchExcelError(p: CatchParam) {
-  let m = errToStr(p.err);
+  let m = catchError(p);
   if (m.includes("password-protected")) {
-    m = "엑셀파일에 비밀번호가 있습니다. " + m;
+    m += " 엑셀파일에 비밀번호가 있습니다. " + m;
   }
-  catchError(p);
+  return m;
 }
 
 export const errToStr = (err: unknown) =>
@@ -37,7 +37,7 @@ function expressErr(errStr: string, p: Partial<CatchParam>) {
   if (p.msg) {
     p.msg.error(errStr, makeMsgOpt(p.opt));
   }
-  logger.error(p.userId, errStr);
+  logger.error(p.uid, errStr);
 }
 
 export async function onFirestoreErr(name: string, err: FirestoreError) {

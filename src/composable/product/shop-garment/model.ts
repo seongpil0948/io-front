@@ -1,7 +1,7 @@
 import {
   PRODUCT_SIZE,
   ShopGarmentCrt,
-  GarmentOrderCondi,
+  MatchGarment,
   PROD_TYPE,
 } from "@/composable";
 import { CommonField, VISIBILITY } from "@/composable/common";
@@ -10,7 +10,7 @@ import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { ioFireStore } from "@/plugin/firebase";
 
-export function sameGarment(p: ShopGarmentCrt, g: GarmentOrderCondi) {
+export function sameGarment(p: ShopGarmentCrt, g: MatchGarment) {
   return p.prodName === g.prodName && p.color === g.color && p.size === g.size;
 }
 export class ShopGarment extends CommonField implements ShopGarmentCrt {

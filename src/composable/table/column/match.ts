@@ -44,12 +44,20 @@ export function getMatchCols(onClickId: (row: MatchGarment) => Promise<void>) {
       ],
     },
     {
-      title: "입력옵션",
-      key: "optionValue",
+      title: "주문번호",
+      key: "orderId",
+    },
+    {
+      title: "입력컬러",
+      key: "inputColor",
     },
     {
       title: "컬러",
       key: "color",
+    },
+    {
+      title: "입력사이즈",
+      key: "inputSize",
     },
     {
       title: "사이즈",

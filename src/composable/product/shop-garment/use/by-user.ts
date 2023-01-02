@@ -1,7 +1,7 @@
 import { MapKey, ShopUserGarment, VENDOR_GARMENT_DB } from "@/composable";
 import { USER_DB } from "@io-boxies/js-lib";
 import { onBeforeUnmount, Ref, ref, watchEffect, watch } from "vue";
-import { ShopGarment, GarmentOrderCondi, SHOP_GARMENT_DB } from "..";
+import { ShopGarment, MatchGarment, SHOP_GARMENT_DB } from "..";
 import { ioFireStore } from "@/plugin/firebase";
 
 export function useShopUserProds(d: GetShopProdParam) {
@@ -100,6 +100,6 @@ export function useShopGarments(d: GetShopProdParam) {
 
 interface GetShopProdParam {
   shopId: string;
-  shopCondi?: Ref<GarmentOrderCondi[]>;
+  shopCondi?: Ref<MatchGarment[]>;
   onChanged?: (prods: ShopUserGarment[]) => Promise<void> | void;
 }

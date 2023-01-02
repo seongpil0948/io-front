@@ -1,221 +1,34 @@
 <script setup lang="ts">
-import {
-  useCafeAuth,
-  getCafeOrders,
-  LINKAGE_DB,
-  useMapper,
-  ORDER_GARMENT_DB,
-  API_SERVICE_EX,
-  IoOrder,
-  MatchGarment,
-  ShopGarment,
-  useShopGarmentTable,
-  useApiTokenCols,
-  getMatchCols,
-  useSearch,
-  matchCafeOrder,
-  useMappingOrderCafe,
-  saveMatch,
-  getZigzagOrders,
-  useShopVirtualProd,
-  VendorGarment,
-  VENDOR_GARMENT_DB,
-} from "@/composable";
-import { useAuthStore, useShopOrderStore } from "@/store";
-import { dateRanges, makeMsgOpt } from "@/util";
-import { useMessage, NButton } from "naive-ui";
-import { onBeforeUnmount, computed, ref, shallowRef, watchEffect } from "vue";
-import { useLogger } from "vue-logger-plugin";
-import { storeToRefs } from "pinia";
-import { matchZigzagOrder } from "@/composable/order/use/parse-zigzag";
+import { useApiTokenCols, useMatch } from "@/composable";
+import { ref } from "vue";
 
-const msg = useMessage();
-const log = useLogger();
-const auth = useAuthStore();
+const {
+  range,
+  updateRangeNaive,
+  timeFormat,
+  goAuthorizeCafe,
+  mallId,
+  onGetOrder,
+  onSaveMatch,
+  tableCols,
+  openSelectList,
+  tokens,
+  matchCols,
+  useMatching,
+  useMapping,
+  showMatchModal,
+  search,
+  searchedData,
+  searchInputVal,
+  switchFilter,
+  filteredMatchData,
+  filterIsNull,
+} = useMatch({});
 const { apiTokenCol } = useApiTokenCols();
-const uid = computed(() => auth.currUser.userInfo.userId);
-const { tokens, unsubscribe } = LINKAGE_DB.getTokensByIdListen(uid.value);
-onBeforeUnmount(() => unsubscribe());
-// cafe - order module
+
 const showRegitZig = ref(false);
 function onZigSubmit() {
   showRegitZig.value = false;
-}
-const timeFormat = "yyyy-MM-dd";
-const {
-  dateRangeTime: range,
-  startDate,
-  endDate,
-  updateRangeNaive,
-} = dateRanges(true);
-const { authorizeCafe, mallId } = useCafeAuth();
-const { mapper } = useMapper(uid.value);
-const shopOrderStore = useShopOrderStore();
-const { existOrderIds } = storeToRefs(shopOrderStore);
-const { userVirProds } = useShopVirtualProd(auth.currUser);
-
-const { selectFunc, userProd, tableCols, openSelectList } = useShopGarmentTable(
-  true,
-  userVirProds
-);
-const { virVendorProds } = useShopVirtualProd(auth.currUser);
-const vendorProds = shallowRef<VendorGarment[]>([]);
-watchEffect(async () => {
-  const ids = userProd.value.map((x) => x.vendorProdId);
-  vendorProds.value = [
-    ...virVendorProds.value,
-    ...(await VENDOR_GARMENT_DB.listByIds(ids)),
-  ];
-});
-const { parseCafeOrder } = useMappingOrderCafe(
-  mapper,
-  uid.value,
-  existOrderIds,
-  vendorProds
-);
-
-function goAuthorizeCafe() {
-  if (
-    tokens.value.filter(
-      (x) => x.service === API_SERVICE_EX.CAFE && x.mallId === mallId.value
-    ).length > 0
-  ) {
-    return msg.error("이미 해당 쇼핑몰ID의 토큰이 존재합니다.");
-  }
-  return authorizeCafe();
-}
-// use select in modal
-const { search, searchedData, searchInputVal } = useSearch({
-  data: userProd,
-  filterFunc: (x, searchVal) => {
-    const v: typeof searchVal = searchVal;
-    return v === null
-      ? true
-      : x.size.includes(v) || x.color.includes(v) || x.prodName.includes(v);
-  },
-});
-
-const matchData = ref<MatchGarment[]>([]);
-async function onClickId(row: MatchGarment) {
-  selectFunc.value = async (s) => {
-    const g = ShopGarment.fromJson(s);
-    if (g) {
-      if (row.service === "CAFE") {
-        g.cafeProdId = row.inputId;
-      } else if (row.service === "ZIGZAG") {
-        g.zigzagProdId = row.inputId;
-      } else {
-        return log.error(`not matched api service: ${row.service}`);
-      }
-
-      g.update().then(() => {
-        row.id = g.shopProdId;
-        row.color = g.color;
-        row.size = g.size;
-        row.prodName = g.prodName;
-      });
-    }
-  };
-  openSelectList.value = true;
-}
-const matchCols = getMatchCols(onClickId);
-const filterIsNull = ref(false);
-function switchFilter(b: boolean) {
-  filterIsNull.value = b;
-}
-const filteredMatchData = computed(() =>
-  filterIsNull.value
-    ? matchData.value.filter((x) => x.id === undefined || x.id === null)
-    : matchData.value
-);
-
-async function onGetOrder(useMatching = true, useMapping = true) {
-  matchData.value = [];
-  if (!startDate.value || !endDate.value)
-    return msg.error("일자가 입력되지 않았습니다.");
-  for (let i = 0; i < tokens.value.length; i++) {
-    const token = tokens.value[i];
-    try {
-      if (token.service === "CAFE") {
-        const cafeOrds = await getCafeOrders(
-          startDate.value,
-          endDate.value,
-          token.dbId,
-          uid.value,
-          token.mallId!
-        );
-        let orders: IoOrder[] | undefined = undefined;
-        if (useMapping) {
-          orders = parseCafeOrder(cafeOrds);
-        } else if (useMatching) {
-          matchData.value.push(
-            ...matchCafeOrder(
-              cafeOrds,
-              token,
-              existOrderIds.value,
-              userProd.value
-            )
-          );
-        }
-        if ((!orders || orders.length < 1) && matchData.value.length < 1) {
-          continue;
-        } else if (orders) {
-          ORDER_GARMENT_DB.batchCreate(uid.value, orders)
-            .then(() => {
-              orders?.forEach((ord) => {
-                ord.orderIds.forEach((id) => existOrderIds.value.add(id));
-              });
-              msg.success(`주문취합 ${orders?.length}건 취합성공!`);
-            })
-            .catch((err) => {
-              const message = `주문취합 실패 ${
-                err instanceof Error ? err.message : JSON.stringify(err)
-              }`;
-              msg.error(message);
-              log.error(uid.value, message);
-            });
-        }
-      } else if (token.service === "ZIGZAG") {
-        const zigOrds = await getZigzagOrders(
-          startDate.value,
-          endDate.value,
-          token.dbId,
-          uid.value
-        );
-        if (useMatching) {
-          const { result, cnt } = matchZigzagOrder(
-            zigOrds,
-            existOrderIds.value,
-            token.alias,
-            userProd.value
-          );
-          matchData.value.push(...result);
-          msg.info(
-            `지그재그 전체 주문건: ${cnt.orderCnt}, 유효하지 않은 주문건: ${cnt.invalid}, 이미 진행된 주문건: ${cnt.exist}`,
-            makeMsgOpt()
-          );
-        }
-      }
-    } catch (err) {
-      log.error(uid.value, err);
-      return msg.error(
-        `${token.service} ${
-          token.alias ?? token.mallId
-        }  주문을 받아오는 과정에서 실패하였습니다. 상세: ${err}`
-      );
-    }
-  }
-}
-
-async function onSaveMatch() {
-  await saveMatch(
-    matchData.value,
-    userProd.value,
-    uid.value,
-    existOrderIds,
-    vendorProds.value
-  );
-  matchData.value = [];
 }
 </script>
 
@@ -239,12 +52,7 @@ async function onSaveMatch() {
         </n-space>
 
         <n-space>
-          <n-button @click="() => onGetOrder(false, true)">
-            매핑 취합
-          </n-button>
-          <n-button @click="() => onGetOrder(true, false)">
-            수동 매칭 취합
-          </n-button>
+          <n-button @click="onGetOrder"> 취합 </n-button>
           <n-popover trigger="click">
             <template #trigger>
               <n-button> 카페24 연동 </n-button>
@@ -261,10 +69,16 @@ async function onSaveMatch() {
             </template>
             <zigzag-register-api-form @submit-token="onZigSubmit" />
           </n-popover>
+          <n-checkbox v-model:checked="useMatching"> 수동 취합 </n-checkbox>
+          <n-checkbox v-model:checked="useMapping"> 매핑 취합 </n-checkbox>
         </n-space>
       </n-space>
     </n-card>
-    <n-card v-if="matchData.length > 0" title="수동매칭관리">
+  </n-space>
+  <n-h2>API 계정 관리</n-h2>
+  <n-data-table :columns="apiTokenCol" :data="tokens" />
+  <n-modal v-model:show="showMatchModal" style="margin: 5%">
+    <n-card title="시발?!시발!시발!시발!시발!시발!시발!시발!시발!시발?!">
       <n-space style="margin-bottom: 10px" justify="end">
         <n-button v-if="filterIsNull" @click="() => switchFilter(false)">
           전체보기
@@ -291,10 +105,8 @@ async function onSaveMatch() {
         </n-space>
       </template>
     </n-card>
-    <n-h2>API 계정 관리</n-h2>
-    <n-data-table :columns="apiTokenCol" :data="tokens" />
-  </n-space>
-  <n-modal v-model:show="openSelectList" style="margin: 1%">
+  </n-modal>
+  <n-modal v-model:show="openSelectList" style="margin: 5%">
     <n-card title="상품선택">
       <template #header-extra>
         <n-input v-model:value="searchInputVal" placeholder="상품검색" />

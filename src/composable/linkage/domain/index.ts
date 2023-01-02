@@ -2,12 +2,14 @@ import { Unsubscribe } from "@firebase/util";
 import { Ref } from "vue";
 import { ApiToken } from "..";
 
-export type API_SERVICE_EX = "CAFE" | "ZIGZAG";
+export type API_SERVICE_EX = "CAFE" | "ZIGZAG" | "EXCEL";
 export const API_SERVICE_EX: { [key in API_SERVICE_EX]: API_SERVICE_EX } =
   Object.freeze({
     CAFE: "CAFE",
     ZIGZAG: "ZIGZAG",
+    EXCEL: "EXCEL",
   });
+export type AnyOrder = { [k: string]: any };
 
 export interface ApiTokenCrt {
   dbId: string;

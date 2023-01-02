@@ -13,7 +13,6 @@ const validStatus = ["NEW_ORDER", "AWAITING_SHIPMENT", "IN_TRANSIT"];
 export function matchZigzagOrder(
   ords: AnyOrder[],
   existOrderIds: Set<string>,
-  alias: string,
   userProd: ShopUserGarment[]
 ) {
   const result: MatchGarment[] = [];
@@ -31,14 +30,14 @@ export function matchZigzagOrder(
     const item = ord.product_info;
     const inputProdName: TryStr = item.name;
     const orderCnt: TryNum = ord.quantity;
-    const prodId: TryStr =
-      alias + "--" + ord.product_id + "--" + ord.product_item_code;
+    const prodId: TryStr = ord.product_id + "--" + ord.product_item_code;
     const shopProd = userProd.find(
       (x) => x.zigzagProdId && x.zigzagProdId === prodId
     );
     const missing = shopProd === null || shopProd === undefined;
     result.push({
       service: "ZIGZAG",
+      matchType: "id",
       orderCnt: orderCnt ?? 1,
       id: missing ? undefined : shopProd!.shopProdId,
       inputId: prodId!,
@@ -46,7 +45,8 @@ export function matchZigzagOrder(
       size: missing ? undefined : shopProd!.size,
       prodName: missing ? undefined : shopProd!.prodName,
       inputProdName: inputProdName!,
-      optionValue: item.options,
+      inputColor: item.options,
+      inputSize: item.options,
       orderId,
     });
   }

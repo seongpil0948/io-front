@@ -1,7 +1,6 @@
 import { Ref } from "vue";
 import {
   IoOrder,
-  GarmentOrderCondi,
   MatchGarment,
   ORDER_GARMENT_DB,
   sameGarment,
@@ -9,11 +8,13 @@ import {
   newOrdFromItem,
   newOrdItem,
   VendorGarment,
+  refreshOrder,
+  setOrderCnt,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 
 export function ioOrderFromCondi(
-  conditions: GarmentOrderCondi[],
+  matchData: MatchGarment[],
   vendorProds: VendorGarment[],
   userGarments: ShopUserGarment[]
 ) {
@@ -25,8 +26,8 @@ export function ioOrderFromCondi(
       orderCnt: number;
     };
   } = {};
-  for (let j = 0; j < conditions.length; j++) {
-    const d = conditions[j];
+  for (let j = 0; j < matchData.length; j++) {
+    const d = matchData[j];
     const prod = userGarments.find((x) => sameGarment(x, d))!;
     const orderCnt = d.orderCnt ?? 1;
     if (!prod) {
@@ -93,6 +94,27 @@ export async function saveMatch(
   for (let i = 0; i < matchData.length; i++) {
     const data = matchData[i];
     if (!data.id) continue;
+    let cont = false;
+    for (let j = 0; j < orders.length; j++) {
+      const ord = orders[j];
+      for (let z = 0; z < ord.items.length; z++) {
+        const it = ord.items[z];
+        if (
+          it.shopProd.shopProdId === data.id &&
+          !it.orderIds.includes(data.orderId)
+        ) {
+          cont = true;
+          setOrderCnt({
+            order: ord,
+            orderItemId: it.id,
+            orderCnt: data.orderCnt,
+            orderId: data.orderId,
+          });
+        }
+      }
+    }
+    if (cont) continue;
+
     const g = userProd.find((x) => x.shopProdId === data.id);
     if (!g) throw new Error("소매처 상품이 없습니다.");
     const vendorProd = vendorProds.find(
@@ -118,6 +140,7 @@ export async function saveMatch(
 
     orders.push(order);
   }
+  orders.forEach((o) => refreshOrder(o));
   await ORDER_GARMENT_DB.batchCreate(userId, orders);
   orders?.forEach((ord) => {
     ord.orderIds.forEach((id) => existOrderIds.value.add(id));

@@ -8,3 +8,4 @@ export * from "./option";
 export * from "./io-fns";
 export * from "./order";
 export * from "./firebase";
+export * from "./exception";

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import {
   ORDER_STATE,
-  ORDER_GARMENT_DB,
   useMappingOrderExcel,
   useOrderBasic,
   useOrderTable,
@@ -9,12 +8,12 @@ import {
   useShopVirtualProd,
   VendorGarment,
   VENDOR_GARMENT_DB,
+  useMatch,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { ref, shallowRef, watchEffect } from "vue";
 import { IO_COSTS } from "@/constants";
 import { storeToRefs } from "pinia";
-import { NButton, NDataTable, NInputNumber, NSpace, NText } from "naive-ui";
 interface Props {
   inStates?: ORDER_STATE[];
   showSizes: boolean;
@@ -29,7 +28,7 @@ const shopOrderStore = useShopOrderStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
 const filteredOrders = shopOrderStore.getFilteredOrder(props.inStates ?? []);
 const orders = shopOrderStore.getOrders(props.inStates ?? []);
-const { checkedDetailKeys, tableCol, tableRef, mapper } = useOrderTable({
+const { checkedDetailKeys, tableCol, tableRef } = useOrderTable({
   ioOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
@@ -50,23 +49,39 @@ const sheetIdx = ref(0);
 const startRow = ref(0);
 const { virVendorProds } = useShopVirtualProd(auth.currUser);
 const vendorProds = shallowRef<VendorGarment[]>([]);
-const { userProd, msg } = useMappingOrderExcel(
+const {
+  onGetOrder,
+  onSaveMatch,
+  tableCols,
+  openSelectList,
+  matchCols,
+  showMatchModal,
+  search,
+  searchedData,
+  searchInputVal,
+  switchFilter,
+  filteredMatchData,
+  filterIsNull,
+  uid,
+  matchData,
+  userProd,
+  msg,
   mapper,
-  user.userInfo.userId,
-  fileModel,
-  existOrderIds,
-  async (newOrders) => {
-    ORDER_GARMENT_DB.batchCreate(user.userInfo.userId, newOrders).then(() => {
-      newOrders.forEach((ord) => {
-        ord.orderIds.forEach((id) => existOrderIds.value.add(id));
-      });
-      msg.success(`${newOrders.length} 개 주문건 추가 완료.`);
-    });
-  },
-  sheetIdx,
-  startRow,
-  vendorProds
-);
+} = useMatch({
+  afterReverseMap: () => mappingFiles(),
+});
+const { mappingFiles } = useMappingOrderExcel({
+  mapper,
+  uid: uid,
+  fs: fileModel,
+  existIds: existOrderIds,
+  sheetIdx: sheetIdx,
+  startRow: startRow,
+  userProd,
+  matchData,
+  msg,
+});
+
 watchEffect(async () => {
   const ids = userProd.value.map((x) => x.vendorProdId);
   vendorProds.value = [
@@ -138,6 +153,9 @@ function downSampleXlsx() {
         <n-button size="small" type="primary" @click="downOrder">
           주문정보 다운
         </n-button>
+        <n-button size="small" type="primary" @click="onGetOrder">
+          취합
+        </n-button>
       </n-space>
       <n-data-table
         ref="tableRef"
@@ -176,4 +194,53 @@ function downSampleXlsx() {
       {{ IO_COSTS.REQ_ORDER }} 코인이 소모 됩니다.
     </template>
   </coin-reduce-confirm-modal>
+  <n-modal v-model:show="showMatchModal" style="margin: 5%">
+    <n-card title="시발?!시발!시발!시발!시발!시발!시발!시발!시발!시발?!">
+      <n-space style="margin-bottom: 10px" justify="end">
+        <n-button v-if="filterIsNull" @click="() => switchFilter(false)">
+          전체보기
+        </n-button>
+        <n-button v-else @click="() => switchFilter(true)">
+          매칭실패만보기
+        </n-button>
+      </n-space>
+      <n-data-table
+        :data="filteredMatchData"
+        :columns="matchCols"
+        :single-line="false"
+        :pagination="{
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
+        }"
+        :bordered="false"
+        :table-layout="'fixed'"
+        :scroll-x="800"
+      />
+      <template #action>
+        <n-space justify="end">
+          <n-button @click="onSaveMatch"> 주문데이터로 넘기기 </n-button>
+        </n-space>
+      </template>
+    </n-card>
+  </n-modal>
+  <n-modal v-model:show="openSelectList" style="margin: 5%">
+    <n-card title="상품선택">
+      <template #header-extra>
+        <n-input v-model:value="searchInputVal" placeholder="상품검색" />
+        <n-button @click="search"> 검색 </n-button>
+      </template>
+      <n-data-table
+        ref="tableRef"
+        :columns="tableCols"
+        :data="searchedData"
+        :pagination="{
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
+        }"
+        :bordered="false"
+        :table-layout="'fixed'"
+        :scroll-x="1200"
+      />
+    </n-card>
+  </n-modal>
 </template>

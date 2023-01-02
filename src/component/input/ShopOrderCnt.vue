@@ -60,7 +60,12 @@ async function onBlur() {
     const prod = order.value.items.find((x) => x.id === orderItem.value.id);
     if (!prod) throw new Error("not matched prod order");
     else if (prod.state === "BEFORE_ORDER") {
-      setOrderCnt(order.value, prod.id, ordCnt, false);
+      setOrderCnt({
+        order: order.value,
+        orderItemId: prod.id,
+        orderCnt: ordCnt,
+        add: false,
+      });
     } else if (prod.state === "BEFORE_READY") {
       await dividePartial({
         order: order.value,

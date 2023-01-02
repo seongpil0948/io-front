@@ -21,23 +21,27 @@ import {
 } from "./getter";
 import { isValidOrderItem, isValidOrder } from "./validate";
 
-export function setOrderCnt(
-  order: IoOrder,
-  orderItemId: string,
-  orderCnt: number,
-  add = true,
-  paid = PAID_INFO.NO
-) {
+export function setOrderCnt(d: {
+  order: IoOrder;
+  orderItemId: string;
+  orderCnt: number;
+  add?: boolean;
+  paid?: PAID_INFO;
+  orderId?: string;
+}) {
+  // add = true,
+  //   paid = PAID_INFO.NO,
   // 0. find prod order
-  const targetIdx = order.items.findIndex((x) => x.id === orderItemId);
+  const targetIdx = d.order.items.findIndex((x) => x.id === d.orderItemId);
   if (targetIdx < 0) throw new Error("orderItem not belong to order");
-  const item: OrderItemCombined = (order.items as OrderItemCombined[])[
+  const item: OrderItemCombined = (d.order.items as OrderItemCombined[])[
     targetIdx
   ];
   const v = item.vendorProd;
-  setItemCnt(item, orderCnt, v.stockCnt, v.allowPending, add, paid);
-  refreshOrder(order);
-  isValidOrder(order);
+  setItemCnt(item, d.orderCnt, v.stockCnt, v.allowPending, d.add, d.paid);
+  if (d.orderId) item.orderIds.push(d.orderId);
+  refreshOrder(d.order);
+  isValidOrder(d.order);
 }
 export function setItemCnt(
   item: OrderItem,
@@ -97,17 +101,23 @@ export async function dividePartial(d: {
   const newOrd = cloneDeep(item);
   newOrd.id = id;
   (d.order.items as OrderItemCombined[]).push(newOrd);
-  setOrderCnt(d.order, id, d.orderCnt, false, item.amount.paid);
+  setOrderCnt({
+    order: d.order,
+    orderItemId: id,
+    orderCnt: d.orderCnt,
+    add: false,
+    paid: item.amount.paid,
+  });
   const newOrder: OrderItemCombined = (
     d.order.items as OrderItemCombined[]
   ).find((x) => x.id === id)!;
-  setOrderCnt(
-    d.order,
-    item.id,
-    item.orderCnt - newOrder.orderCnt,
-    false,
-    item.amount.paid
-  );
+  setOrderCnt({
+    order: d.order,
+    orderItemId: item.id,
+    orderCnt: item.orderCnt - newOrder.orderCnt,
+    add: false,
+    paid: item.amount.paid,
+  });
 
   if (item.orderCnt < 1) {
     d.order.items.splice(

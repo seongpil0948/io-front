@@ -10,7 +10,12 @@ export function isValidOrder(o: IoOrder): void {
   o.items.forEach((item) => isValidOrderItem(item));
 }
 export function isValidOrderItem(o: OrderItem | OrderItemCombined): void {
-  if (o.pendingCnt + o.activeCnt !== o.orderCnt) {
+  const counts: { [k: string]: number } = {};
+  for (let i = 0; i < o.orderIds.length; i++)
+    counts[o.orderIds[i]] = counts[o.orderIds[i]] + 1 || 1;
+  if (Object.values(counts).some((cnt) => cnt > 1)) {
+    throw new Error("redundant order id ");
+  } else if (o.pendingCnt + o.activeCnt !== o.orderCnt) {
     throw new Error("invalid count");
   } else if (!isValidAmount(o.amount)) {
     throw new Error("invalid amount");

@@ -383,7 +383,12 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
               ) {
                 exist = o;
                 // 이로직을 분리하여, 모든 주문건의 상태 변경 프로세스에 대하여 적용가능하도록
-                setOrderCnt(exist, existItem.id, item.orderCnt, true);
+                setOrderCnt({
+                  order: exist,
+                  orderItemId: existItem.id,
+                  orderCnt: item.orderCnt,
+                  add: true,
+                });
                 order.items.splice(j, 1);
                 if (order.items.length < 1) {
                   exist.orderIds.push(...order.orderIds);
@@ -845,7 +850,12 @@ async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
               item.orderType === existItem.orderType
             ) {
               exist = o;
-              setOrderCnt(exist, existItem.id, item.orderCnt, true);
+              setOrderCnt({
+                order: exist,
+                orderItemId: existItem.id,
+                orderCnt: item.orderCnt,
+                add: true,
+              });
               order.items.splice(j, 1);
               order.itemIds.splice(
                 order.itemIds.findIndex((oid) => oid === item.id),

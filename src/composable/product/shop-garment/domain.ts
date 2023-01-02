@@ -5,14 +5,6 @@ import { Ref } from "vue";
 import { ProductCrt, PRODUCT_SIZE } from "../domain";
 import { ShopGarment } from "./model";
 
-export interface GarmentOrderCondi {
-  prodName: string;
-  size: string;
-  color: string;
-  orderId: string;
-  orderCnt?: number;
-}
-
 export interface ShopProdCrt extends ProductCrt {
   vendorId: string;
   vendorProdId: string;
@@ -55,13 +47,15 @@ export interface ShopUserGarment extends IoUser, ShopGarmentCrt {}
 
 export interface MatchGarment {
   service: API_SERVICE_EX;
+  matchType: "id" | "map";
   orderCnt: number;
   id?: string;
-  inputId: string;
+  inputId?: string;
   color?: string;
   size?: string;
   prodName?: string;
   inputProdName?: string;
-  optionValue?: string;
+  inputColor?: string;
+  inputSize?: string;
   orderId: string;
 }

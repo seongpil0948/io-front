@@ -7,12 +7,12 @@ import { axiosConfig } from "@/plugin/axios";
 import { makeMsgOpt, isMobile } from "@/util";
 import { uuidv4 } from "@firebase/util";
 
-export function commonThird() {
+export function useCommon() {
   const msg = useMessage();
   const log = useLogger();
   const auth = useAuthStore();
   const u = auth.user ?? auth.currUser;
-  const uid = computed(() => auth.currUser.userInfo.userId);
+  const uid = computed(() => u.userInfo.userId);
   const smtp = useAlarm();
   const apiBaseUrl = axiosConfig.baseURL;
 

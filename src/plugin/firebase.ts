@@ -20,7 +20,7 @@ export const ioFire = IoFireApp.getInst(
 // export const ioFireStorage = getStorage(ioFire.app, bucketUrl);
 export const ioFireStorage = getStorage(ioFire.app);
 export const ioFireAuth = initializeAuth(ioFire.app);
-await setPersistence(ioFireAuth, browserSessionPersistence);
+setPersistence(ioFireAuth, browserSessionPersistence);
 useDeviceLanguage(ioFireAuth);
 export const ioFireStore = getFirestore(ioFire.app);
 
