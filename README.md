@@ -33,5 +33,11 @@ npm run test:e2e
 npm run lint
 ```
 
+### testing with emulator and cypress
+```
+npm run dev:test
+npm run cypress:open
+```
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
