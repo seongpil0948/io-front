@@ -22,26 +22,13 @@ import { mount } from "cypress/vue";
 // import "../../src/asset/variables.scss";
 
 // TODO: https://docs.cypress.io/guides/component-testing/vue/examples#Mounting-Components
-// Cypress.Commands.add("mount", (component, options = {}) => {
-//   // Setup options object
-//   options.global = options.global || {};
-//   options.global.plugins = options.global.plugins || [];
-
-//   // create router if one is not provided
-//   if (!options.router) {
-//     options.router = createRouter({
-//       routes: routes,
-//       history: createMemoryHistory(),
-//     });
-//   }
-
-//   // Add router plugin
-//   options.global.plugins.push({
-//     install(app) {
-//       app.use(options.router);
-//     },
-//   });
-
-//   return mount(component, options);
-// });
 Cypress.Commands.add("mount", mount);
+
+// Cypress.Commands.add("mount", (...args) => {
+//   return mount(...args).then(({ wrapper }) => {
+//     return cy.wrap(wrapper).as("vue");
+//   });
+// });
+// the "@vue" alias will now work anywhere
+// after you've mounted your component
+// cy.mount(Stepper).doStuff().get('@vue') // The subject is now the Vue Wrapper
