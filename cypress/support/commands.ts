@@ -1,4 +1,6 @@
-/// <reference types="cypress" />
+// @ts-check
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+///<reference path="../global.d.ts" />
 // ***********************************************
 // This example commands.ts shows you how to
 // create various custom commands and overwrite

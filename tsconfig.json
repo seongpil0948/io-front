@@ -16,7 +16,6 @@
     "baseUrl": ".",
     "types": [
       "vite/client",
-      "cypress",
       "node"
     ],
     "paths": {

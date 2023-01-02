@@ -15,16 +15,33 @@
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
-
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
-
 import { mount } from "cypress/vue";
-// Ensure global styles are loaded
-import "../../src/assets/main.css";
+// TODO: Ensure global styles are loaded
+// import "../../src/asset/variables.scss";
 
-// This allows you to use cy.mount() in any test without having to import the mount() function in each and every spec file.
+// TODO: https://docs.cypress.io/guides/component-testing/vue/examples#Mounting-Components
+// Cypress.Commands.add("mount", (component, options = {}) => {
+//   // Setup options object
+//   options.global = options.global || {};
+//   options.global.plugins = options.global.plugins || [];
+
+//   // create router if one is not provided
+//   if (!options.router) {
+//     options.router = createRouter({
+//       routes: routes,
+//       history: createMemoryHistory(),
+//     });
+//   }
+
+//   // Add router plugin
+//   options.global.plugins.push({
+//     install(app) {
+//       app.use(options.router);
+//     },
+//   });
+
+//   return mount(component, options);
+// });
 Cypress.Commands.add("mount", mount);
-
-// Example use:
-// cy.mount(MyComponent)

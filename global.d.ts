@@ -4,7 +4,6 @@ import "pinia";
 import "vue-router";
 import "vue";
 import type { Kakao } from "@types/kakao-js-sdk";
-import { mount } from "cypress/vue";
 
 declare global {
   interface Window {
@@ -42,23 +41,5 @@ declare module "vue-router" {
   }
   interface Router {
     goHome(user?: IoUser): void;
-  }
-}
-
-// It's possible to define the class type without methods, as described in TS documentation. But unfortunately it still contains dogYears getter. As I know, it cannot be solved because when dealing with types, there is no difference between fields and getters.
-type NonFunctionPropertyNames<T> = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  [K in keyof T]: T[K] extends Function ? never : K;
-}[keyof T];
-type NonFunctionProperties<T> = Pick<T, NonFunctionPropertyNames<T>>;
-
-type MountParams = Parameters<typeof mount>;
-type OptionsParam = MountParams[1];
-
-declare global {
-  namespace Cypress {
-    interface Chainable {
-      mount: typeof mount;
-    }
   }
 }
