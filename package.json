@@ -11,7 +11,8 @@
     "serve": "vite preview --port 5173",
     "lint": "eslint --ext .ts,.js,.vue --ignore-path .gitignore --fix src",
     "format": "prettier .  --write",
-    "cypress:open": "cypress open"
+    "cy:open": "cypress open",
+    "cy:run": "cypress run"
   },
   "dependencies": {
     "@bootpay/client-js": "^4.2.6",

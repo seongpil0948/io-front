@@ -160,6 +160,7 @@ export default defineComponent({
                       placeholder="이메일 입력"
                       value={modelRef.email}
                       onUpdateValue={(val) => (modelRef.email = val)}
+                      data-test="input-email"
                     ></NInput>
                   </NFormItem>,
                   <NFormItem path="password" label="Password">
@@ -170,6 +171,7 @@ export default defineComponent({
                       value={modelRef.password}
                       onUpdateValue={(val) => (modelRef.password = val)}
                       type="password"
+                      data-test="input-pw"
                     ></NInput>
                   </NFormItem>,
                   <NButton
@@ -184,6 +186,7 @@ export default defineComponent({
                       "min-width": "100px",
                     }}
                     size="large"
+                    data-test="email-submit"
                   >
                     {{
                       default: () => "로그인",

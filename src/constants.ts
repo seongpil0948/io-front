@@ -7,3 +7,10 @@ export const IO_COSTS = {
   APPROVE_ORDER: 2,
   APPROVE_PICKUP: 1,
 };
+
+const pw = "0525cc";
+export const TESTERS = {
+  SHOP: { id: "junhoi90@gmail.com", pw },
+  VENDOR: { id: "spchoi@gmail.com", pw },
+  UNCLE: { id: "bereshith_@naver.com", pw },
+};

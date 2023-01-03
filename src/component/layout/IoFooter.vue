@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store";
 import { useLogin } from "../common/login/login";
 import { ioFireStore } from "@/plugin/firebase";
+import { TESTERS } from "@/constants";
 const router = useRouter();
 const showTos = ref(false);
 function onTos() {
@@ -15,27 +16,16 @@ const { emailLogin } = useLogin(
   isProd ? "io-prod" : "io-dev",
   "/auth/customToken"
 );
-async function loginShop() {
-  const data = await emailLogin(ioFireStore, "junhoi90@gmail.com", "0525cc");
+async function loginTester(d: { id: string; pw: string }) {
+  const data = await emailLogin(ioFireStore, d.id, d.pw);
   if (data && data.user) {
     authS.login(data.user);
     router.goHome();
   }
 }
-async function loginVendor() {
-  const data = await emailLogin(ioFireStore, "spchoi@gmail.com", "0525cc");
-  if (data && data.user) {
-    authS.login(data.user);
-    router.goHome();
-  }
-}
-async function loginUncle() {
-  const data = await emailLogin(ioFireStore, "bereshith_@naver.com", "0525cc");
-  if (data && data.user) {
-    authS.login(data.user);
-    router.goHome();
-  }
-}
+const loginShop = () => loginTester(TESTERS.SHOP);
+const loginVendor = () => loginTester(TESTERS.VENDOR);
+const loginUncle = () => loginTester(TESTERS.UNCLE);
 </script>
 
 <template>
