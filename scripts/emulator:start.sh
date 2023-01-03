@@ -14,4 +14,9 @@ firebase use io-box-develop
 # firebase emulators:start --import=test/fixture/savedData --project=demo-io-box-develop
 source ~/.nvm/nvm.sh
 nvm use 16
-firebase emulators:start  --project=io-box-develop
+
+DATA_PATH=stuff/local-data
+firebase emulators:start \
+    --project=io-box-develop \
+    --import $DATA_PATH \
+    --export-on-exit=$DATA_PATH 
