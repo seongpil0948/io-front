@@ -132,7 +132,13 @@ class Mapper implements MapperCRT {
   }
 
   static fromJson(data: { [x: string]: any }): Mapper | null {
-    return data && data.userId ? Mapper.initialMapper(data.userId) : null;
+    if (!data || !data.userId) return null;
+    const initMapper = Mapper.initialMapper(data.userId);
+    return new Mapper({
+      userId: data.userId,
+      cols: data.cols ?? initMapper.cols,
+      colSynonyms: data.colSynonyms ?? initMapper.colSynonyms,
+    });
   }
 
   toJson() {
