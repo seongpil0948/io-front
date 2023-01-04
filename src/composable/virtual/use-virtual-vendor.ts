@@ -2,7 +2,7 @@ import { onFirestoreCompletion, onFirestoreErr } from "@/composable";
 import { getIoCollection, IoUser } from "@io-boxies/js-lib";
 import { handleReadSnap, fireConverter } from "@/util";
 import { onSnapshot } from "@firebase/firestore";
-import { onBeforeUnmount, ref } from "vue";
+import { onBeforeUnmount, ref, watchEffect, shallowRef } from "vue";
 import { ioFireStore } from "@/plugin/firebase";
 
 export function useVirtualVendor(uid: string) {
@@ -14,6 +14,17 @@ export function useVirtualVendor(uid: string) {
   }).withConverter(virVendorConverter);
 
   const virtualVendors = ref<IoUser[]>([]);
+  const virtualVendorById = shallowRef<{ [uid: string]: IoUser }>({});
+
+  watchEffect(() => {
+    virtualVendors.value.forEach((v) => {
+      const uid = v.userInfo.userId;
+      if (!virtualVendorById.value[uid]) {
+        virtualVendorById.value[uid] = v;
+      }
+    });
+  });
+
   const unsubscribeVirtual = onSnapshot(
     virVendorC,
     (snap) =>
@@ -35,5 +46,6 @@ export function useVirtualVendor(uid: string) {
     virVendorConverter,
     virtualVendors,
     unsubscribeVirtual,
+    virtualVendorById,
   };
 }

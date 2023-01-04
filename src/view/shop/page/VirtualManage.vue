@@ -1,12 +1,24 @@
 <script setup lang="ts">
-import { useShopVirtualProd, useVirtualVendor } from "@/composable";
+import { useShopVirtualProd } from "@/composable";
 import { useAuthStore } from "@/store";
 import { isMobile } from "@/util";
 import { NModal, NButton, NCard, NDataTable, NInput, NSpace } from "naive-ui";
 import { ref, computed } from "vue";
 import { getUserName } from "@io-boxies/js-lib";
+
 const auth = useAuthStore();
-const { virtualVendors } = useVirtualVendor(auth.currUser.userInfo.userId);
+const {
+  regitProdModal,
+  changeRegitProdModal,
+  onRegistered,
+  virShopCols,
+  searchedData,
+  virtualVendors,
+  searchInputVal,
+  search,
+  onCheckedOrder,
+  tableRef,
+} = useShopVirtualProd(auth.currUser);
 const selectedVendorId = ref<string | null>(null);
 const vendorOpts = computed(() =>
   virtualVendors.value.map((v) => ({
@@ -14,17 +26,6 @@ const vendorOpts = computed(() =>
     value: v.userInfo.userId,
   }))
 );
-const {
-  regitProdModal,
-  changeRegitProdModal,
-  onRegistered,
-  virShopCols,
-  searchedData,
-  searchInputVal,
-  search,
-  onCheckedOrder,
-  tableRef,
-} = useShopVirtualProd(auth.currUser);
 </script>
 <template>
   <n-modal

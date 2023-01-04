@@ -11,6 +11,7 @@ import {
   useSearch,
   useShopGarmentTable,
   ORDER_GARMENT_DB,
+  useVirtualVendor,
 } from "@/composable";
 import { getIoCollection, IoUser } from "@io-boxies/js-lib";
 import {
@@ -35,6 +36,8 @@ export function useShopVirtualProd(user: IoUser) {
     uid,
     c: "VIRTUAL_VENDOR_PROD",
   }).withConverter(VendorGarment.fireConverter());
+
+  const { virtualVendors, virtualVendorById } = useVirtualVendor(uid);
 
   const getVirSimilarProds = async (
     d: VendorProdSimilar
@@ -120,7 +123,11 @@ export function useShopVirtualProd(user: IoUser) {
     regitProdModal.value = false;
   }
   const userVirProds = computed(() =>
-    virShopProds.value.map((x) => Object.assign({}, x, user))
+    virShopProds.value.map((x) =>
+      Object.assign({}, x, user, {
+        vendor: virtualVendorById.value[x.vendorId] ?? {},
+      })
+    )
   );
 
   //   const vendorVirProds = computed(() => {
@@ -136,8 +143,8 @@ export function useShopVirtualProd(user: IoUser) {
 
   const { tableCols, checkedKeys, popVal, selectedRow, tableRef } =
     useShopGarmentTable(false, userVirProds);
-  const virShopCols = computed(() =>
-    tableCols.value.filter(
+  const virShopCols = computed(() => {
+    const t = tableCols.value.filter(
       (x: any) =>
         ![
           "select",
@@ -148,8 +155,17 @@ export function useShopVirtualProd(user: IoUser) {
           "updatedAt",
           "option",
         ].includes(x.key)
-    )
-  );
+    );
+    if (t.length < 1) return [];
+    return [
+      t[0],
+      {
+        title: "도매처명",
+        key: "vendor.userInfo.displayName",
+      },
+      ...t.slice(1),
+    ];
+  });
 
   const { search, searchedData, searchInputVal } = useSearch({
     data: userVirProds,
@@ -215,5 +231,6 @@ export function useShopVirtualProd(user: IoUser) {
     searchedData,
     userVirProds,
     tableRef,
+    virtualVendors,
   };
 }
