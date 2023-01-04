@@ -20,7 +20,10 @@ BUCKET_PATH=$BUCKET_BASE_PATH/backups/$FILE_NAME
 gcloud firestore export BUCKET_PATH
 gsutil cp -r $BUCKET_PATH stuff/latest-data/firestore
 
-firebase auth:export stuff/latest-data/auth_export/accounts.json --format=json
+firebase auth:export \
+    --project $SELECTED_PROJ \
+    stuff/latest-data/auth_export/accounts.json \
+    --format=json
 # firebase auth:import stuff/local-data/auth.json
 
 # bks=$(gsutil ls $BUCKET_BASE_PATH | grep -v "backup")

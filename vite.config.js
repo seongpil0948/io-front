@@ -14,6 +14,7 @@ export default defineConfig({
       // 여기에 넣으면 모듈을 아예 불러오질 못함..
       // "danfojs",
       // "firebase"
+      "firebase-admin",
     ],
     include: ["@io-boxies/js-lib", "@io-boxies/vue-lib"],
   },

@@ -48,4 +48,4 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 3. `$sh scripts/emulator:down:dev.sh` 을 실행쓰 
 4. `stuff/latest-data/firestore/{bucket-name}/all_namespaces` 폴더로 `stuff/local-data/firestore_export/all_namespaces` 경로를 대체합니다 (기존 폴더 삭제 또는 백업)
 5. `stuff/latest-data/firestore/{bucket-name}/{bucket-name}.overall_export_metadata` 파일로 `stuff/local-data/firestore_export/firestore_export.overall_export_metadata` 파일을 대체 (기존 폴더 삭제 또는 백업)
-6. `stuff/latest-data/auth_export/accounts.json` 파일로 `stuff/local-data/auth_export/accounts.json` 파일을 대체 합니다. 
+6. `$node scripts/emulator:auth:import.cjs` 
