@@ -64,8 +64,6 @@ export function mapCafeOrder(
     const result: MatchGarment[] = [];
     const orderId = order.order_id;
     const prodMapper = mapper.getProdMapper();
-    if (Object.keys(prodMapper).length === 0)
-      throw new Error("주문취합을 위해 상품매핑정보를 등록 해주십시오");
     // const colorColSyno = mapper.getSyno("color", false);
     // const sizeColSyno = mapper.getSyno("size", false);
     // let inputProdName: TryStr, inputSize, inputColor;
