@@ -29,6 +29,26 @@ class Mapper implements MapperCRT {
     this.colSynonyms = c.colSynonyms;
   }
 
+  static initialMapper(userId: string) {
+    return new Mapper({
+      userId: userId,
+      cols: {
+        prodName: {},
+        size: {},
+        color: {},
+        orderId: {},
+        prodPrice: {},
+      } as MapCols,
+      colSynonyms: {
+        prodName: ["상품명", "제품명"],
+        size: ["옵션 정보", "옵션정보", "상품옵션", "사이즈"],
+        color: ["옵션 정보", "옵션정보", "상품옵션", "컬러"],
+        orderId: ["상품주문번호", "주문번호", "주문상세번호"],
+        prodPrice: ["상품판매가"],
+      } as KeyMapper,
+    });
+  }
+
   async update(merge = true) {
     await insertById<Mapper>(
       this,
@@ -38,14 +58,10 @@ class Mapper implements MapperCRT {
       Mapper.fireConverter()
     );
   }
-  static async getIoMapper(uid: string): Promise<Mapper> {
-    const m = await MAPPER_DB.getMapper(uid);
+  static async getIoMapper(userId: string): Promise<Mapper> {
+    const m = await MAPPER_DB.getMapper(userId);
     if (!m) {
-      const mapper = new Mapper({
-        userId: uid,
-        cols: {} as MapCols,
-        colSynonyms: {} as KeyMapper,
-      });
+      const mapper = Mapper.initialMapper(userId);
       await mapper.update();
       return mapper;
     }
@@ -116,13 +132,7 @@ class Mapper implements MapperCRT {
   }
 
   static fromJson(data: { [x: string]: any }): Mapper | null {
-    return data && data.userId
-      ? new Mapper({
-          userId: data.userId,
-          cols: data.cols ?? {},
-          colSynonyms: data.colSynonyms ?? {},
-        })
-      : null;
+    return data && data.userId ? Mapper.initialMapper(data.userId) : null;
   }
 
   toJson() {

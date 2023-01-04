@@ -133,6 +133,7 @@ function downSampleXlsx() {
         >
           <template #prefix> 시작행번호 </template>
         </n-input-number>
+        <n-button type="primary" @click="onGetOrder"> 주문취합 </n-button>
       </n-space>
     </template>
     <n-space v-if="filteredOrders.length > 0" vertical>
@@ -152,9 +153,6 @@ function downSampleXlsx() {
 
         <n-button size="small" type="primary" @click="downOrder">
           주문정보 다운
-        </n-button>
-        <n-button size="small" type="primary" @click="onGetOrder">
-          취합
         </n-button>
       </n-space>
       <n-data-table

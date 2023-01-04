@@ -8,7 +8,7 @@ import {
   ShopUserGarment,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
-import { makeMsgOpt, uniqueArr } from "@/util";
+import { uniqueArr } from "@/util";
 import { readExcel, type DataFrame, Series } from "danfojs";
 import { MessageApiInjection } from "naive-ui/es/message/src/MessageProvider";
 import { Ref, watch } from "vue";
@@ -55,7 +55,7 @@ export function useMappingOrderExcel(d: {
           uid: d.uid.value,
           prefix: `파일: ${file.name} 에 대한 처리에 실패 하였습니다.`,
         });
-        continue;
+        throw err;
       }
     }
   }
@@ -139,12 +139,6 @@ export function mapDfToOrder(
     columns: uniqueArr(Object.values(colMapper)),
   });
   const prodMapper = mapper.getProdMapper();
-  if (Object.keys(prodMapper).length === 0) {
-    const message = "주문취합을 위해 상품매핑정보를 등록 해주십시오";
-    msg.error(message, makeMsgOpt());
-    logger.error(userId, message);
-    return [];
-  }
   const idx = getColIdx(targetDf, colMapper);
   const data: MatchGarment[] = [];
 
