@@ -193,7 +193,7 @@ function downSampleXlsx() {
     </template>
   </coin-reduce-confirm-modal>
   <n-modal v-model:show="showMatchModal" style="margin: 5%">
-    <n-card title="시발?!시발!시발!시발!시발!시발!시발!시발!시발!시발?!">
+    <n-card>
       <n-space style="margin-bottom: 10px" justify="end">
         <n-button v-if="filterIsNull" @click="() => switchFilter(false)">
           전체보기

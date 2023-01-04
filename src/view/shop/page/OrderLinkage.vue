@@ -78,7 +78,7 @@ function onZigSubmit() {
   <n-h2>API 계정 관리</n-h2>
   <n-data-table :columns="apiTokenCol" :data="tokens" />
   <n-modal v-model:show="showMatchModal" style="margin: 5%">
-    <n-card title="시발?!시발!시발!시발!시발!시발!시발!시발!시발!시발?!">
+    <n-card>
       <n-space style="margin-bottom: 10px" justify="end">
         <n-button v-if="filterIsNull" @click="() => switchFilter(false)">
           전체보기
