@@ -9,6 +9,8 @@ stuff
 /tests/e2e/videos/
 /tests/e2e/screenshots/
 test/fixture/savedData/**
+cypress/screenshots/
+cypress/videos/
 
 
 # local env files

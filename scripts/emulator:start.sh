@@ -19,4 +19,4 @@ DATA_PATH=stuff/local-data
 firebase emulators:start \
     --project=io-box-develop \
     --import $DATA_PATH \
-    --export-on-exit=$DATA_PATH 
+    # --export-on-exit=$DATA_PATH 

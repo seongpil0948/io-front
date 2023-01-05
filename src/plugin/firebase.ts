@@ -29,6 +29,6 @@ if (isTest) {
   connectFirestoreEmulator(ioFireStore, "127.0.0.1", 8080);
   connectStorageEmulator(ioFireStorage, "127.0.0.1", 9199);
   connectAuthEmulator(ioFireAuth, "http://localhost:9099");
-  console.log("ioFireStorage: ", ioFireStorage);
+  console.log("ioFireAuth in emulator: ", ioFireAuth);
 }
 // setPersistence(ioFireAuth, browserSessionPersistence);

@@ -56,9 +56,11 @@ const loginUncle = () => loginTester(TESTERS.UNCLE);
         <n-button @click="router.push({ name: 'PlayGround' })">
           PlayGround
         </n-button>
-        <n-button @click="loginShop"> 쇼핑몰 </n-button>
-        <n-button @click="loginVendor"> 도매 </n-button>
-        <n-button @click="loginUncle"> 엉클 </n-button>
+        <n-button data-test="login-shop" @click="loginShop"> 쇼핑몰 </n-button>
+        <n-button data-test="login-vendor" @click="loginVendor">
+          도매
+        </n-button>
+        <n-button data-test="login-uncle" @click="loginUncle"> 엉클 </n-button>
       </n-space>
     </n-space>
     <n-modal

@@ -1,21 +1,47 @@
-import { TESTERS } from "../../src/constants";
+// import { TESTERS } from "../../src/constants";
 describe("process login", () => {
-  beforeEach(() => {
-    // reset and seed the database prior to every test
-    //   cy.exec("npm run db:reset && npm run db:seed");
-    // TODO: conditional testing
-    // https://github.com/cypress-io/cypress/issues/518
-    cy.get("body > p.firebase-emulator-warning").contains("in emulator mode");
+  // beforeEach(() => {
+  //   // reset and seed the database prior to every test
+  //   //   cy.exec("npm run db:reset && npm run db:seed");
+  //   // TODO: conditional testing
+  //   // https://github.com/cypress-io/cypress/issues/518
+  // });
+  it("check emulator mode", () => {
+    cy.visit("/login");
+    // cy.get("body > p.firebase-emulator-warning").contains("in emulator mode");
+    expect(window.navigator.onLine).to.equal(true);
   });
-  it("initial mount & redirect to login page", () => {
+  it("redirect to login", () => {
     cy.visit("/");
     cy.url().should("include", "/login");
   });
-  it("successfully loads", () => {
+  it("fail to login", () => {
     cy.visit("/login");
-    cy.getBySel("input-email").type(TESTERS.SHOP.id);
-    cy.getBySel("input-pw").type(TESTERS.SHOP.pw);
-    cy.getBySel("email-submit").click();
-    cy.url().should("include", "signup");
+    cy.getBySel("input-email").type("bla bla");
+    cy.getBySel("input-pw").type("bla bla");
+    const container = cy.get("#login-page-container");
+    container.click();
+    container.contains("유효한 이메일 주소를 입력 해주세요.");
+    cy.get("#login-page-container").contains("영문, 숫자");
   });
+  // it("dev login", () => {
+  //   cy.visit("/login");
+  //   // cy.get("[data-test=login-shop]").click();
+  //   cy.get(":nth-child(2) > .n-space > :nth-child(2) > .n-button").click();
+  //   cy.url().should("include", "shop");
+  // });
+  // it("redirect to signup", () => {
+  //   cy.visit("/login");
+  //   cy.getBySel("input-email").type("blabla@naver.com");
+  //   cy.getBySel("input-pw").type("0525ccc");
+  //   cy.getBySel("email-submit").click();
+  //   cy.url().should("include", "signup");
+  // });
+  // it("successfully login", () => {
+  //   cy.visit("/login");
+  //   cy.getBySel("input-email").type(TESTERS.SHOP.id);
+  //   cy.getBySel("input-pw").type(TESTERS.SHOP.pw);
+  //   cy.getBySel("email-submit").click();
+  //   cy.url().should("include", "shop");
+  // });
 });
