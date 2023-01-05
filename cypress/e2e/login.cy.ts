@@ -21,9 +21,10 @@ describe("process login", () => {
     cy.visit("/login");
     cy.getBySel("input-email").type("bla bla");
     cy.getBySel("input-pw").type("bla bla");
-    const container = cy.get("#login-page-container");
-    container.click();
-    container.contains("유효한 이메일 주소를 입력 해주세요.");
+    cy.get("#login-page-container").click();
+    cy.get("#login-page-container").contains(
+      "유효한 이메일 주소를 입력 해주세요."
+    );
     cy.get("#login-page-container").contains("영문, 숫자");
   });
   // it("dev login", () => {
@@ -45,6 +46,6 @@ describe("process login", () => {
     cy.getBySel("input-pw").type(TESTERS.SHOP_NO.pw);
     cy.getBySel("email-submit").click();
     // cy.wait(60000).url().should("include", "shop");
-    cy.wait(1000).get(".n-message").contains("관리자가 검토중인 계정입니다.");
+    cy.get(".n-message").contains("관리자가 검토중인 계정입니다.");
   });
 });
