@@ -1,5 +1,9 @@
 import { IoFireApp } from "@io-boxies/js-lib";
-import { connectFirestoreEmulator, getFirestore } from "@firebase/firestore";
+import {
+  connectFirestoreEmulator,
+  getFirestore,
+  initializeFirestore,
+} from "@firebase/firestore";
 import { connectStorageEmulator, getStorage } from "@firebase/storage";
 import {
   connectAuthEmulator,
@@ -22,13 +26,15 @@ export const ioFireStorage = getStorage(ioFire.app);
 export const ioFireAuth = initializeAuth(ioFire.app);
 setPersistence(ioFireAuth, browserSessionPersistence);
 useDeviceLanguage(ioFireAuth);
-export const ioFireStore = getFirestore(ioFire.app);
+export const ioFireStore = initializeFirestore(ioFire.app, {
+  experimentalForceLongPolling: isTest,
+});
 
 if (isTest) {
   console.log("=== get firebase with emulators >< === ");
   connectFirestoreEmulator(ioFireStore, "127.0.0.1", 8080);
   connectStorageEmulator(ioFireStorage, "127.0.0.1", 9199);
-  connectAuthEmulator(ioFireAuth, "http://localhost:9099");
+  connectAuthEmulator(ioFireAuth, "http://127.0.0.1:9099");
   console.log("ioFireAuth in emulator: ", ioFireAuth);
 }
 // setPersistence(ioFireAuth, browserSessionPersistence);

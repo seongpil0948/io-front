@@ -1,4 +1,6 @@
-// import { TESTERS } from "../../src/constants";
+import { TESTERS } from "../../src/constants";
+import admin from "firebase-admin";
+
 describe("process login", () => {
   // beforeEach(() => {
   //   // reset and seed the database prior to every test
@@ -37,11 +39,12 @@ describe("process login", () => {
   //   cy.getBySel("email-submit").click();
   //   cy.url().should("include", "signup");
   // });
-  // it("successfully login", () => {
-  //   cy.visit("/login");
-  //   cy.getBySel("input-email").type(TESTERS.SHOP.id);
-  //   cy.getBySel("input-pw").type(TESTERS.SHOP.pw);
-  //   cy.getBySel("email-submit").click();
-  //   cy.url().should("include", "shop");
-  // });
+  it("successfully shop login", () => {
+    cy.visit("/login");
+    cy.getBySel("input-email").type(TESTERS.SHOP_NO.id);
+    cy.getBySel("input-pw").type(TESTERS.SHOP_NO.pw);
+    cy.getBySel("email-submit").click();
+    // cy.wait(60000).url().should("include", "shop");
+    cy.wait(1000).get(".n-message").contains("관리자가 검토중인 계정입니다.");
+  });
 });

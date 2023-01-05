@@ -15,8 +15,8 @@ export default defineConfig({
   e2e: {
     // This will automatically prefix cy.visit() and cy.request() commands with this baseUrl.
     // FIXME: by Env
-    // baseUrl: "http://localhost:5173",
-    baseUrl: "https://io-box--dev-pcug7p0p.web.app",
+    baseUrl: "http://localhost:5173",
+    // baseUrl: "https://io-box--dev-pcug7p0p.web.app",
     // modifyObstructiveCode: true,
     // testIsolation: false,
     setupNodeEvents(on, config) {
