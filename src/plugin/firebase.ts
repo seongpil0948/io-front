@@ -1,8 +1,9 @@
 import { IoFireApp } from "@io-boxies/js-lib";
 import {
   connectFirestoreEmulator,
-  getFirestore,
+  enableIndexedDbPersistence,
   initializeFirestore,
+  // enableNetwork,
 } from "@firebase/firestore";
 import { connectStorageEmulator, getStorage } from "@firebase/storage";
 import {
@@ -27,14 +28,30 @@ export const ioFireAuth = initializeAuth(ioFire.app);
 setPersistence(ioFireAuth, browserSessionPersistence);
 useDeviceLanguage(ioFireAuth);
 export const ioFireStore = initializeFirestore(ioFire.app, {
-  experimentalForceLongPolling: isTest,
+  experimentalAutoDetectLongPolling: isTest,
 });
+// export const ioFireStore = getFirestore(ioFire.app);
 
 if (isTest) {
   console.log("=== get firebase with emulators >< === ");
-  connectFirestoreEmulator(ioFireStore, "127.0.0.1", 8080);
+  connectFirestoreEmulator(ioFireStore, "http://127.0.0.1", 8080);
   connectStorageEmulator(ioFireStorage, "127.0.0.1", 9199);
   connectAuthEmulator(ioFireAuth, "http://127.0.0.1:9099");
   console.log("ioFireAuth in emulator: ", ioFireAuth);
 }
-// setPersistence(ioFireAuth, browserSessionPersistence);
+// setPersistence(ioFireAuth, browserSessionPersistence)
+enableIndexedDbPersistence(ioFireStore)
+  .then(() => console.log("Enabled offline persistence"))
+  .catch((error) => {
+    if (error.code == "failed-precondition") {
+      // Multiple tabs open, persistence can only be enabled
+      // in one tab at a a time.
+      // ...
+    } else if (error.code == "unimplemented") {
+      // The current browser does not support all of the
+      // features required to enable persistence
+      // ...
+    }
+    throw error;
+  });
+// enableNetwork(ioFireStore);

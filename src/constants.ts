@@ -11,7 +11,7 @@ export const IO_COSTS = {
 const pw = "0525cc";
 export const TESTERS = {
   SHOP: {
-    uid: "E6K9HWMExnSERyZpGrcFB1Ejab42",
+    uid: "TZMeyFqKy3gtHvobCVfFAASyLyp2",
     id: "seongpil0948@gmail.com",
     pw,
   },

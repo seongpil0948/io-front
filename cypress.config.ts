@@ -1,6 +1,4 @@
 import { defineConfig } from "cypress";
-import vitePreprocessor from "cypress-vite";
-
 const viewportWidth = 1280;
 const viewportHeight = 800;
 
@@ -21,7 +19,6 @@ export default defineConfig({
     // modifyObstructiveCode: true,
     // testIsolation: false,
     setupNodeEvents(on, config) {
-      on("file:preprocessor", vitePreprocessor());
       on("before:browser:launch", (browser, launchOptions) => {
         if (browser.name === "chrome" && browser.isHeadless) {
           // fullPage screenshot size is 1400x1200 on non-retina screens
