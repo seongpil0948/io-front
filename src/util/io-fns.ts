@@ -14,6 +14,7 @@
 
 import { loadDate } from "@io-boxies/js-lib";
 import { Timestamp } from "firebase/firestore";
+import { v5 } from "uuid";
 
 export const uniqueArr = <T>(arr: T[]): T[] => [...new Set(arr)];
 export function uniqueFilter<T>(arr: T[]): T[] {
@@ -36,3 +37,5 @@ export function commonFromJson(data: { [k: string]: any }) {
   });
   return data;
 }
+
+export const v5Namespace = () => v5("https://inout-box.com", v5.URL);

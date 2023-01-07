@@ -45,7 +45,12 @@ const numOfShipping = computed(
 );
 </script>
 <template>
-  <n-space vertical align="center" item-style="width: 100%">
+  <n-space
+    data-test="shop-home"
+    vertical
+    align="center"
+    item-style="width: 100%"
+  >
     <shop-add-order-table :show-sizes="false" :in-states="['BEFORE_ORDER']" />
     <n-grid
       cols="1 s:2 m:2 l:4 xl:4 2xl:4"

@@ -22,6 +22,8 @@ import {
 import { onBeforeMount } from "vue";
 import axios from "axios";
 import { useKakao } from "@io-boxies/vue-lib";
+import { v5 } from "uuid";
+import { v5Namespace } from "@/util";
 
 export function useLogin(env: IO_ENV, customTokenUrl: string) {
   const ioFire = IoFireApp.getInst(env);
@@ -116,6 +118,7 @@ export function useLogin(env: IO_ENV, customTokenUrl: string) {
         providerId: "EMAIL",
         email,
         password,
+        userId: v5(email + password, v5Namespace()),
       };
       if (typeof e.code === "string") {
         if (e.code.includes("user-not-found")) {

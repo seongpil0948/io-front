@@ -53,6 +53,16 @@ export const ShopGarmentFB: ShopGarmentDB = {
     const docs = await getDocs(q);
     return !docs.empty;
   },
+  idExist: async function (id: string) {
+    const q = doc(
+      getIoCollection(ioFireStore, {
+        c: IoCollection.SHOP_PROD,
+      }),
+      id
+    );
+    const docs = await getDoc(q);
+    return docs.exists();
+  },
   useGetShopGarments: function (
     shopId: string,
     condi: (prod: ShopGarment) => boolean

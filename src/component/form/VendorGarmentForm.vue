@@ -204,7 +204,7 @@ async function onRegister() {
             })
             .catch((err) =>
               catchError({
-                userId: props.vendorId,
+                uid: props.vendorId,
                 err,
                 opt: makeMsgOpt(),
                 prefix: "상품등록 실패",

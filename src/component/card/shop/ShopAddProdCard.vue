@@ -11,11 +11,11 @@ import {
 } from "@/composable";
 import { getUserLocate } from "@io-boxies/js-lib";
 import { useAuthStore, useShopOrderStore } from "@/store";
-import { makeMsgOpt } from "@/util";
+import { makeMsgOpt, v5Namespace } from "@/util";
 import { Home24Filled, Phone20Filled } from "@vicons/fluent";
 import { useEditor } from "@/plugin/editor";
 import { useLogger } from "vue-logger-plugin";
-import { uuidv4 } from "@firebase/util";
+import { v5 } from "uuid";
 
 const props = defineProps<{
   showAddModal: boolean;
@@ -58,7 +58,11 @@ async function onSubmit() {
   let addCnt = selectedProdIds.value.length;
   for (let i = 0; i < selectedProdIds.value.length; i++) {
     const vendorProdId = selectedProdIds.value[i];
-    if (await SHOP_GARMENT_DB.shopGarmentExist(vendorProdId, uid)) {
+    const shopProdId = v5(uid + prod.value.vendorId, v5Namespace());
+    if (
+      (await SHOP_GARMENT_DB.shopGarmentExist(vendorProdId, uid)) ||
+      (await SHOP_GARMENT_DB.idExist(shopProdId))
+    ) {
       msg.error(
         `컬러 ${optById[vendorProdId].color}, 사이즈: ${optById[vendorProdId].size} 상품은 이미 추가 되었습니다.`,
         makeMsgOpt()
@@ -70,7 +74,7 @@ async function onSubmit() {
     const shopProd = new ShopGarment({
       vendorId: prod.value.vendorId,
       vendorProdId,
-      shopProdId: uuidv4(),
+      shopProdId,
       shopId: uid,
       prodPrice: prod.value.vendorPrice,
       prodName: prod.value.vendorProdName,

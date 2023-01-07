@@ -34,9 +34,9 @@ export const ioFireStore = initializeFirestore(ioFire.app, {
 
 if (isTest) {
   console.log("=== get firebase with emulators >< === ");
-  connectFirestoreEmulator(ioFireStore, "http://127.0.0.1", 8080);
-  connectStorageEmulator(ioFireStorage, "127.0.0.1", 9199);
-  connectAuthEmulator(ioFireAuth, "http://127.0.0.1:9099");
+  connectFirestoreEmulator(ioFireStore, "localhost", 8080);
+  connectStorageEmulator(ioFireStorage, "localhost", 9199);
+  connectAuthEmulator(ioFireAuth, "http://localhost:9099");
   console.log("ioFireAuth in emulator: ", ioFireAuth);
 }
 // setPersistence(ioFireAuth, browserSessionPersistence)

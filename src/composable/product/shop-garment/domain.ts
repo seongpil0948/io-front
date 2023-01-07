@@ -33,6 +33,7 @@ export interface ShopGarmentDB {
     vendorId?: string;
   }): Promise<ShopGarment[]>;
   shopGarmentExist(vendorProdId: string, shopUserId: string): Promise<boolean>;
+  idExist(id: string): Promise<boolean>;
   useGetShopGarments(
     shopId: string,
     condi: (prod: ShopGarment) => boolean
