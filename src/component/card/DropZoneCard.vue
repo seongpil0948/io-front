@@ -15,7 +15,7 @@
     </template>
     <div v-bind="getRootProps()">
       <div v-if="listenClick">
-        <input v-bind="getInputProps()" />
+        <input data-test="drop-zone-input" v-bind="getInputProps()" />
       </div>
       <slot v-bind="{ hovered, activeColor, isDragActive }">
         <div style="padding: 10% 20%">

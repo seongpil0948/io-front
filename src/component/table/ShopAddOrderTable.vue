@@ -111,6 +111,7 @@ function downSampleXlsx() {
 <template>
   <drop-zone-card
     v-model:fileModel="fileModel"
+    data-test="order-drop-zone"
     :listen-click="!(filteredOrders.length > 0)"
   >
     <template #header> <div></div> </template>
