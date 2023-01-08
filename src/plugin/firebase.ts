@@ -28,7 +28,7 @@ export const ioFireAuth = initializeAuth(ioFire.app);
 setPersistence(ioFireAuth, browserSessionPersistence);
 useDeviceLanguage(ioFireAuth);
 export const ioFireStore = initializeFirestore(ioFire.app, {
-  experimentalAutoDetectLongPolling: isTest,
+  // experimentalAutoDetectLongPolling: isTest,
 });
 // export const ioFireStore = getFirestore(ioFire.app);
 

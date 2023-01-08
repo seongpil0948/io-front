@@ -23,6 +23,7 @@ async function createUsers(userList) {
         lastSignedInAt: Number(u.lastSignedInAt),
         createdAt: Number(u.createdAt),
         password: "0525cc",
+        uid: u.localId,
       })
     );
     cnt += 1;
