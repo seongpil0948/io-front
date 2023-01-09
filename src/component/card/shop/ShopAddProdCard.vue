@@ -58,13 +58,16 @@ async function onSubmit() {
   let addCnt = selectedProdIds.value.length;
   for (let i = 0; i < selectedProdIds.value.length; i++) {
     const vendorProdId = selectedProdIds.value[i];
-    const shopProdId = v5(uid + prod.value.vendorId, v5Namespace());
+    const p = prod.value;
+    const size = optById[vendorProdId].size;
+    const color = optById[vendorProdId].color;
+    const shopProdId = v5(uid + p.vendorId + size + color, v5Namespace());
     if (
       (await SHOP_GARMENT_DB.shopGarmentExist(vendorProdId, uid)) ||
       (await SHOP_GARMENT_DB.idExist(shopProdId))
     ) {
       msg.error(
-        `컬러 ${optById[vendorProdId].color}, 사이즈: ${optById[vendorProdId].size} 상품은 이미 추가 되었습니다.`,
+        `컬러 ${color}, 사이즈: ${size} 상품은 이미 추가 되었습니다.`,
         makeMsgOpt()
       );
       addCnt -= 1;
@@ -80,8 +83,8 @@ async function onSubmit() {
       prodName: prod.value.vendorProdName,
       info: prod.value.info,
       description: prod.value.description,
-      size: optById[vendorProdId].size as PRODUCT_SIZE,
-      color: optById[vendorProdId].color,
+      size: size as PRODUCT_SIZE,
+      color: color,
       TBD: {},
       prodType: "GARMENT",
       visible: "GLOBAL",
