@@ -34,6 +34,7 @@ const {
   popVal,
   selectedRow,
   onCheckedDelete,
+  tableRef,
 } = useShopGarmentTable(false);
 const cols = computed(() =>
   tableCols.value.filter((x) => (x as any).key !== "select")

@@ -1,7 +1,11 @@
 import { ioFire } from "@/plugin/firebase";
 import { logEvent, getAnalytics } from "@firebase/analytics";
 import { ref, Ref, computed } from "vue";
-import { getFunctions, httpsCallable } from "firebase/functions";
+import {
+  getFunctions,
+  httpsCallable,
+  connectFunctionsEmulator,
+} from "firebase/functions";
 import { useMessage } from "naive-ui";
 
 export function useElasticSearch(d: {
@@ -17,6 +21,8 @@ export function useElasticSearch(d: {
   async function search() {
     searchVal.value = searchInputVal.value;
     const functions = getFunctions(ioFire.app, "asia-northeast3");
+    if (import.meta.env.VITE_IS_TEST === "true")
+      connectFunctionsEmulator(functions, "localhost", 5001);
     const searchFunc = httpsCallable(functions, d.funcName);
     const param = d.makeParam(searchVal.value ?? "");
     console.log("searchFunc param: ", param);

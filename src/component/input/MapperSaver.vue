@@ -3,6 +3,7 @@
 import { useMessage, NDynamicTags } from "naive-ui";
 import { computed, toRefs } from "vue";
 import { makeMsgOpt } from "@/util";
+import { Add16Regular } from "@vicons/fluent";
 
 // type MappingType = "cell" | "column";
 // interface MapProp {
@@ -101,18 +102,50 @@ function onUpdateShow(val) {
     style="max-width: 40vw"
     :duration="30000"
     :on-update:show="onUpdateShow"
+    data-test="mapper-popover"
     @clickoutside="emits('on-clickoutside')"
   >
     <n-card :segmented="{ footer: true }" size="small">
-      <n-dynamic-tags round :value="synonyms" @update:value="onUpdate" />
+      <n-dynamic-tags
+        :value="synonyms"
+        :input-props="{
+          placeholder: '매핑 정보 입력',
+          'data-test': 'mapper-input',
+        }"
+        :max="20"
+        @update:value="onUpdate"
+      >
+        <template #trigger="{ activate, disabled }">
+          <n-button
+            size="small"
+            type="primary"
+            data-test="mapper-trigger-input-btn"
+            dashed
+            :disabled="disabled"
+            @click="activate()"
+          >
+            <template #icon>
+              <n-icon>
+                <Add16Regular />
+              </n-icon>
+            </template>
+            New
+          </n-button>
+        </template>
+      </n-dynamic-tags>
       <template #footer>
         <n-space justify="center" align="center">
-          <n-button size="small" @click="onSave"> 적용 </n-button>
+          <n-button size="small" data-test="mapper-saver-btn" @click="onSave">
+            적용
+          </n-button>
         </n-space>
       </template>
     </n-card>
     <template #trigger>
-      <n-button :type="synonyms.length < 1 ? 'primary' : 'default'">
+      <n-button
+        :type="synonyms.length < 1 ? 'primary' : 'default'"
+        data-test="mapper-trigger-btn"
+      >
         {{ value }}
       </n-button>
     </template>

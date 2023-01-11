@@ -197,14 +197,19 @@ useEditor({
                   justify-content: space-between;
                     align-items: center;
                 "
+                data-test="shop-prod-opt-card"
               >
-                <n-h4 style="margin: 0; padding-bottom: 3%">
+                <n-h4
+                  data-test="shop-prod-opt-label"
+                  style="margin: 0; padding-bottom: 3%"
+                >
                   {{ opt.label }}
                 </n-h4>
                 <logo-checker
                   :size="1"
                   :checked="selectedProdIds.includes(opt.value)"
                   style="margin-right: 20px"
+                  data-test="shop-prod-opt-checker"
                   @on-click="onCheck(opt.value)"
                 />
               </n-card>
@@ -251,7 +256,9 @@ useEditor({
     </n-space>
     <template #action>
       <n-space justify="end">
-        <n-button @click="onSubmit"> 추가하기 </n-button>
+        <n-button data-test="shop-prod-add-btn" @click="onSubmit">
+          추가하기
+        </n-button>
       </n-space>
     </template>
   </n-modal>

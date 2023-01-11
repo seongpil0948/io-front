@@ -69,10 +69,8 @@ class Mapper implements MapperCRT {
   }
   static async deleteProdId(userId: string, prodId: string[]) {
     const m = await Mapper.getIoMapper(userId);
-    log.debug(null, "deleteProdId: ", m.cols);
     (Object.keys(m.cols) as Array<MapKey>).forEach((mapKey) => {
       prodId.forEach((prodId) => {
-        log.debug(null, "mapKey: ", mapKey, m.cols[mapKey][prodId]);
         delete m.cols[mapKey][prodId];
       });
     });

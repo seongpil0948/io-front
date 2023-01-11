@@ -177,8 +177,11 @@ const targetData = computed(() =>
       <n-input
         v-model:value="searchInputVal"
         placeholder="상품검색 - 오늘도 신상을 잘 찾아보즈아!"
+        data-test="shop-prod-search-input"
       />
-      <n-button @click="search"> 검색 </n-button>
+      <n-button data-test="shop-prod-search-btn" @click="search">
+        검색
+      </n-button>
     </n-space>
 
     <n-space
@@ -207,6 +210,7 @@ const targetData = computed(() =>
               <vendor-prod-thum
                 v-if="validProd(prod)"
                 style="padding: 5%; margin: auto"
+                data-test="shop-prod-thumbnail"
                 :prod="prod"
                 :width="250"
                 @on-click-prod="onClickProd"
