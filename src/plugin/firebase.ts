@@ -12,6 +12,7 @@ import {
   useDeviceLanguage,
   setPersistence,
   browserSessionPersistence,
+  browserPopupRedirectResolver,
 } from "@firebase/auth";
 
 const isTest = import.meta.env.VITE_IS_TEST === "true";
@@ -24,7 +25,9 @@ export const ioFire = IoFireApp.getInst(
 // }
 // export const ioFireStorage = getStorage(ioFire.app, bucketUrl);
 export const ioFireStorage = getStorage(ioFire.app);
-export const ioFireAuth = initializeAuth(ioFire.app);
+export const ioFireAuth = initializeAuth(ioFire.app, {
+  popupRedirectResolver: browserPopupRedirectResolver,
+});
 setPersistence(ioFireAuth, browserSessionPersistence);
 useDeviceLanguage(ioFireAuth);
 export const ioFireStore = initializeFirestore(ioFire.app, {

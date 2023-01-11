@@ -70,7 +70,6 @@ const rule = {
   <n-form
     ref="formRef"
     inline
-    style="max-height: 50vh"
     :label-width="80"
     label-placement="top"
     :model="formModel"

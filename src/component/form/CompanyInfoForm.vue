@@ -42,7 +42,12 @@ defineExpose({ companyInfo: formModel });
 <template>
   <n-form
     ref="formRef"
-    style="height: 50vh; overflow: auto"
+    style="
+      overflow-y: auto;
+      padding-left: 2.5%;
+      padding-right: 2.5%;
+      width: 90%;
+    "
     inline
     :label-width="80"
     label-placement="top"

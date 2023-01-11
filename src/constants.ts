@@ -11,8 +11,8 @@ export const IO_COSTS = {
 const pw = "0525cc";
 export const TESTERS = {
   SHOP: {
-    uid: "TZMeyFqKy3gtHvobCVfFAASyLyp2",
-    id: "seongpil0948@gmail.com",
+    uid: "C9C0nsNhdsTZ5F5sL3eJFzCH6kw1",
+    id: "testshop@gmail.com",
     pw,
   },
   SHOP_NO: {
@@ -26,6 +26,6 @@ export const TESTERS = {
     pw,
   },
   VENDOR: { uid: "hqogcoikE4Z8KAlugFSTRlT6Ge13", id: "spchoi@gmail.com", pw },
-  UNCLE: { uid: "2419092443", id: "inoutbox@kakao.com", pw },
+  UNCLE: { uid: "Rzv2rEXjczNLNJ4tuGUjILGxgnK2", id: "a@b.com", pw },
   UNCLE_NO: { uid: "eRzv2rEXjczNLNJ4tuGUjILGxgnK2", id: "a@b.com", pw },
 };

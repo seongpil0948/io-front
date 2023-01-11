@@ -65,7 +65,7 @@ function onInternalError(err: any) {
     msg.error(msgStr);
     log.error(null, msgStr);
   } else {
-    console.log(`code: ${err.code}, message: ${err.message}`, err);
+    console.error(`code: ${err.code}, message: ${err.message}`, err);
   }
 }
 console.log("ioFireStore: ", ioFireStore);

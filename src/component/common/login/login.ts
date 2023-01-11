@@ -15,6 +15,7 @@ import {
   IoFireApp,
   IoUser,
   KAKAO_CHANNEL_ID,
+  loadDate,
   USER_DB,
   USER_PROVIDER,
   type IO_ENV,
@@ -24,6 +25,7 @@ import axios from "axios";
 import { useKakao } from "@io-boxies/vue-lib";
 import { v5 } from "uuid";
 import { v5Namespace } from "@/util";
+import { useLogger } from "vue-logger-plugin";
 
 export function useLogin(env: IO_ENV, customTokenUrl: string) {
   const ioFire = IoFireApp.getInst(env);
@@ -36,15 +38,16 @@ export function useLogin(env: IO_ENV, customTokenUrl: string) {
   provider.addScope("https://www.googleapis.com/auth/user.emails.read");
   provider.addScope("https://www.googleapis.com/auth/userinfo.email");
   provider.addScope("https://www.googleapis.com/auth/userinfo.profile");
+  const log = useLogger();
 
   async function login(
     store: Firestore,
     credential: UserCredential,
     params: SignupParam
   ): Promise<LoginReturn> {
-    /// toSignup (3th argument) is deprecated
+    console.log("in login", store, credential, params);
     const user = await USER_DB.getUserById(store, credential.user.uid);
-    console.info("getUserById:", user);
+    console.log("getUserById:", user);
     if (user) {
       // >>> token >>>
       const token = await getFcmToken();
@@ -55,7 +58,7 @@ export function useLogin(env: IO_ENV, customTokenUrl: string) {
         const intervalParam = {
           start: new Date(),
           end:
-            t.createdAt instanceof Date ? t.createdAt : new Date(t.createdAt),
+            t.createdAt instanceof Date ? t.createdAt : loadDate(t.createdAt),
         };
 
         const interval = intervalToDuration(intervalParam);
@@ -113,7 +116,7 @@ export function useLogin(env: IO_ENV, customTokenUrl: string) {
         password,
       });
     } catch (e: any) {
-      console.log("in login", JSON.stringify(e));
+      log.error(null, "error in email login", JSON.stringify(e));
       const params: SignupParam = {
         providerId: "EMAIL",
         email,
@@ -147,25 +150,30 @@ export function useLogin(env: IO_ENV, customTokenUrl: string) {
     store: Firestore,
     loginAfter = true
   ): Promise<LoginReturn | undefined> {
-    return signInWithPopup(auth, provider).then(async (result) => {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      console.log("google credential: ", credential);
-      logEvent(getAnalytics(ioFire.app), "login", {
-        method: USER_PROVIDER.GOOGLE,
-      });
-      const user = result.user;
-
-      if (loginAfter) {
-        return login(store, result, {
-          providerId: "GOOGLE",
-          userId: user.uid,
-          userName: user.displayName ?? "",
-          email: user.email ?? "",
-          profileImg: user.photoURL ?? "",
+    try {
+      return signInWithPopup(auth, provider).then(async (result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        console.log("google credential: ", credential);
+        console.log("UserCredential: ", result);
+        logEvent(getAnalytics(ioFire.app), "login", {
+          method: USER_PROVIDER.GOOGLE,
         });
-      }
-    });
+        const user = result.user;
+
+        if (loginAfter) {
+          return login(store, result, {
+            providerId: "GOOGLE",
+            userId: user.uid,
+            userName: user.displayName ?? "",
+            email: user.email ?? "",
+            profileImg: user.photoURL ?? "",
+          });
+        }
+      });
+    } catch (e: any) {
+      log.error(null, "error in google login", JSON.stringify(e));
+    }
   }
 
   async function onKakaoLogin(

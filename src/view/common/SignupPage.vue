@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { catchError } from "@/composable";
-import { makeMsgOpt, useFireWork, isMobile } from "@/util";
-import { FormInst, useMessage, useDialog } from "naive-ui";
+import { catchError, useCommon } from "@/composable";
+import { useFireWork } from "@/util";
+import { FormInst } from "naive-ui";
 import { lightTheme } from "naive-ui";
 import { lightThemeOver } from "@/composable/config";
 import {
@@ -12,8 +12,6 @@ import {
   watchEffect,
   defineAsyncComponent,
 } from "vue";
-import { useLogger } from "vue-logger-plugin";
-import { useRouter } from "vue-router";
 import { logEvent, getAnalytics } from "@firebase/analytics";
 import {
   IoUser,
@@ -31,7 +29,6 @@ import {
 } from "@firebase/auth";
 import { ioFire, ioFireStore } from "@/plugin/firebase";
 import { axiosConfig } from "@/plugin/axios";
-import { useAlarm } from "@io-boxies/vue-lib";
 
 const UserInfoForm = defineAsyncComponent(
   () => import("@/component/form/UserInfoForm.vue")
@@ -45,19 +42,13 @@ const ShopOperInfoVue = defineAsyncComponent(
 const VendorOperInfoVue = defineAsyncComponent(
   () => import("@/component/form/VendorOperInfo.vue")
 );
-
-const log = useLogger();
+const { msg, log, smtp, makeMsgOpt, isMobile, router, dialog } = useCommon();
 const inst = getCurrentInstance();
-const msg = useMessage();
-const router = useRouter();
-const dialog = useDialog();
 const step = ref(0);
 const userRole = ref<USER_ROLE | null>(null);
 const user = ref<IoUser | null>(null);
 const acceptTerms = ref(false);
 const { play, stop } = useFireWork();
-
-const smtp = useAlarm();
 const state = window.history.state;
 
 console.log("state:", state);
@@ -414,7 +405,7 @@ async function onSignUp() {
             </template>
           </n-card>
           <n-button
-            style="margin-top: 3vh; font-size: 1.1rem"
+            style="margin-top: 3vh; color: white"
             @click.stop="onSignUp"
           >
             가입 완료!
@@ -447,10 +438,7 @@ async function onSignUp() {
         </n-space>
       </Transition>
       <n-card v-if="step > 3 && step < 9" class="form-card">
-        <n-steps
-          style="overflow-x: auto; max-width: 100%; padding: 1%"
-          :current="(step -3 as number)"
-        >
+        <n-steps style="width: 90%" :current="(step -3 as number)">
           <template #finish-icon>
             <n-image
               preview-disabled
@@ -531,7 +519,11 @@ async function onSignUp() {
   }
 }
 .form-card {
-  width: 80vw;
+  width: 95vw;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-right: 1vw;
+  padding-left: 1vw;
   justify-content: center;
 }
 </style>
