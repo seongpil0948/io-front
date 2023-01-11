@@ -249,7 +249,7 @@ async function onSignUp() {
         pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
       });
     } catch (err) {
-      catchError({ err, msg });
+      catchError({ err, msg, uid: u.userInfo.userId });
     }
     play();
     step.value = 9;
@@ -487,7 +487,6 @@ async function onSignUp() {
   align-items: center;
   height: 100vh;
   width: 100%;
-  background-color: #ffc800;
   overflow-y: auto;
 }
 

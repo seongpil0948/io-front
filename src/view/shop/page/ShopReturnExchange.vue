@@ -80,7 +80,12 @@ async function returnReq() {
       });
     })
     .catch((err) =>
-      catchError({ prefix: "반품 요청이 실패 되었습니다.", err, msg })
+      catchError({
+        prefix: "반품 요청이 실패 되었습니다.",
+        err,
+        msg,
+        uid: auth.currUser.userInfo.userId,
+      })
     );
 }
 // request return  <<<

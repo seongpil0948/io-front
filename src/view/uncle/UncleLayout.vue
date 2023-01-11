@@ -3,9 +3,9 @@ import { UserAvatarFilled } from "@vicons/carbon";
 import { MoneyBillWave, ExclamationTriangle } from "@vicons/fa";
 import { LocalShippingFilled } from "@vicons/material";
 import { Box24Filled } from "@vicons/fluent";
-import { renderIcon, renderRoute, getScreenSize, isMobile } from "@/util";
+import { renderIcon, renderRoute, ScreenSize, isMobile } from "@/util";
 import type { MenuOption } from "naive-ui";
-import { useAuthStore, useUncleOrderStore } from "@/store";
+import { useAuthStore, useCommonStore, useUncleOrderStore } from "@/store";
 import { onBeforeMount, h, defineAsyncComponent } from "vue";
 import { People16Regular, News16Regular } from "@vicons/fluent";
 import { useRouter } from "vue-router";
@@ -13,6 +13,8 @@ import { logoutMenuOpt } from "@/component/button/logout-menu-opt";
 const LogoImageVue = defineAsyncComponent(
   () => import("@/component/common/LogoImage.vue")
 );
+
+const common = useCommonStore();
 const minHeight = "100vh";
 const router = useRouter();
 const menuOptions: MenuOption[] = [
@@ -135,7 +137,9 @@ onBeforeMount(() => useUncleOrderStore().init(user.userInfo.userId));
 </script>
 <template>
   <n-layout
-    v-if="getScreenSize() === 'S' || isMobile()"
+    v-if="
+      common.screenWidth === 'S' || common.screenWidth === 'M' || isMobile()
+    "
     :style="`height: ${minHeight}`"
   >
     <n-layout-header style="overflow: auto; width: 100%">
@@ -172,6 +176,6 @@ onBeforeMount(() => useUncleOrderStore().init(user.userInfo.userId));
         <io-footer />
       </n-space>
     </n-layout>
-    <team-uncle-sider v-if="getScreenSize() !== 'S'" />
+    <team-uncle-sider v-if="(common.screenWidth as ScreenSize ) !== 'S'" />
   </n-layout>
 </template>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { MenuOption } from "naive-ui";
 import { ProductHunt, ShoppingCart } from "@vicons/fa";
-import { useAuthStore, useShopOrderStore } from "@/store";
+import { useAuthStore, useCommonStore, useShopOrderStore } from "@/store";
 import { useRouter } from "vue-router";
-import { renderIcon, renderRoute, getScreenSize, isMobile } from "@/util";
+import { renderIcon, renderRoute, isMobile } from "@/util";
 import { LocalShippingRound } from "@vicons/material";
 import { People16Regular, News16Regular } from "@vicons/fluent";
 import { onBeforeMount, h, defineAsyncComponent } from "vue";
@@ -15,6 +15,7 @@ const LogoImageVue = defineAsyncComponent(
 const minHeight = "100vh";
 const router = useRouter();
 const authStore = useAuthStore();
+const common = useCommonStore();
 const user = authStore.currUser;
 
 const shopOrderStore = useShopOrderStore();
@@ -141,7 +142,9 @@ const mobileOpts = [
 
 <template>
   <n-layout
-    v-if="getScreenSize() === 'S' || isMobile()"
+    v-if="
+      common.screenWidth === 'S' || common.screenWidth === 'M' || isMobile()
+    "
     :style="`height: ${minHeight}`"
   >
     <n-layout-header style="overflow: auto; width: 100%">

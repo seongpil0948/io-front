@@ -98,7 +98,6 @@ console.log("ioFireStore: ", ioFireStore);
   align-items: center;
   height: 100vh;
   width: 100%;
-  background-color: #ffc800;
 }
 .n-h {
   text-align: center;

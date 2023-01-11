@@ -2,20 +2,20 @@
 import type { MenuOption } from "naive-ui";
 import { ShoppingCart } from "@vicons/fa";
 import { ProductHunt, CashRegister } from "@vicons/fa";
-import { renderIcon, renderRoute, getScreenSize, isMobile } from "@/util";
+import { renderIcon, renderRoute, isMobile } from "@/util";
 import {
   People16Regular,
   News16Regular,
   ShoppingBag20Filled,
 } from "@vicons/fluent";
-import { useAuthStore, useVendorOrderStore } from "@/store";
+import { useAuthStore, useCommonStore, useVendorOrderStore } from "@/store";
 import { onBeforeMount, h, defineAsyncComponent } from "vue";
 import { useRouter } from "vue-router";
 import { logoutMenuOpt } from "@/component/button/logout-menu-opt";
 const LogoImageVue = defineAsyncComponent(
   () => import("@/component/common/LogoImage.vue")
 );
-
+const common = useCommonStore();
 const auth = useAuthStore();
 const user = auth.currUser;
 const store = useVendorOrderStore();
@@ -120,7 +120,9 @@ const minHeight = "100vh";
 </script>
 <template>
   <n-layout
-    v-if="getScreenSize() === 'S' || isMobile()"
+    v-if="
+      common.screenWidth === 'S' || common.screenWidth === 'M' || isMobile()
+    "
     :style="`height: ${minHeight}`"
   >
     <n-layout-header style="overflow: auto; width: 100%">

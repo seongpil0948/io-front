@@ -153,7 +153,7 @@ export default defineComponent({
             >
               {{
                 default: () => [
-                  <NFormItem first path="email" label="Email">
+                  <NFormItem first path="email" showLabel={false}>
                     <NInput
                       size="large"
                       round
@@ -163,11 +163,11 @@ export default defineComponent({
                       data-test="input-email"
                     ></NInput>
                   </NFormItem>,
-                  <NFormItem path="password" label="Password">
+                  <NFormItem showLabel={false} path="password">
                     <NInput
                       size="large"
-                      placeholder="비밀번호 입력"
                       round
+                      placeholder="비밀번호 입력"
                       value={modelRef.password}
                       onUpdateValue={(val) => (modelRef.password = val)}
                       type="password"
@@ -177,13 +177,14 @@ export default defineComponent({
                   <NButton
                     class="text-login-btn"
                     onClick={onEmailSubmit}
+                    ghost={true}
                     style={{
                       height: "4vw",
-                      margin: "1%",
                       "max-height": "3vw",
                       width: "10vw",
-                      "min-height": "32px",
+                      "min-height": "40px",
                       "min-width": "100px",
+                      "margin-bottom": "3%",
                     }}
                     size="large"
                     data-test="email-submit"

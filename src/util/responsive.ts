@@ -1,6 +1,7 @@
-export type ScreenSize = "S" | "L";
+export type ScreenSize = "S" | "M" | "L";
 export const ScreenSize: { [k: string]: ScreenSize } = {
   S: "S",
+  M: "M",
   L: "L",
 };
 export function getScreenSize(): ScreenSize {

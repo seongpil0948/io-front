@@ -41,7 +41,7 @@ export function useBatchVendorProd(d: { visible: VISIBILITY }) {
       })
       .catch((err) =>
         catchError({
-          userId: u.userInfo.userId,
+          uid: u.userInfo.userId,
           err,
           opt: makeMsgOpt(),
           prefix: "상품등록 실패",

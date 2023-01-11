@@ -39,6 +39,8 @@ body {
     text-align: center;
     width: 100%;
     height: 100%;
+    overflow: auto;
+    background-color: $io-primary;
 }
 .space-no-mb * {
     margin-bottom: 0px !important;
@@ -124,4 +126,11 @@ table td,
 table th {
     padding: 0;
     overflow: auto;
+}
+
+.n-layout-header {
+    &::-webkit-scrollbar {
+        display: none;
+        scrollbar-width: none;
+    }
 }

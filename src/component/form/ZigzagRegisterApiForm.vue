@@ -23,12 +23,12 @@ const rules = {
   accessKey: strLenEqualRule(36),
   secretKey: strLenEqualRule(40),
 };
+const u = auth.currUser;
 async function handleSubmit(e: MouseEvent) {
   e.preventDefault();
   formRef.value?.validate((errors) => {
     if (!errors) {
       const dbId = uuidv4();
-      const u = auth.currUser;
       const currDate = new Date();
       const token = new ApiToken({
         dbId,
@@ -45,7 +45,7 @@ async function handleSubmit(e: MouseEvent) {
           msg.success("등록에 성공 하였습니다.");
           emits("submitToken", token);
         })
-        .catch((err) => catchError({ err }));
+        .catch((err) => catchError({ err, uid: u.userInfo.userId }));
     } else {
       console.error(errors);
       msg.error("입력폼을 올바르게 입력 해주세요.");

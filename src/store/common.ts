@@ -1,24 +1,43 @@
 import { LOCALE } from "@/composable";
+import { ScreenSize } from "@/util";
 import { defineStore } from "pinia";
-import { VNodeChild } from "vue";
+import { VNodeChild, ref, computed, onBeforeMount, onBeforeUnmount } from "vue";
 
 declare type ContentType = string | (() => VNodeChild);
-interface CommonStoreInterface {
-  msgQueue: { isError: boolean; content: ContentType }[];
-  loading: boolean;
-  showSpin: boolean;
-  locale: LOCALE;
-}
-export const useCommonStore = defineStore({
-  id: "common",
-  state: () =>
-    <CommonStoreInterface>{
-      msgQueue: [],
-      loading: false,
-      showSpin: false,
-      locale: "ko",
-    },
-  getters: {
-    isLoading: (state) => state.loading === true,
-  },
+
+export const useCommonStore = defineStore("common", () => {
+  const msgQueue = ref<{ isError: boolean; content: ContentType }[]>([]);
+  const loading = ref(false);
+  const showSpin = ref(false);
+  const locale = ref<LOCALE>("ko");
+  const isLoading = computed(() => loading.value === true);
+
+  const bodySize = ref({ w: 0, h: 0 });
+  let resizeTimeout: NodeJS.Timeout | null = null;
+  function resizeHandler() {
+    console.log("in entry resizeHandler");
+    if (resizeTimeout) clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      console.log("in core resizeHandler");
+      bodySize.value.h = window.innerHeight;
+      bodySize.value.w = window.innerWidth;
+    }, 500);
+  }
+  onBeforeMount(() => window.addEventListener("resize", resizeHandler));
+  onBeforeUnmount(() => window.removeEventListener("resize", resizeHandler));
+  const screenWidth = computed<ScreenSize>(() => {
+    const w = bodySize.value.w;
+    if (w < 500) return "S";
+    if (w < 900) return "M";
+    else return "L";
+  });
+
+  return {
+    msgQueue,
+    loading,
+    showSpin,
+    locale,
+    isLoading,
+    screenWidth,
+  };
 });
