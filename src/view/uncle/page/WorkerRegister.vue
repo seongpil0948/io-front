@@ -47,6 +47,7 @@ function onKakaoAuth() {
   const kakao = inst?.appContext.config.globalProperties.$kakao;
   kakao.Auth.loginForm({
     success: (obj: any) => {
+      console.info("kakao login success: ", obj);
       kakao.API.request({
         url: "/v2/user/me",
         success: async function (res: any) {
