@@ -1,19 +1,47 @@
 <script setup lang="ts">
 import { SALE_MANAGE, VendorOperInfo } from "@io-boxies/js-lib";
 import { deadOpt, newProdQuantityOpt, notNullRule } from "@/util";
-import { FormInst } from "naive-ui";
-import { ref } from "vue";
+import { FormInst, useMessage } from "naive-ui";
+import { ref, toRefs, watch } from "vue";
+import { catchError, defaultVendorOper } from "@/composable";
+
+const props = defineProps<{
+  vendorOperInfo?: VendorOperInfo;
+}>();
+const { vendorOperInfo } = toRefs(props);
 const formRef = ref<FormInst | null>(null);
-const formModel = ref<{ [k in keyof VendorOperInfo]: VendorOperInfo[k] }>({
-  autoOrderApprove: false,
-  saleManageType: "",
-  taxDeadlineDay: 1,
-  expectNumProdMonthly: newProdQuantityOpt.value[0].value,
-});
+const formModel = ref<{ [k in keyof VendorOperInfo]: VendorOperInfo[k] }>(
+  defaultVendorOper()
+);
+watch(
+  () => vendorOperInfo?.value,
+  (val) => Object.assign(formModel.value, val)
+);
 const rule = {
   saleManageType: notNullRule,
 };
-defineExpose({ operInfo: formModel.value });
+const msg = useMessage();
+type GetVendorOperInfo = { vendorOperInfo?: VendorOperInfo };
+async function getVendorOperInfo(): Promise<GetVendorOperInfo> {
+  const defaultVal = { vendorOperInfo: undefined };
+
+  return new Promise<GetVendorOperInfo>((resolve, reject) => {
+    if (!formRef.value) return reject("재시도해주세요.");
+    formRef.value.validate((errors) => {
+      if (errors) {
+        return reject("잘못된 양식의 작성입니다.");
+      }
+      resolve({ vendorOperInfo: formModel.value });
+    });
+  }).catch((err) => {
+    catchError({
+      err,
+      msg,
+    });
+    return defaultVal;
+  });
+}
+defineExpose({ getVendorOperInfo });
 </script>
 
 <template>

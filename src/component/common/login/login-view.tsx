@@ -12,18 +12,14 @@ import {
   NIcon,
   NAvatar,
   NTooltip,
+  useMessage,
 } from "naive-ui";
 import { EmailOutlined } from "@vicons/material";
 import { GoogleOutlined } from "@vicons/antd";
 import { type IO_ENV } from "@io-boxies/js-lib";
-import {
-  LoginReturn,
-  emailRule,
-  pwRule,
-  useEventListener,
-} from "@io-boxies/vue-lib";
+import { emailRule, pwRule, useEventListener } from "@io-boxies/vue-lib";
 import { ioFireStore } from "@/plugin/firebase";
-import { useLogin } from "./login";
+import { LoginReturn, useLogin, EmailModelType } from "./login";
 
 export default defineComponent({
   name: "LoginView",
@@ -52,22 +48,26 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    useSignup: {
+      type: Boolean,
+      default: () => true,
+    },
   },
   emits: {
     onLogin(data: LoginReturn | undefined) {
       return data !== undefined && data !== null;
+    },
+    toSignUp() {
+      return true;
     },
     onInternalError(data: any) {
       return data;
     },
   },
   setup(props, { emit }) {
-    const { onKakaoLogin, googleLogin, emailLogin } = useLogin(
-      props.env as IO_ENV,
-      props.customTokenUrl
-    );
     const formRef = ref<FormInst | null>(null);
-    const modelRef = ref<ModelType>({
+    const msg = useMessage();
+    const modelRef = ref<EmailModelType>({
       email: null,
       password: null,
     });
@@ -75,27 +75,25 @@ export default defineComponent({
       email: emailRule,
       password: pwRule,
     };
+    const { onKakaoLogin, googleLogin, emailLogin } = useLogin(
+      props.env as IO_ENV,
+      props.customTokenUrl
+    );
     async function onEmailSubmit() {
       formRef.value?.validate(async (errors) => {
         if (errors || !modelRef.value.email || !modelRef.value.password)
-          throw new Error("올바르게 작성 해주세요");
-        const defaultResult: LoginReturn = {
-          toSignup: false,
-          noConfirm: false,
-          wrongPassword: false,
-          params: {
-            providerId: "EMAIL",
-            email: modelRef.value.email,
-            password: modelRef.value.password,
-          },
-        };
-        const result = await emailLogin(
-          ioFireStore,
-          modelRef.value.email,
-          modelRef.value.password
-        );
-        if (result) emit("onLogin", result);
-        else emit("onLogin", defaultResult);
+          throw msg.error("올바르게 작성 해주세요");
+        try {
+          const result = await emailLogin(
+            ioFireStore,
+            modelRef.value.email,
+            modelRef.value.password
+          );
+
+          emit("onLogin", result);
+        } catch (e) {
+          emit("onInternalError", e);
+        }
       });
     }
     useEventListener(
@@ -107,7 +105,6 @@ export default defineComponent({
         }
       }
     );
-
     return {
       onKakaoLogin,
       googleLogin,
@@ -132,6 +129,34 @@ export default defineComponent({
       { width: "150px", height: "150px" },
       this.logoStyle
     );
+    const txtBtns = [
+      <NButton
+        onClick={onEmailSubmit}
+        ghost={true}
+        style={textLoginBtnStyle}
+        size="large"
+        data-test="email-submit"
+      >
+        {{
+          default: () => "로그인",
+        }}
+      </NButton>,
+    ];
+    if (this.useSignup) {
+      txtBtns.push(
+        <NButton
+          onClick={() => this.$emit("toSignUp")}
+          ghost={true}
+          style={textLoginBtnStyle}
+          size="large"
+          data-test="to-signUp"
+        >
+          {{
+            default: () => "회원가입",
+          }}
+        </NButton>
+      );
+    }
     return (
       <NSpace
         vertical
@@ -174,25 +199,11 @@ export default defineComponent({
                       data-test="input-pw"
                     ></NInput>
                   </NFormItem>,
-                  <NButton
-                    class="text-login-btn"
-                    onClick={onEmailSubmit}
-                    ghost={true}
-                    style={{
-                      height: "4vw",
-                      "max-height": "3vw",
-                      width: "10vw",
-                      "min-height": "40px",
-                      "min-width": "100px",
-                      "margin-bottom": "3%",
-                    }}
-                    size="large"
-                    data-test="email-submit"
-                  >
+                  <NSpace justify="center">
                     {{
-                      default: () => "로그인",
+                      default: () => txtBtns,
                     }}
-                  </NButton>,
+                  </NSpace>,
                 ],
               }}
             </NForm>,
@@ -301,33 +312,12 @@ export default defineComponent({
                 ],
               }}
             </NSpace>,
-
-            // <NImage
-            //   onClick={async () => this.$emit("onLogin", await googleLogin())}
-            //   previewDisabled
-            //   objectFit="contain"
-            //   class="login-btn google-login-btn"
-            //   src={googleImgPath}
-            // ></NImage>,
-            // <NImage
-            //   onClick={async () =>
-            //     this.$emit("onLogin", await onKakaoLogin("login"))
-            //   }
-            //   previewDisabled
-            //   class="login-btn kakao-login-btn"
-            //   src={kakaoImgPath}
-            // ></NImage>,
           ],
         }}
       </NSpace>
     );
   },
 });
-
-interface ModelType {
-  email: string | null;
-  password: string | null;
-}
 
 const kakaoBtnStyle = {
   "background-color": "rgba(255, 255, 47, 0.7)",
@@ -336,4 +326,13 @@ const kakaoBtnStyle = {
 };
 const loginBtnStyle = {
   padding: "2rem",
+};
+
+const textLoginBtnStyle = {
+  height: "4vw",
+  "max-height": "3vw",
+  "min-height": "40px",
+  width: "10vw",
+  "min-width": "100px",
+  "margin-bottom": "3%",
 };

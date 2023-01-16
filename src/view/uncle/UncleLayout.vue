@@ -6,7 +6,7 @@ import { Box24Filled } from "@vicons/fluent";
 import { renderIcon, renderRoute, ScreenSize, isMobile } from "@/util";
 import type { MenuOption } from "naive-ui";
 import { useAuthStore, useCommonStore, useUncleOrderStore } from "@/store";
-import { onBeforeMount, h, defineAsyncComponent } from "vue";
+import { onBeforeMount, h, defineAsyncComponent, computed } from "vue";
 import { People16Regular, News16Regular } from "@vicons/fluent";
 import { useRouter } from "vue-router";
 import { logoutMenuOpt } from "@/component/button/logout-menu-opt";
@@ -132,16 +132,13 @@ const mobileOpts = [
   ...menuOptions,
   logoutMenuOpt(),
 ];
-
+const isSmall = computed(
+  () => common.screenWidth === "S" || common.screenWidth === "M" || isMobile()
+);
 onBeforeMount(() => useUncleOrderStore().init(user.userInfo.userId));
 </script>
 <template>
-  <n-layout
-    v-if="
-      common.screenWidth === 'S' || common.screenWidth === 'M' || isMobile()
-    "
-    :style="`height: ${minHeight}`"
-  >
+  <n-layout v-if="isSmall" :style="`height: ${minHeight}`">
     <n-layout-header style="overflow: auto; width: 100%">
       <n-menu
         style="width: max-content"
@@ -170,12 +167,13 @@ onBeforeMount(() => useUncleOrderStore().init(user.userInfo.userId));
       <n-space
         vertical
         justify="space-between"
-        style="padding: 2%; width: 100%; overflow: auto"
+        align="center"
+        style="padding: 2%; width: 100%; height: fit-content; max-width: 95vw"
       >
         <router-view />
         <io-footer />
       </n-space>
     </n-layout>
-    <team-uncle-sider v-if="(common.screenWidth as ScreenSize ) !== 'S'" />
+    <team-uncle-sider v-if="!isSmall" />
   </n-layout>
 </template>

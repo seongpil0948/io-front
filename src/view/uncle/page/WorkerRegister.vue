@@ -47,11 +47,9 @@ function onKakaoAuth() {
   const kakao = inst?.appContext.config.globalProperties.$kakao;
   kakao.Auth.loginForm({
     success: (obj: any) => {
-      console.log("loginForm: ", obj);
       kakao.API.request({
         url: "/v2/user/me",
         success: async function (res: any) {
-          console.log("Kakao User Res: ", res);
           const uid = res.id.toString();
           const user = await USER_DB.getUserById(ioFireStore, uid);
           if (user) return msg.error("이미 존재하는 유저입니다.");
@@ -73,7 +71,7 @@ const { googleLogin } = useLogin(
   "/auth/customToken"
 );
 async function onGoogleAuth() {
-  const u = (await googleLogin(false)) as any;
+  const u = (await googleLogin(ioFireStore, false)) as any;
   console.log("Google Login  Res: ", u);
 
   const uid = u.uid;

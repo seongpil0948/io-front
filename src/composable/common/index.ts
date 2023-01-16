@@ -5,3 +5,4 @@ export * from "./paginate";
 export * from "./search";
 export * from "./error-handle";
 export * from "./third-party";
+export * from "./form";

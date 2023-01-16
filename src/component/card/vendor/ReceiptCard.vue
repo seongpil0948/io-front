@@ -35,7 +35,6 @@ async function onToggle() {
   // readonly로 바뀔때 상태 저장
   if (editor.value) {
     if (!editor.value.readOnly.isEnabled) {
-      console.log("save!");
       const orderMemo = await saveEditor();
       if (orderMemo) {
         u.orderMemo = orderMemo;

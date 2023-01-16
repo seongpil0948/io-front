@@ -1,62 +1,64 @@
 <script setup lang="ts">
-import { IoAccount } from "@/composable";
+import { catchError, IoAccount } from "@/composable";
 import { emailRule, nameLenRule } from "@/util";
 import { ioFire } from "@/plugin/firebase";
 import { getAuth } from "@firebase/auth";
-import {
-  USER_PROVIDER,
-  USER_ROLE,
-  IoUserInfo,
-  getFcmToken,
-  FcmToken,
-  Locate,
-} from "@io-boxies/js-lib";
+import { IoUserInfo, getFcmToken, FcmToken } from "@io-boxies/js-lib";
 import { FormInst, useMessage } from "naive-ui";
-import { ref } from "vue";
+import { ref, toRefs, watchEffect } from "vue";
 
 const auth = getAuth(ioFire.app);
 const props = defineProps<{
-  userName: string;
-  profileImg: string;
-  email: string;
-  userId: string;
-  providerId: USER_PROVIDER;
-  role: USER_ROLE;
+  uInfo: IoUserInfo;
 }>();
+const { uInfo } = toRefs(props);
+// const emits = defineEmits<{
+//   (e: "update:uInfo", value: IoUserInfo): void;
+// }>();
 defineExpose({ getUserInfo });
 const formRef = ref<FormInst | null>(null);
-const formModel = ref({
-  userName: props.userName ?? "",
-  displayName: "",
-  email: props.email ?? "",
-  locations: [] as Locate[],
+const formModel = ref<IoUserInfo>(Object.assign({}, uInfo.value));
+watchEffect(() => {
+  formModel.value = Object.assign({}, uInfo.value, formModel.value);
 });
 const accInfo = ref<IoAccount | null>(null);
 const msg = useMessage();
+
 function onSubmitAccount(acc: IoAccount) {
   accInfo.value = acc;
   msg.info("계좌정보 저장 완료!");
 }
+
 async function getUserInfo(): Promise<{
   userInfo?: IoUserInfo;
 }> {
-  if (!accInfo.value) return { userInfo: undefined };
-  const token = await getFcmToken();
-
-  const obj: IoUserInfo = Object.assign(
-    { account: accInfo.value! },
-    {
-      userId: props.userId,
-      providerId: props.providerId,
-      emailVerified: false,
-      profileImg: props.profileImg,
-      passed: false,
-      fcmTokens: auth.currentUser && token ? [token!] : ([] as FcmToken[]),
-      role: props.role,
-    },
-    formModel.value
-  );
-  return { userInfo: obj };
+  const defaultVal = { userInfo: undefined };
+  return new Promise<{
+    userInfo?: IoUserInfo;
+  }>((resolve, reject) => {
+    if (!formRef.value) return reject("재시도해주세요.");
+    formRef.value.validate((errors) => {
+      if (errors) {
+        return reject("잘못된 양식의 작성입니다.");
+      } else if (!accInfo.value) {
+        return reject("계좌정보 미입력");
+      }
+      getFcmToken().then((token) => {
+        uInfo.value.account = accInfo.value!;
+        uInfo.value.fcmTokens =
+          auth.currentUser && token ? [token!] : ([] as FcmToken[]);
+        console.info("return uInfo.value", uInfo.value);
+        resolve({ userInfo: formModel.value });
+      });
+    });
+  }).catch((err) => {
+    catchError({
+      err,
+      msg,
+    });
+    console.info("return default", defaultVal);
+    return defaultVal;
+  });
 }
 
 const rule = {

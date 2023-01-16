@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
 import clone from "lodash.clonedeep";
-
+import {
+  defaultCompanyInfo,
+  defaultShopOper,
+  defaultVendorOper,
+} from "@/composable";
 import { useAuthStore } from "@/store";
 import { deadOpt, shipMethodOpt } from "@/util";
 import {
@@ -17,8 +21,24 @@ import { ioFireStore } from "@/plugin/firebase";
 const authStore = useAuthStore();
 const msg = useMessage();
 const authModel = ref<IoUser | null>(null);
-onBeforeMount(() => {
+onBeforeMount(async () => {
   authModel.value = clone(authStore.currUser);
+  const a = authModel.value;
+  if (a) {
+    let update = false;
+    if (!a.companyInfo) {
+      authModel.value.companyInfo = defaultCompanyInfo();
+      update = true;
+    }
+    if (a.userInfo.role === "SHOP" && !a.operInfo) {
+      authModel.value.operInfo = defaultShopOper();
+      update = true;
+    } else if (a.userInfo.role === "VENDOR" && !a.operInfo) {
+      authModel.value.operInfo = defaultVendorOper();
+      update = true;
+    }
+    if (update) await updateUser(false);
+  }
 });
 // watch(
 //   () => authModel.value,
@@ -30,11 +50,11 @@ onBeforeMount(() => {
 //   },
 //   { immediate: false, deep: true }
 // );
-async function updateUser() {
+async function updateUser(useMsg = true) {
   if (authModel.value) {
     await USER_DB.updateUser(ioFireStore, authModel.value);
     authStore.setUser(authModel.value);
-    msg.info("변경 완료.");
+    if (useMsg) msg.info("변경 완료.");
   }
 }
 </script>
@@ -47,22 +67,22 @@ async function updateUser() {
     accordion
   >
     <n-collapse-item title="사업자정보" name="1">
-      <n-space vertical style="width: 100%">
+      <n-space v-if="authModel.companyInfo" vertical style="width: 100%">
         <div class="io-row">
           <n-text strong> 업체명 </n-text>
-          <n-text>{{ authModel.companyInfo!.companyName }}</n-text>
+          <n-text>{{ authModel.companyInfo.companyName }}</n-text>
         </div>
         <div class="io-row">
           <n-text strong> 사업자 등록번호 </n-text>
-          <n-text>{{ authModel.companyInfo!.companyNo }}</n-text>
+          <n-text>{{ authModel.companyInfo.companyNo }}</n-text>
         </div>
         <div class="io-row">
           <n-text strong> 대표자명 </n-text>
-          <n-text>{{ authModel.companyInfo!.ceoName }}</n-text>
+          <n-text>{{ authModel.companyInfo.ceoName }}</n-text>
         </div>
         <div class="io-row">
           <n-text strong> 대표 연락처 </n-text>
-          <n-text>{{ authModel.companyInfo!.ceoPhone }}</n-text>
+          <n-text>{{ authModel.companyInfo.ceoPhone }}</n-text>
         </div>
         <n-space justify="space-between">
           <n-text strong> 주소지 </n-text>
@@ -108,7 +128,7 @@ async function updateUser() {
     </n-collapse-item>
     <n-collapse-item title="운영정보" name="3">
       <n-space
-        v-if="authModel.userInfo.role === 'SHOP'"
+        v-if="authModel.userInfo.role === 'SHOP' && authModel.operInfo"
         vertical
         style="width: 100%"
       >
@@ -122,7 +142,7 @@ async function updateUser() {
         </div>
       </n-space>
       <n-space
-        v-if="authModel.userInfo.role === 'VENDOR'"
+        v-if="authModel.userInfo.role === 'VENDOR' && authModel.operInfo"
         vertical
         style="width: 100%"
       >

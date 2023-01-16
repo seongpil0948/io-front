@@ -1,28 +1,24 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { FormInst } from "naive-ui";
+import { ref, watch, toRefs } from "vue";
+import { FormInst, useMessage } from "naive-ui";
 import { Certificate } from "@vicons/carbon";
 import { arrLenRule, emailRule, nameLenRule, isMobile } from "@/util";
 import { CompanyInfo } from "@io-boxies/js-lib";
+import { catchError, defaultCompanyInfo } from "@/composable";
 
 const props = defineProps<{
   userId: string;
+  companyInfo?: CompanyInfo;
 }>();
-
+const { companyInfo, userId } = toRefs(props);
 const formRef = ref<FormInst | null>(null);
-const formModel = ref<{ [k in keyof CompanyInfo]: CompanyInfo[k] }>({
-  companyName: "",
-  companyNo: "",
-  companyCertificate: [],
-  locations: [],
-  emailTax: "inoutbox@gmail.com",
-  companyPhone: "",
-  shopLink: "",
-  ceoName: "",
-  ceoPhone: "",
-  managerName: "",
-  managerPhone: "",
-});
+const formModel = ref<{ [k in keyof CompanyInfo]: CompanyInfo[k] }>(
+  defaultCompanyInfo()
+);
+watch(
+  () => companyInfo?.value,
+  (val) => Object.assign(formModel.value, val)
+);
 const rule = {
   companyName: nameLenRule,
   companyNo: nameLenRule,
@@ -36,8 +32,27 @@ const rule = {
   managerName: nameLenRule,
   managerPhone: nameLenRule,
 };
-
-defineExpose({ companyInfo: formModel });
+const msg = useMessage();
+type GetCompanyInfo = { companyInfo?: CompanyInfo };
+async function getCompanyInfo(): Promise<GetCompanyInfo> {
+  const defaultVal = { companyInfo: undefined };
+  return new Promise<GetCompanyInfo>((resolve, reject) => {
+    if (!formRef.value) return reject("재시도해주세요.");
+    formRef.value.validate((errors) => {
+      if (errors) {
+        return reject("잘못된 양식의 작성입니다.");
+      }
+      resolve({ companyInfo: formModel.value });
+    });
+  }).catch((err) => {
+    catchError({
+      err,
+      msg,
+    });
+    return defaultVal;
+  });
+}
+defineExpose({ getCompanyInfo: getCompanyInfo });
 </script>
 <template>
   <n-form
@@ -77,7 +92,7 @@ defineExpose({ companyInfo: formModel });
           v-model:urls="formModel.companyCertificate"
           svc="USER"
           element-id="companyCertificate"
-          :user-id="props.userId"
+          :user-id="userId"
           size="100"
           :max="3"
         >

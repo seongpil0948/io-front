@@ -15,10 +15,8 @@ export const useCommonStore = defineStore("common", () => {
   const bodySize = ref({ w: 0, h: 0 });
   let resizeTimeout: NodeJS.Timeout | null = null;
   function resizeHandler() {
-    console.log("in entry resizeHandler");
     if (resizeTimeout) clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
-      console.log("in core resizeHandler");
       bodySize.value.h = window.innerHeight;
       bodySize.value.w = window.innerWidth;
     }, 500);

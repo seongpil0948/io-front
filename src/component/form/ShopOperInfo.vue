@@ -1,17 +1,47 @@
 <script setup lang="ts">
-import { SHIP_METHOD, ShopOperInfo } from "@io-boxies/js-lib";
+import { ShopOperInfo } from "@io-boxies/js-lib";
 import { notNullRule, saleAvgOpt, shipMethodOpt } from "@/util";
-import { FormInst } from "naive-ui";
-import { ref } from "vue";
+import { FormInst, useMessage } from "naive-ui";
+import { ref, toRefs, watch } from "vue";
+import { catchError, defaultShopOper } from "@/composable";
+
+const props = defineProps<{
+  shopOperInfo?: ShopOperInfo;
+}>();
+const { shopOperInfo } = toRefs(props);
 const formRef = ref<FormInst | null>(null);
-const formModel = ref<{ [k in keyof ShopOperInfo]: ShopOperInfo[k] }>({
-  saleAverage: saleAvgOpt.value[0].value,
-  purchaseMethod: SHIP_METHOD.UNCLE,
-});
+const formModel = ref<{ [k in keyof ShopOperInfo]: ShopOperInfo[k] }>(
+  defaultShopOper()
+);
+watch(
+  () => shopOperInfo?.value,
+  (val) => Object.assign(formModel.value, val)
+);
 const rule = {
   saleAverage: notNullRule,
 };
-defineExpose({ operInfo: formModel });
+const msg = useMessage();
+
+type GetShopOperInfo = { shopOperInfo?: ShopOperInfo };
+async function getShopOperInfo(): Promise<GetShopOperInfo> {
+  const defaultVal = { shopOperInfo: undefined };
+  return new Promise<GetShopOperInfo>((resolve, reject) => {
+    if (!formRef.value) return reject("재시도해주세요.");
+    formRef.value.validate((errors) => {
+      if (errors) {
+        return reject("잘못된 양식의 작성입니다.");
+      }
+      resolve({ shopOperInfo: formModel.value });
+    });
+  }).catch((err) => {
+    catchError({
+      err,
+      msg,
+    });
+    return defaultVal;
+  });
+}
+defineExpose({ getShopOperInfo });
 </script>
 
 <template>

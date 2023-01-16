@@ -55,6 +55,5 @@ const partnerPath = "partner";
 export const getPartnerDoc = (d: { shopId: string; vendorId: string }) =>
   doc(getPartnerCollection(), getDocId(d)).withConverter(partnerConverter);
 
-console.log("ioFireStore: ", ioFireStore);
 const getPartnerCollection = () =>
   collection(ioFireStore, partnerPath).withConverter(partnerConverter);
