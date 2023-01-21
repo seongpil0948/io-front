@@ -9,14 +9,20 @@
       홈으로
     </n-button>
   </n-space>
-  <n-card>
-    <n-space vertical item-style="width: 100%; height: 100%;">
-      <n-h2 prefix="bar" style="text-align: start">
-        {{ detailPost?.title }}
-      </n-h2>
-      <div id="io-editor" style="min-height: 70vh" />
-    </n-space>
-  </n-card>
+  <n-space vertical item-style="width: 100%; height: 100%;">
+    <n-h2
+      prefix="bar"
+      style="
+        text-align: start;
+        margin-left: 3%;
+        margin-bottom: 0.5%;
+        margin-top: 3%;
+      "
+    >
+      {{ detailPost?.title }}
+    </n-h2>
+    <div id="io-editor" style="min-height: 70vh" />
+  </n-space>
 </template>
 
 <script setup lang="ts">

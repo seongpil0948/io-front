@@ -38,7 +38,7 @@ function callCsChat() {
       justify="space-around"
       item-style="width: 100%"
     >
-      <n-space align="center" justify="center">
+      <n-space align="center" justify="center" style="padding-bottom: 2.5%">
         <logo-image
           style="margin-top: 30%"
           size="2.0rem"
@@ -52,7 +52,7 @@ function callCsChat() {
           v-for="ctgr in faqCtgrList"
           :key="ctgr.value"
           quaternary
-          style="width: 3rem; height: 3rem; padding-top: 5%"
+          style="padding: 0"
           @click="() => goFaqCtgr(ctgr.value, 'FAQ')"
         >
           <n-space vertical align="center" justify="space-around">
@@ -61,12 +61,11 @@ function callCsChat() {
           </n-space>
         </n-button>
       </n-space>
-      <n-button style="width: 16rem; margin-top: 5%" @click="callCsChat">
+      <n-button style="width: 16rem; margin-top: 2.5%" @click="callCsChat">
         1대1 문의
       </n-button>
+      <cs-post-table :title="postTypeToKo('NOTICE')" :posts="noticePosts" />
+      <cs-post-table :title="postTypeToKo('EVENT')" :posts="eventPosts" />
     </n-space>
   </n-card>
-
-  <cs-post-table :title="postTypeToKo('NOTICE')" :posts="noticePosts" />
-  <cs-post-table :title="postTypeToKo('EVENT')" :posts="eventPosts" />
 </template>
