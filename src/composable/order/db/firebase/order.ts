@@ -760,6 +760,18 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       },
     });
   },
+  orderDone: async function (
+    orderDbIds: string[],
+    orderItemIds: string[],
+    okVirtual: boolean
+  ): Promise<void> {
+    await stateModify({
+      orderDbIds,
+      orderItemIds,
+      afterState: "ORDER_DONE",
+      okVirtual,
+    });
+  },
 };
 
 export function getSrc() {
@@ -784,6 +796,7 @@ async function stateModify(d: {
   afterState: ORDER_STATE;
   beforeState?: ORDER_STATE[];
   onItem?: (o: OrderItem) => Promise<OrderItem>;
+  okVirtual?: boolean;
 }) {
   const orders = await OrderGarmentFB.batchRead(d.orderDbIds);
 
@@ -806,7 +819,11 @@ async function stateModify(d: {
         const item = d.onItem
           ? await d.onItem(o.items[j] as OrderItem)
           : o.items[j];
-        if (item.vendorProd.visible && item.vendorProd.visible !== "GLOBAL") {
+        if (
+          item.vendorProd.visible &&
+          item.vendorProd.visible !== "GLOBAL" &&
+          !d.okVirtual
+        ) {
           throw new Error("가상 상품은 주문 할 수 없습니다.");
         }
         setState(o, item.id, d.afterState);

@@ -1,4 +1,4 @@
-import { IoOrder, vendorUserProdFromOrders } from "@/composable";
+import { catchError, IoOrder, vendorUserProdFromOrders } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
@@ -119,7 +119,7 @@ export function useOrderBasic(
     return ORDER_GARMENT_DB.batchDelete(orders.value)
       .then(() => msg.success("삭제 성공.", makeMsgOpt()))
       .catch((err) =>
-        msg.success(
+        msg.error(
           `삭제 실패. ${
             err instanceof Error ? err.message : JSON.stringify(err)
           }`,
@@ -138,6 +138,24 @@ export function useOrderBasic(
     showReqOrderModal.value = true;
   }
 
+  async function orderDoneInner() {
+    if (checkedKeys.value.length < 1) {
+      return msg.error("한개 이상의 주문을 선택 해주세요.");
+    }
+    const ids = ioOrders.value
+      .filter((x) => checkedKeys.value.includes(x[keyField]!))
+      .map((x) => x.id);
+    ORDER_GARMENT_DB.orderDone(
+      orders.value
+        .filter((y) => y.items.some((item) => ids.includes(item.id)))
+        .map((x) => x.dbId),
+      ids,
+      true
+    )
+      .then(() => msg.success(`${ids.length} 개 성공`))
+      .catch((err) => catchError({ err, msg }));
+  }
+
   return {
     orderAll,
     orderChecked,
@@ -150,6 +168,7 @@ export function useOrderBasic(
     onReqOrderConfirm,
     deleteChecked,
     downOrderItems,
+    orderDoneInner,
   };
 }
 

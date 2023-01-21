@@ -314,6 +314,11 @@ export interface OrderDB<T> {
   ): Promise<void>;
   cancelApprove(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
   cancelReject(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
+  orderDone(
+    orderDbIds: string[],
+    orderItemIds: string[],
+    okVirtual: boolean
+  ): Promise<void>;
 }
 
 export interface ShipDB<T> {

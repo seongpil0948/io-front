@@ -43,6 +43,7 @@ const {
   onReqOrderConfirm,
   deleteChecked,
   downOrderItems,
+  orderDoneInner,
 } = useOrderBasic(user, filteredOrders, orders, checkedDetailKeys);
 
 const sheetIdx = ref(0);
@@ -138,7 +139,7 @@ function downSampleXlsx() {
       </n-space>
     </template>
     <n-space v-if="filteredOrders.length > 0" vertical>
-      <n-space justify="start">
+      <n-space justify="end">
         <n-button size="small" type="primary" @click="orderChecked">
           선택주문
         </n-button>
@@ -151,6 +152,15 @@ function downSampleXlsx() {
         <n-button size="small" type="primary" @click="orderDelAll">
           전체삭제
         </n-button>
+        <n-tooltip trigger="hover">
+          <template #trigger>
+            <n-button size="small" type="primary" @click="orderDoneInner">
+              선택 주문완료처리
+            </n-button>
+          </template>
+          쇼핑몰 내부적으로 주문을 완료 처리 합니다. <br />
+          저장된 주문번호는 재수집 되지 않으므로 주의해서 사용 해주세용.
+        </n-tooltip>
 
         <n-button size="small" type="primary" @click="downOrder">
           주문정보 다운
