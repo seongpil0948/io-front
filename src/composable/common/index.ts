@@ -6,3 +6,4 @@ export * from "./search";
 export * from "./error-handle";
 export * from "./third-party";
 export * from "./form";
+export * from "./file";

@@ -41,7 +41,9 @@ const {
 } = toRefs(props);
 const isMapCell = mapType?.value === "cell";
 if (isMapCell && (!rowIdField.value || !targetVal.value)) {
-  throw Error("Mapping Cell required rowIdField");
+  throw Error(
+    `Mapping Cell required rowIdField(${rowIdField.value}) & targetValue(${targetVal.value})`
+  );
 }
 
 const msg = useMessage();

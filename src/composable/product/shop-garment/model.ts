@@ -9,10 +9,12 @@ import { OutputData } from "@editorjs/editorjs/types/data-formats";
 import { DocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { ioFireStore } from "@/plugin/firebase";
-
+import { v5 } from "uuid";
+import { v5Namespace } from "@/util";
 export function sameGarment(p: ShopGarmentCrt, g: MatchGarment) {
   return p.prodName === g.prodName && p.color === g.color && p.size === g.size;
 }
+const separator = "____";
 export class ShopGarment extends CommonField implements ShopGarmentCrt {
   size: PRODUCT_SIZE;
   color: string;
@@ -38,6 +40,23 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
       true,
       ShopGarment.fireConverter()
     );
+  }
+  get uid() {
+    return ShopGarment.uid({
+      vendorProdId: this.vendorProdId,
+    });
+  }
+  static uid(p: { vendorProdId: string }) {
+    return v5(p.vendorProdId, v5Namespace());
+  }
+  // 타유저와 겹칠 수 있음
+  static innerId(p: ProdInnerIdSrc) {
+    return p.prodName + separator + p.color + separator + p.size;
+  }
+  static untieInnerId(id: string): ProdInnerIdSrc {
+    const [prodName, color, size] = id.split(separator);
+    if (!prodName || !color || !size) throw new Error("wrong untieInnerId");
+    return { prodName, color, size };
   }
 
   constructor(d: ShopGarmentCrt) {
@@ -101,4 +120,10 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
       },
     };
   }
+}
+
+export interface ProdInnerIdSrc {
+  prodName: string;
+  size: string;
+  color: string;
 }

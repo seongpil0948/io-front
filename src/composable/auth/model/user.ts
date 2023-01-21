@@ -1,7 +1,14 @@
 import { useAuthStore } from "@/store";
-import { IoUser, SHIP_METHOD, USER_DB, USER_PROVIDER } from "@io-boxies/js-lib";
+import {
+  IoUser,
+  SHIP_METHOD,
+  USER_DB,
+  USER_PROVIDER,
+  USER_ROLE,
+} from "@io-boxies/js-lib";
 import { ioFireStore } from "@/plugin/firebase";
 import { newProdQuantityOpt, saleAvgOpt } from "@/util";
+import { uuidv4 } from "@firebase/util";
 
 export async function userUpdate(user: IoUser, login = true) {
   const authS = useAuthStore();
@@ -61,4 +68,34 @@ export function mapUserProvider(str: string): USER_PROVIDER {
   else if (str === "password") return "EMAIL";
   else if (str === "google.com") return "GOOGLE";
   else throw new Error(`mapUserProvider error: ${str}`);
+}
+
+export function getDefaultUser(role: USER_ROLE, name: string): IoUser {
+  return {
+    userInfo: {
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: uuidv4(),
+      providerId: "EMAIL",
+      emailVerified: false,
+      role,
+      displayName: name,
+      userName: name,
+      fcmTokens: [],
+      passed: false,
+    },
+    companyInfo: {
+      locations: [],
+      companyName: "",
+      companyNo: "",
+      companyCertificate: [],
+      emailTax: "",
+      companyPhone: "",
+      shopLink: "",
+      ceoName: "",
+      ceoPhone: "",
+      managerName: "",
+      managerPhone: "",
+    },
+  };
 }

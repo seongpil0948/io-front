@@ -13,7 +13,7 @@ gcloud projects list
 gcloud config set project $SELECTED_PROJ
 
 BUCKET_BASE_PATH=gs://$SELECTED_PROJ.appspot.com
-FILE_NAME=date +"%Y-%m-%d:%T"
+FILE_NAME=$(date "+%Y-%m-%d:%T")
 # gs://io-box-develop.appspot.com/backups/date+%Y-%m-%d:%T
 BUCKET_PATH=$BUCKET_BASE_PATH/backups/$FILE_NAME
 

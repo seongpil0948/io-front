@@ -1,12 +1,24 @@
 <script setup lang="ts">
-import { useShopVirtualProd } from "@/composable";
+import {
+  useShopVirtualProd,
+  useShopGarmentTable,
+  useSearch,
+  ShopGarment,
+  ProdInnerIdSrc,
+} from "@/composable";
 import { useAuthStore } from "@/store";
 import { isMobile } from "@/util";
 import { NModal, NButton, NCard, NDataTable, NInput, NSpace } from "naive-ui";
-import { ref, computed } from "vue";
-import { getUserName } from "@io-boxies/js-lib";
+import { ref, computed, defineAsyncComponent, watchEffect } from "vue";
+import { getUserName, IoUser, USER_DB } from "@io-boxies/js-lib";
+import { ioFireStore } from "@/plugin/firebase";
+import { logger } from "@/plugin/logger";
+const BatchCreateVirProd = defineAsyncComponent(
+  () => import("@/component/button/shop/BatchCreateVirProd.vue")
+);
 
 const auth = useAuthStore();
+const uid = auth.currUser.userInfo.userId;
 const {
   regitProdModal,
   changeRegitProdModal,
@@ -18,6 +30,8 @@ const {
   search,
   onCheckedOrder,
   tableRef,
+  userVirProds,
+  virtualVendorById,
 } = useShopVirtualProd(auth.currUser);
 const selectedVendorId = ref<string | null>(null);
 const vendorOpts = computed(() =>
@@ -26,6 +40,65 @@ const vendorOpts = computed(() =>
     value: v.userInfo.userId,
   }))
 );
+
+const { selectFunc, userProd, tableCols, openSelectList } = useShopGarmentTable(
+  true,
+  userVirProds
+);
+type PartialInner = Partial<ProdInnerIdSrc>;
+const batchRef = ref<InstanceType<typeof BatchCreateVirProd> | null>(null);
+function onClickId(value: {
+  vendorName?: string;
+  in: PartialInner;
+  ex: PartialInner;
+}) {
+  console.log("parseData in onClickId: ", value);
+  selectFunc.value = async (s) => {
+    const g = ShopGarment.fromJson(s);
+    if (!g) throw new Error("result of ShopGarment.fromJson is null ");
+    value.in.prodName = g.prodName;
+    value.in.size = g.size;
+    value.in.color = g.color;
+    value.vendorName = getUserName(s);
+    batchRef.value?.processJson();
+  };
+  openSelectList.value = true;
+}
+
+const vendorByName = ref<{ [vendorName: string]: IoUser }>({});
+watchEffect(async () => {
+  Object.keys(virtualVendorById.value).forEach((vk) => {
+    const uName = getUserName(virtualVendorById.value[vk]);
+    if (!vendorByName.value[uName]) {
+      vendorByName.value[uName] = virtualVendorById.value[vk];
+    }
+  });
+  for (let i = 0; i < userProd.value.length; i++) {
+    const sug = userProd.value[i];
+    const uName = getUserName(userProd.value[i]);
+    if (sug.visible === "GLOBAL" && !vendorByName.value[uName]) {
+      const u = await USER_DB.getUserById(ioFireStore, sug.vendorId);
+      if (u) {
+        vendorByName.value[uName] = u;
+      } else {
+        logger.error(uid, `vendor id${sug.vendorId} is not exist`);
+      }
+    }
+  }
+});
+const {
+  search: search2,
+  searchedData: searchedData2,
+  searchInputVal: searchInputVal2,
+} = useSearch({
+  data: userProd,
+  filterFunc: (x, searchVal) => {
+    const v: typeof searchVal = searchVal;
+    return v === null
+      ? true
+      : x.size.includes(v) || x.color.includes(v) || x.prodName.includes(v);
+  },
+});
 </script>
 <template>
   <n-modal
@@ -51,37 +124,57 @@ const vendorOpts = computed(() =>
       />
     </n-space>
   </n-modal>
-  <n-space vertical>
+  <n-space vertical justify="center" align="center" item-style="width: 100%">
     <n-card style="width: 100%">
-      <template #header> 가상 상품관리 </template>
-      <template #header-extra>
-        <n-space>
+      <n-space vertical justify="center" align="end">
+        <n-space justify="end">
           <n-input v-model:value="searchInputVal" placeholder="상품검색" />
           <n-button @click="search"> 검색 </n-button>
+          <batch-create-vir-prod
+            ref="batchRef"
+            :data="userProd"
+            :user-id="uid"
+            :vendor-by-name="vendorByName"
+            @select="onClickId"
+          />
           <n-button @click="changeRegitProdModal">가상 도매 상품등록</n-button>
-          <n-button
-            v-if="!isMobile()"
-            size="small"
-            round
-            type="primary"
-            @click="onCheckedOrder"
-          >
+          <n-button v-if="!isMobile()" @click="onCheckedOrder">
             선택 상품 주문
           </n-button>
         </n-space>
+        <n-data-table
+          ref="tableRef"
+          :scroll-x="1200"
+          :columns="virShopCols"
+          :data="searchedData"
+          :pagination="{
+            showSizePicker: true,
+            pageSizes: [5, 10, 25, 50, 100],
+          }"
+          :bordered="false"
+        />
+      </n-space>
+    </n-card>
+    <manage-vir-vendor :virtual-vendors="virtualVendors" />
+  </n-space>
+  <n-modal v-model:show="openSelectList" style="margin: 5%">
+    <n-card title="상품선택">
+      <template #header-extra>
+        <n-input v-model:value="searchInputVal2" placeholder="상품검색" />
+        <n-button @click="search2"> 검색 </n-button>
       </template>
       <n-data-table
         ref="tableRef"
-        :scroll-x="1200"
-        :columns="virShopCols"
-        :data="searchedData"
+        :columns="tableCols"
+        :data="searchedData2"
         :pagination="{
           showSizePicker: true,
           pageSizes: [5, 10, 25, 50, 100],
         }"
         :bordered="false"
+        :table-layout="'fixed'"
+        :scroll-x="1200"
       />
     </n-card>
-    <manage-vir-vendor :virtual-vendors="virtualVendors" />
-  </n-space>
+  </n-modal>
 </template>

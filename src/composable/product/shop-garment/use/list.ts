@@ -27,7 +27,10 @@ export function useShopGarmentTable(
   const { rowIdField, userProd } = useShopVendorUnits({
     shopId,
   });
-  const data = computed(() => [...userProd.value, ...userData.value]);
+  const data = computed(() => {
+    const arr = [...userProd.value, ...userData.value];
+    return [...new Map(arr.map((item) => [item.shopProdId, item])).values()];
+  });
   const selectFunc = ref<((s: ShopUserGarment) => Promise<void>) | null>(null);
   const logger = useLogger();
 

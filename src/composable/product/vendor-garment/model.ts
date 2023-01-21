@@ -7,6 +7,8 @@ import { insertById, getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import type { GENDER, PART, PRODUCT_SIZE, PROD_TYPE } from "../domain";
 import { VendorGarmentCrt, VendorProdSame, VendorProdSimilar } from "./domain";
 import { ioFireStore } from "@/plugin/firebase";
+import { v5 } from "uuid";
+import { v5Namespace } from "@/util";
 
 export class VendorGarment extends CommonField implements VendorGarmentCrt {
   gender: GENDER;
@@ -40,6 +42,26 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
       true,
       VendorGarment.fireConverter()
     );
+  }
+
+  get uid() {
+    return VendorGarment.uid({
+      vendorId: this.vendorId,
+      prodName: this.vendorProdName,
+      size: this.size,
+      color: this.color,
+    });
+  }
+  static uid(p: {
+    vendorId: string;
+    prodName: string;
+    size: string;
+    color: string;
+  }) {
+    return v5(p.vendorId + p.prodName + p.size + p.color, v5Namespace());
+  }
+  static pkgUid(p: { vendorId: string; prodName: string }) {
+    return v5(p.vendorId + p.prodName, v5Namespace());
   }
 
   constructor(d: Omit<VendorGarmentCrt, "similarId">) {

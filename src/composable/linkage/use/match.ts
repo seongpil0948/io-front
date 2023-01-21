@@ -7,6 +7,7 @@ import {
   getMatchCols,
   LINKAGE_DB,
   mapCafeOrder,
+  Mapper,
   matchCafeOrder,
   matchZigzagOrder,
   saveMatch,
@@ -46,10 +47,10 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
   const { existOrderIds } = storeToRefs(shopOrderStore);
   onBeforeUnmount(() => unsubscribe());
 
-  const { userVirProds } = useShopVirtualProd(auth.currUser);
+  const { userVirProds, virVendorProds } = useShopVirtualProd(auth.currUser);
   const { selectFunc, userProd, tableCols, openSelectList } =
     useShopGarmentTable(true, userVirProds);
-  const { virVendorProds } = useShopVirtualProd(auth.currUser);
+
   const vendorProds = shallowRef<VendorGarment[]>([]);
   watchEffect(async () => {
     const ids = userProd.value.map((x) => x.vendorProdId);
@@ -59,22 +60,6 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
     ];
   });
   const matchCols = getMatchCols(onClickId);
-
-  async function reverseMapping(m: MatchGarment, g: ShopGarment) {
-    if (!m.inputProdName || !m.inputSize || !m.inputColor) {
-      throw new Error(`
-  reverseMapping error, input null field with inputProdName(${m.inputProdName}) | inputSize(${m.inputSize}) | inputColor(${m.inputColor}) |`);
-    } else if (!mapper.value) return;
-    mapper.value?.setColVal(
-      "prodName",
-      g.shopProdId,
-      g.prodName,
-      m.inputProdName
-    );
-    mapper.value?.setColVal("size", g.shopProdId, g.size, m.inputSize);
-    mapper.value?.setColVal("color", g.shopProdId, g.color, m.inputColor);
-    return mapper.value.update();
-  }
 
   const { authorizeCafe, mallId } = useCafeAuth();
   function goAuthorizeCafe() {
@@ -156,8 +141,8 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
         }
 
         g.update().then(() => fillTable());
-      } else if (row.matchType === "map") {
-        reverseMapping(row, g).then(async () => {
+      } else if (row.matchType === "map" && mapper.value) {
+        reverseMapping(mapper.value, row, g).then(async () => {
           if (row.service === "CAFE" || row.service === "ZIGZAG") processAll();
           await d.afterReverseMap?.();
         });
@@ -298,4 +283,19 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
     filteredMatchData,
     filterIsNull,
   };
+}
+
+export async function reverseMapping(
+  mapper: Mapper,
+  m: { inputProdName?: string; inputSize?: string; inputColor?: string },
+  g: ShopGarment
+) {
+  if (!m.inputProdName || !m.inputSize || !m.inputColor) {
+    throw new Error(`
+  reverseMapping error, input null field with inputProdName(${m.inputProdName}) | inputSize(${m.inputSize}) | inputColor(${m.inputColor}) |`);
+  } else if (!mapper) return;
+  mapper.setColVal("prodName", g.shopProdId, g.prodName, m.inputProdName);
+  mapper.setColVal("size", g.shopProdId, g.size, m.inputSize);
+  mapper.setColVal("color", g.shopProdId, g.color, m.inputColor);
+  return mapper.update();
 }

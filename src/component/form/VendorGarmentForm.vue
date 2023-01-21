@@ -2,7 +2,7 @@
 import { computed, ref, watchEffect, toRefs } from "vue";
 import { type FormInst, useMessage, useDialog } from "naive-ui";
 import { AddCircleOutline } from "@vicons/ionicons5";
-import { uuidv4 } from "@firebase/util";
+
 import { useRouter } from "vue-router";
 import {
   catchError,
@@ -137,7 +137,12 @@ async function onRegister() {
       ? await getVirSimilarProds(similarParam)
       : await VENDOR_GARMENT_DB.getSimilarProds(similarParam);
     const vendorProdPkgId =
-      similarProds.length > 0 ? similarProds[0].vendorProdPkgId : uuidv4();
+      similarProds.length > 0
+        ? similarProds[0].vendorProdPkgId
+        : VendorGarment.pkgUid({
+            vendorId: props.vendorId,
+            prodName: similarProds[0].vendorProdName,
+          });
     for (let i = 0; i < prodModel.value.sizes.length; i++) {
       const size = prodModel.value.sizes[i];
       for (let j = 0; j < prodModel.value.colors.length; j++) {
@@ -168,7 +173,12 @@ async function onRegister() {
                 color,
                 info,
                 vendorId: props.vendorId,
-                vendorProdId: uuidv4(),
+                vendorProdId: VendorGarment.uid({
+                  vendorId: props.vendorId,
+                  prodName: v.name,
+                  size,
+                  color,
+                }),
                 stockCnt: stockCnts.value![size][color],
                 TBD: {},
                 vendorProdPkgId,

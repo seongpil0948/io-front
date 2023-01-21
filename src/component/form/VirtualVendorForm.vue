@@ -5,7 +5,7 @@ import {
   locateToStr,
   IoUser,
 } from "@io-boxies/js-lib";
-import { useLocateAppend } from "@/composable";
+import { getDefaultUser, useLocateAppend } from "@/composable";
 import { ref } from "vue";
 import {
   NText,
@@ -16,7 +16,6 @@ import {
   NFormItem,
   NInput,
 } from "naive-ui";
-import { uuidv4 } from "@firebase/util";
 import { fireConverter, notNullRule, strLenRule } from "@/util";
 import { useAuthStore } from "@/store";
 import { setDoc, doc } from "@firebase/firestore";
@@ -56,35 +55,12 @@ function handleValidateClick(e: MouseEvent) {
   formRef.value?.validate((errors) => {
     if (!errors) {
       const v = formValue.value;
-      const user: IoUser = {
-        userInfo: {
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          userId: uuidv4(),
-          providerId: "EMAIL", // FIXME
-          emailVerified: false,
-          role: "UNCLE_WORKER",
-          displayName: v.name,
-          userName: v.name,
-          phone: v.phone,
-          fcmTokens: [],
-          passed: false,
-        },
-        companyInfo: {
-          locations: [v.locate],
-          shipLocate: v.locate,
-          companyName: v.name,
-          companyNo: "",
-          companyCertificate: [],
-          emailTax: "",
-          companyPhone: "",
-          shopLink: "",
-          ceoName: "",
-          ceoPhone: "",
-          managerName: "",
-          managerPhone: "",
-        },
-      };
+      const user = getDefaultUser("VENDOR", v.name);
+      user.userInfo.phone = v.phone;
+      user.companyInfo!.locations.push(v.locate);
+      user.companyInfo!.shipLocate = v.locate;
+      user.companyInfo!.companyName = v.name;
+
       saveVirVendor(user).then(() => {
         msg.success("저장성공");
         emits("submitVirtualVendor", user);

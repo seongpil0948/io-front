@@ -1,0 +1,264 @@
+<script setup lang="ts">
+import {
+  ProdInnerIdSrc,
+  ShopGarment,
+  ShopUserGarment,
+  useFileReader,
+  useMapper,
+  reverseMapping,
+} from "@/composable";
+import { useExcel } from "@/plugin/xlsx";
+import { getUserName, IoUser } from "@io-boxies/js-lib";
+import { NButton } from "naive-ui";
+import { ref, computed, h, shallowRef, toRefs } from "vue";
+import { utils } from "xlsx";
+
+type PartialInner = Partial<ProdInnerIdSrc>;
+interface ParseData {
+  vendorId?: string;
+  vendorName?: string;
+  in: PartialInner;
+  ex: PartialInner;
+}
+const props = defineProps<{
+  data: ShopUserGarment[];
+  userId: string;
+  vendorByName: { [uName: string]: IoUser };
+}>();
+const { data, userId, vendorByName } = toRefs(props);
+const emits = defineEmits<{
+  (e: "select", value: ParseData): void;
+}>();
+
+const dictData = computed(() =>
+  data.value.reduce((acc, curr) => {
+    acc[ShopGarment.innerId(curr)] = curr;
+    return acc;
+  }, {} as { [k: string]: ShopUserGarment })
+);
+
+const { mapper } = useMapper(userId.value);
+const inputRef = ref<null | HTMLInputElement>(null);
+// const {msg} = useCommon()
+const { readExcel, dataSlice, msg } = useExcel();
+
+const jsonData = shallowRef<any[]>([]);
+const parseData = ref<ParseData[]>([]);
+function reset() {
+  console.info("reset in before read");
+  parseData.value = [];
+  jsonData.value = [];
+}
+function processJson() {
+  for (let i = 0; i < jsonData.value.length; i++) {
+    const json = jsonData.value[i];
+
+    for (let z = 0; z < json.length; z++) {
+      const j = json[z];
+      const data = {} as { [kk: string]: string };
+      const getFVal = (k: string) => {
+        const d = String(data[k] ?? "").replace(/\s/g, "");
+        return d.length < 1 ? undefined : d;
+      };
+      Object.keys(j).forEach((k) => (data[k.replace(/\s/g, "")] = j[k]));
+      const obj: ParseData = {
+        vendorName: getFVal("가상도매명"),
+        in: {
+          prodName: getFVal("가상상품명"),
+          color: getFVal("컬러") ?? "기본",
+          size: getFVal("사이즈"),
+        },
+        ex: {
+          prodName: getFVal("판매상품명"),
+          color: getFVal("판매컬러"),
+          size: getFVal("판매사이즈"),
+        },
+      };
+      if (obj.vendorName) {
+        const vendor = vendorByName.value[obj.vendorName];
+        if (vendor) {
+          obj.vendorId = vendor.userInfo.userId;
+          obj.vendorName = getUserName(vendor);
+        }
+      }
+      parseData.value.push(obj);
+    }
+  }
+}
+const { progress, handleFileChange } = useFileReader({
+  inputRef,
+  readMethod: "binary",
+  beforeRead: reset,
+  onLoad: (event) => {
+    const result = event.target?.result;
+    const workBook = readExcel(result);
+
+    for (let i = 0; i < Object.keys(workBook.Sheets).length; i++) {
+      const sheetName = Object.keys(workBook.Sheets)[i];
+      const sheet = workBook.Sheets[sheetName];
+      dataSlice(sheet, 0);
+      const json = utils.sheet_to_json(sheet, { defval: "" });
+      console.log(`<<< after sheet: `, sheet, "json: ", json, " <<<");
+      if (!Array.isArray(json)) {
+        console.warn(`sheet: ${sheetName} is not array: `, json);
+        msg.warning(`sheet: ${sheetName} 실패.`);
+        continue;
+      }
+      jsonData.value.push(json);
+      //   const worksheet = utils.json_to_sheet(json);
+      //   const workbook = utils.book_new();
+      //   utils.book_append_sheet(workbook, worksheet, "Dates");
+      //   writeFile(workbook, "zzzzz.xlsx");
+    }
+    processJson();
+
+    console.info("parseData: ", parseData);
+    progress.value.proceed += 1;
+    showParseModal.value = true;
+  },
+});
+
+async function processAll() {
+  if (!mapper.value) return msg.error("매핑정보를 불러 올 수 없습니다.");
+  let mappedCnt = 0;
+  for (let k = 0; k < parseData.value.length; k++) {
+    const d = parseData.value[k];
+    const status = getStatus(d);
+    if (!status.innerId) continue;
+    else if (status.shopProd && status.mappable) {
+      console.info("mapping ", status, d);
+      await reverseMapping(
+        mapper.value,
+        {
+          inputProdName: d.ex.prodName!,
+          inputColor: d.ex.color!,
+          inputSize: d.ex.size!,
+        },
+        status.shopProd
+      );
+      mappedCnt += 1;
+    }
+  }
+  msg.success(`${mappedCnt}건의 매핑작업 성공`);
+  showParseModal.value = false;
+}
+
+const showParseModal = ref(false);
+const onClick = () => inputRef.value?.click();
+function getStatus(row: ParseData) {
+  const innerId =
+    row.in.prodName && row.in.color && row.in.size
+      ? ShopGarment.innerId(row.in as ProdInnerIdSrc)
+      : null;
+  const shopProd =
+    innerId !== null
+      ? ShopGarment.fromJson(dictData.value[innerId]) ?? undefined
+      : undefined;
+
+  const mappable = shopProd && row.ex.prodName && row.ex.color && row.ex.size;
+  const selectable =
+    !shopProd && row.ex.prodName && row.ex.color && row.ex.size;
+  return { innerId, mappable, selectable, shopProd };
+}
+const statusText = {
+  fail: {
+    // in, ex 둘다 없는경우
+    type: "error",
+    txt: "실패",
+  },
+  select: {
+    // ex 전부 채워진경우 in 이없을경우
+    type: "info",
+    txt: "상품선택",
+  },
+  mappable: {
+    // ex 전부 채워진경우 상품이 존재 할때
+    type: "default",
+    txt: "매핑가능",
+  },
+};
+function getStatusInfo(s: ReturnType<typeof getStatus>) {
+  if (s.mappable) return statusText.mappable;
+  else if (s.selectable) return statusText.select;
+  else return statusText.fail;
+}
+defineExpose({ processJson });
+const cols = computed(() => [
+  {
+    title: "상태",
+    key: "status",
+    render(row: ParseData) {
+      const status = getStatus(row);
+      const info = getStatusInfo(status);
+      return h(
+        NButton,
+        {
+          strong: true,
+          type: info.type as "default" | "info" | "error",
+          text: true,
+          disabled: info.txt !== "상품선택",
+          size: "small",
+          onClick: () => {
+            if (info.txt === "상품선택" && status.selectable) {
+              emits("select", row); // fill in property
+            }
+          },
+        },
+        {
+          default: () => info.txt,
+        }
+      );
+    },
+  },
+  {
+    title: "도매처",
+    key: "vendorName",
+  },
+  ...["in", "ex"].map((x) => ({
+    title: x === "in" ? "가상 상품 정보" : "불러온 상품 정보",
+    key: x,
+    children: [
+      {
+        title: "상품명",
+        key: `${x}.prodName`,
+      },
+      {
+        title: "컬러",
+        key: `${x}.color`,
+      },
+      {
+        title: "사이즈",
+        key: `${x}.size`,
+      },
+    ],
+  })),
+]);
+</script>
+<template>
+  <input
+    id="customFile"
+    ref="inputRef"
+    style="display: none"
+    type="file"
+    @change.stop.prevent="handleFileChange"
+  />
+  <n-button @click="onClick"> 엑셀 일괄등록 </n-button>
+  <n-modal v-model:show="showParseModal" style="margin: 5%">
+    <n-card title="상품선택">
+      <n-data-table
+        :data="parseData"
+        :columns="cols"
+        :single-line="false"
+        :pagination="{
+          showSizePicker: true,
+          pageSizes: [5, 10, 25, 50, 100],
+        }"
+      />
+      <template #action>
+        <n-space justify="end">
+          <n-button @click="processAll"> 생성 및 매핑 </n-button>
+        </n-space>
+      </template>
+    </n-card>
+  </n-modal>
+</template>

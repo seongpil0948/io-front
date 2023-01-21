@@ -12,6 +12,7 @@ import {
   useShopGarmentTable,
   ORDER_GARMENT_DB,
   useVirtualVendor,
+  ShopUserGarment,
 } from "@/composable";
 import { getIoCollection, IoUser } from "@io-boxies/js-lib";
 import {
@@ -45,35 +46,6 @@ export function useShopVirtualProd(user: IoUser) {
 
   const existVirSameProd = async (d: VendorProdSame): Promise<boolean> =>
     existSameProduct(virVendorProdC, d);
-
-  const createVirVendorGarments = async (
-    userId: string,
-    args: VendorGarment[]
-  ) => {
-    await createGarments(virVendorProdC, userId, args);
-    for (let i = 0; i < args.length; i++) {
-      const virProd = args[i];
-      if (virProd.vendorId !== userId) {
-        throw new Error("virtual garment 생성 에러");
-      }
-      const shopProd = new ShopGarment({
-        vendorId: virProd.vendorId,
-        vendorProdId: virProd.vendorProdId,
-        shopProdId: uuidv4(),
-        shopId: uid,
-        prodPrice: virProd.vendorPrice,
-        prodName: virProd.vendorProdName,
-        info: virProd.info,
-        description: virProd.description,
-        size: virProd.size,
-        color: virProd.color,
-        TBD: {},
-        prodType: "GARMENT",
-        visible: "ME",
-      });
-      await shopProd.update();
-    }
-  };
 
   const virVendorProds = ref<VendorGarment[]>([]);
   const unsubscribeVirtual = onSnapshot(
@@ -122,13 +94,20 @@ export function useShopVirtualProd(user: IoUser) {
   function onRegistered() {
     regitProdModal.value = false;
   }
-  const userVirProds = computed(() =>
-    virShopProds.value.map((x) =>
-      Object.assign({}, x, user, {
-        vendor: virtualVendorById.value[x.vendorId] ?? {},
-      })
-    )
-  );
+  const userVirProds = computed(() => {
+    console.info("virtual shop prods: ", virShopProds.value);
+    return virShopProds.value.map((x) => {
+      console.info(
+        "virtualVendorById.value[x.vendorId]: ",
+        virtualVendorById.value[x.vendorId]
+      );
+      return Object.assign(
+        {},
+        x,
+        virtualVendorById.value[x.vendorId] ?? user
+      ) as ShopUserGarment;
+    });
+  });
 
   //   const vendorVirProds = computed(() => {
   //     const uProds: any[] = [];
@@ -161,7 +140,7 @@ export function useShopVirtualProd(user: IoUser) {
       t[0],
       {
         title: "도매처명",
-        key: "vendor.userInfo.displayName",
+        key: "userInfo.displayName",
       },
       ...t.slice(1),
     ];
@@ -232,5 +211,43 @@ export function useShopVirtualProd(user: IoUser) {
     userVirProds,
     tableRef,
     virtualVendors,
+    virtualVendorById,
   };
 }
+
+export const createVirVendorGarments = async (
+  userId: string,
+  args: VendorGarment[]
+) => {
+  const virVendorProdC = getIoCollection(ioFireStore, {
+    uid: userId,
+    c: "VIRTUAL_VENDOR_PROD",
+  }).withConverter(VendorGarment.fireConverter());
+  await createGarments(virVendorProdC, userId, args);
+
+  const prods: ShopGarment[] = [];
+  for (let i = 0; i < args.length; i++) {
+    const virProd = args[i];
+    if (virProd.vendorId !== userId)
+      throw new Error("가상 도매 유저ID 와 현재 유저가 같지 않습니다.");
+
+    const shopProd = new ShopGarment({
+      vendorId: virProd.vendorId,
+      vendorProdId: virProd.vendorProdId,
+      shopProdId: ShopGarment.uid({ vendorProdId: virProd.vendorProdId }),
+      shopId: userId,
+      prodPrice: virProd.vendorPrice,
+      prodName: virProd.vendorProdName,
+      info: virProd.info,
+      description: virProd.description,
+      size: virProd.size,
+      color: virProd.color,
+      TBD: {},
+      prodType: "GARMENT",
+      visible: "ME",
+    });
+    await shopProd.update();
+    prods.push(shopProd);
+  }
+  return prods;
+};
