@@ -25,8 +25,8 @@ export const useCommonStore = defineStore("common", () => {
   onBeforeUnmount(() => window.removeEventListener("resize", resizeHandler));
   const screenWidth = computed<ScreenSize>(() => {
     const w = bodySize.value.w;
-    if (w < 500) return "S";
-    if (w < 900) return "M";
+    if (w < 400) return "S";
+    if (w < 700) return "M";
     else return "L";
   });
 

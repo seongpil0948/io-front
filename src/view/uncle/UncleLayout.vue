@@ -132,9 +132,7 @@ const mobileOpts = [
   ...menuOptions,
   logoutMenuOpt(),
 ];
-const isSmall = computed(
-  () => common.screenWidth === "S" || common.screenWidth === "M" || isMobile()
-);
+const isSmall = computed(() => common.screenWidth === "S" || isMobile());
 onBeforeMount(() => useUncleOrderStore().init(user.userInfo.userId));
 </script>
 <template>

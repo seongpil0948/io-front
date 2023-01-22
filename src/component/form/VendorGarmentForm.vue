@@ -45,6 +45,7 @@ const dialog = useDialog();
 const formRef = ref<FormInst | null>(null);
 
 const auth = useAuthStore();
+const u = computed(() => auth.user);
 const { getVirSimilarProds, existVirSameProd, createVirVendorGarments } =
   useShopVirtualProd(auth.currUser);
 const router = useRouter();
@@ -67,7 +68,7 @@ const prodModel = ref({
   titleImgs: [] as string[],
   bodyImgs: [] as string[],
   colors: ["black"],
-  sizes: [] as PRODUCT_SIZE[],
+  sizes: ["FREE"] as PRODUCT_SIZE[],
   stockCnt: 10,
   fabric: "", // 혼용률 / 제조국
   info: "", // 상세정보
@@ -121,6 +122,7 @@ const rules = {
 };
 
 async function onRegister() {
+  if (!u.value) return;
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("상품 작성란을 작성 해주세요", makeMsgOpt());
     else if (!stockCnts.value) return;
@@ -136,12 +138,13 @@ async function onRegister() {
     const similarProds = virtual.value
       ? await getVirSimilarProds(similarParam)
       : await VENDOR_GARMENT_DB.getSimilarProds(similarParam);
+    console.info("similarProds: ", similarProds);
     const vendorProdPkgId =
       similarProds.length > 0
         ? similarProds[0].vendorProdPkgId
         : VendorGarment.pkgUid({
             vendorId: props.vendorId,
-            prodName: similarProds[0].vendorProdName,
+            prodName: v.name,
           });
     for (let i = 0; i < prodModel.value.sizes.length; i++) {
       const size = prodModel.value.sizes[i];
@@ -199,9 +202,14 @@ async function onRegister() {
         closeOnEsc: true,
         onPositiveClick: async () => {
           cs.$patch({ showSpin: true });
+          console.info(
+            `virtual?(${virtual.value}) register vendor(${props.vendorId}) \n 
+             products: `,
+            products
+          );
           return (
             virtual.value
-              ? createVirVendorGarments(props.vendorId, products)
+              ? createVirVendorGarments(u.value!.userInfo.userId, products)
               : VENDOR_GARMENT_DB.batchCreate(props.vendorId, products)
           )
             .then(() => {

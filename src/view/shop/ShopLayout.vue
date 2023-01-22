@@ -142,9 +142,7 @@ const mobileOpts = [
 
 <template>
   <n-layout
-    v-if="
-      common.screenWidth === 'S' || common.screenWidth === 'M' || isMobile()
-    "
+    v-if="common.screenWidth === 'S' || isMobile()"
     :style="`height: ${minHeight}`"
   >
     <n-layout-header style="overflow: auto; width: 100%">

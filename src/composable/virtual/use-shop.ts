@@ -97,10 +97,6 @@ export function useShopVirtualProd(user: IoUser) {
   const userVirProds = computed(() => {
     console.info("virtual shop prods: ", virShopProds.value);
     return virShopProds.value.map((x) => {
-      console.info(
-        "virtualVendorById.value[x.vendorId]: ",
-        virtualVendorById.value[x.vendorId]
-      );
       return Object.assign(
         {},
         x,
@@ -228,8 +224,6 @@ export const createVirVendorGarments = async (
   const prods: ShopGarment[] = [];
   for (let i = 0; i < args.length; i++) {
     const virProd = args[i];
-    if (virProd.vendorId !== userId)
-      throw new Error("가상 도매 유저ID 와 현재 유저가 같지 않습니다.");
 
     const shopProd = new ShopGarment({
       vendorId: virProd.vendorId,
