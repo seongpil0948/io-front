@@ -19,6 +19,7 @@ interface ParseData {
   vendorName?: string;
   in: PartialInner;
   ex: PartialInner;
+  info?: ReturnType<typeof getStatusInfo>;
 }
 const props = defineProps<{
   data: ShopUserGarment[];
@@ -50,6 +51,7 @@ function reset() {
   jsonData.value = [];
 }
 function processJson() {
+  parseData.value = [];
   for (let i = 0; i < jsonData.value.length; i++) {
     const json = jsonData.value[i];
 
@@ -81,6 +83,7 @@ function processJson() {
           obj.vendorName = getUserName(vendor);
         }
       }
+      obj.info = getStatusInfo(getStatus(obj));
       parseData.value.push(obj);
     }
   }
@@ -174,7 +177,7 @@ const statusText = {
   mappable: {
     // ex 전부 채워진경우 상품이 존재 할때
     type: "default",
-    txt: "매핑가능",
+    txt: "매핑완료",
   },
 };
 function getStatusInfo(s: ReturnType<typeof getStatus>) {
@@ -187,25 +190,42 @@ const cols = computed(() => [
   {
     title: "상태",
     key: "status",
+    filter(value: string, row: ParseData) {
+      return row.info?.txt === value;
+    },
+    filterOptions: [
+      {
+        label: "상품선택",
+        value: "상품선택",
+      },
+      {
+        label: "실패",
+        value: "실패",
+      },
+      {
+        label: "매핑완료",
+        value: "매핑완료",
+      },
+    ],
     render(row: ParseData) {
-      const status = getStatus(row);
-      const info = getStatusInfo(status);
       return h(
         NButton,
         {
           strong: true,
-          type: info.type as "default" | "info" | "error",
+          type: row.info
+            ? (row.info.type as "default" | "info" | "error")
+            : "default",
           text: true,
-          disabled: info.txt !== "상품선택",
+          disabled: row.info?.txt !== "상품선택",
           size: "small",
           onClick: () => {
-            if (info.txt === "상품선택" && status.selectable) {
+            if (row.info?.txt === "상품선택") {
               emits("select", row); // fill in property
             }
           },
         },
         {
-          default: () => info.txt,
+          default: () => row.info?.txt,
         }
       );
     },
