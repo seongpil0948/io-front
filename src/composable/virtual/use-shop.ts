@@ -97,10 +97,11 @@ export function useShopVirtualProd(user: IoUser) {
   const userVirProds = computed(() => {
     console.info("virtual shop prods: ", virShopProds.value);
     return virShopProds.value.map((x) => {
+      const u = virtualVendorById.value[x.vendorId] ?? user;
       return Object.assign(
-        {},
+        { userName: u.userInfo.userName },
         x,
-        virtualVendorById.value[x.vendorId] ?? user
+        u
       ) as ShopUserGarment;
     });
   });

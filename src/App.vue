@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { lightTheme, darkTheme } from "naive-ui";
-import { computed } from "vue";
+import { computed, onRenderTracked, onRenderTriggered } from "vue";
 import { lightThemeOver, darkThemeOver } from "./composable/config";
 import { useAuthStore } from "./store";
+
+onRenderTracked((event) => {
+  console.log("on App RenderTracked: ", event);
+});
+
+onRenderTriggered((event) => {
+  console.log("on App RenderTriggered: ", event);
+});
 
 const auth = useAuthStore();
 const isDark = computed(() => (auth.user ? auth.user.preferDark : false));

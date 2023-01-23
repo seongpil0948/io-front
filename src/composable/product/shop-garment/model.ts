@@ -51,7 +51,10 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   }
   // 타유저와 겹칠 수 있음
   static innerId(p: ProdInnerIdSrc) {
-    return p.prodName + separator + p.color + separator + p.size;
+    const clean = (s: string) => s.replace(/\s/g, "").toLowerCase();
+    return (
+      clean(p.prodName) + separator + clean(p.color) + separator + clean(p.size)
+    );
   }
   static untieInnerId(id: string): ProdInnerIdSrc {
     const [prodName, color, size] = id.split(separator);

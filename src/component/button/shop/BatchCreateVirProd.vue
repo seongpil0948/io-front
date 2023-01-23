@@ -10,7 +10,7 @@ import {
 import { useExcel } from "@/plugin/xlsx";
 import { getUserName, IoUser } from "@io-boxies/js-lib";
 import { NButton } from "naive-ui";
-import { ref, computed, h, shallowRef, toRefs } from "vue";
+import { ref, computed, h, shallowRef, toRefs, triggerRef } from "vue";
 import { utils } from "xlsx";
 
 type PartialInner = Partial<ProdInnerIdSrc>;
@@ -39,54 +39,59 @@ const dictData = computed(() =>
 );
 
 const { mapper } = useMapper(userId.value);
-const inputRef = ref<null | HTMLInputElement>(null);
+const inputRef = shallowRef<null | HTMLInputElement>(null);
 // const {msg} = useCommon()
 const { readExcel, dataSlice, msg } = useExcel();
 
-const jsonData = shallowRef<any[]>([]);
-const parseData = ref<ParseData[]>([]);
+const jsonData = ref<ParseData[]>([]);
+const parseData = shallowRef<ParseData[]>([]);
 function reset() {
-  console.info("reset in before read");
   parseData.value = [];
   jsonData.value = [];
 }
 function processJson() {
   parseData.value = [];
   for (let i = 0; i < jsonData.value.length; i++) {
-    const json = jsonData.value[i];
-
-    for (let z = 0; z < json.length; z++) {
-      const j = json[z];
-      const data = {} as { [kk: string]: string };
-      const getFVal = (k: string) => {
-        const d = String(data[k] ?? "").replace(/\s/g, "");
-        return d.length < 1 ? undefined : d;
-      };
-      Object.keys(j).forEach((k) => (data[k.replace(/\s/g, "")] = j[k]));
-      const obj: ParseData = {
-        vendorName: getFVal("가상도매명"),
-        in: {
-          prodName: getFVal("가상상품명"),
-          color: getFVal("컬러") ?? "기본",
-          size: getFVal("사이즈"),
-        },
-        ex: {
-          prodName: getFVal("판매상품명"),
-          color: getFVal("판매컬러"),
-          size: getFVal("판매사이즈"),
-        },
-      };
-      if (obj.vendorName) {
-        const vendor = vendorByName.value[obj.vendorName];
-        if (vendor) {
-          obj.vendorId = vendor.userInfo.userId;
-          obj.vendorName = getUserName(vendor);
-        }
+    const j = jsonData.value[i];
+    if (j.vendorName) {
+      const vendor = vendorByName.value[j.vendorName];
+      if (vendor) {
+        j.vendorId = vendor.userInfo.userId;
+        j.vendorName = getUserName(vendor);
       }
-      obj.info = getStatusInfo(getStatus(obj));
-      parseData.value.push(obj);
     }
+    j.info = getStatusInfo(getStatus(j));
+    parseData.value.push(j);
   }
+  triggerRef(parseData);
+  console.info("processJson parseData: ", parseData);
+}
+
+function readJson(json: any[]) {
+  const pd: ParseData[] = [];
+  for (let z = 0; z < json.length; z++) {
+    const j = json[z];
+    const data = {} as { [kk: string]: string };
+    Object.keys(j).forEach((k) => (data[k.replace(/\s/g, "")] = j[k]));
+    const getFVal = (k: string) => {
+      const d = String(data[k] ?? "").replace(/\s/g, "");
+      return d.length < 1 ? undefined : d;
+    };
+    pd.push({
+      vendorName: getFVal("가상도매명"),
+      in: {
+        prodName: getFVal("가상상품명"),
+        color: getFVal("컬러") ?? "기본",
+        size: getFVal("사이즈"),
+      },
+      ex: {
+        prodName: getFVal("판매상품명"),
+        color: getFVal("판매컬러"),
+        size: getFVal("판매사이즈"),
+      },
+    });
+  }
+  return pd;
 }
 const { progress, handleFileChange } = useFileReader({
   inputRef,
@@ -107,15 +112,13 @@ const { progress, handleFileChange } = useFileReader({
         msg.warning(`sheet: ${sheetName} 실패.`);
         continue;
       }
-      jsonData.value.push(json);
+      jsonData.value.push(...readJson(json));
       //   const worksheet = utils.json_to_sheet(json);
       //   const workbook = utils.book_new();
       //   utils.book_append_sheet(workbook, worksheet, "Dates");
       //   writeFile(workbook, "zzzzz.xlsx");
     }
     processJson();
-
-    console.info("parseData: ", parseData);
     progress.value.proceed += 1;
     showParseModal.value = true;
   },
@@ -129,7 +132,6 @@ async function processAll() {
     const status = getStatus(d);
     if (!status.innerId) continue;
     else if (status.shopProd && status.mappable) {
-      console.info("mapping ", status, d);
       await reverseMapping(
         mapper.value,
         {
@@ -146,7 +148,7 @@ async function processAll() {
   showParseModal.value = false;
 }
 
-const showParseModal = ref(false);
+const showParseModal = shallowRef(false);
 const onClick = () => inputRef.value?.click();
 function getStatus(row: ParseData) {
   const innerId =
@@ -157,6 +159,8 @@ function getStatus(row: ParseData) {
     innerId !== null
       ? ShopGarment.fromJson(dictData.value[innerId]) ?? undefined
       : undefined;
+  if (!dictData.value[innerId ?? ""])
+    console.log(`inner id(${innerId}) not exist in shop dict, row:`, row);
 
   const mappable = shopProd && row.ex.prodName && row.ex.color && row.ex.size;
   const selectable =

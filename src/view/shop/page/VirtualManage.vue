@@ -60,6 +60,7 @@ function onClickId(value: {
     value.in.size = g.size;
     value.in.color = g.color;
     value.vendorName = getUserName(s);
+    console.log("selected func: ", s, value);
     batchRef.value?.processJson();
   };
   openSelectList.value = true;
