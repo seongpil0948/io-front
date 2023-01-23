@@ -6,6 +6,7 @@ import {
   TryStr,
   MatchGarment,
   ShopUserGarment,
+  mapTxt,
 } from "@/composable";
 
 export function matchCafeOrder(
@@ -67,12 +68,13 @@ export function mapCafeOrder(
     // const colorColSyno = mapper.getSyno("color", false);
     // const sizeColSyno = mapper.getSyno("size", false);
     // let inputProdName: TryStr, inputSize, inputColor;
-    let inputProdName: TryStr;
     for (let i = 0; i < order.items.length; i++) {
       const item = order.items[i];
-      inputProdName = item.product_name ?? item.product_name_default;
+      const inputProdName = mapTxt(
+        item.product_name ?? item.product_name_default
+      );
       const orderCnt: TryNum = item.quantity;
-      if (!inputProdName) throw new Error("카페24 상품명 파싱실패");
+      if (inputProdName.length < 1) throw new Error("카페24 상품명 파싱실패");
       else if (!orderCnt) throw new Error("카페24 주문 개수 파싱실패");
 
       // NOTE: use for column mapping
@@ -113,11 +115,11 @@ export function mapCafeOrder(
         const matchedId = matchedNameSynoIds[i];
         synoColor = synonymFilter(
           prodMapper[matchedId].colorMapper,
-          item.option_value
+          mapTxt(item.option_value)
         );
         synoSize = synonymFilter(
           prodMapper[matchedId].sizeMapper,
-          item.option_value
+          mapTxt(item.option_value)
         );
         if (synoSize && synoColor) {
           matchedNameSynoId = matchedId;

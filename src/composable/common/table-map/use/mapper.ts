@@ -1,6 +1,9 @@
+import { ioFireStore } from "@/plugin/firebase";
 import { makeMsgOpt } from "@/util";
+import { doc, onSnapshot } from "@firebase/firestore";
+import { getIoCollection } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
-import { ref, onBeforeMount } from "vue";
+import { shallowRef, onBeforeUnmount } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { Mapper } from "../model";
 
@@ -8,10 +11,15 @@ export function useMapper(uid: string) {
   const msg = useMessage();
   const log = useLogger();
 
-  const mapper = ref<Mapper | null>(null);
-  onBeforeMount(async () => {
-    mapper.value = await Mapper.getIoMapper(uid);
+  const mapper = shallowRef<Mapper | null>(null);
+  const mapperDoc = doc(
+    getIoCollection(ioFireStore, { c: "MAPPER" }),
+    uid
+  ).withConverter(Mapper.fireConverter());
+  const unsubscribe = onSnapshot(mapperDoc, (doc) => {
+    mapper.value = doc.data() ?? null;
   });
+  onBeforeUnmount(() => unsubscribe());
 
   async function mapperUpdate() {
     mapper.value

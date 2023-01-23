@@ -6,6 +6,7 @@ import {
   MapKey,
   synonymFilter,
   ShopUserGarment,
+  mapTxt,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { uniqueArr } from "@/util";
@@ -100,14 +101,14 @@ export function mapDfToOrder(
   msg: MessageApiInjection
 ): MatchGarment[] {
   inputDf = inputDf.applyMap((x: any) =>
-    typeof x === "string" ? x.toLowerCase().trim() : x
+    typeof x === "string" ? mapTxt(x) : x
   );
   const garmentTargetCols = ["prodName", "size", "color", "orderId"];
   function getColMapper(df: DataFrame, ioColNames: MapKey[], mapper: Mapper) {
     return ioColNames.reduce((curr, colName) => {
       const synonyms = mapper.getSyno(colName, false);
       const col = df.columns.find((inputCol) =>
-        synonyms.includes(inputCol.toLowerCase())
+        synonyms.includes(mapTxt(inputCol))
       );
       if (!col) {
         const message = `컬럼매핑 실패: 실패 엑셀파일에서 ${colName.toString()} 컬럼을 찾을 수 없습니다. \n ${synonyms}`;

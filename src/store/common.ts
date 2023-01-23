@@ -12,7 +12,7 @@ export const useCommonStore = defineStore("common", () => {
   const locale = ref<LOCALE>("ko");
   const isLoading = computed(() => loading.value === true);
 
-  const bodySize = ref({ w: 0, h: 0 });
+  const bodySize = ref({ w: window.innerWidth, h: window.innerHeight });
   let resizeTimeout: NodeJS.Timeout | null = null;
   function resizeHandler() {
     if (resizeTimeout) clearTimeout(resizeTimeout);

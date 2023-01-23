@@ -6,6 +6,7 @@ import {
   useFileReader,
   useMapper,
   reverseMapping,
+  mapTxt,
 } from "@/composable";
 import { useExcel } from "@/plugin/xlsx";
 import { getUserName, IoUser } from "@io-boxies/js-lib";
@@ -72,9 +73,9 @@ function readJson(json: any[]) {
   for (let z = 0; z < json.length; z++) {
     const j = json[z];
     const data = {} as { [kk: string]: string };
-    Object.keys(j).forEach((k) => (data[k.replace(/\s/g, "")] = j[k]));
+    Object.keys(j).forEach((k) => (data[mapTxt(k)] = j[k]));
     const getFVal = (k: string) => {
-      const d = String(data[k] ?? "").replace(/\s/g, "");
+      const d = mapTxt(String(data[k] ?? ""));
       return d.length < 1 ? undefined : d;
     };
     pd.push({

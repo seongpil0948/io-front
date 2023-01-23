@@ -101,7 +101,6 @@ export function useShopVirtualProd(user: IoUser) {
     regitProdModal.value = false;
   }
   const userVirProds = computed(() => {
-    console.info("virtual shop prods: ", virShopProds.value);
     return virShopProds.value.map((x) => {
       const u = virtualVendorById.value[x.vendorId] ?? user;
       return Object.assign(
