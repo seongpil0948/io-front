@@ -13,6 +13,8 @@ import {
   ORDER_GARMENT_DB,
   useVirtualVendor,
   ShopUserGarment,
+  SHOP_GARMENT_DB,
+  usePopSelTable,
 } from "@/composable";
 import { getIoCollection, IoUser } from "@io-boxies/js-lib";
 import {
@@ -22,7 +24,14 @@ import {
 } from "@/composable/product/vendor-garment/db/firebase";
 import { ref, onBeforeUnmount, computed } from "vue";
 import { handleReadSnap } from "@/util";
-import { onSnapshot, query, orderBy, where } from "firebase/firestore";
+import {
+  onSnapshot,
+  query,
+  orderBy,
+  where,
+  runTransaction,
+  doc,
+} from "firebase/firestore";
 import { uuidv4 } from "@firebase/util";
 import { shopProdC } from "../product/shop-garment/db/firebase";
 import { makeMsgOpt } from "@io-boxies/vue-lib";
@@ -33,10 +42,7 @@ export function useShopVirtualProd(user: IoUser) {
   const uid = user.userInfo.userId;
   const name = "VirtualVendorProd snapshot";
   const msg = useMessage();
-  const virVendorProdC = getIoCollection(ioFireStore, {
-    uid,
-    c: "VIRTUAL_VENDOR_PROD",
-  }).withConverter(VendorGarment.fireConverter());
+  const { virVendorProdC } = getVirCollections(uid);
 
   const { virtualVendors, virtualVendorById } = useVirtualVendor(uid);
 
@@ -117,8 +123,13 @@ export function useShopVirtualProd(user: IoUser) {
   //     return uProds;
   //   });
 
-  const { tableCols, checkedKeys, popVal, selectedRow, tableRef } =
-    useShopGarmentTable(false, userVirProds);
+  const { tableCols, checkedKeys, tableRef } = useShopGarmentTable(
+    false,
+    userVirProds
+  );
+  const { selectedRow, popVal, optionCol } = usePopSelTable<ShopUserGarment>({
+    onDelete: (p) => deleteVirGarments(uid, [p.shopProdId]),
+  });
   const virShopCols = computed(() => {
     const t = tableCols.value.filter(
       (x: any) =>
@@ -140,6 +151,7 @@ export function useShopVirtualProd(user: IoUser) {
         key: "userInfo.displayName",
       },
       ...t.slice(1),
+      optionCol,
     ];
   });
 
@@ -216,10 +228,8 @@ export const createVirVendorGarments = async (
   userId: string,
   args: VendorGarment[]
 ) => {
-  const virVendorProdC = getIoCollection(ioFireStore, {
-    uid: userId,
-    c: "VIRTUAL_VENDOR_PROD",
-  }).withConverter(VendorGarment.fireConverter());
+  const { virVendorProdC } = getVirCollections(userId);
+
   await createGarments(virVendorProdC, userId, args);
 
   const prods: ShopGarment[] = [];
@@ -246,3 +256,28 @@ export const createVirVendorGarments = async (
   }
   return prods;
 };
+
+export async function deleteVirGarments(uid: string, shopProdIds: string[]) {
+  // eslint-disable-next-line prefer-rest-params
+  console.info("deleteVirGarments: ", shopProdIds);
+  const { virVendorProdC } = getVirCollections(uid);
+  return runTransaction(ioFireStore, async (t) => {
+    const shopProds = await SHOP_GARMENT_DB.listByIds([...shopProdIds]);
+    if (shopProds.length !== shopProdIds.length) {
+      console.error(shopProds, shopProdIds);
+      throw new Error("shopProdIds not exist" + shopProdIds);
+    }
+    for (let i = 0; i < shopProds.length; i++) {
+      const shopProd = shopProds[i];
+      t.delete(doc(virVendorProdC, shopProd.vendorProdId));
+    }
+    return SHOP_GARMENT_DB.deleteShopGarments(uid, [...shopProdIds]);
+  });
+}
+
+const getVirCollections = (uid: string) => ({
+  virVendorProdC: getIoCollection(ioFireStore, {
+    uid,
+    c: "VIRTUAL_VENDOR_PROD",
+  }).withConverter(VendorGarment.fireConverter()),
+});

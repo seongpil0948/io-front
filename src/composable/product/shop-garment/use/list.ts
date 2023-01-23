@@ -9,7 +9,7 @@ import {
   useMessage,
   useDialog,
 } from "naive-ui";
-import { ref, computed, h, watchEffect } from "vue";
+import { ref, computed, h, watchEffect, shallowRef } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { ShopUserGarment } from "../domain";
 import { useShopVendorUnits } from "./by-user";
@@ -116,13 +116,10 @@ export function useShopGarmentTable(
       }
     }
   );
-  const selectedRow = ref<ShopUserGarment | null>(null);
-  const popVal = ref("");
-  watchEffect(async () => {
-    if (popVal.value === "Delete" && selectedRow.value) {
-      await deleteGarments(shopId, [selectedRow.value.shopProdId]);
-    }
+  const { selectedRow, popVal, optionCol } = usePopSelTable<ShopUserGarment>({
+    onDelete: (p) => deleteGarments(shopId, [p.shopProdId]),
   });
+
   const tableCols = computed((): DataTableColumns<ShopUserGarment> => {
     if (mapper.value === null) return [];
     columns.value.forEach((x) => {
@@ -132,50 +129,7 @@ export function useShopGarmentTable(
         x.minWidth = 100;
       }
     });
-    return !briefly
-      ? [
-          ...columns.value,
-          {
-            title: "옵션",
-            key: "option",
-            render: (row) =>
-              h(
-                NPopselect,
-                {
-                  value: popVal.value,
-                  onUpdateValue: (val: string) => {
-                    popVal.value = val;
-                    selectedRow.value = row;
-                  },
-                  options: [
-                    {
-                      label: "수정",
-                      value: "Edit",
-                    },
-                    {
-                      label: "삭제",
-                      value: "Delete",
-                    },
-                  ],
-                  scrollable: true,
-                  // "render-label": (opt: SelectBaseOption) =>
-                  //   h(NButton, {}, { default: () => opt.label }),
-                },
-                {
-                  default: () =>
-                    h(
-                      NButton,
-                      {
-                        strong: true,
-                        size: "small",
-                      },
-                      { default: () => "선택" }
-                    ),
-                }
-              ),
-          },
-        ]
-      : columns.value;
+    return !briefly ? [...columns.value, optionCol] : columns.value;
   });
   return {
     tableCols,
@@ -190,5 +144,68 @@ export function useShopGarmentTable(
     deleteGarments,
     onCheckedDelete,
     tableRef,
+  };
+}
+
+export function usePopSelTable<T>(d: {
+  onDelete?: (p: T) => Promise<void>;
+  onEdit?: (p: T) => Promise<void>;
+}) {
+  const selectedRow = shallowRef<T | null>(null);
+  const popVal = shallowRef("");
+
+  watchEffect(async () => {
+    if (selectedRow.value === null) return;
+    else if (d.onDelete && popVal.value === "Delete") {
+      await d.onDelete(selectedRow.value);
+    } else if (d.onEdit && popVal.value === "Edit") {
+      await d.onEdit(selectedRow.value);
+    }
+  });
+
+  const optionCol = {
+    title: "옵션",
+    key: "option",
+    render: (row: T) =>
+      h(
+        NPopselect,
+        {
+          value: popVal.value,
+          onUpdateValue: (val: string) => {
+            popVal.value = val;
+            selectedRow.value = row;
+          },
+          options: [
+            {
+              label: "수정",
+              value: "Edit",
+            },
+            {
+              label: "삭제",
+              value: "Delete",
+            },
+          ],
+          scrollable: true,
+          // "render-label": (opt: SelectBaseOption) =>
+          //   h(NButton, {}, { default: () => opt.label }),
+        },
+        {
+          default: () =>
+            h(
+              NButton,
+              {
+                strong: true,
+                size: "small",
+              },
+              { default: () => "선택" }
+            ),
+        }
+      ),
+  };
+
+  return {
+    selectedRow,
+    popVal,
+    optionCol,
   };
 }
