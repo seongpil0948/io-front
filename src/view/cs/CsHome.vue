@@ -47,7 +47,12 @@ function callCsChat() {
         <n-h2 style="margin: auto; text-align: center"> 자주 묻는 질문 </n-h2>
       </n-space>
 
-      <n-space align="center" justify="center" inline>
+      <n-space
+        align="center"
+        justify="space-evenly"
+        inline
+        style="min-width: 70%"
+      >
         <n-button
           v-for="ctgr in faqCtgrList"
           :key="ctgr.value"

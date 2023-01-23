@@ -269,6 +269,11 @@ const cols = computed(() => [
   <n-button @click="onClick"> 엑셀 일괄등록 </n-button>
   <n-modal v-model:show="showParseModal" style="margin: 5%">
     <n-card title="상품선택">
+      <template #header-extra>
+        <router-link to="/cs/home" #="{ navigate, href }" custom>
+          <n-a :href="href" @click="navigate"> 실패된 매핑 자세히 보기 </n-a>
+        </router-link>
+      </template>
       <n-data-table
         :data="parseData"
         :columns="cols"
