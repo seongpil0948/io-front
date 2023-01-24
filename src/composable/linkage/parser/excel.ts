@@ -143,6 +143,7 @@ export function mapDfToOrder(
   const idx = getColIdx(targetDf, colMapper);
   const data: MatchGarment[] = [];
 
+  let existOrdId = false;
   targetDf.apply(
     (row: Series) => {
       if (!row[idx.orderIdIdx]) throw new Error("주문번호 컬럼 매핑 실패.");
@@ -162,7 +163,14 @@ export function mapDfToOrder(
         }
       );
       let synoColor, synoSize, matchedNameSynoId;
-      if (existIds.has(orderId)) return row; // continue
+      if (existIds.has(orderId)) {
+        existOrdId = true;
+        logger.warn(
+          userId,
+          `주문번호(${orderId})은 이미 처리 완료된 주문번호 입니다.  `
+        );
+        return row; // continue
+      }
 
       for (let i = 0; i < matchedNameSynoIds.length; i++) {
         const matchedId = matchedNameSynoIds[i];
@@ -208,6 +216,9 @@ export function mapDfToOrder(
     },
     { axis: 1 }
   );
+  if (existOrdId) {
+    msg.warning("이미 처리된 주문건이 있습니다.");
+  }
 
   return data;
 }

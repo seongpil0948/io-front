@@ -7,12 +7,12 @@ import { computed, Ref } from "vue";
 const authStore = useAuthStore();
 
 const { userLogs: errLogs } = useReadLogger({
-  uids: [authStore.currUser.userInfo.userId],
+  uid: authStore.currUser.userInfo.userId,
   limit: 30,
-  severity: ["error"],
+  severity: ["error", "warn"],
 });
 const { userLogs: infoLogs } = useReadLogger({
-  uids: [authStore.currUser.userInfo.userId],
+  uid: authStore.currUser.userInfo.userId,
   limit: 30,
   severity: ["info"],
 });
@@ -45,68 +45,38 @@ const infoLogRef = getLogs(infoLogs);
 </script>
 
 <template>
-  <n-tabs
-    size="small"
-    type="line"
-    animated
-    pane-style="overflow: auto; height: 40vh"
-  >
+  <n-tabs size="small" type="line" animated>
     <n-tab-pane name="info" tab="활동로그">
       <div
         v-for="(txt, idx) in infoLogRef"
         :key="idx"
-        style="
-          margin-top: 2px;
-          text-overflow: ellipsis;
-          overflow: hidden;
-          word-break: break-word;
-          width: 100%;
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-        "
+        class="log-txt-container"
       >
-        <n-text type="success">
+        <n-text type="success" class="txt-first">
           {{ txt[0] }}
         </n-text>
         <n-tooltip trigger="click">
           <template #trigger>
-            <n-text strong>
+            <n-text class="txt-trigger" strong>
               {{ txt[1] }}
             </n-text>
           </template>
           {{ txt[1] }}
         </n-tooltip>
-
-        <!-- <n-h6 style="margin: 0; font-size: 0.8rem">
-          {{ txt[0] }}
-        </n-h6>
-        <n-p style="margin-top: 0; text-indent: 2vw !important">
-          {{ txt[1] }}
-        </n-p> -->
       </div>
     </n-tab-pane>
     <n-tab-pane name="error" tab="에러로그">
       <div
         v-for="(txt, idx) in errorLogRef"
         :key="idx"
-        style="
-          margin-top: 2px;
-          text-overflow: ellipsis;
-          overflow: hidden;
-          word-break: break-word;
-          width: 100%;
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-        "
+        class="log-txt-container"
       >
-        <n-text type="success">
+        <n-text type="success" class="txt-first">
           {{ txt[0] }}
         </n-text>
         <n-tooltip trigger="click">
           <template #trigger>
-            <n-text style="cursor: pointer" strong>
+            <n-text class="txt-trigger" strong>
               {{ txt[1] }}
             </n-text>
           </template>
@@ -123,3 +93,22 @@ const infoLogRef = getLogs(infoLogs);
     </n-tab-pane>
   </n-tabs>
 </template>
+
+<style scoped>
+.log-txt-container {
+  margin-top: 2px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-word;
+  width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+.txt-first {
+  margin-right: 3px;
+}
+.txt-trigger {
+  cursor: pointer;
+}
+</style>

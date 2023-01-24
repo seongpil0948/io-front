@@ -98,7 +98,7 @@ export const ioLogConverter = {
 };
 
 export interface ReadLogParam {
-  uids: string[];
+  uid: string;
   limit: number;
   severity?: string[];
 }
@@ -109,13 +109,11 @@ export function useReadLogger(param: ReadLogParam) {
   const noMore = ref(false);
   function getQuery() {
     const constraints: QueryConstraint[] = [
-      where("uid", "in", param.uids),
+      where("uid", "==", param.uid),
       orderBy("createdAt", "desc"),
     ];
     if (param.severity) {
-      param.severity.forEach((s) => {
-        constraints.push(where("severity", "==", s));
-      });
+      constraints.push(where("severity", "in", param.severity));
     }
     if (lastLog.value) {
       constraints.push(startAfter(lastLog.value));
