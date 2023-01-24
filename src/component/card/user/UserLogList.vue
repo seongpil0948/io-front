@@ -52,27 +52,73 @@ const infoLogRef = getLogs(infoLogs);
     pane-style="overflow: auto; height: 40vh"
   >
     <n-tab-pane name="info" tab="활동로그">
-      <div v-for="(txt, idx) in infoLogRef" :key="idx" style="margin-top: 10px">
-        <n-h6 style="margin: 0; font-size: 0.8rem">
+      <div
+        v-for="(txt, idx) in infoLogRef"
+        :key="idx"
+        style="
+          margin-top: 2px;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          word-break: break-word;
+          width: 100%;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+        "
+      >
+        <n-text type="success">
+          {{ txt[0] }}
+        </n-text>
+        <n-tooltip trigger="click">
+          <template #trigger>
+            <n-text strong>
+              {{ txt[1] }}
+            </n-text>
+          </template>
+          {{ txt[1] }}
+        </n-tooltip>
+
+        <!-- <n-h6 style="margin: 0; font-size: 0.8rem">
           {{ txt[0] }}
         </n-h6>
         <n-p style="margin-top: 0; text-indent: 2vw !important">
           {{ txt[1] }}
-        </n-p>
+        </n-p> -->
       </div>
     </n-tab-pane>
     <n-tab-pane name="error" tab="에러로그">
       <div
         v-for="(txt, idx) in errorLogRef"
         :key="idx"
-        style="margin-top: 10px"
+        style="
+          margin-top: 2px;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          word-break: break-word;
+          width: 100%;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+        "
       >
-        <n-h6 style="margin: 0; font-size: 0.8rem">
+        <n-text type="success">
+          {{ txt[0] }}
+        </n-text>
+        <n-tooltip trigger="click">
+          <template #trigger>
+            <n-text style="cursor: pointer" strong>
+              {{ txt[1] }}
+            </n-text>
+          </template>
+          {{ txt[1] }}
+        </n-tooltip>
+
+        <!-- <n-h6 style="margin: 0; font-size: 0.8rem">
           {{ txt[0] }}
         </n-h6>
         <n-p style="margin-top: 0; text-indent: 2vw !important">
           {{ txt[1] }}
-        </n-p>
+        </n-p> -->
       </div>
     </n-tab-pane>
   </n-tabs>
