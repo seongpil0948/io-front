@@ -149,7 +149,7 @@ export function useShopGarmentTable(
 
 export function usePopSelTable<T>(d: {
   onDelete?: (p: T) => Promise<void>;
-  onEdit?: (p: T) => Promise<void>;
+  onEdit?: (p: T) => void;
 }) {
   const selectedRow = shallowRef<T | null>(null);
   const popVal = shallowRef("");
@@ -159,8 +159,9 @@ export function usePopSelTable<T>(d: {
     else if (d.onDelete && popVal.value === "Delete") {
       await d.onDelete(selectedRow.value);
     } else if (d.onEdit && popVal.value === "Edit") {
-      await d.onEdit(selectedRow.value);
+      d.onEdit(selectedRow.value);
     }
+    popVal.value = "";
   });
 
   const optionCol = {

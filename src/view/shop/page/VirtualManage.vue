@@ -5,14 +5,21 @@ import {
   useSearch,
   ShopGarment,
   ProdInnerIdSrc,
+  VendorGarment,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { isMobile } from "@/util";
 import { NModal, NButton, NCard, NDataTable, NInput, NSpace } from "naive-ui";
 import { ref, computed, defineAsyncComponent, watchEffect } from "vue";
-import { getUserName, IoUser, USER_DB } from "@io-boxies/js-lib";
+import {
+  getIoCollection,
+  getUserName,
+  IoUser,
+  USER_DB,
+} from "@io-boxies/js-lib";
 import { ioFireStore } from "@/plugin/firebase";
 import { logger } from "@/plugin/logger";
+import { getDoc, doc } from "@firebase/firestore";
 const BatchCreateVirProd = defineAsyncComponent(
   () => import("@/component/button/shop/BatchCreateVirProd.vue")
 );
@@ -32,6 +39,8 @@ const {
   tableRef,
   userVirProds,
   virtualVendorById,
+  virProdEditTarget,
+  virShopProds,
 } = useShopVirtualProd(auth.currUser);
 const selectedVendorId = ref<string | null>(null);
 const vendorOpts = computed(() =>
@@ -100,31 +109,42 @@ const {
       : x.size.includes(v) || x.color.includes(v) || x.prodName.includes(v);
   },
 });
+
+async function submitEdit() {
+  const p = virProdEditTarget.value;
+  if (!p) return;
+  const shopP = virShopProds.value.find(
+    (x) => x.vendorProdId === p.vendorProdId
+  );
+  if (!shopP)
+    return logger.error(
+      null,
+      `virtual vendorProdId ${p.vendorProdId} not exist`
+    );
+  const result = await getDoc(
+    doc(
+      getIoCollection(ioFireStore, {
+        uid,
+        c: "VIRTUAL_VENDOR_PROD",
+      }).withConverter(VendorGarment.fireConverter()),
+      p.vendorProdId
+    )
+  );
+  const vendorP = result.data();
+  if (vendorP) {
+    shopP.prodPrice = vendorP.vendorPrice;
+    shopP.prodName = vendorP.vendorProdName;
+    shopP.info = vendorP.info;
+    shopP.description = vendorP.description;
+    shopP.size = vendorP.size;
+    shopP.color = vendorP.color;
+    await shopP.update();
+  }
+
+  virProdEditTarget.value = null;
+}
 </script>
 <template>
-  <n-modal
-    v-model:show="regitProdModal"
-    :mask-closable="false"
-    preset="card"
-    title="도매 상품 등록"
-    style="width: 80vw"
-  >
-    <n-space vertical item-style="width: 100%">
-      <n-select
-        v-model:value="selectedVendorId"
-        clearable
-        placeholder="가상 도매처 선택"
-        :options="vendorOpts"
-      />
-      <vendor-garment-form
-        v-if="selectedVendorId"
-        :minimal="true"
-        :virtual="true"
-        :vendor-id="selectedVendorId"
-        @on-registered="onRegistered"
-      />
-    </n-space>
-  </n-modal>
   <n-space vertical justify="center" align="center" item-style="width: 100%">
     <n-card style="width: 100%">
       <n-space vertical justify="center" align="end" item-style="width: 100%">
@@ -177,5 +197,43 @@ const {
         :scroll-x="1200"
       />
     </n-card>
+  </n-modal>
+  <n-modal
+    :show="virProdEditTarget !== null"
+    preset="card"
+    style="width: 70%"
+    title="상품 정보 수정"
+    :mask-closable="false"
+    @esc="virProdEditTarget = null"
+    @mask-click="virProdEditTarget = null"
+  >
+    <vendor-prod-edit-form
+      v-if="virProdEditTarget"
+      :prod="virProdEditTarget"
+      @on-submit-prod="submitEdit"
+    />
+  </n-modal>
+  <n-modal
+    v-model:show="regitProdModal"
+    :mask-closable="false"
+    preset="card"
+    title="도매 상품 등록"
+    style="width: 80vw"
+  >
+    <n-space vertical item-style="width: 100%">
+      <n-select
+        v-model:value="selectedVendorId"
+        clearable
+        placeholder="가상 도매처 선택"
+        :options="vendorOpts"
+      />
+      <vendor-garment-form
+        v-if="selectedVendorId"
+        :minimal="true"
+        :virtual="true"
+        :vendor-id="selectedVendorId"
+        @on-registered="onRegistered"
+      />
+    </n-space>
   </n-modal>
 </template>

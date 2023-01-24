@@ -7,6 +7,8 @@ import { useMessage, FormInst } from "naive-ui";
 import { AddCircleOutline } from "@vicons/ionicons5";
 import { ref, watchEffect } from "vue";
 import { useEditor } from "@/plugin/editor";
+import { insertById, getIoCollection } from "@io-boxies/js-lib";
+import { ioFireStore } from "@/plugin/firebase";
 
 const props = defineProps<{
   prod?: VendorGarment;
@@ -21,7 +23,8 @@ watchEffect(() => {
 
 const msg = useMessage();
 const formRef = ref<FormInst | null>(null);
-
+const auth = useAuthStore();
+const uid = auth.currUser.userInfo.userId;
 const rules = {
   vendorProdName: nameLenRule,
   vendorPrice: biggerThanNRule(999),
@@ -38,24 +41,35 @@ function onEdit() {
       return msg.error("상품 작성란을 올바르게 작성 해주세요", makeMsgOpt());
     const info = await saveEditor();
     if (info) {
-      await VENDOR_GARMENT_DB.updateSimilarProd(
-        { vendorId: p.vendorId, vendorProdName: props.prod!.vendorProdName },
-        {
-          info,
-          vendorProdName: p.vendorProdName,
-          vendorPrice: p.vendorPrice,
-          allowPending: p.allowPending,
-          titleImgs: p.titleImgs,
-          bodyImgs: p.bodyImgs,
-        }
-      );
+      if (p.visible && p.visible === "ME") {
+        await insertById<VendorGarment>(
+          p,
+          getIoCollection(ioFireStore, { uid, c: "VIRTUAL_VENDOR_PROD" }),
+          p.vendorProdId,
+          true,
+          VendorGarment.fireConverter()
+        );
+      } else {
+        await VENDOR_GARMENT_DB.updateSimilarProd(
+          { vendorId: p.vendorId, vendorProdName: props.prod!.vendorProdName },
+          {
+            info,
+            vendorProdName: p.vendorProdName,
+            vendorPrice: p.vendorPrice,
+            allowPending: p.allowPending,
+            titleImgs: p.titleImgs,
+            bodyImgs: p.bodyImgs,
+          }
+        );
+      }
     }
 
     clearEditor();
+    msg.success("편집 성공!");
     emits("onSubmitProd");
   });
 }
-const auth = useAuthStore();
+
 const { saveEditor, clearEditor } = useEditor({
   readOnly: false,
   elementId: "io-editor",
@@ -134,7 +148,7 @@ const { saveEditor, clearEditor } = useEditor({
           :max="1"
           svc="VENDOR_PRODUCT"
           :parent-id="prod.vendorProdId"
-          :user-id="auth.currUser.userInfo.userId"
+          :user-id="uid"
           :role="auth.currUserRole"
         >
           <add-circle-outline style="cursor: pointer" />
@@ -151,7 +165,7 @@ const { saveEditor, clearEditor } = useEditor({
           size="100"
           :max="20"
           svc="VENDOR_PRODUCT"
-          :user-id="auth.currUser.userInfo.userId"
+          :user-id="uid"
           :role="auth.currUserRole"
         >
           <add-circle-outline style="cursor: pointer" />

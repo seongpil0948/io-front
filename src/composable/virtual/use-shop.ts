@@ -126,8 +126,14 @@ export function useShopVirtualProd(user: IoUser) {
     false,
     userVirProds
   );
+  const virProdEditTarget = ref<VendorGarment | null>(null);
+
   const { selectedRow, popVal, optionCol } = usePopSelTable<ShopUserGarment>({
     onDelete: (p) => deleteVirGarments(uid, [p.shopProdId]),
+    onEdit: (p) =>
+      (virProdEditTarget.value =
+        virVendorProds.value.find((x) => x.vendorProdId === p.vendorProdId) ??
+        null),
   });
   const virShopCols = computed(() => {
     const t = tableCols.value.filter(
@@ -220,6 +226,7 @@ export function useShopVirtualProd(user: IoUser) {
     tableRef,
     virtualVendors,
     virtualVendorById,
+    virProdEditTarget,
   };
 }
 
