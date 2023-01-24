@@ -56,7 +56,7 @@ function callCsChat() {
         <n-button
           v-for="ctgr in faqCtgrList"
           :key="ctgr.value"
-          quaternary
+          text
           style="padding: 0"
           @click="() => goFaqCtgr(ctgr.value, 'FAQ')"
         >
