@@ -74,13 +74,13 @@ const props = defineProps({
 
 const { listenClick } = toRefs(props);
 const msg = useMessage();
-const { getRootProps, getInputProps, isDragActive } = useDropzone({
+const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
   onDrop,
   multiple: Array.isArray(props.fileModel),
 });
 
 const emits = defineEmits(["update:fileModel"]);
-
+defineExpose({ open });
 async function onDrop(acceptFiles, rejectReasons) {
   if (rejectReasons.length > 0) {
     msg.error("Upload Fail, Reasons: ", rejectReasons, makeMsgOpt());

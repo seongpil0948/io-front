@@ -11,7 +11,7 @@ import {
   useMatch,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
-import { ref, shallowRef, watchEffect } from "vue";
+import { ref, shallowRef, watchEffect, defineAsyncComponent } from "vue";
 import { IO_COSTS } from "@/constants";
 import { storeToRefs } from "pinia";
 interface Props {
@@ -108,9 +108,24 @@ function downSampleXlsx() {
   a.click();
   a.remove();
 }
+const AsyncDropZone = defineAsyncComponent(
+  () => import("@/component/card/DropZoneCard.vue")
+);
+const orderDropZoneRef = shallowRef<null | InstanceType<typeof AsyncDropZone>>(
+  null
+);
+function uploadOrder() {
+  if (orderDropZoneRef.value && orderDropZoneRef.value.open) {
+    orderDropZoneRef.value.open();
+  } else {
+    msg.error("재시도 해주세요!");
+    console.error("orderDropZoneRef wrong", orderDropZoneRef.value);
+  }
+}
 </script>
 <template>
   <drop-zone-card
+    ref="orderDropZoneRef"
     v-model:fileModel="fileModel"
     data-test="order-drop-zone"
     :listen-click="!(filteredOrders.length > 0)"
@@ -118,6 +133,7 @@ function downSampleXlsx() {
     <template #header> <div></div> </template>
     <template #header-extra>
       <n-space style="width: 100%" inline item-style="max-width: 100%">
+        <n-button type="primary" @click="uploadOrder"> 주문업로드 </n-button>
         <n-button type="primary" @click="downSampleXlsx">
           주문취합 엑셀양식 다운
         </n-button>
