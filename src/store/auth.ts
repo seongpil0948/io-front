@@ -3,6 +3,7 @@ import { getAuth, signOut } from "firebase/auth";
 import { IoUser, userFromJson } from "@io-boxies/js-lib";
 import { getActivePinia } from "pinia";
 import { ioFire } from "@/plugin/firebase";
+import { getAnalytics, setUserId } from "@firebase/analytics";
 interface AuthStoreInterface {
   user: IoUser | null;
 }
@@ -38,6 +39,7 @@ export const useAuthStore = defineStore({
     setUser(u: IoUser) {
       this.user = u;
       localStorage.setItem(userKey, JSON.stringify(this.user));
+      setUserId(getAnalytics(ioFire.app), u.userInfo.userId);
     },
     login(u: IoUser) {
       if (this.user) {

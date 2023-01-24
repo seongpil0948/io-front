@@ -16,10 +16,9 @@ import { utils } from "xlsx";
 
 type PartialInner = Partial<ProdInnerIdSrc>;
 interface ParseData {
-  vendorId?: string;
   vendorName?: string;
   in: PartialInner;
-  ex: PartialInner;
+  ex: Omit<PartialInner, "vendorId" | "vendorName">;
   info?: ReturnType<typeof getStatusInfo>;
 }
 const props = defineProps<{
@@ -57,8 +56,8 @@ function processJson() {
     if (j.vendorName) {
       const vendor = vendorByName.value[j.vendorName];
       if (vendor) {
-        j.vendorId = vendor.userInfo.userId;
         j.vendorName = getUserName(vendor);
+        j.in.vendorId = vendor.userInfo.userId;
       }
     }
     j.info = getStatusInfo(getStatus(j));
@@ -153,7 +152,7 @@ const showParseModal = shallowRef(false);
 const onClick = () => inputRef.value?.click();
 function getStatus(row: ParseData) {
   const innerId =
-    row.in.prodName && row.in.color && row.in.size
+    row.in.vendorId && row.in.prodName && row.in.color && row.in.size
       ? ShopGarment.innerId(row.in as ProdInnerIdSrc)
       : null;
   const shopProd =
@@ -163,9 +162,9 @@ function getStatus(row: ParseData) {
   if (!dictData.value[innerId ?? ""])
     console.log(`inner id(${innerId}) not exist in shop dict, row:`, row);
 
-  const mappable = shopProd && row.ex.prodName && row.ex.color && row.ex.size;
-  const selectable =
-    !shopProd && row.ex.prodName && row.ex.color && row.ex.size;
+  const filled = row.ex.prodName && row.ex.color && row.ex.size;
+  const mappable = shopProd && filled && row.vendorName && row.in.vendorId;
+  const selectable = !shopProd && filled;
   return { innerId, mappable, selectable, shopProd };
 }
 const statusText = {
@@ -269,7 +268,7 @@ const cols = computed(() => [
   />
   <n-button @click="onClick"> 엑셀 일괄등록 </n-button>
   <n-modal v-model:show="showParseModal" style="margin: 5%">
-    <n-card title="상품선택">
+    <n-card title="파싱 프리뷰">
       <template #header-extra>
         <router-link to="/cs/home" #="{ navigate, href }" custom>
           <n-a :href="href" @click="navigate"> 실패된 매핑 자세히 보기 </n-a>

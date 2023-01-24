@@ -53,13 +53,20 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   static innerId(p: ProdInnerIdSrc) {
     const clean = (s: string) => s.replace(/\s/g, "").toLowerCase();
     return (
-      clean(p.prodName) + separator + clean(p.color) + separator + clean(p.size)
+      clean(p.vendorId) +
+      separator +
+      clean(p.prodName) +
+      separator +
+      clean(p.color) +
+      separator +
+      clean(p.size)
     );
   }
   static untieInnerId(id: string): ProdInnerIdSrc {
-    const [prodName, color, size] = id.split(separator);
-    if (!prodName || !color || !size) throw new Error("wrong untieInnerId");
-    return { prodName, color, size };
+    const [vendorId, prodName, color, size] = id.split(separator);
+    if (!prodName || !color || !size || !vendorId)
+      throw new Error("wrong untieInnerId");
+    return { vendorId, prodName, color, size };
   }
 
   constructor(d: ShopGarmentCrt) {
@@ -126,6 +133,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
 }
 
 export interface ProdInnerIdSrc {
+  vendorId: string;
   prodName: string;
   size: string;
   color: string;
