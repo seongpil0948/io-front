@@ -50,7 +50,7 @@ function handleFileChange(evt: Event) {
       :bordered="false"
     />
   </n-modal>
-  <n-card title="도매 상품 등록">
+  <n-card v-if="authStore.currUser" title="도매 상품 등록">
     <template #header-extra>
       <n-button @click="onBtnClick">
         <input

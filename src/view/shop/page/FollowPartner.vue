@@ -24,12 +24,8 @@ onBeforeMount(async () => {
 <template>
   <n-card title="거래처 관리">
     <n-space>
-      <n-card
-        v-for="(partner, i) in partners"
-        :key="i"
-        style="width: 15vw; height: 15vw"
-      >
-        <n-space vertical>
+      <n-card v-for="(partner, i) in partners" :key="i">
+        <n-space v-if="vendorById[partner.vendorId]" vertical>
           <n-space justify-between>
             <n-text>파트너명</n-text>
             <n-text type="info">{{
@@ -46,7 +42,7 @@ onBeforeMount(async () => {
             <n-text>연락처</n-text>
             <n-text type="info">{{
               vendorById[partner.vendorId].userInfo.phone ??
-              vendorById[partner.vendorId].companyInfo?.companyPhone
+              vendorById[partner.vendorId]?.companyInfo?.companyPhone
             }}</n-text>
           </n-space>
           <n-space justify-between>
@@ -54,6 +50,7 @@ onBeforeMount(async () => {
             <n-text type="info">{{ partner.credit.toLocaleString() }}</n-text>
           </n-space>
           <user-locate-list
+            v-if="vendorById[partner.vendorId].companyInfo"
             :readonly="true"
             :info="vendorById[partner.vendorId].companyInfo!"
           />
