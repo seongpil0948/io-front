@@ -3,7 +3,7 @@ import { Ref, ref } from "vue";
 export interface FileReaderParam {
   inputRef: Ref<null | HTMLInputElement>;
   readMethod: "binary" | "array" | "url" | "text";
-  onLoad: (this: FileReader, ev: ProgressEvent<FileReader>) => any;
+  onLoad: (ev: ProgressEvent<FileReader>, file: File) => any;
   beforeRead: () => void;
 }
 export function useFileReader(d: FileReaderParam) {
@@ -27,7 +27,7 @@ export function useFileReader(d: FileReaderParam) {
     for (const file of element.files) {
       const reader = new FileReader();
       // progress.value.percent = 0
-      reader.addEventListener("load", d.onLoad);
+      reader.addEventListener("load", (event) => d.onLoad(event, file));
       reader.addEventListener("loadstart", () => {
         d.beforeRead();
         progress.value.percent = 0;
