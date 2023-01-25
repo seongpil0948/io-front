@@ -8,9 +8,9 @@ import {
   dividePartial,
   VendorGarment,
   OrderItem,
+  catchError,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
-import { logger } from "@/plugin/logger";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import {
   DataTableColumns,
@@ -24,7 +24,8 @@ import { useAuthStore } from "@/store";
 import { doc, getDoc, updateDoc } from "@firebase/firestore";
 import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
-import { ioFireStore } from "@/plugin/firebase";
+import { ioFire, ioFireStore } from "@/plugin/firebase";
+import { logEvent, getAnalytics } from "@firebase/analytics";
 
 const GarmentOrderRow = defineAsyncComponent(
   () => import("@/component/table/vendor/GarmentOrderRow.vue")
@@ -110,14 +111,13 @@ export function useApproveOrder(p: ApproveParam) {
           ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [newId])
             .then(async () => {
               msg.success("부분승인 완료", makeMsgOpt());
+              logEvent(getAnalytics(ioFire.app), "order_approve_partial", {
+                len: targetIds.value.size,
+              });
             })
-            .catch((err) => {
-              const message = `부분승인 실패 ${
-                err instanceof Error ? err.message : JSON.stringify(err)
-              }`;
-              msg.error(message, makeMsgOpt());
-              logger.error(p.vendorId, message);
-            })
+            .catch((err) =>
+              catchError({ err, msg, prefix: "부분승인 실패", uid: p.vendorId })
+            )
             .finally(() => {
               onCloseModal(false);
             });
@@ -196,6 +196,10 @@ export function useApproveOrder(p: ApproveParam) {
     }
     ORDER_GARMENT_DB.orderApprove(p.vendorId, orderDBIds, prodIds)
       .then(async () => {
+        msg.success("주문승인 완료", makeMsgOpt());
+        logEvent(getAnalytics(ioFire.app), "order_approve", {
+          len: targetIds.value.size,
+        });
         await smtp.sendAlarm({
           toUserIds: shopIds,
           subject: `inoutbox 주문 처리내역 알림.`,
@@ -207,15 +211,10 @@ export function useApproveOrder(p: ApproveParam) {
           sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
           pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
-        msg.success("주문승인 완료", makeMsgOpt());
       })
-      .catch((err) => {
-        const message = `주문승인 실패 ${
-          err instanceof Error ? err.message : JSON.stringify(err)
-        }`;
-        msg.error(message, makeMsgOpt());
-        logger.error(p.vendorId, message);
-      })
+      .catch((err) =>
+        catchError({ err, msg, prefix: "주문승인 실패", uid: p.vendorId })
+      )
       .finally(() => {
         targetIds.value.clear();
         checkedOrders.value = [];
@@ -245,6 +244,10 @@ export function useApproveOrder(p: ApproveParam) {
       [...targetIds.value]
     )
       .then(async () => {
+        msg.success("주문거절 완료", makeMsgOpt());
+        logEvent(getAnalytics(ioFire.app), "order_reject", {
+          len: targetIds.value.size,
+        });
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
@@ -256,15 +259,10 @@ export function useApproveOrder(p: ApproveParam) {
           sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
           pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
-        msg.success("주문거절 완료", makeMsgOpt());
       })
-      .catch((err) => {
-        const message = `주문거절 실패 ${
-          err instanceof Error ? err.message : JSON.stringify(err)
-        }`;
-        msg.success(message, makeMsgOpt());
-        logger.error(p.vendorId, message);
-      })
+      .catch((err) =>
+        catchError({ err, msg, prefix: "주문거절 실패", uid: p.vendorId })
+      )
       .finally(() => {
         targetIds.value.clear();
         checkedShops.value = [];
@@ -279,6 +277,9 @@ export function useApproveOrder(p: ApproveParam) {
     )
       .then(async () => {
         msg.success("반품 승인 완료", makeMsgOpt());
+        logEvent(getAnalytics(ioFire.app), "return_approve", {
+          len: targetIds.value.size,
+        });
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
@@ -289,13 +290,9 @@ export function useApproveOrder(p: ApproveParam) {
           pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
       })
-      .catch((err) => {
-        const message = `반품승인 실패 ${
-          err instanceof Error ? err.message : JSON.stringify(err)
-        }`;
-        msg.error(message, makeMsgOpt());
-        logger.error(p.vendorId, message);
-      });
+      .catch((err) =>
+        catchError({ err, msg, prefix: "반품승인 실패", uid: p.vendorId })
+      );
   }
   function returnReject() {
     ORDER_GARMENT_DB.returnReject(
@@ -304,6 +301,9 @@ export function useApproveOrder(p: ApproveParam) {
     )
       .then(async () => {
         msg.success("반품 거절 완료", makeMsgOpt());
+        logEvent(getAnalytics(ioFire.app), "return_reject", {
+          len: targetIds.value.size,
+        });
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
@@ -314,14 +314,9 @@ export function useApproveOrder(p: ApproveParam) {
           pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
       })
-      .catch((err) => {
-        const message = `반품거절 실패 ${
-          err instanceof Error ? err.message : JSON.stringify(err)
-        }`;
-        msg.error(message, makeMsgOpt());
-        console.error(message);
-        logger.error(p.vendorId, message);
-      });
+      .catch((err) =>
+        catchError({ err, msg, prefix: "반품거절 실패", uid: p.vendorId })
+      );
   }
   function onProdReady() {
     ORDER_GARMENT_DB.orderToReady(
@@ -330,6 +325,9 @@ export function useApproveOrder(p: ApproveParam) {
     )
       .then(async () => {
         msg.success("출고리스트 업로드 완료", makeMsgOpt());
+        logEvent(getAnalytics(ioFire.app), "order_to_ready", {
+          len: targetIds.value.size,
+        });
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
@@ -342,13 +340,14 @@ export function useApproveOrder(p: ApproveParam) {
           pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
       })
-      .catch((err) => {
-        const message = `출고리스트 업로드 실패 ${
-          err instanceof Error ? err.message : JSON.stringify(err)
-        }`;
-        msg.error(message, makeMsgOpt());
-        logger.error(p.vendorId, message);
-      });
+      .catch((err) =>
+        catchError({
+          err,
+          msg,
+          prefix: "출고리스트 업로드 실패",
+          uid: p.vendorId,
+        })
+      );
   }
   // <<< Order <<<
   const columns = computed(() => {

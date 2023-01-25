@@ -9,7 +9,8 @@ import { Size, Type } from "naive-ui/es/button/src/interface";
 import { ref, toRefs, watchEffect, computed } from "vue";
 import ReceiptCard from "@/component/card/vendor/ReceiptCard.vue";
 import { axiosConfig } from "@/plugin/axios";
-import { ioFireStore } from "@/plugin/firebase";
+import { ioFire, ioFireStore } from "@/plugin/firebase";
+import { getAnalytics, logEvent } from "@firebase/analytics";
 
 const props = defineProps<{
   targetOrdDbIds: string[];
@@ -70,6 +71,9 @@ async function completePay() {
         uriArgs: {},
         sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
         pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
+      });
+      logEvent(getAnalytics(ioFire.app), "order_complete_pay", {
+        approver: auth.currUser.userInfo.userId,
       });
     })
     .catch((err) => {

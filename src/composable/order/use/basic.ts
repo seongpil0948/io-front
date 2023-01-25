@@ -10,6 +10,8 @@ import { DataFrame, toExcel } from "danfojs";
 import { IoUser, getUserName, locateToStr } from "@io-boxies/js-lib";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { axiosConfig } from "@/plugin/axios";
+import { getAnalytics, logEvent } from "@firebase/analytics";
+import { ioFire } from "@/plugin/firebase";
 
 export function useOrderBasic(
   user: IoUser,
@@ -55,6 +57,10 @@ export function useOrderBasic(
           sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
           pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
         });
+        logEvent(getAnalytics(ioFire.app), "order_product", {
+          len: results.length,
+          sender: user.userInfo.userId,
+        });
       })
       .catch((err) => {
         if (err.toString && err.toString().includes("out of stock")) {
@@ -68,10 +74,12 @@ export function useOrderBasic(
             "주문실패 네트워크 에러, 유효하지 않은 이메일일 수 있습니다."
           );
         } else {
-          const message =
-            err instanceof Error ? err.message : JSON.stringify(err);
-          msg.error(`주문 실패. ${message}`, makeMsgOpt());
-          log.error(user.userInfo.userId, `주문 실패. ${message}`);
+          catchError({
+            err,
+            msg,
+            prefix: "주문 실패",
+            uid: user.userInfo.userId,
+          });
         }
       })
       .finally(() => {
@@ -105,26 +113,36 @@ export function useOrderBasic(
       }
     }
     return ORDER_GARMENT_DB.batchDelete(targets)
-      .then(() => msg.success("삭제 성공.", makeMsgOpt()))
+      .then(() => {
+        msg.success("삭제 성공.", makeMsgOpt());
+        logEvent(getAnalytics(ioFire.app), "order_delete", {
+          len: targets.length,
+        });
+      })
       .catch((err) =>
-        msg.success(
-          `삭제 실패. ${
-            err instanceof Error ? err.message : JSON.stringify(err)
-          }`,
-          makeMsgOpt()
-        )
+        catchError({
+          err,
+          msg,
+          prefix: "삭제 실패.",
+          uid: user.userInfo.userId,
+        })
       );
   }
   async function deleteAll() {
     return ORDER_GARMENT_DB.batchDelete(orders.value)
-      .then(() => msg.success("삭제 성공.", makeMsgOpt()))
+      .then(() => {
+        msg.success("삭제 성공.", makeMsgOpt());
+        logEvent(getAnalytics(ioFire.app), "order_delete", {
+          len: orders.value.length,
+        });
+      })
       .catch((err) =>
-        msg.error(
-          `삭제 실패. ${
-            err instanceof Error ? err.message : JSON.stringify(err)
-          }`,
-          makeMsgOpt()
-        )
+        catchError({
+          err,
+          msg,
+          prefix: "삭제 실패.",
+          uid: user.userInfo.userId,
+        })
       );
   }
   async function orderChecked() {
@@ -152,7 +170,12 @@ export function useOrderBasic(
       ids,
       true
     )
-      .then(() => msg.success(`${ids.length} 개 성공`))
+      .then(() => {
+        msg.success(`${ids.length} 개 성공`);
+        logEvent(getAnalytics(ioFire.app), "order_done_inner", {
+          len: orders.value.length,
+        });
+      })
       .catch((err) => catchError({ err, msg }));
   }
 

@@ -20,6 +20,8 @@ import {
 } from "naive-ui";
 import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
+import { ioFire } from "@/plugin/firebase";
+import { getAnalytics, logEvent } from "@firebase/analytics";
 
 const msg = useMessage();
 const inStates: ORDER_STATE[] = ["BEFORE_PICKUP_REQ"];
@@ -62,6 +64,9 @@ async function pickupRequest() {
   );
   msg.success("픽업 요청 성공!");
   selectedData.value = null;
+  logEvent(getAnalytics(ioFire.app), "order_pickup_request", {
+    len: targetIds.value.size,
+  });
   await smtp.sendAlarm({
     toUserIds: [uncle.userInfo.userId],
     subject: `inoutbox 주문 처리내역 알림.`,

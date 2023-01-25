@@ -1,5 +1,7 @@
 import { PAY_METHOD } from "@/composable";
 import { PAID_INFO } from "@/composable/common";
+import { ioFire } from "@/plugin/firebase";
+import { logEvent, getAnalytics } from "@firebase/analytics";
 import { uuidv4 } from "@firebase/util";
 import { uniqueArr } from "@io-boxies/js-lib";
 import cloneDeep from "lodash.clonedeep";
@@ -148,6 +150,9 @@ export async function deleteItem(d: { order: IoOrder; itemId: string }) {
   } else {
     await ORDER_GARMENT_DB.deleteOrder(d.order);
   }
+  logEvent(getAnalytics(ioFire.app), "order_delete", {
+    len: 1,
+  });
 }
 
 export interface DefrayParam {

@@ -9,11 +9,23 @@ import {
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { uniqueArr } from "@/util";
-import { useMessage } from "naive-ui";
+import {
+  NButton,
+  NCard,
+  NDataTable,
+  NH2,
+  NSelect,
+  NSpace,
+  NTabPane,
+  NTabs,
+  useMessage,
+} from "naive-ui";
 import { useLogger } from "vue-logger-plugin";
 import { validateUser } from "@/composable/order/db/firebase";
 import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
+import { ioFire } from "@/plugin/firebase";
+import { logEvent, getAnalytics } from "@firebase/analytics";
 
 const auth = useAuthStore();
 const inStates: ORDER_STATE[] = [
@@ -78,6 +90,9 @@ async function returnReq() {
         sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
         pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
       });
+      logEvent(getAnalytics(ioFire.app), "order_return_request", {
+        len: orderItemIds.length,
+      });
     })
     .catch((err) =>
       catchError({
@@ -124,7 +139,12 @@ async function pickupRequest() {
 
   if (orderIds.length > 0) {
     ORDER_GARMENT_DB.reqPickup(orderIds, orderItemIds, uncle.userInfo.userId)
-      .then(() => msg.success("픽업 요청 성공!"))
+      .then(() => {
+        msg.success("픽업 요청 성공!");
+        logEvent(getAnalytics(ioFire.app), "order_pickup_request", {
+          len: orderItemIds.length,
+        });
+      })
       .catch((err) => {
         const message = `픽업 요청 실패! ${
           err instanceof Error ? err.message : JSON.stringify(err)
