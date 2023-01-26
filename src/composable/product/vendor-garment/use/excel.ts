@@ -57,11 +57,7 @@ export function useBatchVendorProd(d: { visible: VISIBILITY }) {
     openPreviewModal.value = false;
   }
 
-  const {
-    progress,
-    fileModel,
-    handleFileChange: handleFChange,
-  } = useFileReader({
+  const { progress, handleFileChange: handleFChange } = useFileReader({
     inputRef: excelInputRef,
     readMethod: "binary",
     onLoad: async (event) => {
@@ -80,7 +76,7 @@ export function useBatchVendorProd(d: { visible: VISIBILITY }) {
           for (let z = 0; z < json.length; z++) {
             const j: any = json[z];
             const getNum = (k: string) =>
-              Number.parseInt(j[k].replace(/\D/g, "")) / 100;
+              Number.parseInt(String(j[k]).replace(/\D/g, ""));
             const getStr = (k: string) => String(j[k]).trim();
 
             const vendorProdName = getStr("품명");
@@ -92,24 +88,20 @@ export function useBatchVendorProd(d: { visible: VISIBILITY }) {
             const stockCnt = getNum("현재고");
             const color = getStr("칼라");
             const sizeStr = getStr("사이즈");
+            if (
+              vendorProdName.length < 1 &&
+              color.length < 1 &&
+              sizeStr.length < 1
+            )
+              continue;
             const size: PRODUCT_SIZE = Object.keys(PRODUCT_SIZE).includes(
               sizeStr
             )
               ? (sizeStr as PRODUCT_SIZE)
               : "FREE";
-
-            if (
-              await VENDOR_GARMENT_DB.existSameProd({
-                vendorId,
-                vendorProdName,
-                color,
-                size,
-              })
-            ) {
-              const message = `${vendorProdName}_${color}_${size}는 이미존재하는 상품 입니다.`;
-              msg.error(message, makeMsgOpt());
-              log.warn(vendorId, message);
-            }
+            console.log(
+              `vendorProdName(${vendorProdName}), vendorPrice(${vendorPrice}), primePrice(${primePrice}), stockCnt(${stockCnt}), color(${color}), size(${size})`
+            );
             const newGarment = new VendorGarment({
               gender: "UNISEX",
               part: "ETC",
@@ -135,6 +127,22 @@ export function useBatchVendorProd(d: { visible: VISIBILITY }) {
             });
             newGarment.vendorProdId = newGarment.uid;
             newGarment.vendorProdPkgId = newGarment.pkgUid;
+            if (
+              (await VENDOR_GARMENT_DB.existSameProd({
+                vendorId,
+                vendorProdName,
+                color,
+                size,
+              })) ||
+              parsedGarments.value.find(
+                (x) => x.vendorProdId === newGarment.uid
+              )
+            ) {
+              const message = `${vendorProdName}_${color}_${size}는 이미존재하는 상품 입니다.`;
+              msg.warning(message, makeMsgOpt());
+              log.warn(vendorId, message);
+              continue;
+            }
             parsedGarments.value.push(newGarment);
           }
         }
@@ -150,6 +158,7 @@ export function useBatchVendorProd(d: { visible: VISIBILITY }) {
       if (parsedGarments.value.length < 1) {
         return msg.warning("상품이 없습니다.");
       }
+      console.log("after read ", parsedGarments.value);
       openPreviewModal.value = true;
     },
   });
@@ -165,7 +174,6 @@ export function useBatchVendorProd(d: { visible: VISIBILITY }) {
   }
 
   return {
-    fileModel,
     excelInputRef,
     onBtnClick,
     openPreviewModal,

@@ -6,10 +6,10 @@ import { utils, writeFile } from "xlsx";
 
 const inputRef = ref<null | HTMLInputElement>(null);
 const { readExcel, dataSlice, msg } = useExcel();
-const { progress, fileModel, handleFileChange } = useFileReader({
+const { progress, handleFileChange } = useFileReader({
   inputRef,
   readMethod: "binary",
-  onLoad: (event, file) => {
+  onLoad: async (event, file) => {
     const result = event.target?.result;
     const workBook = readExcel(result);
     for (let i = 0; i < Object.keys(workBook.Sheets).length; i++) {
@@ -95,11 +95,8 @@ const { progress, fileModel, handleFileChange } = useFileReader({
     <n-h1>Play Ground</n-h1>
     <n-card style="width: 90vw">
       <n-space vertical justify="center" align="center">
-        <n-space v-if="fileModel" vertical>
-          <n-text>
-            파일처리 현황: {{ progress.proceed }} /
-            {{ fileModel.length }}</n-text
-          >
+        <n-space vertical>
+          <n-text> 파일처리 현황: {{ progress.proceed }} /</n-text>
           <n-progress type="circle" :percentage="progress.percent" />
         </n-space>
         <!-- <test-table id="test-table" /> -->

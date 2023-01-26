@@ -49,7 +49,7 @@ export async function getExternalSource(
       ioReadFile({
         file: p.file,
         readMethod: "binary",
-        onLoad: (event) => {
+        onLoad: async (event) => {
           const result = event.target?.result;
           const workBook = readExcelIo(result, p.msg);
           resolve(workBook);

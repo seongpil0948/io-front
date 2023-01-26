@@ -97,7 +97,7 @@ const { progress, handleFileChange } = useFileReader({
   inputRef,
   readMethod: "binary",
   beforeRead: reset,
-  onLoad: (event) => {
+  onLoad: async (event) => {
     const result = event.target?.result;
     const workBook = readExcel(result);
 

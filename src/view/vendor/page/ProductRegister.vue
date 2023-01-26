@@ -55,19 +55,21 @@ function downSampleXlsx() {
   </n-modal>
   <n-card v-if="authStore.currUser" title="도매 상품 등록">
     <template #header-extra>
-      <n-button @click="onBtnClick">
-        <input
-          id="customFile"
-          ref="excelInputRef"
-          style="display: none"
-          type="file"
-          @change="handleFileChange"
-        />
-        엑셀 일괄 등록
-      </n-button>
-      <n-button type="primary" @click="downSampleXlsx">
-        일괄등록 엑셀양식
-      </n-button>
+      <n-space>
+        <n-button @click="onBtnClick">
+          <input
+            id="customFile"
+            ref="excelInputRef"
+            style="display: none"
+            type="file"
+            @change="handleFileChange"
+          />
+          엑셀 일괄 등록
+        </n-button>
+        <n-button type="primary" @click="downSampleXlsx">
+          일괄등록 엑셀양식
+        </n-button>
+      </n-space>
     </template>
     <vendor-garment-form
       :minimal="false"
