@@ -46,8 +46,6 @@ const {
   orderDoneInner,
 } = useOrderBasic(user, filteredOrders, orders, checkedDetailKeys);
 
-const sheetIdx = ref(0);
-const startRow = ref(0);
 const { virVendorProds } = useShopVirtualProd(auth.currUser);
 const vendorProds = shallowRef<VendorGarment[]>([]);
 const {
@@ -76,8 +74,6 @@ const { mappingFiles } = useMappingOrderExcel({
   uid: uid,
   fs: fileModel,
   existIds: existOrderIds,
-  sheetIdx: sheetIdx,
-  startRow: startRow,
   userProd,
   matchData,
   msg,
@@ -126,9 +122,10 @@ function uploadOrder() {
 <template>
   <drop-zone-card
     ref="orderDropZoneRef"
+    :key="filteredOrders.length > 0"
     v-model:fileModel="fileModel"
+    :no-click="filteredOrders.length > 0"
     data-test="order-drop-zone"
-    :listen-click="!(filteredOrders.length > 0)"
   >
     <template #header> <div></div> </template>
     <template #header-extra>
@@ -137,20 +134,6 @@ function uploadOrder() {
         <n-button type="primary" @click="downSampleXlsx">
           주문취합 엑셀양식 다운
         </n-button>
-        <n-input-number
-          v-model:value="sheetIdx"
-          :show-button="false"
-          placeholder="시트번호입력"
-        >
-          <template #prefix> 시트번호 </template>
-        </n-input-number>
-        <n-input-number
-          v-model:value="startRow"
-          :show-button="false"
-          placeholder="시작행번호입력"
-        >
-          <template #prefix> 시작행번호 </template>
-        </n-input-number>
         <n-button type="primary" @click="onGetOrder"> 주문취합 </n-button>
       </n-space>
     </template>

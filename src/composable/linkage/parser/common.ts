@@ -91,6 +91,7 @@ export async function saveMatch(
 ) {
   const orders: IoOrder[] = [];
 
+  let cnt = 0;
   for (let i = 0; i < matchData.length; i++) {
     const data = matchData[i];
     if (!data.id) continue;
@@ -139,10 +140,12 @@ export async function saveMatch(
     const order = newOrdFromItem([item]);
 
     orders.push(order);
+    cnt++;
   }
   orders.forEach((o) => refreshOrder(o));
   await ORDER_GARMENT_DB.batchCreate(userId, orders);
   orders?.forEach((ord) => {
     ord.orderIds.forEach((id) => existOrderIds.value.add(id));
   });
+  return cnt;
 }

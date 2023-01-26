@@ -183,7 +183,6 @@ const synonymFilter = (
     .filter((syno) => inVal.includes(syno))
     .sort((a, b) => b.length - a.length)[0];
 
-const mapTxt = (s: string | null | undefined) =>
-  (s ?? "").toLowerCase().replace(/\s/g, "");
+const mapTxt = (s: any) => String(s).toLowerCase().replace(/\s/g, "");
 
 export { Mapper, synonymMatch, synonymFilter, mapTxt };

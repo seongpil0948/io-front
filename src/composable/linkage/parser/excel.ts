@@ -9,18 +9,21 @@ import {
   mapTxt,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
-import { uniqueArr } from "@/util";
-import { readExcel, type DataFrame, Series } from "danfojs";
+import { aoaBySheet } from "@/plugin/xlsx";
 import { MessageApiInjection } from "naive-ui/es/message/src/MessageProvider";
 import { Ref, watch } from "vue";
+import { WorkBook } from "xlsx";
+
+export interface ExcelInputParam {
+  file: File;
+  msg: MessageApiInjection;
+}
 
 export function useMappingOrderExcel(d: {
   mapper: Ref<Mapper | null>;
   uid: Ref<string>;
   fs: Ref<File[]>;
   existIds: Ref<Set<string>>;
-  sheetIdx: Ref<number>;
-  startRow: Ref<number>;
   userProd: Ref<ShopUserGarment[]>;
   matchData: Ref<MatchGarment[]>;
   msg: MessageApiInjection;
@@ -30,19 +33,19 @@ export function useMappingOrderExcel(d: {
     async () => await mappingFiles()
   );
   async function mappingFiles() {
+    console.log("in mapping files", d.mapper.value);
     if (!d.mapper.value) return;
     d.matchData.value = [];
     for (let i = 0; i < d.fs.value.length; i++) {
       const file = d.fs.value[i];
       try {
-        const df = await getExternalSource({
+        const wb = await getExternalSource({
           file,
-          sheet: d.sheetIdx.value,
-          startRow: d.startRow.value,
+          msg: d.msg,
         });
         d.matchData.value.push(
-          ...mapDfToOrder(
-            df,
+          ...mapWBookToOrder(
+            wb,
             d.mapper.value,
             d.existIds.value,
             d.uid.value,
@@ -63,122 +66,96 @@ export function useMappingOrderExcel(d: {
   return { mappingFiles };
 }
 
-export const isExcelInputParam = (p: any): p is ExcelInputParam =>
-  "file" in p && "startRow" in p;
+export const isExcelInputParam = (p: any): p is ExcelInputParam => "file" in p;
+const targetCols: MapKey[] = ["prodName", "size", "color", "orderId"];
+type MapData = { [kk in MapKey]: string };
 
-export interface ExcelInputParam {
-  file: File;
-  sheet: number;
-  startRow: number;
-}
-
-export async function loadDfExcel(p: ExcelInputParam) {
-  const inputDf = (await readExcel(p.file, {
-    sheet: p.sheet,
-  })) as DataFrame;
-  if (!inputDf) throw new Error("has no result of readExcel");
-  if (p.startRow > 0) {
-    // console.log("readExcel: ", inputDf);
-    const newDf = inputDf.iloc({
-      rows: [`${p.startRow}:`],
-    });
-    newDf.$setColumnNames(
-      inputDf.iloc({
-        rows: [`${p.startRow - 1}:${p.startRow}`],
-      }).values[0] as string[]
-    );
-    return newDf;
-  } else {
-    return inputDf;
-  }
-}
-
-export function mapDfToOrder(
-  inputDf: DataFrame,
+function mapWBookToOrder(
+  workbook: WorkBook,
   mapper: Mapper,
   existIds: Set<string>,
   userId: string,
   msg: MessageApiInjection
 ): MatchGarment[] {
-  inputDf = inputDf.applyMap((x: any) =>
-    typeof x === "string" ? mapTxt(x) : x
-  );
-  const garmentTargetCols = ["prodName", "size", "color", "orderId"];
-  function getColMapper(df: DataFrame, ioColNames: MapKey[], mapper: Mapper) {
-    return ioColNames.reduce((curr, colName) => {
-      const synonyms = mapper.getSyno(colName, false);
-      const col = df.columns.find((inputCol) =>
-        synonyms.includes(mapTxt(inputCol))
-      );
-      if (!col) {
-        const message = `컬럼매핑 실패: 실패 엑셀파일에서 ${colName.toString()} 컬럼을 찾을 수 없습니다. \n ${synonyms}`;
-        msg.error(message);
-        logger.error(userId, message);
-      } else {
-        curr[colName] = col;
-      }
-
-      return curr;
-    }, {} as { [key in MapKey]: string });
-  }
-  function getColIdx(df: DataFrame, colMapper: { [key in MapKey]: string }) {
-    const prodNameIdx = df.columns.findIndex(
-      (c) => c === colMapper["prodName"]
-    );
-    const colorIdx = df.columns.findIndex((c) => c === colMapper["color"]);
-    const sizeIdx = df.columns.findIndex((c) => c === colMapper["size"]);
-    const orderIdIdx = df.columns.findIndex((c) => c === colMapper["orderId"]);
-    return { prodNameIdx, colorIdx, sizeIdx, orderIdIdx };
-  }
-
-  const colMapper = getColMapper(
-    inputDf,
-    garmentTargetCols as MapKey[],
-    mapper
-  );
-  const targetDf = inputDf.loc({
-    columns: uniqueArr(Object.values(colMapper)),
-  });
   const prodMapper = mapper.getProdMapper();
-  const idx = getColIdx(targetDf, colMapper);
-  const data: MatchGarment[] = [];
-
+  console.log("prodMapper: ", prodMapper);
+  const aoaData = aoaBySheet(workbook);
   let existOrdId = false;
-  targetDf.apply(
-    (row: Series) => {
-      if (!row[idx.orderIdIdx]) throw new Error("주문번호 컬럼 매핑 실패.");
-      const orderId = String(row[idx.orderIdIdx]);
-      if (data.some((x) => x.orderId === orderId)) return row;
-      if (!row[idx.sizeIdx]) throw new Error("사이즈 컬럼 매핑 실패.");
-      const inputSize = String(row[idx.sizeIdx]);
-      if (!row[idx.colorIdx]) throw new Error("사이즈 컬럼 매핑 실패.");
-      const inputColor = String(row[idx.colorIdx]);
-      if (!row[idx.prodNameIdx]) throw new Error("상품명 컬럼 매핑 실패.");
-      const inputProdName = String(row[idx.prodNameIdx]);
+  const data: MatchGarment[] = [];
+  for (let i = 0; i < Object.keys(aoaData).length; i++) {
+    const sheetName = Object.keys(aoaData)[i];
+    const excelInfo = {
+      startRow: -1,
+      colIdx: {} as { [kk in MapKey]: number },
+    };
+    const aoa = aoaData[sheetName];
+    console.log("raw aoa: ", aoa);
+    // >>> find row & col index >>>
+    for (let z = 0; z < aoa.length; z++) {
+      const row = aoa[z];
+      const cleanRow = row.map((c) => mapTxt(String(c)));
+      if (
+        targetCols.every((colName) =>
+          mapper.getSyno(colName, false).some((syno) => cleanRow.includes(syno))
+        )
+      ) {
+        excelInfo.startRow = z;
+        for (let q = 0; q < targetCols.length; q++) {
+          const target = targetCols[q];
+          excelInfo.colIdx[target] = cleanRow.findIndex((c) =>
+            mapper.getSyno(target, false).includes(c)
+          );
+        }
+        break;
+      }
+    }
+    console.log(`excelInfo: `, excelInfo);
+    // <<< find row & col index <<<
+    if (
+      excelInfo.startRow < 0 ||
+      Object.keys(excelInfo.colIdx).length !== targetCols.length
+    ) {
+      const message = `${sheetName} 시트 컬럼매핑 실패 -> 스킵 `;
+      msg.error(message);
+      logger.error(userId, message);
+      continue;
+    }
 
+    const cleanData: MapData[] = [];
+    for (let z = excelInfo.startRow + 1; z < aoa.length; z++) {
+      const rowArr = aoa[z];
+      if (rowArr.length < 1) continue;
+      cleanData.push(
+        targetCols.reduce((acc, colName) => {
+          acc[colName] = mapTxt(rowArr[excelInfo.colIdx[colName]]);
+          return acc;
+        }, {} as MapData)
+      );
+    }
+    console.info("===> this is cleanData: ", cleanData);
+
+    for (let i = 0; i < cleanData.length; i++) {
+      const cd = cleanData[i];
+      if (data.some((x) => x.orderId === cd.orderId)) continue;
+      else if (existIds.has(cd.orderId)) {
+        existOrdId = true;
+        logger.warn(userId, `주문번호(${cd.orderId})은이미 처리 되었습니다.  `);
+        continue;
+      }
       const matchedNameSynoIds = Object.keys(prodMapper).filter(
         (nameSynoId) => {
           const nameSyno = nameSynoId.split(" iobox ")[0].trim();
-          return inputProdName === nameSyno;
+          // console.log(`try nameSyno(${nameSyno}) = prodName(${cd.prodName})`);
+          return cd.prodName === nameSyno;
         }
       );
+      // console.log("matched names", matchedNameSynoIds);
       let synoColor, synoSize, matchedNameSynoId;
-      if (existIds.has(orderId)) {
-        existOrdId = true;
-        logger.warn(
-          userId,
-          `주문번호(${orderId})은 이미 처리 완료된 주문번호 입니다.  `
-        );
-        return row; // continue
-      }
 
       for (let i = 0; i < matchedNameSynoIds.length; i++) {
         const matchedId = matchedNameSynoIds[i];
-        synoColor = synonymFilter(
-          prodMapper[matchedId].colorMapper,
-          inputColor
-        );
-        synoSize = synonymFilter(prodMapper[matchedId].sizeMapper, inputSize);
+        synoColor = synonymFilter(prodMapper[matchedId].colorMapper, cd.color);
+        synoSize = synonymFilter(prodMapper[matchedId].sizeMapper, cd.size);
         if (synoSize && synoColor) {
           matchedNameSynoId = matchedId;
           break;
@@ -206,16 +183,14 @@ export function mapDfToOrder(
         prodName,
         size,
         color,
-        inputProdName: inputProdName,
-        inputColor,
-        inputSize,
-        orderId,
+        inputProdName: cd.prodName,
+        inputColor: cd.color,
+        inputSize: cd.size,
+        orderId: cd.orderId,
         orderCnt: 1,
       });
-      return row;
-    },
-    { axis: 1 }
-  );
+    }
+  }
   if (existOrdId) {
     msg.warning("이미 처리된 주문건이 있습니다.");
   }

@@ -6,12 +6,13 @@ import { ref, computed, Ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { ORDER_GARMENT_DB } from "../db";
 import { OrderItemCombined } from "../domain";
-import { DataFrame, toExcel } from "danfojs";
+
 import { IoUser, getUserName, locateToStr } from "@io-boxies/js-lib";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { axiosConfig } from "@/plugin/axios";
 import { getAnalytics, logEvent } from "@firebase/analytics";
 import { ioFire } from "@/plugin/firebase";
+import { utils, writeFile } from "xlsx";
 
 export function useOrderBasic(
   user: IoUser,
@@ -199,51 +200,36 @@ export async function downOrderItems(
   gOrders: OrderItemCombined[],
   virtualVendors: IoUser[]
 ) {
-  const df = await pOrdersToFrame(gOrders, virtualVendors);
+  const vendorProds = await vendorUserProdFromOrders(gOrders, virtualVendors);
+  const aoo = gOrders
+    .map((x) => {
+      const vendor = vendorProds.find((v) => v.userInfo.userId === x.vendorId);
+      if (!vendor || !vendor.companyInfo) return null;
+      const locate =
+        vendor?.companyInfo.shipLocate ?? vendor?.companyInfo?.locations[0];
+      if (!locate) return null;
+      return {
+        소매상품명: x.shopProd.prodName,
+        도매상품명: x.vendorProd.vendorProdName,
+        컬러: x.vendorProd.color,
+        사이즈: x.vendorProd.size,
+        도매처:
+          x.vendorProd.userInfo.displayName ?? x.vendorProd.userInfo.userName,
+        주문수량: x.orderCnt,
+        미송수량: x.pendingCnt,
+        도매가: x.vendorProd.vendorPrice,
+        합계: x.orderCnt * x.vendorProd.vendorPrice,
+        "도매처 건물명": locate.alias,
+        "도매처 상세주소": locate.detailLocate ?? "",
+        "도매처 주소": locateToStr(locate),
+        핸드폰번호: locate.phone,
+      };
+    })
+    .filter((z) => z);
   const date = new Date();
   const fileName = `${date.toLocaleString()}.xlsx`;
-  toExcel(df, { fileName });
-  const a = document.createElement("a");
-  // a.href = url
-  a.href = fileName;
-  a.download = fileName;
-  // a.click();
-  a.remove();
-}
-
-export async function pOrdersToFrame(
-  gOrders: OrderItemCombined[],
-  virtualVendors: IoUser[]
-): Promise<DataFrame> {
-  const vendorProds = await vendorUserProdFromOrders(gOrders, virtualVendors);
-  const df = new DataFrame(
-    gOrders
-      .map((x) => {
-        const vendor = vendorProds.find(
-          (v) => v.userInfo.userId === x.vendorId
-        );
-        if (!vendor || !vendor.companyInfo) return null;
-        const locate =
-          vendor?.companyInfo.shipLocate ?? vendor?.companyInfo?.locations[0];
-        if (!locate) return null;
-        return {
-          소매상품명: x.shopProd.prodName,
-          도매상품명: x.vendorProd.vendorProdName,
-          컬러: x.vendorProd.color,
-          사이즈: x.vendorProd.size,
-          도매처:
-            x.vendorProd.userInfo.displayName ?? x.vendorProd.userInfo.userName,
-          주문수량: x.orderCnt,
-          미송수량: x.pendingCnt,
-          도매가: x.vendorProd.vendorPrice,
-          합계: x.orderCnt * x.vendorProd.vendorPrice,
-          "도매처 건물명": locate.alias,
-          "도매처 상세주소": locate.detailLocate ?? "",
-          "도매처 주소": locateToStr(locate),
-          핸드폰번호: locate.phone,
-        };
-      })
-      .filter((z) => z)
-  );
-  return df;
+  const worksheet = utils.json_to_sheet(aoo);
+  const workbook = utils.book_new();
+  utils.book_append_sheet(workbook, worksheet, "Dates");
+  writeFile(workbook, fileName);
 }

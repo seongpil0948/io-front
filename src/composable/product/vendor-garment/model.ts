@@ -60,8 +60,15 @@ export class VendorGarment extends CommonField implements VendorGarmentCrt {
   }) {
     return v5(p.vendorId + p.prodName + p.size + p.color, v5Namespace());
   }
+
   static pkgUid(p: { vendorId: string; prodName: string }) {
     return v5(p.vendorId + p.prodName, v5Namespace());
+  }
+  get pkgUid() {
+    return VendorGarment.pkgUid({
+      vendorId: this.vendorId,
+      prodName: this.vendorProdName,
+    });
   }
 
   constructor(d: Omit<VendorGarmentCrt, "similarId">) {

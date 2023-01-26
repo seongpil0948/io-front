@@ -1,4 +1,3 @@
-import { type DataFrame } from "danfojs";
 import {
   CafeOrderParam,
   getCafeOrders,
@@ -10,9 +9,11 @@ import {
 import {
   AnyOrder,
   ExcelInputParam,
+  ioReadFile,
   isExcelInputParam,
-  loadDfExcel,
 } from "@/composable";
+import { readExcelIo } from "@/plugin/xlsx";
+import { WorkBook } from "xlsx";
 
 // type MapSrc = AnyOrder[] | DataFrame;
 // type ProcessMatchData<S extends MapSrc> = (
@@ -35,7 +36,7 @@ import {
 
 export function getExternalSource(p: CafeOrderParam): Promise<AnyOrder[]>;
 export function getExternalSource(p: ZigzagOrderParam): Promise<AnyOrder[]>;
-export function getExternalSource(p: ExcelInputParam): Promise<DataFrame>;
+export function getExternalSource(p: ExcelInputParam): Promise<WorkBook>;
 export async function getExternalSource(
   p: CafeOrderParam | ZigzagOrderParam | ExcelInputParam
 ) {
@@ -44,7 +45,18 @@ export async function getExternalSource(
   } else if (isCafeOrderParam(p)) {
     return getCafeOrders(p);
   } else if (isExcelInputParam(p)) {
-    return loadDfExcel(p);
+    return new Promise<WorkBook>((resolve) => {
+      ioReadFile({
+        file: p.file,
+        readMethod: "binary",
+        onLoad: (event) => {
+          const result = event.target?.result;
+          const workBook = readExcelIo(result, p.msg);
+          resolve(workBook);
+        },
+      });
+    });
+    // return readExcelIo(p);
   }
   throw new Error("invalid OrderParam: ", p);
 }

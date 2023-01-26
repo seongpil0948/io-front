@@ -14,9 +14,7 @@
       <slot name="header-extra" />
     </template>
     <div v-bind="getRootProps()">
-      <div v-if="listenClick">
-        <input data-test="drop-zone-input" v-bind="getInputProps()" />
-      </div>
+      <input data-test="drop-zone-input" v-bind="getInputProps()" />
       <slot v-bind="{ hovered, activeColor, isDragActive }">
         <div style="padding: 10% 20%">
           <div style="margin-bottom: 12px">
@@ -56,7 +54,7 @@ import { useDropzone } from "vue3-dropzone";
 import { makeMsgOpt } from "@/util";
 
 const props = defineProps({
-  listenClick: {
+  noClick: {
     type: Boolean,
     default: () => true,
   },
@@ -72,11 +70,12 @@ const props = defineProps({
   },
 });
 
-const { listenClick } = toRefs(props);
+const { noClick } = toRefs(props);
 const msg = useMessage();
 const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
   onDrop,
   multiple: Array.isArray(props.fileModel),
+  noClick: noClick.value,
 });
 
 const emits = defineEmits(["update:fileModel"]);

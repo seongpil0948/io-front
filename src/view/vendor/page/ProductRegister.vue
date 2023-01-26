@@ -2,7 +2,6 @@
 import { useBatchVendorProd, useVendorProdCols } from "@/composable";
 
 const {
-  fileModel,
   excelInputRef,
   onBtnClick,
   openPreviewModal,
@@ -11,14 +10,18 @@ const {
   onPreviewCancel,
   disableModalSave,
   authStore,
+  handleFileChange,
 } = useBatchVendorProd({ visible: "GLOBAL" });
 
 const { columns } = useVendorProdCols(false, true);
 
-function handleFileChange(evt: Event) {
-  const element = evt.currentTarget as HTMLInputElement;
-  fileModel.value = element.files;
-  disableModalSave.value = false;
+function downSampleXlsx() {
+  const a = document.createElement("a");
+  // a.href = url
+  a.href = "/example/sample-batch-vendor-prod.xlsx";
+  a.download = "sample-batch-vendor-prod.xlsx";
+  a.click();
+  a.remove();
 }
 </script>
 <template>
@@ -61,6 +64,9 @@ function handleFileChange(evt: Event) {
           @change="handleFileChange"
         />
         엑셀 일괄 등록
+      </n-button>
+      <n-button type="primary" @click="downSampleXlsx">
+        일괄등록 엑셀양식
       </n-button>
     </template>
     <vendor-garment-form

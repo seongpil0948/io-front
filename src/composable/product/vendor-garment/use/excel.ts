@@ -3,29 +3,31 @@ import {
   catchError,
   catchExcelError,
   PRODUCT_SIZE,
+  useFileReader,
   VendorGarment,
   VENDOR_GARMENT_DB,
   VISIBILITY,
 } from "@/composable";
 import { useAuthStore, useCommonStore } from "@/store";
-import { readExcel, DataFrame, Series } from "danfojs";
-import { ref, watch } from "vue";
-import { uuidv4 } from "@firebase/util";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { makeMsgOpt } from "@/util";
+import { readExcelIo } from "@/plugin/xlsx";
+import { utils } from "xlsx";
+import { useLogger } from "vue-logger-plugin";
 
 export function useBatchVendorProd(d: { visible: VISIBILITY }) {
-  const fileModel = ref<FileList | null>();
   const excelInputRef = ref<null | HTMLInputElement>(null);
   const authStore = useAuthStore();
   const u = authStore.currUser;
   const msg = useMessage();
   const router = useRouter();
-
   const disableModalSave = ref(false);
   const openPreviewModal = ref(false);
   const parsedGarments = ref<VendorGarment[]>([]);
   const cs = useCommonStore();
+  const log = useLogger();
+
   async function onPreviewConfirm() {
     disableModalSave.value = true;
     if (parsedGarments.value.length < 1) {
@@ -55,86 +57,105 @@ export function useBatchVendorProd(d: { visible: VISIBILITY }) {
     openPreviewModal.value = false;
   }
 
-  watch(
-    () => fileModel.value,
-    async (files) => {
+  const {
+    progress,
+    fileModel,
+    handleFileChange: handleFChange,
+  } = useFileReader({
+    inputRef: excelInputRef,
+    readMethod: "binary",
+    onLoad: async (event) => {
+      const vendorId = u.userInfo.userId;
       try {
-        if (files && files.length > 0) {
-          const file = files[0];
-          const inputDf = await readExcel(file);
-          if (inputDf) {
-            parsedGarments.value = parseDf(inputDf as DataFrame);
-            if (parsedGarments.value.length < 1) {
-              return msg.warning("상품이 없습니다.");
+        const result = event.target?.result;
+        const workBook = readExcelIo(result, msg);
+        for (let i = 0; i < Object.keys(workBook.Sheets).length; i++) {
+          const sheetName = Object.keys(workBook.Sheets)[i];
+          const sheet = workBook.Sheets[sheetName];
+          // dataSlice(sheet, 0);
+          const defval = "";
+          const json = utils.sheet_to_json(sheet, { defval });
+          console.log(`<<< after sheet: `, sheet, "json: ", json, " <<<");
+
+          for (let z = 0; z < json.length; z++) {
+            const j: any = json[z];
+            const getNum = (k: string) =>
+              Number.parseInt(j[k].replace(/\D/g, "")) / 100;
+            const getStr = (k: string) => String(j[k]).trim();
+
+            const vendorProdName = getStr("품명");
+            const vendorPrice = getNum("도매가");
+            let primePrice = getNum("제품원가");
+            if (primePrice < 10) {
+              primePrice = vendorPrice;
             }
-            openPreviewModal.value = true;
+            const stockCnt = getNum("현재고");
+            const color = getStr("칼라");
+            const sizeStr = getStr("사이즈");
+            const size: PRODUCT_SIZE = Object.keys(PRODUCT_SIZE).includes(
+              sizeStr
+            )
+              ? (sizeStr as PRODUCT_SIZE)
+              : "FREE";
+
+            if (
+              await VENDOR_GARMENT_DB.existSameProd({
+                vendorId,
+                vendorProdName,
+                color,
+                size,
+              })
+            ) {
+              const message = `${vendorProdName}_${color}_${size}는 이미존재하는 상품 입니다.`;
+              msg.error(message, makeMsgOpt());
+              log.warn(vendorId, message);
+            }
+            const newGarment = new VendorGarment({
+              gender: "UNISEX",
+              part: "ETC",
+              ctgr: "ETC",
+              color,
+              allowPending: false,
+              size,
+              fabric: "",
+              vendorId,
+              vendorProdId: "",
+              vendorPrice,
+              primeCost: primePrice,
+              stockCnt: stockCnt,
+              vendorProdName,
+              titleImgs: [],
+              bodyImgs: [],
+              info: "",
+              description: "",
+              vendorProdPkgId: "",
+              TBD: {},
+              prodType: "GARMENT",
+              ...d,
+            });
+            newGarment.vendorProdId = newGarment.uid;
+            newGarment.vendorProdPkgId = newGarment.pkgUid;
+            parsedGarments.value.push(newGarment);
           }
         }
       } catch (err) {
-        catchExcelError({ err });
+        catchExcelError({ err, msg, uid: vendorId });
       }
-    }
-  );
-  function parseDf(df: DataFrame) {
-    // console.log("df.columns: ", df.columns);
-    const vendorProds: VendorGarment[] = [];
-    df.apply(async (row: Series) => {
-      const vendorProdName = String(row[0]);
-      const vendorPrice = row[5];
-      const color = row[1];
-      const sizeStr = String(row[2]);
-      const size: PRODUCT_SIZE = Object.keys(PRODUCT_SIZE).includes(sizeStr)
-        ? (sizeStr as PRODUCT_SIZE)
-        : "FREE";
-      if (
-        await VENDOR_GARMENT_DB.existSameProd({
-          vendorId: u.userInfo.userId,
-          vendorProdName,
-          color,
-          size,
-        })
-      ) {
-        console.log(vendorProdName, color, size, "is exist");
-        return row;
+      progress.value.proceed += 1;
+    },
+    beforeRead: function (): void {
+      parsedGarments.value = [];
+    },
+    afterRead: function () {
+      if (parsedGarments.value.length < 1) {
+        return msg.warning("상품이 없습니다.");
       }
-      const newGarment = new VendorGarment({
-        gender: "UNISEX",
-        part: "ETC",
-        ctgr: "ETC",
-        color,
-        allowPending: false,
-        size,
-        fabric: "",
-        vendorId: u.userInfo.userId,
-        vendorProdId: uuidv4(),
-        vendorPrice,
-        primeCost: vendorPrice,
-        stockCnt: parseInt(row[9]),
-        vendorProdName,
-        titleImgs: [],
-        bodyImgs: [],
-        info: "",
-        description: "",
-        vendorProdPkgId: "",
-        TBD: {},
-        prodType: "GARMENT",
-        ...d,
-      });
-      const similarProds = await VENDOR_GARMENT_DB.getSimilarProds({
-        vendorId: u.userInfo.userId,
-        vendorProdName,
-      });
-
-      newGarment.vendorProdPkgId =
-        similarProds.length > 0 ? similarProds[0].vendorProdPkgId : uuidv4();
-
-      vendorProds.push(newGarment);
-      return row;
-    });
-
-    console.log("vendorProds:", vendorProds);
-    vendorProds.pop();
-    return vendorProds;
+      openPreviewModal.value = true;
+    },
+  });
+  function handleFileChange(evt: Event) {
+    disableModalSave.value = false;
+    handleFChange(evt);
   }
 
   function onBtnClick() {
@@ -153,5 +174,6 @@ export function useBatchVendorProd(d: { visible: VISIBILITY }) {
     onPreviewCancel,
     disableModalSave,
     authStore,
+    handleFileChange,
   };
 }

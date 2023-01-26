@@ -8,6 +8,7 @@ import {
   LINKAGE_DB,
   mapCafeOrder,
   Mapper,
+  mapTxt,
   matchCafeOrder,
   matchZigzagOrder,
   saveMatch,
@@ -122,6 +123,7 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
 
   async function onClickId(row: MatchGarment) {
     selectFunc.value = async (s) => {
+      console.log("in selectFunc", row);
       const g = ShopGarment.fromJson(s);
       if (!g) throw new Error("result of ShopGarment.fromJson is null ");
       const fillTable = () => {
@@ -142,9 +144,11 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
 
         g.update().then(() => fillTable());
       } else if (row.matchType === "map" && mapper.value) {
+        console.log("reverseMapping", mapper.value, g);
         reverseMapping(mapper.value, row, g).then(async () => {
+          console.log("done reverseMapping");
           if (row.service === "CAFE" || row.service === "ZIGZAG") processAll();
-          await d.afterReverseMap?.();
+          else await d.afterReverseMap?.();
         });
       }
     };
@@ -152,13 +156,14 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
   }
 
   async function onSaveMatch() {
-    await saveMatch(
+    const cnt = await saveMatch(
       matchData.value,
       userProd.value,
       uid.value,
       existOrderIds,
       vendorProds.value
     );
+    msg.info(`${cnt} 행 성공`);
     matchData.value = [];
   }
   function processAll() {
@@ -294,8 +299,13 @@ export async function reverseMapping(
     throw new Error(`
   reverseMapping error, input null field with inputProdName(${m.inputProdName}) | inputSize(${m.inputSize}) | inputColor(${m.inputColor}) |`);
   } else if (!mapper) return;
-  mapper.setColVal("prodName", g.shopProdId, g.prodName, m.inputProdName);
-  mapper.setColVal("size", g.shopProdId, g.size, m.inputSize);
-  mapper.setColVal("color", g.shopProdId, g.color, m.inputColor);
+  mapper.setColVal(
+    "prodName",
+    g.shopProdId,
+    g.prodName,
+    mapTxt(m.inputProdName)
+  );
+  mapper.setColVal("size", g.shopProdId, g.size, mapTxt(m.inputSize));
+  mapper.setColVal("color", g.shopProdId, g.color, mapTxt(m.inputColor));
   return mapper.update();
 }

@@ -1,32 +1,17 @@
 // import { FileReaderParam, useFileReader } from "@/composable";
 import { useMessage } from "naive-ui";
 // import { ref } from "vue";
-import { read, type WorkSheet, type WorkBook } from "xlsx";
+import { utils, read, type WorkSheet, type WorkBook } from "xlsx";
 // https://drive.google.com/drive/u/1/folders/13cXvwAZqqdC4a3GyYti20sqtaXzL0HOa
 // https://docs.sheetjs.com/docs/csf/general/
 // https://github.com/SheetJS/sheetjs/issues/864
 
+type ReadExcelData = string | ArrayBuffer | null | undefined;
 export function useExcel() {
   const msg = useMessage();
 
-  function readExcel(data: string | ArrayBuffer | null | undefined) {
-    let workBook: WorkBook;
-    try {
-      workBook = read(data, {
-        type: "binary",
-        dense: true,
-        password: "1234",
-      });
-    } catch (err) {
-      if (err instanceof Error) {
-        if (err.message.includes("File is password-protected")) {
-          msg.error("File is password-protected");
-        }
-      }
-      throw err;
-    }
-    console.info("parsed workBook: ", JSON.parse(JSON.stringify(workBook)));
-    return workBook;
+  function readExcel(data: ReadExcelData) {
+    return readExcelIo(data, msg);
   }
 
   function dataSlice(sheet: WorkSheet, start?: number, end?: number) {
@@ -43,6 +28,46 @@ export function useExcel() {
     dataSlice,
     msg,
   };
+}
+export function readExcelIo(
+  data: ReadExcelData,
+  msg: ReturnType<typeof useMessage>
+) {
+  let workBook: WorkBook;
+  try {
+    workBook = read(data, {
+      type: "binary",
+      dense: true,
+      password: "1234",
+    });
+  } catch (err) {
+    if (err instanceof Error) {
+      if (err.message.includes("File is password-protected")) {
+        msg.error("File is password-protected");
+      }
+    }
+    throw err;
+  }
+  console.info("parsed workBook: ", JSON.parse(JSON.stringify(workBook)));
+  return workBook;
+}
+
+export function aoaBySheet(workBook: WorkBook, defval = "") {
+  const result: { [sName: string]: any[][] } = {};
+  for (let i = 0; i < Object.keys(workBook.Sheets).length; i++) {
+    const sheetName = Object.keys(workBook.Sheets)[i];
+    const sheet = workBook.Sheets[sheetName];
+    result[sheetName] = sheetToAoa(sheet, defval);
+  }
+  return result;
+}
+
+export function sheetToAoa(sheet: WorkSheet, defval = "") {
+  const jsonArr = utils.sheet_to_json<any[]>(sheet, {
+    header: 1,
+    defval,
+  });
+  return jsonArr;
 }
 
 // only used for once at parse

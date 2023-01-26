@@ -5,10 +5,7 @@ import {
   TryNum,
   TryStr,
 } from "@/composable";
-// TODO
-// 1. 토큰에 alias 와 accessKey Field를 추가한다.
-// 2. 유저 하위 컬렉션(secret)으로 accessKey를 docId 인 secretKey를 저장하는 문서를 만든다
-// 3. secretKey는 client side 에서 가져오지 못하며
+
 const validStatus = ["NEW_ORDER", "AWAITING_SHIPMENT", "IN_TRANSIT"];
 export function matchZigzagOrder(
   ords: AnyOrder[],
