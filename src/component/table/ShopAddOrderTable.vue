@@ -130,25 +130,53 @@ function uploadOrder() {
     <template #header> <div></div> </template>
     <template #header-extra>
       <n-space style="width: 100%" inline item-style="max-width: 100%">
-        <n-button type="primary" @click="uploadOrder"> 주문업로드 </n-button>
+        <n-button
+          data-test="order-upload-btn"
+          type="primary"
+          @click="uploadOrder"
+        >
+          주문업로드
+        </n-button>
         <n-button type="primary" @click="downSampleXlsx">
           주문취합 엑셀양식 다운
         </n-button>
-        <n-button type="primary" @click="onGetOrder"> 주문취합 </n-button>
+        <n-button data-test="order-get-btn" type="primary" @click="onGetOrder">
+          주문취합
+        </n-button>
       </n-space>
     </template>
     <n-space v-if="filteredOrders.length > 0" vertical>
       <n-space justify="end">
-        <n-button size="small" type="primary" @click="orderChecked">
+        <n-button
+          data-test="order-send-selected-btn"
+          size="small"
+          type="primary"
+          @click="orderChecked"
+        >
           선택주문
         </n-button>
-        <n-button size="small" type="primary" @click="orderAll">
+        <n-button
+          data-test="order-send-all-btn"
+          size="small"
+          type="primary"
+          @click="orderAll"
+        >
           전체주문
         </n-button>
-        <n-button size="small" type="primary" @click="deleteChecked">
+        <n-button
+          data-test="order-delete-selected-btn"
+          size="small"
+          type="primary"
+          @click="deleteChecked"
+        >
           선택삭제
         </n-button>
-        <n-button size="small" type="primary" @click="orderDelAll">
+        <n-button
+          data-test="order-delete-all-btn"
+          size="small"
+          type="primary"
+          @click="orderDelAll"
+        >
           전체삭제
         </n-button>
         <n-tooltip trigger="hover">
@@ -167,6 +195,7 @@ function uploadOrder() {
       </n-space>
       <n-data-table
         ref="tableRef"
+        row-class-name="table-order-row"
         :table-layout="'fixed'"
         :scroll-x="800"
         :columns="tableCol"

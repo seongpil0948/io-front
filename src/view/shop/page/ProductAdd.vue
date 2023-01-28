@@ -131,8 +131,8 @@ const { searchInputVal, searchData, search, msg } = useElasticSearch({
     return {
       index:
         import.meta.env.MODE === "production"
-          ? ".ent-search-engine-documents-io-box-vendor-prod-search"
-          : ".ent-search-engine-documents-io-box-dev-search",
+          ? ".ent-search-engine-documents-io-box-vendorproduct-prod-search"
+          : ".ent-search-engine-documents-io-box-vendorproduct-dev-search",
       query,
       sort: [
         {
