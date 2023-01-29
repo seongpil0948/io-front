@@ -6,8 +6,9 @@ import {
 import { ref, watchEffect, h, Ref, defineAsyncComponent, Component } from "vue";
 import { IoColOpt, MapperFields, IoColOptInner } from "../domain";
 import { colKoMapper } from "./colDict";
-import { useMapper } from "./mapper";
 import { formatDate, loadDate } from "@io-boxies/js-lib";
+import { useShopOrderStore } from "@/store";
+import { storeToRefs } from "pinia";
 
 const MapperSaver = defineAsyncComponent(
   () => import("@/component/input/MapperSaver.vue")
@@ -29,7 +30,8 @@ export function useTable<T extends MapperFields>(
   p: useTableParam,
   onSelect?: (g: T) => Promise<void>
 ) {
-  const { mapper, mapperUpdate } = useMapper(p.userId);
+  const shopOrderStore = useShopOrderStore();
+  const { mapper } = storeToRefs(shopOrderStore);
   const columns = ref<TableBaseColumn<T>[]>([]);
   const openKey = ref("");
   const checkedKeys = ref<string[]>([]);
@@ -182,7 +184,7 @@ export function useTable<T extends MapperFields>(
     checkedKeys,
     colKoMapper,
     rendorTableBtn,
-    mapperUpdate,
+    mapperUpdate: shopOrderStore.mapperUpdate,
   };
 }
 

@@ -16,7 +16,6 @@ import {
   saveMatch,
   useCafeAuth,
   useCommon,
-  useMapper,
   useSearch,
   useShopVirtualProd,
 } from "@/composable";
@@ -37,7 +36,6 @@ import { matchAblyOrder } from "../parser/ably";
 
 export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
   const { msg, log, auth, uid } = useCommon();
-  const { mapper } = useMapper(uid.value);
   const cafeOrders = shallowRef<AnyOrder[]>([]);
   const zigzagOrders = shallowRef<AnyOrder[]>([]);
   const ablyOrders = shallowRef<AblyOrderItem[]>([]);
@@ -51,7 +49,7 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
   } = dateRanges(true);
   const { tokens, unsubscribe } = LINKAGE_DB.getTokensByIdListen(uid.value);
   const shopOrderStore = useShopOrderStore();
-  const { existOrderIds } = storeToRefs(shopOrderStore);
+  const { existOrderIds, mapper } = storeToRefs(shopOrderStore);
   onBeforeUnmount(() => unsubscribe());
 
   const { userVirProds, virVendorProds } = useShopVirtualProd(auth.currUser);
@@ -167,11 +165,11 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
         g.update().then(() => fillTable());
       } else if (row.matchType === "map" && mapper.value) {
         console.log("reverseMapping", mapper.value, g);
-        reverseMapping(mapper.value, row, g).then(async () => {
-          console.log("done reverseMapping");
-          if (row.service === "CAFE" || row.service === "ZIGZAG") processAll();
-          else await d.afterReverseMap?.();
-        });
+        reverseMapping(mapper.value, row, g);
+        await mapper.value.update();
+        console.log("done reverseMapping");
+        if (row.service === "CAFE" || row.service === "ZIGZAG") processAll();
+        else await d.afterReverseMap?.();
       }
     };
     openSelectList.value = true;
@@ -320,7 +318,7 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
   };
 }
 
-export async function reverseMapping(
+export function reverseMapping(
   mapper: Mapper,
   m: { inputProdName?: string; inputSize?: string; inputColor?: string },
   g: ShopGarment
@@ -332,12 +330,16 @@ export async function reverseMapping(
   mapper.setColVal(
     "prodName",
     g.shopProdId,
-    g.prodName,
+    mapTxt(g.prodName),
     mapTxt(m.inputProdName)
   );
-  mapper.setColVal("size", g.shopProdId, g.size, mapTxt(m.inputSize));
-  mapper.setColVal("color", g.shopProdId, g.color, mapTxt(m.inputColor));
-  return mapper.update();
+  mapper.setColVal("size", g.shopProdId, mapTxt(g.size), mapTxt(m.inputSize));
+  mapper.setColVal(
+    "color",
+    g.shopProdId,
+    mapTxt(g.color),
+    mapTxt(m.inputColor)
+  );
 }
 
 function expressParseResult(

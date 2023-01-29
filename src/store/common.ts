@@ -9,6 +9,7 @@ export const useCommonStore = defineStore("common", () => {
   const msgQueue = ref<{ isError: boolean; content: ContentType }[]>([]);
   const loading = ref(false);
   const showSpin = ref(false);
+  const spinText = ref("");
   const locale = ref<LOCALE>("ko");
   const isLoading = computed(() => loading.value === true);
 
@@ -34,6 +35,7 @@ export const useCommonStore = defineStore("common", () => {
     msgQueue,
     loading,
     showSpin,
+    spinText,
     locale,
     isLoading,
     screenWidth,

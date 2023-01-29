@@ -10,12 +10,15 @@ import {
   ShopUserGarment,
   useVirtualVendor,
   vendorUserProdFromOrders,
+  Mapper,
 } from "@/composable";
 import { defineStore } from "pinia";
 import { ref, computed, onBeforeUnmount, watchEffect } from "vue";
 import { useAuthStore } from "./auth";
-import { Unsubscribe } from "@firebase/firestore";
+import { doc, onSnapshot, Unsubscribe } from "@firebase/firestore";
 import { logger } from "@/plugin/logger";
+import { ioFireStore } from "@/plugin/firebase";
+import { getIoCollection } from "@io-boxies/js-lib";
 
 export const useShopOrderStore = defineStore("shopOrderStore", () => {
   // >>> state >>>
@@ -36,7 +39,6 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
         shopId.value
       );
   }
-  // >>> getter >>>
   function getOrders(inStates: ORDER_STATE[]) {
     return computed(() =>
       _orders.value.filter((x) => x.states.some((y) => inStates.includes(y)))
@@ -126,7 +128,24 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   onBeforeUnmount(() => {
     inStates.value = [];
   });
-  // >>> action >>>
+  const mapper = ref<Mapper | null>(null);
+  const mapperDoc = doc(
+    getIoCollection(ioFireStore, { c: "MAPPER" }),
+    uid()
+  ).withConverter(Mapper.fireConverter());
+  const mapUnsubscribe = onSnapshot(mapperDoc, (doc) => {
+    mapper.value = doc.data() ?? null;
+    console.log("snapshot mapper", mapper.value);
+  });
+  async function mapperUpdate() {
+    mapper.value?.update().catch((err) => {
+      const message = `업데이트 실패 ${
+        err instanceof Error ? err.message : JSON.stringify(err)
+      }`;
+      logger.error(uid(), message, err);
+    });
+  }
+
   function init(shopUserId: string) {
     if (!initial || !shopUserId || shopUserId === shopId.value) return;
     logger.debug(`=== init shopOrderStore === shopUserId: ${shopUserId}`);
@@ -156,6 +175,8 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     if (shopGarmentUnSub) {
       shopGarmentUnSub();
     }
+    mapper.value = null;
+    mapUnsubscribe();
     orderUnSub = null;
     shopGarmentUnSub = null;
     inStates.value = [];
@@ -177,6 +198,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
   // }, 1000);
 
   return {
+    uid,
     existOrderIds,
     shopProds,
     getOrders,
@@ -188,5 +210,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     init,
     orders,
     virtualVendors,
+    mapper,
+    mapperUpdate,
   };
 });

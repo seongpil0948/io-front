@@ -6,6 +6,7 @@ import {
   ShopGarment,
   ProdInnerIdSrc,
   VendorGarment,
+  mapTxt,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { isMobile } from "@/util";
@@ -78,14 +79,14 @@ function onClickId(value: {
 const vendorByName = ref<{ [vendorName: string]: IoUser }>({});
 watchEffect(async () => {
   Object.keys(virtualVendorById.value).forEach((vk) => {
-    const uName = getUserName(virtualVendorById.value[vk]);
+    const uName = mapTxt(getUserName(virtualVendorById.value[vk]));
     if (!vendorByName.value[uName]) {
       vendorByName.value[uName] = virtualVendorById.value[vk];
     }
   });
   for (let i = 0; i < userProd.value.length; i++) {
     const sug = userProd.value[i];
-    const uName = getUserName(userProd.value[i]);
+    const uName = mapTxt(getUserName(userProd.value[i]));
     if (sug.visible === "GLOBAL" && !vendorByName.value[uName]) {
       const u = await USER_DB.getUserById(ioFireStore, sug.vendorId);
       if (u) {

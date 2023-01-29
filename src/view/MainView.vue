@@ -40,6 +40,9 @@ watchPostEffect(() => {
         <Reload />
       </n-icon>
     </template>
+    <template #description>
+      {{ cs.spinText }}
+    </template>
     <router-view />
   </n-spin>
   <float-action-button

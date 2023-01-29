@@ -4,11 +4,12 @@ import {
   ShopGarment,
   ShopUserGarment,
   useFileReader,
-  useMapper,
   reverseMapping,
   mapTxt,
+  catchError,
 } from "@/composable";
 import { useExcel } from "@/plugin/xlsx";
+import { useCommonStore, useShopOrderStore } from "@/store";
 import { getUserName, IoUser } from "@io-boxies/js-lib";
 import { NButton } from "naive-ui";
 import { ref, computed, h, shallowRef, toRefs, triggerRef } from "vue";
@@ -38,7 +39,7 @@ const dictData = computed(() =>
   }, {} as { [k: string]: ShopUserGarment })
 );
 
-const { mapper } = useMapper(userId.value);
+const { mapper, mapperUpdate } = useShopOrderStore();
 const inputRef = shallowRef<null | HTMLInputElement>(null);
 // const {msg} = useCommon()
 const { readExcel, dataSlice, msg } = useExcel();
@@ -64,7 +65,6 @@ function processJson() {
     parseData.value.push(j);
   }
   triggerRef(parseData);
-  console.info("processJson parseData: ", parseData);
 }
 
 function readJson(json: any[]) {
@@ -124,28 +124,36 @@ const { progress, handleFileChange } = useFileReader({
   },
 });
 
+const cs = useCommonStore();
 async function processAll() {
-  if (!mapper.value) return msg.error("매핑정보를 불러 올 수 없습니다.");
+  if (!mapper) return msg.error("매핑정보를 불러 올 수 없습니다.");
+  cs.$patch({ showSpin: true, spinText: "매핑 추가중.." });
   let mappedCnt = 0;
-  for (let k = 0; k < parseData.value.length; k++) {
-    const d = parseData.value[k];
-    const status = getStatus(d);
-    if (!status.innerId) continue;
-    else if (status.shopProd && status.mappable) {
-      await reverseMapping(
-        mapper.value,
-        {
-          inputProdName: d.ex.prodName!,
-          inputColor: d.ex.color!,
-          inputSize: d.ex.size!,
-        },
-        status.shopProd
-      );
-      mappedCnt += 1;
+  try {
+    for (let k = 0; k < parseData.value.length; k++) {
+      const d = parseData.value[k];
+      const status = getStatus(d);
+      if (!status.innerId) continue;
+      else if (status.shopProd && status.mappable) {
+        reverseMapping(
+          mapper,
+          {
+            inputProdName: d.ex.prodName!,
+            inputColor: d.ex.color!,
+            inputSize: d.ex.size!,
+          },
+          status.shopProd
+        );
+        mappedCnt += 1;
+      }
     }
+    await mapperUpdate();
+    showParseModal.value = false;
+    cs.$patch({ showSpin: false, spinText: "" });
+    msg.success(`${mappedCnt}건의 매핑작업 성공`);
+  } catch (err) {
+    catchError({ msg, err, uid: userId.value });
   }
-  msg.success(`${mappedCnt}건의 매핑작업 성공`);
-  showParseModal.value = false;
 }
 
 const showParseModal = shallowRef(false);
