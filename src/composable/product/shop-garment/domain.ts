@@ -19,6 +19,7 @@ export interface ShopGarmentCrt extends ShopProdCrt {
   color: string;
   cafeProdId?: string;
   zigzagProdId?: string;
+  ablyProdId?: string;
 }
 
 export type StockCntObj = {

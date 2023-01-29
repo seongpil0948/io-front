@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useApiTokenCols, useMatch } from "@/composable";
+import { catchError, useApiTokenCols, useMatch } from "@/composable";
 import { ref } from "vue";
-
+import _axios from "@/plugin/axios";
 const {
   range,
   updateRangeNaive,
@@ -23,12 +23,29 @@ const {
   switchFilter,
   filteredMatchData,
   filterIsNull,
+  uid,
+  msg,
 } = useMatch({});
 const { apiTokenCol } = useApiTokenCols();
 
 const showRegitZig = ref(false);
 function onZigSubmit() {
   showRegitZig.value = false;
+}
+const showRegitAbly = ref(false);
+async function onAblySubmit(ip: { id: string; pw: string }) {
+  const formData = new FormData();
+  formData.set("userId", uid.value);
+  formData.set("email", ip.id);
+  formData.set("password", ip.pw);
+  return _axios
+    .post(`/linkage/saveAblyToken`, formData)
+    .then((saveRes) => {
+      msg.success("등록 성공");
+      console.log("saveRes: ", saveRes);
+    })
+    .catch((err) => catchError({ msg, uid: uid.value, err }))
+    .finally(() => (showRegitAbly.value = false));
 }
 </script>
 
@@ -69,8 +86,24 @@ function onZigSubmit() {
             </template>
             <zigzag-register-api-form @submit-token="onZigSubmit" />
           </n-popover>
-          <n-checkbox v-model:checked="useMatching"> 수동 취합 </n-checkbox>
-          <n-checkbox v-model:checked="useMapping"> 매핑 취합 </n-checkbox>
+          <n-popover v-model:show="showRegitAbly" trigger="click">
+            <template #trigger>
+              <n-button> 에이블리 연동 </n-button>
+            </template>
+            <id-pw-form @submit="onAblySubmit" />
+          </n-popover>
+          <n-tooltip trigger="hover">
+            <template #trigger>
+              <n-checkbox v-model:checked="useMatching"> 수동 취합 </n-checkbox>
+            </template>
+            지원가능 서비스: 전체
+          </n-tooltip>
+          <n-tooltip trigger="hover">
+            <template #trigger>
+              <n-checkbox v-model:checked="useMapping"> 매핑 취합 </n-checkbox>
+            </template>
+            지원가능 서비스: 카페24
+          </n-tooltip>
         </n-space>
       </n-space>
     </n-card>

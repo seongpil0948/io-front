@@ -7,9 +7,13 @@ import {
   ZigzagOrderParam,
 } from "../repo";
 import {
+  AblyInputParam,
+  AblyOrderItem,
   AnyOrder,
   ExcelInputParam,
+  getAblyOrders,
   ioReadFile,
+  isAblyInputParam,
   isExcelInputParam,
 } from "@/composable";
 import { readExcelIo } from "@/plugin/xlsx";
@@ -37,13 +41,16 @@ import { WorkBook } from "xlsx";
 export function getExternalSource(p: CafeOrderParam): Promise<AnyOrder[]>;
 export function getExternalSource(p: ZigzagOrderParam): Promise<AnyOrder[]>;
 export function getExternalSource(p: ExcelInputParam): Promise<WorkBook>;
+export function getExternalSource(p: AblyInputParam): Promise<AblyOrderItem[]>;
 export async function getExternalSource(
-  p: CafeOrderParam | ZigzagOrderParam | ExcelInputParam
+  p: CafeOrderParam | ZigzagOrderParam | ExcelInputParam | AblyInputParam
 ) {
   if (isZigzagOrderParam(p)) {
     return getZigzagOrders(p);
   } else if (isCafeOrderParam(p)) {
     return getCafeOrders(p);
+  } else if (isAblyInputParam(p)) {
+    return getAblyOrders(p);
   } else if (isExcelInputParam(p)) {
     return new Promise<WorkBook>((resolve) => {
       ioReadFile({

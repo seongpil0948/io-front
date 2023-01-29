@@ -1,6 +1,8 @@
 import {
   AnyOrder,
+  API_SERVICE_EX,
   MatchGarment,
+  ParseResultInfo,
   ShopUserGarment,
   TryNum,
   TryStr,
@@ -13,7 +15,13 @@ export function matchZigzagOrder(
   userProd: ShopUserGarment[]
 ) {
   const result: MatchGarment[] = [];
-  const cnt = { orderCnt: ords.length, exist: 0, invalid: 0 };
+  const service: API_SERVICE_EX = "ZIGZAG";
+  const cnt: ParseResultInfo = {
+    service,
+    orderCnt: ords.length,
+    exist: 0,
+    invalid: 0,
+  };
   for (let i = 0; i < ords.length; i++) {
     const ord = ords[i];
     const orderId = ord.order.order_number;
@@ -33,7 +41,7 @@ export function matchZigzagOrder(
     );
     const missing = shopProd === null || shopProd === undefined;
     result.push({
-      service: "ZIGZAG",
+      service,
       matchType: "id",
       orderCnt: orderCnt ?? 1,
       id: missing ? undefined : shopProd!.shopProdId,

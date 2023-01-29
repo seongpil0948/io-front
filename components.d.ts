@@ -37,6 +37,7 @@ declare module '@vue/runtime-core' {
     FollowPartner: typeof import('./src/view/shop/page/FollowPartner.vue')['default']
     ForgetPasswordBtn: typeof import('./src/component/button/ForgetPasswordBtn.vue')['default']
     GarmentOrderRow: typeof import('./src/component/table/vendor/GarmentOrderRow.vue')['default']
+    IdPwForm: typeof import('./src/component/form/IdPwForm.vue')['default']
     InfoCell: typeof import('./src/component/table/InfoCell.vue')['default']
     IoFast: typeof import('./src/view/shop/page/IoFast.vue')['default']
     IoFooter: typeof import('./src/component/layout/IoFooter.vue')['default']

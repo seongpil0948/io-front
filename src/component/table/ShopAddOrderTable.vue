@@ -66,6 +66,8 @@ const {
   userProd,
   msg,
   mapper,
+  useMatching,
+  useMapping,
 } = useMatch({
   afterReverseMap: () => mappingFiles(),
 });
@@ -143,6 +145,18 @@ function uploadOrder() {
         <n-button data-test="order-get-btn" type="primary" @click="onGetOrder">
           주문취합
         </n-button>
+        <n-tooltip trigger="hover">
+          <template #trigger>
+            <n-checkbox v-model:checked="useMatching"> 수동 취합 </n-checkbox>
+          </template>
+          지원가능 서비스: 전체
+        </n-tooltip>
+        <n-tooltip trigger="hover">
+          <template #trigger>
+            <n-checkbox v-model:checked="useMapping"> 매핑 취합 </n-checkbox>
+          </template>
+          지원가능 서비스: 카페24
+        </n-tooltip>
       </n-space>
     </template>
     <n-space v-if="filteredOrders.length > 0" vertical>

@@ -28,6 +28,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
   description: string;
   cafeProdId?: string;
   zigzagProdId?: string;
+  ablyProdId?: string;
   TBD: { [k: string]: any };
   prodType: PROD_TYPE;
   visible: VISIBILITY;
@@ -83,6 +84,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
     this.description = d.description;
     this.cafeProdId = d.cafeProdId;
     this.zigzagProdId = d.zigzagProdId;
+    this.ablyProdId = d.ablyProdId;
     this.TBD = d.TBD;
     this.prodType = d.prodType;
     this.visible = d.visible;
@@ -104,6 +106,7 @@ export class ShopGarment extends CommonField implements ShopGarmentCrt {
         description: data.description,
         cafeProdId: data.cafeProdId,
         zigzagProdId: data.zigzagProdId,
+        ablyProdId: data.ablyProdId,
         TBD: data.TBD,
         prodType: data.prodType ?? "GARMENT",
         visible: data.visible ?? "GLOBAL",

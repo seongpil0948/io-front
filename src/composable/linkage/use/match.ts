@@ -1,4 +1,5 @@
 import {
+  AblyOrderItem,
   AnyOrder,
   API_SERVICE_EX,
   //   cafeMapProcessor,
@@ -11,6 +12,7 @@ import {
   mapTxt,
   matchCafeOrder,
   matchZigzagOrder,
+  ParseResultInfo,
   saveMatch,
   useCafeAuth,
   useCommon,
@@ -25,16 +27,20 @@ import {
   VendorGarment,
   VENDOR_GARMENT_DB,
 } from "@/composable/product";
+import { logger } from "@/plugin/logger";
 import { useShopOrderStore } from "@/store";
 import { dateRanges, makeMsgOpt } from "@/util";
+import { MessageApiInjection } from "naive-ui/es/message/src/MessageProvider";
 import { storeToRefs } from "pinia";
 import { shallowRef, ref, onBeforeUnmount, watchEffect, computed } from "vue";
+import { matchAblyOrder } from "../parser/ably";
 
 export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
   const { msg, log, auth, uid } = useCommon();
   const { mapper } = useMapper(uid.value);
   const cafeOrders = shallowRef<AnyOrder[]>([]);
   const zigzagOrders = shallowRef<AnyOrder[]>([]);
+  const ablyOrders = shallowRef<AblyOrderItem[]>([]);
   const matchData = ref<MatchGarment[]>([]);
   const timeFormat = "yyyy-MM-dd";
   const {
@@ -80,6 +86,9 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
     matchData.value = [];
     if (!startDate.value || !endDate.value)
       return msg.error("일자가 입력되지 않았습니다.");
+    else if (useMatching.value === useMapping.value) {
+      return msg.error("수동 또는 매핑 한개의 취합을 선택 해야합니다.");
+    }
     for (let i = 0; i < tokens.value.length; i++) {
       const token = tokens.value[i];
       try {
@@ -104,6 +113,17 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
             endDate: endDate.value,
             tokenId: token.dbId,
             userId: uid.value,
+          });
+        } else if (token.service === "ABLY") {
+          if (typeof token.clientId !== "string") {
+            return log.error(uid.value, "token email(clientId) is not string");
+          }
+          ablyOrders.value = await getExternalSource({
+            userId: uid.value,
+            startDate: startDate.value,
+            endDate: endDate.value,
+            page: 1,
+            email: token.clientId,
           });
         }
         processAll();
@@ -138,6 +158,8 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
           g.cafeProdId = row.inputId;
         } else if (row.service === "ZIGZAG") {
           g.zigzagProdId = row.inputId;
+        } else if (row.service === "ABLY") {
+          g.ablyProdId = row.inputId;
         } else {
           return log.error(`not matched api service: ${row.service}`);
         }
@@ -170,6 +192,16 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
     matchData.value = [];
     processZigzag();
     processCafe();
+    processAbly();
+  }
+  function processAbly() {
+    const { result, cnt } = matchAblyOrder(
+      ablyOrders.value,
+      existOrderIds.value,
+      userProd.value
+    );
+    matchData.value.push(...result);
+    expressParseResult(cnt, msg, uid.value);
   }
   function processZigzag() {
     if (useMatching.value) {
@@ -179,10 +211,7 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
         userProd.value
       );
       matchData.value.push(...result);
-      msg.info(
-        `지그재그 전체 주문건: ${cnt.orderCnt}, 유효하지 않은 주문건: ${cnt.invalid}, 이미 진행된 주문건: ${cnt.exist}`,
-        makeMsgOpt()
-      );
+      expressParseResult(cnt, msg, uid.value);
     }
   }
   function processCafe() {
@@ -201,7 +230,8 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
       //   vendorProds.value,
       //   userProd.value
       // );
-    } else if (useMatching.value) {
+    }
+    if (useMatching.value) {
       matchData.value.push(
         ...matchCafeOrder(cafeOrders.value, existOrderIds.value, userProd.value)
       );
@@ -308,4 +338,14 @@ export async function reverseMapping(
   mapper.setColVal("size", g.shopProdId, g.size, mapTxt(m.inputSize));
   mapper.setColVal("color", g.shopProdId, g.color, mapTxt(m.inputColor));
   return mapper.update();
+}
+
+function expressParseResult(
+  cnt: ParseResultInfo,
+  msg: MessageApiInjection,
+  uid: string
+) {
+  const str = `${cnt.service} 전체 주문건: ${cnt.orderCnt}, 유효하지 않은 주문건: ${cnt.invalid}, 이미 진행된 주문건: ${cnt.exist}`;
+  msg.info(str, makeMsgOpt());
+  logger.info(uid, str);
 }
