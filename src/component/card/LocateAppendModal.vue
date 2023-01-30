@@ -110,7 +110,7 @@ function updateShow(val: boolean) {
         <n-form-item-gi label="별칭" path="alias">
           <n-input v-model:value="formModel.alias" placeholder="별칭 입력" />
         </n-form-item-gi>
-        <n-form-item-gi label="주소">
+        <n-form-item-gi label="주소" required>
           <area-selector
             v-model:area="formModel"
             style="margin-bottom: 1%; margin-top: 1%"

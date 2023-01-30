@@ -34,6 +34,11 @@ export const useAuthStore = defineStore({
     // Getters are exactly the equivalent of computed
     currUserRole: (state) =>
       state.user === null ? "ANONYMOUSE" : state.user?.userInfo.role,
+    uid(): string {
+      return this.user === null
+        ? this.currUser.userInfo.userId
+        : this.user.userInfo.userId;
+    },
   },
   actions: {
     setUser(u: IoUser) {

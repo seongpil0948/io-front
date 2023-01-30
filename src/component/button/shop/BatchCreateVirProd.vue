@@ -14,6 +14,7 @@ import { getUserName, IoUser } from "@io-boxies/js-lib";
 import { NButton } from "naive-ui";
 import { ref, computed, h, shallowRef, toRefs, triggerRef } from "vue";
 import { utils } from "xlsx";
+import { storeToRefs } from "pinia";
 
 type PartialInner = Partial<ProdInnerIdSrc>;
 interface ParseData {
@@ -39,7 +40,8 @@ const dictData = computed(() =>
   }, {} as { [k: string]: ShopUserGarment })
 );
 
-const { mapper, mapperUpdate } = useShopOrderStore();
+const shopOrderStore = useShopOrderStore();
+const { mapper } = storeToRefs(shopOrderStore);
 const inputRef = shallowRef<null | HTMLInputElement>(null);
 // const {msg} = useCommon()
 const { readExcel, dataSlice, msg } = useExcel();
@@ -126,7 +128,7 @@ const { progress, handleFileChange } = useFileReader({
 
 const cs = useCommonStore();
 async function processAll() {
-  if (!mapper) return msg.error("매핑정보를 불러 올 수 없습니다.");
+  if (!mapper.value) return msg.error("매핑정보를 불러 올 수 없습니다.");
   cs.$patch({ showSpin: true, spinText: "매핑 추가중.." });
   let mappedCnt = 0;
   try {
@@ -136,7 +138,7 @@ async function processAll() {
       if (!status.innerId) continue;
       else if (status.shopProd && status.mappable) {
         reverseMapping(
-          mapper,
+          mapper.value,
           {
             inputProdName: d.ex.prodName!,
             inputColor: d.ex.color!,
@@ -147,7 +149,7 @@ async function processAll() {
         mappedCnt += 1;
       }
     }
-    await mapperUpdate();
+    await shopOrderStore.mapperUpdate();
     showParseModal.value = false;
     cs.$patch({ showSpin: false, spinText: "" });
     msg.success(`${mappedCnt}건의 매핑작업 성공`);
@@ -274,7 +276,7 @@ const cols = computed(() => [
     type="file"
     @change.stop.prevent="handleFileChange"
   />
-  <n-button @click="onClick"> 엑셀 일괄등록 </n-button>
+  <n-button @click="onClick"> 엑셀 일괄 매핑 </n-button>
   <n-modal v-model:show="showParseModal" style="margin: 5%">
     <n-card title="파싱 프리뷰">
       <template #header-extra>

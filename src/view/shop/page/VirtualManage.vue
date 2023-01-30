@@ -149,7 +149,7 @@ async function submitEdit() {
   <n-space vertical justify="center" align="center" item-style="width: 100%">
     <n-card style="width: 100%">
       <n-space vertical justify="center" align="end" item-style="width: 100%">
-        <n-space justify="end">
+        <n-space justify="end" style="max-height: 40vh; overflow: auto">
           <n-input v-model:value="searchInputVal" placeholder="상품검색" />
           <n-button @click="search"> 검색 </n-button>
           <batch-create-vir-prod

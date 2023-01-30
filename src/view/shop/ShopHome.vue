@@ -51,7 +51,7 @@ const numOfShipping = computed(
     align="center"
     item-style="width: 100%"
   >
-    <shop-add-order-table :show-sizes="false" :in-states="['BEFORE_ORDER']" />
+    <shop-add-order-table :show-sizes="true" :in-states="['BEFORE_ORDER']" />
     <n-grid
       cols="1 s:2 m:2 l:4 xl:4 2xl:4"
       x-gap="24"

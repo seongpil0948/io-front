@@ -29,3 +29,6 @@ export const TESTERS = {
   UNCLE: { uid: "Rzv2rEXjczNLNJ4tuGUjILGxgnK2", id: "a@b.com", pw },
   UNCLE_NO: { uid: "eRzv2rEXjczNLNJ4tuGUjILGxgnK2", id: "a@b.com", pw },
 };
+
+export const LOGO = "https://inout-box.com/logo.png";
+export const DEFAULT_PROFILE_IMG = LOGO;

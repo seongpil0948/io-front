@@ -9,6 +9,7 @@ import {
 import { ioFireStore } from "@/plugin/firebase";
 import { newProdQuantityOpt, saleAvgOpt } from "@/util";
 import { uuidv4 } from "@firebase/util";
+import { DEFAULT_PROFILE_IMG } from "@/constants";
 
 export async function userUpdate(user: IoUser, login = true) {
   const authS = useAuthStore();
@@ -83,6 +84,7 @@ export function getDefaultUser(role: USER_ROLE, name: string): IoUser {
       userName: name,
       fcmTokens: [],
       passed: false,
+      profileImg: DEFAULT_PROFILE_IMG,
     },
     companyInfo: {
       locations: [],

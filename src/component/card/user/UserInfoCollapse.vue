@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, ref } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
 import clone from "lodash.clonedeep";
 import {
   defaultCompanyInfo,
@@ -14,9 +14,14 @@ import {
   SALE_MANAGE,
   ShopOperInfo,
   USER_DB,
+  getParentRef,
+  IoFireApp,
+  uploadFile,
 } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
 import { ioFireStore } from "@/plugin/firebase";
+import { DEFAULT_PROFILE_IMG } from "@/constants";
+import { getStorage } from "@firebase/storage";
 
 const authStore = useAuthStore();
 const msg = useMessage();
@@ -56,6 +61,37 @@ async function updateUser(useMsg = true) {
     authStore.setUser(authModel.value);
     if (useMsg) msg.info("변경 완료.");
   }
+}
+const loadingProfile = ref(false);
+const inputProfile = ref<HTMLInputElement | null>(null);
+const profileSrc = computed(() =>
+  authModel.value &&
+  authModel.value.userInfo.profileImg &&
+  authModel.value.userInfo.profileImg.length > 1
+    ? authModel.value.userInfo.profileImg
+    : DEFAULT_PROFILE_IMG
+);
+async function onClickProfile() {
+  if (
+    !authModel.value ||
+    !inputProfile.value ||
+    !inputProfile.value!.files ||
+    inputProfile.value.files.length < 1
+  )
+    return;
+  loadingProfile.value = false;
+  const parent = getParentRef({
+    storage: getStorage(IoFireApp.getInst().app),
+    svc: "USER",
+    userId: authStore.uid,
+  });
+
+  const imgs = await uploadFile(parent, inputProfile.value.files);
+  authModel.value.userInfo.profileImg = imgs[0];
+  await USER_DB.updateUser(ioFireStore, authModel.value);
+  authStore.setUser(authModel.value);
+  loadingProfile.value = false;
+  msg.info("변경 완료.");
 }
 </script>
 
@@ -124,6 +160,39 @@ async function updateUser(useMsg = true) {
           <n-text strong> 운영링크 </n-text>
           <n-text>{{ authModel.companyInfo?.shopLink }}</n-text>
         </div>
+        <div class="io-row">
+          <n-text strong> 프로필 이미지 </n-text>
+          <n-popover trigger="hover">
+            <template #trigger>
+              <n-spin :show="loadingProfile">
+                <label for="inputProfile">
+                  <n-avatar
+                    round
+                    size="small"
+                    style="cursor: pointer"
+                    :fallback-src="DEFAULT_PROFILE_IMG"
+                    :src="profileSrc"
+                  />
+                </label>
+              </n-spin>
+            </template>
+            <n-image
+              :src="profileSrc"
+              preview-disabled
+              width="150"
+              height="150"
+            />
+          </n-popover>
+        </div>
+        <input
+          id="inputProfile"
+          ref="inputProfile"
+          name="inputProfile"
+          type="file"
+          style="visibility: hidden"
+          accept="image/*"
+          @change="onClickProfile"
+        />
       </n-space>
     </n-collapse-item>
     <n-collapse-item title="운영정보" name="3">

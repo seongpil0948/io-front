@@ -16,7 +16,7 @@ import {
   SHOP_GARMENT_DB,
   usePopSelTable,
 } from "@/composable";
-import { getIoCollection, IoUser } from "@io-boxies/js-lib";
+import { getIoCollection, getUserName, IoUser } from "@io-boxies/js-lib";
 import {
   createGarments,
   existSameProduct,
@@ -154,6 +154,8 @@ export function useShopVirtualProd(user: IoUser) {
       {
         title: "도매처명",
         key: "userInfo.displayName",
+        sorter: (row1: ShopUserGarment, row2: ShopUserGarment) =>
+          getUserName(row1).localeCompare(getUserName(row2)),
       },
       ...t.slice(1),
       optionCol,
