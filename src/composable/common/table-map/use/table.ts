@@ -9,6 +9,7 @@ import { colKoMapper } from "./colDict";
 import { formatDate, loadDate } from "@io-boxies/js-lib";
 import { useShopOrderStore } from "@/store";
 import { storeToRefs } from "pinia";
+import { mapTxt } from "@/composable";
 
 const MapperSaver = defineAsyncComponent(
   () => import("@/component/input/MapperSaver.vue")
@@ -81,7 +82,7 @@ export function useTable<T extends MapperFields>(
               mapType: "cell",
               mapKey: opt.key, // column name
               rowIdField: row[opt.rowIdField!], // prodId
-              targetVal: row[opt.key], // original Value
+              targetVal: mapTxt(row[opt.key]), // original Value
               onReqShow: onRequestShow,
               "on-clickoutside": () => {
                 openKey.value = "";
