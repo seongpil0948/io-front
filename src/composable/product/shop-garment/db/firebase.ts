@@ -45,6 +45,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
     vendorProdId: string,
     shopUserId: string
   ): Promise<boolean> {
+    // deprecated
     const q = query(
       shopProdC,
       where("shopId", "==", shopUserId),

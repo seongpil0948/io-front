@@ -11,11 +11,10 @@ import {
 } from "@/composable";
 import { getUserLocate } from "@io-boxies/js-lib";
 import { useAuthStore, useShopOrderStore } from "@/store";
-import { makeMsgOpt, v5Namespace } from "@/util";
+import { makeMsgOpt } from "@/util";
 import { Home24Filled, Phone20Filled } from "@vicons/fluent";
 import { useEditor } from "@/plugin/editor";
 import { useLogger } from "vue-logger-plugin";
-import { v5 } from "uuid";
 
 const props = defineProps<{
   showAddModal: boolean;
@@ -58,25 +57,12 @@ async function onSubmit() {
   let addCnt = selectedProdIds.value.length;
   for (let i = 0; i < selectedProdIds.value.length; i++) {
     const vendorProdId = selectedProdIds.value[i];
-    const p = prod.value;
     const size = optById[vendorProdId].size;
     const color = optById[vendorProdId].color;
-    const shopProdId = v5(uid + p.vendorId + size + color, v5Namespace());
-    if (
-      (await SHOP_GARMENT_DB.shopGarmentExist(vendorProdId, uid)) ||
-      (await SHOP_GARMENT_DB.idExist(shopProdId))
-    ) {
-      const m = `컬러 ${color}, 사이즈: ${size} 상품은 이미 추가 되었습니다.`;
-      console.error(`${shopProdId} ${m}`);
-      msg.error(m, makeMsgOpt());
-      addCnt -= 1;
-      continue;
-    }
-
     const shopProd = new ShopGarment({
       vendorId: prod.value.vendorId,
       vendorProdId,
-      shopProdId,
+      shopProdId: ShopGarment.uid({ vendorProdId }),
       shopId: uid,
       prodPrice: prod.value.vendorPrice,
       prodName: prod.value.vendorProdName,
@@ -88,6 +74,16 @@ async function onSubmit() {
       prodType: "GARMENT",
       visible: "GLOBAL",
     });
+
+    const idExist = await SHOP_GARMENT_DB.idExist(shopProd.uid);
+    if (idExist) {
+      const m = `컬러 ${color}, 사이즈: ${size} 상품은 이미 추가 되었습니다.`;
+      console.error(m, shopProd);
+      msg.error(m, makeMsgOpt());
+      addCnt -= 1;
+      continue;
+    }
+
     await shopProd.update();
     if (
       !shopOrdStore.shopProds.find((x) => x.shopProdId == shopProd.shopProdId)

@@ -2,10 +2,10 @@
 import { mapTxt, useFileReader } from "@/composable";
 import { useExcel } from "@/plugin/xlsx";
 import { ref } from "vue";
-import { utils, writeFile } from "xlsx";
+import { utils } from "xlsx";
 
 const inputRef = ref<null | HTMLInputElement>(null);
-const { readExcel, dataSlice, msg } = useExcel();
+const { readExcel, msg } = useExcel();
 const { progress, handleFileChange } = useFileReader({
   inputRef,
   readMethod: "binary",
