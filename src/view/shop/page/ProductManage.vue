@@ -35,7 +35,9 @@ const {
   selectedRow,
   onCheckedDelete,
   tableRef,
+  shopProds,
 } = useShopGarmentTable(false);
+console.log("shopProds: ", shopProds);
 const cols = computed(() =>
   tableCols.value.filter((x) => (x as any).key !== "select")
 );

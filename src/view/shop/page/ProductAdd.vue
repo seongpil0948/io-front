@@ -8,7 +8,13 @@ import {
 } from "@/composable";
 import { useCommonStore } from "@/store";
 import { computed, onBeforeMount, ref, watchEffect } from "vue";
-import { genderOpts, getCtgrOpts, partOpts } from "@/util";
+import {
+  genderOpts,
+  getCtgrOpts,
+  makeMsgOpt,
+  partOpts,
+  useEventListener,
+} from "@/util";
 import { storeToRefs } from "pinia";
 import throttle from "lodash.throttle";
 
@@ -122,7 +128,7 @@ const { searchInputVal, searchData, search, msg } = useElasticSearch({
         {
           multi_match: {
             query: input,
-            fields: ["vendorprodname", "fabric", "info", "description"],
+            fields: ["vendorprodname^3", "fabric", "info", "description"],
           },
         },
       ];
@@ -134,13 +140,13 @@ const { searchInputVal, searchData, search, msg } = useElasticSearch({
           ? ".ent-search-engine-documents-io-box-vendorproduct-prod-search"
           : ".ent-search-engine-documents-io-box-vendorproduct-dev-search",
       query,
-      sort: [
-        {
-          "createdat.date": {
-            order: "desc",
-          },
-        },
-      ],
+      // sort: [
+      //   {
+      //     "createdat.date": {
+      //       order: "desc",
+      //     },
+      //   },
+      // ],
       from: 0,
       size: 100,
     };
@@ -150,6 +156,23 @@ const { searchInputVal, searchData, search, msg } = useElasticSearch({
 const targetData = computed(() =>
   searchData.value.length > 0 ? searchData.value : data.value
 );
+
+useEventListener(
+  () => document.querySelector("[data-test='shop-prod-search-input']"),
+  "keyup",
+  async (evt: KeyboardEvent) => {
+    if (evt.key === "Enter") {
+      await searchWrap();
+    }
+  }
+);
+async function searchWrap() {
+  if (searchInputVal.value && searchInputVal.value.length > 0) {
+    await search();
+  } else {
+    msg.error("검색어를 입력 해주세요.", makeMsgOpt());
+  }
+}
 </script>
 <template>
   <shop-add-prod-card
@@ -179,7 +202,7 @@ const targetData = computed(() =>
         placeholder="상품검색 - 오늘도 신상을 잘 찾아보즈아!"
         data-test="shop-prod-search-input"
       />
-      <n-button data-test="shop-prod-search-btn" @click="search">
+      <n-button data-test="shop-prod-search-btn" @click="searchWrap">
         검색
       </n-button>
     </n-space>

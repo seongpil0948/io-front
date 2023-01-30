@@ -7,18 +7,22 @@ import {
   connectFunctionsEmulator,
 } from "firebase/functions";
 import { useMessage } from "naive-ui";
-
+import { useCommonStore } from "@/store";
+import { storeToRefs } from "pinia";
 export function useElasticSearch(d: {
-  onSearch: (result: any) => void;
+  onSearch: (result: any) => Promise<any>;
   makeParam: (val: string) => any;
   funcName: string;
 }) {
+  const cs = useCommonStore();
+  const { showSpin } = storeToRefs(cs);
   const searchInputVal = ref<string | null>(null);
   const searchVal = ref<string | null>(null);
   const searchData = ref<any[]>([]);
   const msg = useMessage();
 
   async function search() {
+    showSpin.value = true;
     searchVal.value = searchInputVal.value;
     const functions = getFunctions(ioFire.app, "asia-northeast3");
     if (import.meta.env.VITE_IS_TEST === "true")
@@ -27,7 +31,11 @@ export function useElasticSearch(d: {
     const param = d.makeParam(searchVal.value ?? "");
     console.log("searchFunc param: ", param);
     return searchFunc({ searchParam: param })
-      .then(d.onSearch)
+      .then((result) =>
+        d.onSearch(result).finally(() => {
+          showSpin.value = false;
+        })
+      )
       .catch((err) => console.error(`error in ${d.funcName}`, err));
   }
   return {

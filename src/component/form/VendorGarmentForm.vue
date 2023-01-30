@@ -90,7 +90,7 @@ watchEffect(
           stockCnts.value![size] = {};
         }
         stockCnts.value![size][color] =
-          prev[size] && prev[size][color] ? prev[size][color] : 0;
+          prev[size] && prev[size][color] ? prev[size][color] : 1;
       });
     });
   },
@@ -101,7 +101,7 @@ function changePart() {
 }
 
 const cs = useCommonStore();
-const { locale } = storeToRefs(cs);
+const { locale, showSpin } = storeToRefs(cs);
 const ctgrOpts = computed(() =>
   getCtgrOpts(prodModel.value.part, locale.value)
 );
@@ -200,23 +200,23 @@ async function onRegister() {
         positiveText: "등록",
         negativeText: "취소",
         closeOnEsc: true,
-        onPositiveClick: async () => {
-          cs.$patch({ showSpin: true });
+        onPositiveClick: () => {
+          showSpin.value = true;
           console.info(
             `virtual?(${virtual.value}) register vendor(${props.vendorId}) \n 
              products: `,
             products
           );
-          return (
-            virtual.value
-              ? createVirVendorGarments(u.value!.userInfo.userId, products)
-              : VENDOR_GARMENT_DB.batchCreate(props.vendorId, products)
+          (virtual.value
+            ? createVirVendorGarments(u.value!.userInfo.userId, products)
+            : VENDOR_GARMENT_DB.batchCreate(props.vendorId, products)
           )
             .then(() => {
               clearEditor();
               emits("onRegistered", products);
               msg.success("상품등록이 완료되었습니다.", makeMsgOpt());
               if (!virtual.value) {
+                console.log("in router ");
                 router.replace({ name: "VendorProductList" });
               }
             })
@@ -229,7 +229,7 @@ async function onRegister() {
                 msg,
               })
             )
-            .finally(() => cs.$patch({ showSpin: false }));
+            .finally(() => (showSpin.value = false));
         },
       });
     }

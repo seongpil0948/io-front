@@ -65,7 +65,7 @@ export function useShopVendorUnits(d: GetShopProdParam) {
     );
   }
 
-  return { rowIdField, userProd, unsubscribe };
+  return { rowIdField, userProd, unsubscribe, shopProds };
 }
 
 const base = (d: GetShopProdParam) => {

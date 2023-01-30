@@ -22,7 +22,7 @@ export function extractGarmentOrd(
           ? (ordShopProd as ShopUserGarment)
           : shopProds.find((j) => j.shopProdId === sId);
       if (!shopProd) {
-        console.warn(`not matched order(${order.dbId}) shop garment(${sId})`);
+        // console.warn(`not matched order(${order.dbId}) shop garment(${sId})`);
         continue;
       }
       const vId = order.items[i].vendorProd.vendorProdId;

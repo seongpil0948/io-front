@@ -24,7 +24,7 @@ export function useShopGarmentTable(
   const tableRef = ref<any>(null);
   const dialog = useDialog();
   const openSelectList = ref(false);
-  const { rowIdField, userProd } = useShopVendorUnits({
+  const { rowIdField, userProd, shopProds } = useShopVendorUnits({
     shopId,
   });
   const data = computed(() => {
@@ -144,6 +144,7 @@ export function useShopGarmentTable(
     deleteGarments,
     onCheckedDelete,
     tableRef,
+    shopProds,
   };
 }
 

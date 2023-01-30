@@ -66,10 +66,9 @@ async function onSubmit() {
       (await SHOP_GARMENT_DB.shopGarmentExist(vendorProdId, uid)) ||
       (await SHOP_GARMENT_DB.idExist(shopProdId))
     ) {
-      msg.error(
-        `컬러 ${color}, 사이즈: ${size} 상품은 이미 추가 되었습니다.`,
-        makeMsgOpt()
-      );
+      const m = `컬러 ${color}, 사이즈: ${size} 상품은 이미 추가 되었습니다.`;
+      console.error(`${shopProdId} ${m}`);
+      msg.error(m, makeMsgOpt());
       addCnt -= 1;
       continue;
     }
