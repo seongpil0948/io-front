@@ -9,6 +9,7 @@ import {
   VendorGarment,
   VENDOR_GARMENT_DB,
   useMatch,
+  OrderItemCombined,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { ref, shallowRef, watchEffect, defineAsyncComponent } from "vue";
@@ -120,6 +121,13 @@ function uploadOrder() {
     console.error("orderDropZoneRef wrong", orderDropZoneRef.value);
   }
 }
+function rowClassName(row: OrderItemCombined) {
+  const base = "table-order-row ";
+  if (row.shopProd.visible === "ME") {
+    return base + "shop-prod-me";
+  }
+  return base + "shop-prod-global";
+}
 </script>
 <template>
   <drop-zone-card
@@ -207,9 +215,10 @@ function uploadOrder() {
           주문정보 다운
         </n-button>
       </n-space>
+      <!-- table-order-row used in E2E Testing -->
       <n-data-table
         ref="tableRef"
-        row-class-name="table-order-row"
+        :row-class-name="rowClassName"
         :table-layout="'fixed'"
         :scroll-x="800"
         :columns="tableCol"
@@ -295,3 +304,11 @@ function uploadOrder() {
     </n-card>
   </n-modal>
 </template>
+
+<style scoped>
+/* :deep(.shop-prod-me td) {
+  color: rgba(255, 0, 0, 0.75) !important;
+  background-color: var(--n-merged-th-color) !important;
+  font-weight: 900;
+} */
+</style>

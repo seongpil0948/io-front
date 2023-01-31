@@ -10,7 +10,7 @@ const { first, second, third } = toRefs(props);
 </script>
 
 <template>
-  <n-space vertical>
+  <n-space vertical style="font-size: smaller">
     <n-text v-if="first" type="primary" depth="1">
       {{ first }}
     </n-text>

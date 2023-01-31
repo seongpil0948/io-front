@@ -205,7 +205,10 @@ export function useOrderTable(d: orderTableParam) {
                   InfoCell,
                   {
                     first: x.shopProd.prodName,
-                    second: x.vendorProd.vendorProdName,
+                    second:
+                      x.shopProd.visible === "ME"
+                        ? "(가상)" + x.vendorProd.vendorProdName
+                        : x.vendorProd.vendorProdName,
                     third: x.shopProd.color + "/" + x.shopProd.size,
                   },
                   {}
