@@ -1,13 +1,64 @@
 <script setup lang="ts">
-import { locateToStr, IoUser } from "@io-boxies/js-lib";
+import { locateToStr, IoUser, getIoCollection } from "@io-boxies/js-lib";
 import { h, ref, toRefs } from "vue";
-import { NText, NButton, NCard, NModal } from "naive-ui";
+import {
+  NText,
+  NButton,
+  NCard,
+  NModal,
+  NDataTable,
+  useMessage,
+} from "naive-ui";
+import { deleteVirGarments, ShopGarment, usePopSelTable } from "@/composable";
+import { ioFireStore } from "@/plugin/firebase";
+import { useAuthStore } from "@/store";
+import { fireConverter, makeMsgOpt } from "@/util";
+import {
+  doc,
+  getDocs,
+  query,
+  runTransaction,
+  where,
+} from "@firebase/firestore";
 
 const props = defineProps<{
   virtualVendors: IoUser[];
 }>();
 const { virtualVendors } = toRefs(props);
+const auth = useAuthStore();
+const msg = useMessage();
+const virVendorConverter = fireConverter<IoUser>();
+const virVendorC = getIoCollection(ioFireStore, {
+  uid: auth.uid,
+  c: "VIRTUAL_USER",
+}).withConverter(virVendorConverter);
 
+const { optionCol } = usePopSelTable<IoUser>({
+  onDelete: (p) =>
+    runTransaction(ioFireStore, async (t) => {
+      const targetUid = p.userInfo.userId;
+      const snap = await getDocs(
+        query(
+          getIoCollection(ioFireStore, { c: "SHOP_PROD" }).withConverter(
+            fireConverter<ShopGarment>()
+          ),
+          where("visible", "==", "ME"),
+          where("vendorId", "==", targetUid)
+        )
+      );
+      const delProdIds: string[] = [];
+      snap.forEach((doc) => {
+        const data = doc.data();
+        console.log("delete target vir prod: ", data);
+        if (data) {
+          delProdIds.push(data.shopProdId);
+        }
+      });
+      await deleteVirGarments(auth.uid, delProdIds);
+      t.delete(doc(virVendorC, targetUid));
+    }),
+  onEdit: () => msg.info("준비중.. 찡끗 ㅇ_<", makeMsgOpt()),
+});
 const virVendorCols = [
   {
     title: "이름",
@@ -32,6 +83,7 @@ const virVendorCols = [
         }
       ),
   },
+  optionCol,
 ];
 
 const showRegitVendor = ref(false);

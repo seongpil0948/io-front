@@ -84,7 +84,7 @@ function handleValidateClick(e: MouseEvent) {
       <n-text v-if="formValue.locate" type="info">
         {{ locateToStr(formValue.locate) }}
       </n-text>
-      <n-button v-else @click="onClickLocateBtn"> 가상 도매처 추가 </n-button>
+      <n-button v-else @click="onClickLocateBtn"> 주소지 등록 </n-button>
     </n-form-item>
     <n-form-item>
       <n-button @click="handleValidateClick"> 도매처 등록 </n-button>
