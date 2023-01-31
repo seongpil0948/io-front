@@ -171,6 +171,9 @@ async function handleOperSelect(key: string | number) {
     case "orderAll":
       await orderAll();
       break;
+    case "orderDoneInner":
+      await orderDoneInner();
+      break;
     case "deleteChecked":
       await deleteChecked();
       break;
@@ -190,6 +193,10 @@ const operOpts = [
   {
     label: "전체 주문",
     key: "orderAll",
+  },
+  {
+    label: "선택 주문완료처리",
+    key: "orderDoneInner",
   },
   {
     label: "선택 삭제",
