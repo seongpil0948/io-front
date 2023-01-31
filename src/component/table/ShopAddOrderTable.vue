@@ -9,12 +9,13 @@ import {
   VendorGarment,
   VENDOR_GARMENT_DB,
   useMatch,
-  OrderItemCombined,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { ref, shallowRef, watchEffect, defineAsyncComponent } from "vue";
 import { IO_COSTS } from "@/constants";
 import { storeToRefs } from "pinia";
+import { ExclamationCircleOutlined } from "@vicons/antd";
+
 interface Props {
   inStates?: ORDER_STATE[];
   showSizes: boolean;
@@ -121,13 +122,88 @@ function uploadOrder() {
     console.error("orderDropZoneRef wrong", orderDropZoneRef.value);
   }
 }
-function rowClassName(row: OrderItemCombined) {
-  const base = "table-order-row ";
-  if (row.shopProd.visible === "ME") {
-    return base + "shop-prod-me";
-  }
-  return base + "shop-prod-global";
+async function getOrders(useMatch: boolean) {
+  useMatching.value = useMatch;
+  useMapping.value = !useMatch;
+  await onGetOrder();
+  useMatching.value = false;
+  useMapping.value = false;
 }
+async function handleUploadSelect(key: string | number) {
+  switch (key) {
+    case "uploadOrder":
+      uploadOrder();
+      break;
+    case "downSampleXlsx":
+      downSampleXlsx();
+      break;
+    case "combineOrderMatch":
+      await getOrders(true);
+      break;
+    case "combineOrderMap":
+      await getOrders(false);
+      break;
+  }
+}
+const uploadOpts = [
+  {
+    label: "주문업로드",
+    key: "uploadOrder",
+  },
+  {
+    label: "주문취합 엑셀양식 다운",
+    key: "downSampleXlsx",
+  },
+  {
+    label: "주문 매칭취합",
+    key: "combineOrderMatch",
+  },
+  {
+    label: "주문 매핑취합",
+    key: "combineOrderMap",
+  },
+];
+async function handleOperSelect(key: string | number) {
+  switch (key) {
+    case "orderChecked":
+      await orderChecked();
+      break;
+    case "orderAll":
+      await orderAll();
+      break;
+    case "deleteChecked":
+      await deleteChecked();
+      break;
+    case "orderDelAll":
+      await orderDelAll();
+      break;
+    case "downOrder":
+      await downOrder();
+      break;
+  }
+}
+const operOpts = [
+  {
+    label: "선택 주문",
+    key: "orderChecked",
+  },
+  {
+    label: "전체 주문",
+    key: "orderAll",
+  },
+  {
+    label: "선택 삭제",
+    key: "deleteChecked",
+  },
+  {
+    label: "전체 삭제",
+    key: "orderDelAll",
+  },
+  {
+    label: "주문 다운",
+    key: "downOrder",
+  },
+];
 </script>
 <template>
   <drop-zone-card
@@ -137,106 +213,60 @@ function rowClassName(row: OrderItemCombined) {
     :no-click="filteredOrders.length > 0"
     data-test="order-drop-zone"
   >
-    <template #header> <div></div> </template>
-    <template #header-extra>
+    <template #header>
       <n-space style="width: 100%" inline item-style="max-width: 100%">
-        <n-button
-          data-test="order-upload-btn"
-          type="primary"
-          @click="uploadOrder"
+        <n-dropdown
+          trigger="click"
+          :options="uploadOpts"
+          @select="handleUploadSelect"
         >
-          주문업로드
-        </n-button>
-        <n-button type="primary" @click="downSampleXlsx">
-          주문취합 엑셀양식 다운
-        </n-button>
-        <n-button data-test="order-get-btn" type="primary" @click="onGetOrder">
-          주문취합
-        </n-button>
-        <n-tooltip trigger="hover">
-          <template #trigger>
-            <n-checkbox v-model:checked="useMatching"> 수동 취합 </n-checkbox>
-          </template>
-          지원가능 서비스: 전체
-        </n-tooltip>
-        <n-tooltip trigger="hover">
-          <template #trigger>
-            <n-checkbox v-model:checked="useMapping"> 매핑 취합 </n-checkbox>
-          </template>
-          지원가능 서비스: 카페24
-        </n-tooltip>
+          <n-button>주문 취합/업로드</n-button>
+        </n-dropdown>
+        <n-dropdown
+          v-if="filteredOrders.length > 0"
+          trigger="click"
+          :options="operOpts"
+          @select="handleOperSelect"
+        >
+          <n-button>주문 처리</n-button>
+        </n-dropdown>
       </n-space>
     </template>
-    <n-space v-if="filteredOrders.length > 0" vertical>
-      <n-space justify="end">
-        <n-button
-          data-test="order-send-selected-btn"
-          size="small"
-          type="primary"
-          @click="orderChecked"
-        >
-          선택주문
-        </n-button>
-        <n-button
-          data-test="order-send-all-btn"
-          size="small"
-          type="primary"
-          @click="orderAll"
-        >
-          전체주문
-        </n-button>
-        <n-button
-          data-test="order-delete-selected-btn"
-          size="small"
-          type="primary"
-          @click="deleteChecked"
-        >
-          선택삭제
-        </n-button>
-        <n-button
-          data-test="order-delete-all-btn"
-          size="small"
-          type="primary"
-          @click="orderDelAll"
-        >
-          전체삭제
-        </n-button>
-        <n-tooltip trigger="hover">
-          <template #trigger>
-            <n-button size="small" type="primary" @click="orderDoneInner">
-              선택 주문완료처리
-            </n-button>
-          </template>
-          쇼핑몰 내부적으로 주문을 완료 처리 합니다. <br />
-          저장된 주문번호는 재수집 되지 않으므로 주의해서 사용 해주세용.
-        </n-tooltip>
+    <template #header-extra>
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <n-button quaternary circle>
+            <template #icon>
+              <n-icon><ExclamationCircleOutlined /></n-icon>
+            </template>
+          </n-button>
+        </template>
+        선택 주문완료처리는 쇼핑몰 내부적으로 주문을 완료 처리 합니다. <br />
+        저장된 주문번호는 재수집 되지 않으므로 주의해서 사용 해주세용.
+      </n-tooltip>
+    </template>
 
-        <n-button size="small" type="primary" @click="downOrder">
-          주문정보 다운
-        </n-button>
-      </n-space>
-      <!-- table-order-row used in E2E Testing -->
-      <n-data-table
-        ref="tableRef"
-        :row-class-name="rowClassName"
-        :table-layout="'fixed'"
-        :scroll-x="800"
-        :columns="tableCol"
-        :data="filteredOrders"
-        :pagination="
-          Object.assign(
-            { pageSize: 5 },
-            showSizes
-              ? {
-                  showSizePicker: true,
-                  pageSizes: [5, 10, 25, 50, 100],
-                }
-              : {}
-          )
-        "
-        :bordered="false"
-      />
-    </n-space>
+    <!-- table-order-row used in E2E Testing -->
+    <n-data-table
+      v-if="filteredOrders.length > 0"
+      ref="tableRef"
+      :table-layout="'fixed'"
+      :scroll-x="800"
+      :columns="tableCol"
+      :data="filteredOrders"
+      :pagination="
+        Object.assign(
+          { pageSize: 5 },
+          showSizes
+            ? {
+                showSizePicker: true,
+                pageSizes: [5, 10, 25, 50, 100],
+              }
+            : {}
+        )
+      "
+      :bordered="false"
+    />
   </drop-zone-card>
   <coin-reduce-confirm-modal
     v-if="orders && orders.length > 0"
@@ -304,11 +334,3 @@ function rowClassName(row: OrderItemCombined) {
     </n-card>
   </n-modal>
 </template>
-
-<style scoped>
-/* :deep(.shop-prod-me td) {
-  color: rgba(255, 0, 0, 0.75) !important;
-  background-color: var(--n-merged-th-color) !important;
-  font-weight: 900;
-} */
-</style>

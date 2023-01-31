@@ -105,6 +105,7 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
             userId: uid.value,
             mallId: token.mallId,
           });
+          processCafe();
         } else if (token.service === "ZIGZAG") {
           zigzagOrders.value = await getExternalSource({
             startDate: startDate.value,
@@ -112,6 +113,7 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
             tokenId: token.dbId,
             userId: uid.value,
           });
+          processZigzag();
         } else if (token.service === "ABLY") {
           if (typeof token.clientId !== "string") {
             return log.error(uid.value, "token email(clientId) is not string");
@@ -123,8 +125,8 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
             page: 1,
             email: token.clientId,
           });
+          processAbly();
         }
-        processAll();
       } catch (err) {
         // if (err instanceof MapColNotFound) {}
         catchError({
@@ -142,6 +144,7 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
   async function onClickId(row: MatchGarment) {
     selectFunc.value = async (s) => {
       console.log("in selectFunc", row);
+      matchData.value = [];
       const g = ShopGarment.fromJson(s);
       if (!g) throw new Error("result of ShopGarment.fromJson is null ");
       const fillTable = () => {
@@ -168,8 +171,15 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
         reverseMapping(mapper.value, row, g);
         await mapper.value.update();
         console.log("done reverseMapping");
-        if (row.service === "CAFE" || row.service === "ZIGZAG") processAll();
-        else await d.afterReverseMap?.();
+        if (row.service === "CAFE") {
+          processCafe();
+        } else if (row.service === "ZIGZAG") {
+          processZigzag();
+        } else if (row.service === "ABLY") {
+          processAbly();
+        } else {
+          await d.afterReverseMap?.();
+        }
       }
     };
     openSelectList.value = true;
@@ -185,12 +195,6 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
     );
     msg.info(`${cnt} 행 성공`);
     matchData.value = [];
-  }
-  function processAll() {
-    matchData.value = [];
-    processZigzag();
-    processCafe();
-    processAbly();
   }
   function processAbly() {
     const { result, cnt } = matchAblyOrder(

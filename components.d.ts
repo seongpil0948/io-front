@@ -73,6 +73,7 @@ declare module '@vue/runtime-core' {
     NDescriptionsItem: typeof import('naive-ui')['NDescriptionsItem']
     NDialogProvider: typeof import('naive-ui')['NDialogProvider']
     NDivider: typeof import('naive-ui')['NDivider']
+    NDropdown: typeof import('naive-ui')['NDropdown']
     NDynamicTags: typeof import('naive-ui')['NDynamicTags']
     NEl: typeof import('naive-ui')['NEl']
     NForm: typeof import('naive-ui')['NForm']
