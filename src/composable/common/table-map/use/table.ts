@@ -53,7 +53,7 @@ export function useTable<T extends MapperFields>(
           h(
             MapperSaver,
             {
-              show: openKey.value === opt.key,
+              show: mapTxt(openKey.value) === mapTxt(opt.key),
               value: colKoMapper[opt.key] ?? opt.key,
               mapper,
               mapType: "column",
@@ -75,8 +75,10 @@ export function useTable<T extends MapperFields>(
             MapperSaver,
             {
               show:
-                openKey.value ===
-                opt.key + (row[opt.rowIdField!] ?? "") + (row[opt.key] ?? ""),
+                mapTxt(openKey.value) ===
+                mapTxt(
+                  opt.key + (row[opt.rowIdField!] ?? "") + (row[opt.key] ?? "")
+                ),
               value: row[opt.key],
               mapper,
               mapType: "cell",
