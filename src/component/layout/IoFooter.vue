@@ -63,11 +63,7 @@ function openTab(url: string) {
           <n-button
             quaternary
             circle
-            @click="
-              openTab(
-                'https://www.youtube.com/channel/UCcu0LDdGWguOHUarxnbQBoQ'
-              )
-            "
+            @click="openTab('https://www.youtube.com/@inoutbox5947/featured')"
           >
             <template #icon>
               <n-icon><YoutubeOutlined /></n-icon>
