@@ -166,7 +166,7 @@ onBeforeMount(() => useUncleOrderStore().init(user.userInfo.userId));
         vertical
         justify="space-between"
         align="center"
-        style="padding: 2%; width: 100%; height: fit-content; max-width: 95vw"
+        style="padding: 2%; min-height: 95vh"
       >
         <router-view />
         <io-footer />

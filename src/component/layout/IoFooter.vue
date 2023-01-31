@@ -39,14 +39,7 @@ function openTab(url: string) {
   <n-layout-footer
     bordered
     position="fixed"
-    style="
-      border: none;
-      font-size: smaller;
-      margin-bottom: 2vh;
-      margin-top: auto;
-      padding: 12px;
-      border-radius: 7px;
-    "
+    style="border: none; font-size: smaller; padding: 12px; border-radius: 7px"
   >
     <n-space style="text-align: start">
       <n-text depth="1" style="line-height: 1.4rem">

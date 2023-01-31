@@ -60,8 +60,8 @@ const onInternalError = (err: any) =>
         @to-sign-up="() => router.push({ name: 'SignUp' })"
       />
       <forget-password-btn />
-      <io-footer />
     </n-space>
+    <io-footer />
   </n-config-provider>
 </template>
 <style>
@@ -69,7 +69,7 @@ const onInternalError = (err: any) =>
   justify-content: center !important;
   text-align: center;
   align-items: center;
-  height: 100vh;
+  min-height: 95vh;
   width: 100%;
 }
 .n-h {

@@ -161,8 +161,8 @@ const mobileOpts = [
       style="padding: 2%; width: 100%; height: fit-content; max-width: 95vw"
     >
       <router-view />
-      <io-footer />
     </n-space>
+    <io-footer />
   </n-layout>
   <n-layout v-else>
     <n-layout has-sider :style="`min-height: ${minHeight}`">
