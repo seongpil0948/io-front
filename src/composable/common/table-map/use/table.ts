@@ -173,7 +173,7 @@ export function useTable<T extends MapperFields>(
       });
     }
     if (onSelect) {
-      columns.value.push({
+      columns.value.unshift({
         title: "선택",
         key: "select",
         render: (row) =>
