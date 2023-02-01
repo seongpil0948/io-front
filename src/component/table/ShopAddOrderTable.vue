@@ -18,7 +18,6 @@ import { ExclamationCircleOutlined } from "@vicons/antd";
 
 interface Props {
   inStates?: ORDER_STATE[];
-  showSizes: boolean;
 }
 
 const props = defineProps<Props>();
@@ -262,17 +261,10 @@ const operOpts = [
       :scroll-x="800"
       :columns="tableCol"
       :data="filteredOrders"
-      :pagination="
-        Object.assign(
-          { pageSize: 5 },
-          showSizes
-            ? {
-                showSizePicker: true,
-                pageSizes: [5, 10, 25, 50, 100],
-              }
-            : {}
-        )
-      "
+      :pagination="{
+        showSizePicker: true,
+        pageSizes: [5, 10, 25, 50, 100],
+      }"
       :bordered="false"
     />
   </drop-zone-card>

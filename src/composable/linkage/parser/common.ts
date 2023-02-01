@@ -119,10 +119,13 @@ export async function saveMatch(
     if (cont) continue;
 
     const g = userProd.find((x) => x.shopProdId === data.id);
-    if (!g)
-      throw new Error(
+    if (!g) {
+      logger.warn(
+        userId,
         `소매처 상품(${data.id}) ${data.prodName}는 삭제된 상품입니다.`
       );
+      continue;
+    }
     const vendorProd = vendorProds.find(
       (x) => x.vendorProdId === g?.vendorProdId
     );
