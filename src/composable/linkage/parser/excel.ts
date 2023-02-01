@@ -155,7 +155,7 @@ function parseWBook(
 ): MapData[] {
   // fill clean data
   const prodMapper = mapper.getProdMapper();
-  console.log("prodMapper: ", prodMapper);
+  console.log("prodMapper in parseWBook: ", prodMapper);
   const aoaData = aoaBySheet(workbook);
   const cd: MapData[] = [];
   for (let i = 0; i < Object.keys(aoaData).length; i++) {
@@ -195,6 +195,7 @@ function parseWBook(
     ) {
       const message = `${sheetName} 시트 컬럼매핑 실패 -> 스킵 `;
       msg.error(message);
+      console.log("mapper in parseWBook: ", mapper);
       logger.error(userId, message);
       continue;
     }

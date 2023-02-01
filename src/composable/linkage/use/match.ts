@@ -186,14 +186,18 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
   }
 
   async function onSaveMatch() {
-    const cnt = await saveMatch(
-      matchData.value,
-      userProd.value,
-      uid.value,
-      existOrderIds,
-      vendorProds.value
-    );
-    msg.info(`${cnt} 행 성공`);
+    try {
+      const cnt = await saveMatch(
+        matchData.value,
+        userProd.value,
+        uid.value,
+        existOrderIds,
+        vendorProds.value
+      );
+      msg.info(`${cnt} 행 성공`);
+    } catch (err) {
+      catchError({ msg, err, uid: uid.value });
+    }
     matchData.value = [];
   }
   function processAbly() {

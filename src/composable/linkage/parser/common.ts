@@ -90,7 +90,7 @@ export async function saveMatch(
   vendorProds: VendorGarment[] = []
 ) {
   const orders: IoOrder[] = [];
-
+  console.log("userProd in saveMatch", userProd);
   let cnt = 0;
   for (let i = 0; i < matchData.length; i++) {
     const data = matchData[i];
@@ -119,12 +119,14 @@ export async function saveMatch(
     if (cont) continue;
 
     const g = userProd.find((x) => x.shopProdId === data.id);
-    if (!g) throw new Error("소매처 상품이 없습니다.");
+    if (!g)
+      throw new Error(
+        `소매처 상품(${data.id}) ${data.prodName}는 삭제된 상품입니다.`
+      );
     const vendorProd = vendorProds.find(
       (x) => x.vendorProdId === g?.vendorProdId
     );
     if (!vendorProd) throw new Error("도매처 상품이 없습니다.");
-
     const item = newOrdItem({
       vendorProd,
       shopProd: g,
