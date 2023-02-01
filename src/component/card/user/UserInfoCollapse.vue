@@ -21,8 +21,8 @@ import {
 import { useMessage } from "naive-ui";
 import { ioFireStore } from "@/plugin/firebase";
 import { DEFAULT_PROFILE_IMG } from "@/constants";
-import { getStorage } from "@firebase/storage";
-
+import { getStorage, ref as storageRef } from "@firebase/storage";
+import { updateProfile, getAuth } from "firebase/auth";
 const authStore = useAuthStore();
 const msg = useMessage();
 const authModel = ref<IoUser | null>(null);
@@ -86,11 +86,16 @@ async function onClickProfile() {
     userId: authStore.uid,
   });
 
-  const imgs = await uploadFile(parent, inputProfile.value.files);
+  const imgs = await uploadFile(
+    storageRef(parent.storage, `${parent.fullPath}/profileImgs`),
+    inputProfile.value.files
+  );
   authModel.value.userInfo.profileImg = imgs[0];
   await USER_DB.updateUser(ioFireStore, authModel.value);
   authStore.setUser(authModel.value);
   loadingProfile.value = false;
+  const u = getAuth().currentUser;
+  if (u) await updateProfile(u, { photoURL: imgs[0] });
   msg.info("변경 완료.");
 }
 </script>
