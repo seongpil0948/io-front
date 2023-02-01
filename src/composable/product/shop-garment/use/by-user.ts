@@ -1,8 +1,9 @@
 import { MapKey, ShopUserGarment, VENDOR_GARMENT_DB } from "@/composable";
-import { USER_DB } from "@io-boxies/js-lib";
+import { getUserName, USER_DB } from "@io-boxies/js-lib";
 import { onBeforeUnmount, Ref, ref, watchEffect, watch } from "vue";
 import { ShopGarment, MatchGarment, SHOP_GARMENT_DB } from "..";
 import { ioFireStore } from "@/plugin/firebase";
+import { uniqueArr } from "@/util";
 
 export function useShopUserProds(d: GetShopProdParam) {
   const { shopProds, unsubscribe, rowIdField, userProd } = base(d);
@@ -36,21 +37,29 @@ export function useShopVendorUnits(d: GetShopProdParam) {
 
   watchEffect(async () => {
     const userProds: typeof userProd.value = [];
+    const vendorIds = uniqueArr(shopProds.value.map((x) => x.vendorId));
+    const vendors = await USER_DB.getUserByIds(ioFireStore, vendorIds);
+    const vendorProds = await VENDOR_GARMENT_DB.listByIds(
+      shopProds.value.map((x) => x.vendorProdId)
+    );
 
     for (let i = 0; i < shopProds.value.length; i++) {
       const prod = shopProds.value[i];
-      const vendorUnit = await VENDOR_GARMENT_DB.getByIdWithUser(
-        prod.vendorProdId
+      const vendor = vendors.find((x) => prod.vendorId === x.userInfo.userId);
+      const vendorProd = vendorProds.find(
+        (y) => prod.vendorProdId === y.vendorProdId
       );
-      if (!vendorUnit) continue;
+      if (!vendorProd || !vendor) continue;
       userProds.push(
         Object.assign(
-          { userName: vendorUnit.userInfo.userName },
-          vendorUnit,
+          { userName: getUserName(vendor) },
+          vendorProd,
+          vendor,
           prod
         )
       );
     }
+    console.log("shopProds: ", shopProds, "userProd: ", userProds);
     userProd.value = userProds;
   });
 
