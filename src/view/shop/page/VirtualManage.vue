@@ -69,6 +69,7 @@ function onClickId(value: {
     value.in.prodName = g.prodName;
     value.in.size = g.size;
     value.in.color = g.color;
+    value.in.vendorId = g.vendorId;
     value.vendorName = getUserName(s);
     console.log("selected func: ", s, value);
     batchRef.value?.processJson();

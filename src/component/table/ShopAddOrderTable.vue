@@ -55,6 +55,7 @@ const {
   onSaveMatch,
   tableCols,
   openSelectList,
+  targetGarment,
   matchCols,
   showMatchModal,
   search,
@@ -71,9 +72,9 @@ const {
   useMatching,
   useMapping,
 } = useMatch({
-  afterReverseMap: () => mappingFiles(),
+  afterReverseMap: () => Promise.resolve(fillMatchData()),
 });
-const { mappingFiles } = useMappingOrderExcel({
+const { fillMatchData } = useMappingOrderExcel({
   mapper,
   uid: uid,
   fs: fileModel,
@@ -321,7 +322,14 @@ const operOpts = [
     </n-card>
   </n-modal>
   <n-modal v-model:show="openSelectList" style="margin: 5%">
-    <n-card title="상품선택">
+    <n-card>
+      <template #header>
+        상품선택<n-text v-if="targetGarment">
+          ({{
+            `${targetGarment?.inputProdName} | ${targetGarment?.inputColor} | ${targetGarment?.inputSize}`
+          }})</n-text
+        >
+      </template>
       <template #header-extra>
         <n-input v-model:value="searchInputVal" placeholder="상품검색" />
         <n-button @click="search"> 검색 </n-button>

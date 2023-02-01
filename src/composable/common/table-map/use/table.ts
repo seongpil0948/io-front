@@ -89,13 +89,22 @@ export function useTable<T extends MapperFields>(
               "on-clickoutside": () => {
                 openKey.value = "";
               },
-              siblings: p
-                .data!.value.filter((d) =>
-                  p.siblingFields!.every(
-                    (field) => row[field as keyof MapperFields] === d[field]
-                  )
-                )
-                .map((r) => r[opt.rowIdField!]) as string[],
+              siblings: p.siblingFields!.includes(opt.key)
+                ? (p
+                    .data!.value.filter((d) =>
+                      p.siblingFields!.every(
+                        (field) => row[field as keyof MapperFields] === d[field]
+                      )
+                    )
+                    .map((r) => r[opt.rowIdField!]) as string[])
+                : [],
+              // siblings: p
+              //   .data!.value.filter((d) =>
+              //     p.siblingFields!.every(
+              //       (field) => row[field as keyof MapperFields] === d[field]
+              //     )
+              //   )
+              //   .map((r) => r[opt.rowIdField!]) as string[],
             },
             {}
           );

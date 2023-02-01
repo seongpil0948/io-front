@@ -1,7 +1,7 @@
 import { IoFireApp } from "@io-boxies/js-lib";
 import {
   connectFirestoreEmulator,
-  enableIndexedDbPersistence,
+  // enableIndexedDbPersistence,
   initializeFirestore,
   // enableNetwork,
 } from "@firebase/firestore";
@@ -43,18 +43,18 @@ if (isTest) {
   console.log("ioFireAuth in emulator: ", ioFireAuth);
 }
 // setPersistence(ioFireAuth, browserSessionPersistence)
-enableIndexedDbPersistence(ioFireStore)
-  .then(() => console.log("Enabled offline persistence"))
-  .catch((error) => {
-    if (error.code == "failed-precondition") {
-      // Multiple tabs open, persistence can only be enabled
-      // in one tab at a a time.
-      // ...
-    } else if (error.code == "unimplemented") {
-      // The current browser does not support all of the
-      // features required to enable persistence
-      // ...
-    }
-    throw error;
-  });
+// enableIndexedDbPersistence(ioFireStore)
+//   .then(() => console.log("Enabled offline persistence"))
+//   .catch((error) => {
+//     if (error.code == "failed-precondition") {
+//       // Multiple tabs open, persistence can only be enabled
+//       // in one tab at a a time.
+//       // ...
+//     } else if (error.code == "unimplemented") {
+//       // The current browser does not support all of the
+//       // features required to enable persistence
+//       // ...
+//     }
+//     throw error;
+//   });
 // enableNetwork(ioFireStore);

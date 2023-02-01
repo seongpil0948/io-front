@@ -141,6 +141,7 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
     }
   }
 
+  const targetGarment = shallowRef<null | MatchGarment>(null);
   async function onClickId(row: MatchGarment) {
     selectFunc.value = async (s) => {
       console.log("in selectFunc", row);
@@ -167,21 +168,20 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
 
         g.update().then(() => fillTable());
       } else if (row.matchType === "map" && mapper.value) {
-        console.log("reverseMapping", mapper.value, g);
         reverseMapping(mapper.value, row, g);
-        await mapper.value.update();
-        console.log("done reverseMapping");
+        console.log("in selectFunc", mapper.value, g);
+        await shopOrderStore.mapperUpdate();
+        await d.afterReverseMap?.();
         if (row.service === "CAFE") {
           processCafe();
         } else if (row.service === "ZIGZAG") {
           processZigzag();
         } else if (row.service === "ABLY") {
           processAbly();
-        } else {
-          await d.afterReverseMap?.();
         }
       }
     };
+    targetGarment.value = row;
     openSelectList.value = true;
   }
 
@@ -308,6 +308,7 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
     onSaveMatch,
     tableCols,
     openSelectList,
+    targetGarment,
     tokens,
     matchCols,
     useMatching,
@@ -327,6 +328,7 @@ export function reverseMapping(
   m: { inputProdName?: string; inputSize?: string; inputColor?: string },
   g: ShopGarment
 ) {
+  console.log("in reverseMapping", mapper, m, g);
   if (!m.inputProdName || !m.inputSize || !m.inputColor) {
     throw new Error(`
   reverseMapping error, input null field with inputProdName(${m.inputProdName}) | inputSize(${m.inputSize}) | inputColor(${m.inputColor}) |`);

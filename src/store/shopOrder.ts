@@ -134,10 +134,11 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     uid()
   ).withConverter(Mapper.fireConverter());
   const mapUnsubscribe = onSnapshot(mapperDoc, (doc) => {
-    mapper.value = doc.data() ?? null;
+    mapper.value = doc.data() ?? Mapper.initialMapper(uid());
     console.log("snapshot mapper", mapper.value);
   });
   async function mapperUpdate() {
+    console.log("called mapperUpdate ", mapper.value);
     mapper.value?.update().catch((err) => {
       const message = `업데이트 실패 ${
         err instanceof Error ? err.message : JSON.stringify(err)

@@ -61,6 +61,7 @@ class Mapper implements MapperCRT {
     const m = await MAPPER_DB.getMapper(userId);
     if (!m) {
       const mapper = Mapper.initialMapper(userId);
+      console.log("update mapper in getIoMapper");
       await mapper.update();
       return mapper;
     }

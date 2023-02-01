@@ -56,19 +56,23 @@ const synonyms = computed(() =>
       )
     : mapper?.value.getSyno(mapKey?.value)
 );
-
+const targetIds = computed(() =>
+  Array.isArray(siblings.value) && siblings.value.length > 0
+    ? siblings.value
+    : [rowIdField.value]
+);
 function onUpdate(val) {
   if (isMapCell) {
     const deleted = synonyms.value.filter((x) => !val.includes(x));
     // console.log("synonyms: ", synonyms.value, "updated val:", val);
     // console.log("deleted:", deleted, deleted.length === 1);
     if (deleted.length === 1) {
-      (siblings?.value ?? []).forEach((id) => {
+      targetIds.value.forEach((id) => {
         mapper?.value.deleteColVal(mapKey?.value, id, deleted[0]);
       });
       // mapper?.value.deleteColVal(mapKey?.value, rowIdField?.value, deleted[0]);
     } else {
-      (siblings?.value ?? []).forEach((id) => {
+      targetIds.value.forEach((id) => {
         mapper?.value.setColVal(mapKey?.value, id, targetVal?.value, val);
       });
     }
@@ -79,6 +83,7 @@ function onUpdate(val) {
 
 async function onSave() {
   await mapper.value.update(false);
+  console.log("update mapper in MapperSaver", mapper.value);
   msg.success("변경사항 저장이 완료 되었어요!", makeMsgOpt());
   return emits("reqShow", "");
 }

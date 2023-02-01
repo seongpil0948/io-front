@@ -104,7 +104,8 @@ export async function saveMatch(
           it.shopProd.shopProdId === data.id &&
           !it.orderIds.includes(data.orderId)
         ) {
-          console.log("cnt added ", it.shopProd);
+          console.log("ord", ord, "added order item: ", it.id);
+          console.log("match data: ", data);
           cont = true;
           setOrderCnt({
             order: ord,
