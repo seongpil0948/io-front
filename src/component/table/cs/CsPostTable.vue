@@ -3,7 +3,10 @@
     v-if="title && posts.length > 0"
     :columns="columns(title)"
     :data="showPosts"
-    :pagination="{ pageSize: 5 }"
+    :pagination="{
+      showSizePicker: true,
+      pageSizes: [5, 10, 25, 50, 100],
+    }"
     :bordered="false"
   />
   <n-result v-else status="error" :title="`${title ?? ''} 데이터가 없습니다`" />

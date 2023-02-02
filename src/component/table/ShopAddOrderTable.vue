@@ -47,7 +47,7 @@ const {
   orderDoneInner,
 } = useOrderBasic(user, filteredOrders, orders, checkedDetailKeys);
 
-const { virVendorProds } = useShopVirtualProd(auth.currUser);
+const { virVendorProds, userVirProds } = useShopVirtualProd(auth.currUser);
 const vendorProds = shallowRef<VendorGarment[]>([]);
 const {
   onGetOrder,
@@ -72,6 +72,8 @@ const {
   useMapping,
 } = useMatch({
   afterReverseMap: () => Promise.resolve(fillMatchData()),
+  virVendorProds,
+  userVirProds,
 });
 const { fillMatchData } = useMappingOrderExcel({
   mapper,

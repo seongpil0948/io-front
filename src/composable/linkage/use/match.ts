@@ -17,11 +17,11 @@ import {
   useCafeAuth,
   useCommon,
   useSearch,
-  useShopVirtualProd,
 } from "@/composable";
 import {
   MatchGarment,
   ShopGarment,
+  ShopUserGarment,
   useShopGarmentTable,
   VendorGarment,
   VENDOR_GARMENT_DB,
@@ -31,10 +31,21 @@ import { useShopOrderStore } from "@/store";
 import { dateRanges, makeMsgOpt } from "@/util";
 import { MessageApiInjection } from "naive-ui/es/message/src/MessageProvider";
 import { storeToRefs } from "pinia";
-import { shallowRef, ref, onBeforeUnmount, watchEffect, computed } from "vue";
+import {
+  shallowRef,
+  ref,
+  onBeforeUnmount,
+  watchEffect,
+  computed,
+  Ref,
+} from "vue";
 import { matchAblyOrder } from "../parser/ably";
 
-export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
+export function useMatch(d: {
+  afterReverseMap?: () => Promise<void>;
+  userVirProds: Ref<ShopUserGarment[]>;
+  virVendorProds: Ref<VendorGarment[]>;
+}) {
   const { msg, log, auth, uid } = useCommon();
   const cafeOrders = shallowRef<AnyOrder[]>([]);
   const zigzagOrders = shallowRef<AnyOrder[]>([]);
@@ -52,15 +63,14 @@ export function useMatch(d: { afterReverseMap?: () => Promise<void> }) {
   const { existOrderIds, mapper } = storeToRefs(shopOrderStore);
   onBeforeUnmount(() => unsubscribe());
 
-  const { userVirProds, virVendorProds } = useShopVirtualProd(auth.currUser);
   const { selectFunc, userProd, tableCols, openSelectList } =
-    useShopGarmentTable(true, userVirProds);
+    useShopGarmentTable(true);
 
   const vendorProds = shallowRef<VendorGarment[]>([]);
   watchEffect(async () => {
     const ids = userProd.value.map((x) => x.vendorProdId);
     vendorProds.value = [
-      ...virVendorProds.value,
+      ...d.virVendorProds.value,
       ...(await VENDOR_GARMENT_DB.listByIds(ids)),
     ];
   });

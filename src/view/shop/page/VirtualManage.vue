@@ -38,7 +38,6 @@ const {
   search,
   onCheckedOrder,
   tableRef,
-  userVirProds,
   virtualVendorById,
   virProdEditTarget,
   virShopProds,
@@ -51,10 +50,8 @@ const vendorOpts = computed(() =>
   }))
 );
 
-const { selectFunc, userProd, tableCols, openSelectList } = useShopGarmentTable(
-  true,
-  userVirProds
-);
+const { selectFunc, userProd, tableCols, openSelectList } =
+  useShopGarmentTable(true);
 type PartialInner = Partial<ProdInnerIdSrc>;
 const batchRef = ref<InstanceType<typeof BatchCreateVirProd> | null>(null);
 function onClickId(value: {

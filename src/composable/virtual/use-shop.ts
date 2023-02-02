@@ -2,8 +2,6 @@ import {
   VendorProdSimilar,
   VendorProdSame,
   VendorGarment,
-  onFirestoreCompletion,
-  onFirestoreErr,
   ShopGarment,
   newOrdFromItem,
   newOrdItem,
@@ -11,7 +9,6 @@ import {
   useSearch,
   useShopGarmentTable,
   ORDER_GARMENT_DB,
-  useVirtualVendor,
   ShopUserGarment,
   SHOP_GARMENT_DB,
   usePopSelTable,
@@ -22,29 +19,27 @@ import {
   existSameProduct,
   getSimilarProducts,
 } from "@/composable/product/vendor-garment/db/firebase";
-import { ref, onBeforeUnmount, computed } from "vue";
-import { handleReadSnap } from "@/util";
-import {
-  onSnapshot,
-  query,
-  orderBy,
-  where,
-  runTransaction,
-  doc,
-} from "firebase/firestore";
+import { ref, computed } from "vue";
+import { runTransaction, doc } from "firebase/firestore";
 import { uuidv4 } from "@firebase/util";
-import { shopProdC } from "../product/shop-garment/db/firebase";
 import { makeMsgOpt } from "@io-boxies/vue-lib";
 import { useMessage } from "naive-ui";
 import { ioFireStore } from "@/plugin/firebase";
+import { useShopProdStore } from "@/store/shopProd";
+import { storeToRefs } from "pinia";
 
 export function useShopVirtualProd(user: IoUser) {
   const uid = user.userInfo.userId;
-  const name = "VirtualVendorProd snapshot";
   const msg = useMessage();
   const { virVendorProdC } = getVirCollections(uid);
-
-  const { virtualVendors, virtualVendorById } = useVirtualVendor(uid);
+  const shopProdStore = useShopProdStore();
+  const {
+    virtualVendors,
+    virtualVendorById,
+    virVendorProds,
+    userVirProds,
+    virShopProds,
+  } = storeToRefs(shopProdStore);
 
   const getVirSimilarProds = async (
     d: VendorProdSimilar
@@ -53,46 +48,6 @@ export function useShopVirtualProd(user: IoUser) {
   const existVirSameProd = async (d: VendorProdSame): Promise<boolean> =>
     existSameProduct(virVendorProdC, d);
 
-  const virVendorProds = ref<VendorGarment[]>([]);
-  const unsubscribeVirtual = onSnapshot(
-    query(virVendorProdC, orderBy("createdAt", "desc")),
-    (snap) =>
-      handleReadSnap<VendorGarment>(
-        snap,
-        virVendorProds.value,
-        (x) => x.vendorProdId
-      ),
-    async (err) => {
-      await onFirestoreErr(name, err);
-      throw err;
-    },
-    () => onFirestoreCompletion(name)
-  );
-  const virShopProds = ref<ShopGarment[]>([]);
-  const unsubscribeShopProd = onSnapshot(
-    query(
-      shopProdC,
-      where("shopId", "==", uid),
-      where("visible", "==", "ME"),
-      orderBy("createdAt", "desc")
-    ),
-    (snap) =>
-      handleReadSnap<ShopGarment>(
-        snap,
-        virShopProds.value,
-        (x) => x.vendorProdId
-      ),
-    async (err) => {
-      await onFirestoreErr(name, err);
-      throw err;
-    },
-    () => onFirestoreCompletion(name)
-  );
-  onBeforeUnmount(() => {
-    unsubscribeVirtual();
-    unsubscribeShopProd();
-  });
-
   const regitProdModal = ref(false);
   function changeRegitProdModal() {
     regitProdModal.value = !regitProdModal.value;
@@ -100,16 +55,6 @@ export function useShopVirtualProd(user: IoUser) {
   function onRegistered() {
     regitProdModal.value = false;
   }
-  const userVirProds = computed(() => {
-    return virShopProds.value.map((x) => {
-      const u = virtualVendorById.value[x.vendorId] ?? user;
-      return Object.assign(
-        { userName: u.userInfo.userName },
-        x,
-        u
-      ) as ShopUserGarment;
-    });
-  });
 
   //   const vendorVirProds = computed(() => {
   //     const uProds: any[] = [];
@@ -122,10 +67,7 @@ export function useShopVirtualProd(user: IoUser) {
   //     return uProds;
   //   });
 
-  const { tableCols, checkedKeys, tableRef } = useShopGarmentTable(
-    false,
-    userVirProds
-  );
+  const { tableCols, checkedKeys, tableRef } = useShopGarmentTable(false);
   const virProdEditTarget = ref<VendorGarment | null>(null);
 
   const { selectedRow, popVal, optionCol } = usePopSelTable<ShopUserGarment>({

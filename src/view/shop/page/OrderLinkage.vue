@@ -1,7 +1,16 @@
 <script setup lang="ts">
-import { catchError, useApiTokenCols, useMatch } from "@/composable";
+import {
+  catchError,
+  useApiTokenCols,
+  useMatch,
+  useShopVirtualProd,
+} from "@/composable";
 import { ref } from "vue";
 import _axios from "@/plugin/axios";
+import { useAuthStore } from "@/store";
+
+const auth = useAuthStore();
+const { virVendorProds, userVirProds } = useShopVirtualProd(auth.currUser);
 const {
   range,
   updateRangeNaive,
@@ -25,7 +34,7 @@ const {
   filterIsNull,
   uid,
   msg,
-} = useMatch({});
+} = useMatch({ virVendorProds, userVirProds });
 const { apiTokenCol } = useApiTokenCols();
 
 const showRegitZig = ref(false);

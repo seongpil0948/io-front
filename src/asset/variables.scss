@@ -134,3 +134,21 @@ table th {
         scrollbar-width: none;
     }
 }
+
+::-webkit-scrollbar {
+    width: 0.3rem;
+    height: 0.1rem;
+    scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar-thumb {
+    background: $io-primary; /* 스크롤바의 색상 */
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: $io-grey2; /*스크롤바 뒷 배경 색상*/
+}
+::-webkit-scrollbar-thumb:hover {
+    background: transparent;
+}
