@@ -170,6 +170,8 @@ function parseWBook(
     for (let z = 0; z < aoa.length; z++) {
       const row = aoa[z];
       const cleanRow = row.map((c) => mapTxt(String(c)));
+      if (cleanRow.length < 1 || cleanRow.every((x) => String(x).length < 1))
+        continue;
       if (
         targetCols.every((colName) => {
           return mapper
@@ -203,12 +205,12 @@ function parseWBook(
     for (let z = excelInfo.startRow + 1; z < aoa.length; z++) {
       const rowArr = aoa[z];
       if (rowArr.length < 1) continue;
-      cd.push(
-        targetCols.reduce((acc, colName) => {
-          acc[colName] = mapTxt(rowArr[excelInfo.colIdx[colName]]);
-          return acc;
-        }, {} as MapData)
-      );
+      const obj = targetCols.reduce((acc, colName) => {
+        acc[colName] = mapTxt(rowArr[excelInfo.colIdx[colName]]);
+        return acc;
+      }, {} as MapData);
+      if (Object.values(obj).every((x) => String(x).length < 1)) continue;
+      cd.push(obj);
     }
   }
   return cd;

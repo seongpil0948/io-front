@@ -35,33 +35,37 @@ export function useShopUserProds(d: GetShopProdParam) {
 export function useShopVendorUnits(d: GetShopProdParam) {
   const { shopProds, unsubscribe, rowIdField, userProd } = base(d);
 
-  watchEffect(async () => {
-    const userProds: typeof userProd.value = [];
-    const vendorIds = uniqueArr(shopProds.value.map((x) => x.vendorId));
-    const vendors = await USER_DB.getUserByIds(ioFireStore, vendorIds);
-    const vendorProds = await VENDOR_GARMENT_DB.listByIds(
-      shopProds.value.map((x) => x.vendorProdId)
-    );
+  watch(
+    () => shopProds.value,
+    async (prods, prev) => {
+      if (prods.length === prev.length) return;
+      const userProds: typeof userProd.value = [];
+      const vendorIds = uniqueArr(prods.map((x) => x.vendorId));
+      const vendors = await USER_DB.getUserByIds(ioFireStore, vendorIds);
+      const vendorProds = await VENDOR_GARMENT_DB.listByIds(
+        prods.map((x) => x.vendorProdId)
+      );
 
-    for (let i = 0; i < shopProds.value.length; i++) {
-      const prod = shopProds.value[i];
-      const vendor = vendors.find((x) => prod.vendorId === x.userInfo.userId);
-      const vendorProd = vendorProds.find(
-        (y) => prod.vendorProdId === y.vendorProdId
-      );
-      if (!vendorProd || !vendor) continue;
-      userProds.push(
-        Object.assign(
-          { userName: getUserName(vendor) },
-          vendorProd,
-          vendor,
-          prod
-        )
-      );
+      for (let i = 0; i < prods.length; i++) {
+        const prod = prods[i];
+        const vendor = vendors.find((x) => prod.vendorId === x.userInfo.userId);
+        const vendorProd = vendorProds.find(
+          (y) => prod.vendorProdId === y.vendorProdId
+        );
+        if (!vendorProd || !vendor) continue;
+        userProds.push(
+          Object.assign(
+            { userName: getUserName(vendor) },
+            vendorProd,
+            vendor,
+            prod
+          )
+        );
+      }
+      console.log("zz shopProds: ", prods, "userProd: ", userProds);
+      userProd.value = userProds;
     }
-    console.log("shopProds: ", shopProds, "userProd: ", userProds);
-    userProd.value = userProds;
-  });
+  );
 
   if (d.onChanged) {
     watch(
