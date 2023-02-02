@@ -9,6 +9,7 @@ export interface CsPost {
   content: OutputData;
   postType: POST_TYPE;
   allowRole: USER_ROLE;
+  txt?: string; // for search
 }
 
 export type POST_TYPE = "FAQ" | "NOTICE" | "EVENT";

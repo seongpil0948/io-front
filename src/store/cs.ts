@@ -1,5 +1,11 @@
 import { CsPost } from "./../composable/cs/domain";
-import { deletePost, getCsFaq, getCsNotice, getCsEvents } from "@/composable";
+import {
+  deletePost,
+  getCsFaq,
+  getCsNotice,
+  getCsEvents,
+  useSearch,
+} from "@/composable";
 import { defineStore } from "pinia";
 import { onBeforeMount, ref, computed } from "vue";
 import { useAuthStore } from "./auth";
@@ -13,11 +19,25 @@ export const useCsStore = defineStore("csStore", () => {
   const detailPost = ref<CsPost | null>(null);
   let initial = true;
 
-  onBeforeMount(async () => await init());
+  onBeforeMount(async () => {
+    searchInputVal.value = null;
+    await init();
+  });
 
   const posts = computed(() =>
     faqPosts.value.concat(noticePosts.value).concat(eventPosts.value)
   );
+  const validIds = computed(() => searchedData.value.map((d) => d.no));
+  const { search, searchedData, searchInputVal } = useSearch({
+    data: posts,
+    filterFunc: (x, searchVal) => {
+      const v: typeof searchVal = searchVal;
+      return v === null && x.txt === undefined
+        ? true
+        : x.txt!.includes(v as string);
+    },
+  });
+
   const faqByCtgr = computed(() =>
     faqPosts.value.reduce((acc, curr) => {
       if (!acc[curr.category]) {
@@ -52,7 +72,6 @@ export const useCsStore = defineStore("csStore", () => {
     },
     true
   );
-
   async function init() {
     const role = authStore.currUserRole;
     console.log(`===init useCsStore === role: ${role}`);
@@ -80,5 +99,9 @@ export const useCsStore = defineStore("csStore", () => {
     deletePost,
     detailPost,
     faqByCtgr,
+    search,
+    searchedData,
+    searchInputVal,
+    validIds,
   };
 });

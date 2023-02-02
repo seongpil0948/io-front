@@ -6,6 +6,7 @@ import {
 import { USER_ROLE, loadDate } from "@io-boxies/js-lib";
 import { CsPost } from "./domain";
 import { commonToJson } from "@io-boxies/js-lib";
+import { OutputData } from "@editorjs/editorjs";
 
 export function csFromJson(data: { [x: string]: any }): CsPost | null {
   return {
@@ -16,6 +17,10 @@ export function csFromJson(data: { [x: string]: any }): CsPost | null {
     content: data.content,
     postType: data.postType,
     allowRole: data.allowRole as USER_ROLE,
+    txt:
+      data.title +
+      " " +
+      (data.content as OutputData).blocks.map((x) => x.data.text ?? ""),
   };
 }
 export const csPostFireConverter: FirestoreDataConverter<CsPost | null> = {

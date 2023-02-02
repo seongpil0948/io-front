@@ -8,6 +8,7 @@ import { ArrowBack } from "@vicons/ionicons5";
 
 const router = useRouter();
 const csStore = useCsStore();
+const { searchInputVal } = storeToRefs(csStore);
 const auth = useAuthStore();
 const faqCtgrList = computed(() => FAQ_CATEGORIES[auth.currUserRole] ?? []);
 
@@ -38,6 +39,10 @@ const currPostType = ref(state.ctgr);
     </n-space>
     <n-card>
       <n-tabs v-model:value="currPostType">
+        <template #suffix>
+          <n-input v-model:value="searchInputVal" placeholder="상품검색" />
+          <n-button @click="csStore.search"> 검색 </n-button>
+        </template>
         <n-tab-pane
           v-for="(ctgr, i) in faqCtgrList"
           :key="i"

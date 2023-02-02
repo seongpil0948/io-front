@@ -2,7 +2,7 @@
   <n-data-table
     v-if="title && posts.length > 0"
     :columns="columns(title)"
-    :data="posts"
+    :data="showPosts"
     :pagination="{ pageSize: 5 }"
     :bordered="false"
   />
@@ -12,10 +12,11 @@
 <script setup lang="ts">
 import { CsPost } from "@/composable";
 import { NThing, DataTableColumns, NButton } from "naive-ui";
-import { h, toRefs } from "vue";
+import { h, toRefs, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useCsStore } from "@/store";
 import { loadDate, formatDate } from "@io-boxies/js-lib";
+import { storeToRefs } from "pinia";
 
 const props = defineProps<{
   posts: CsPost[];
@@ -25,7 +26,13 @@ const { posts, title } = toRefs(props);
 
 const router = useRouter();
 const csStore = useCsStore();
+const { validIds } = storeToRefs(csStore);
 
+const showPosts = computed(() =>
+  validIds.value.length > 0
+    ? posts.value.filter((p) => validIds.value.includes(p.no))
+    : posts.value
+);
 function goDetail(detailPost: CsPost) {
   csStore.$patch({ detailPost });
   router.push({ name: "CsDetail" });
