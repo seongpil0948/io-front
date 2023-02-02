@@ -11,3 +11,4 @@ export * from "./cs";
 export * from "./by-role";
 export * from "./translate";
 export * from "./virtual";
+export * from "./input";
