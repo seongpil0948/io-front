@@ -4,6 +4,7 @@ import { makeMsgOpt } from "@/util";
 import { FirestoreError } from "@firebase/firestore";
 import { MessageOptions } from "naive-ui";
 import { MessageApiInjection } from "naive-ui/es/message/src/MessageProvider";
+import { AxiosError } from "axios";
 
 interface CatchParam {
   err: unknown;
@@ -30,8 +31,15 @@ export function catchExcelError(p: CatchParam) {
   return m;
 }
 
-export const errToStr = (err: unknown) =>
-  err instanceof Error ? err.message : JSON.stringify(err);
+export const errToStr = (err: any) => {
+  let m = "";
+  console.log("err: ", err);
+  if (err instanceof AxiosError) m = err.response?.data.err;
+  else if (err instanceof Error) m = err.message;
+  else m = JSON.stringify(err);
+
+  return m;
+};
 
 function expressErr(errStr: string, p: Partial<CatchParam>) {
   if (p.msg) {
