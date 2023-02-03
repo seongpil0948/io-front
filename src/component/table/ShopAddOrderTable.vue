@@ -65,11 +65,11 @@ const {
   filterIsNull,
   uid,
   matchData,
-  userProd,
   msg,
   mapper,
   useMatching,
   useMapping,
+  data,
 } = useMatch({
   afterReverseMap: () => Promise.resolve(fillMatchData()),
   virVendorProds,
@@ -80,13 +80,13 @@ const { fillMatchData } = useMappingOrderExcel({
   uid: uid,
   fs: fileModel,
   existIds: existOrderIds,
-  userProd,
+  userProd: data,
   matchData,
   msg,
 });
 
 watchEffect(async () => {
-  const ids = userProd.value.map((x) => x.vendorProdId);
+  const ids = data.value.map((x) => x.vendorProdId);
   vendorProds.value = [
     ...virVendorProds.value,
     ...(await VENDOR_GARMENT_DB.listByIds(ids)),

@@ -158,8 +158,6 @@ export function useTable<T extends MapperFields>(
         align: "left",
         width: 50,
         render: (row) => {
-          console.log("row: ", row, "checkedKeys:", checkedKeys.value);
-          console.log("p.keyField:", p.keyField, row[p.keyField!]);
           return h(LogoChecker, {
             size: 1,
             checked: checkedKeys.value.includes(row[p.keyField!]!.toString()),
@@ -236,6 +234,7 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
       (
         [
           "vendorProd.userInfo.displayName",
+          "displayName",
           "userName",
           "shopProd.prodName",
           "prodName",

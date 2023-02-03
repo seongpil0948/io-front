@@ -200,6 +200,10 @@ export function useOrderTable(d: orderTableParam) {
               key: "info",
               title: "상품정보",
               minWidth: "250",
+              sorter: (row1: OrderItemCombined, row2: OrderItemCombined) =>
+                row1.vendorProd.vendorProdName.localeCompare(
+                  row2.vendorProd.vendorProdName
+                ),
               render: (x) =>
                 h(
                   InfoCell,
