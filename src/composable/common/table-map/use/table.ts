@@ -239,6 +239,7 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
           "userName",
           "shopProd.prodName",
           "prodName",
+          "vendorProdName",
         ] as any[]
       ).includes(col.key)
     ) {

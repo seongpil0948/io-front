@@ -154,93 +154,87 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
     userId: auth.currUser.userInfo.userId,
     colKeys,
   });
-  const columns = computed(() => {
-    if (editOrder) {
-      return [
-        ...basicCols.value,
-        ...[
-          {
-            title: "미송설정",
-            key: "allowPending",
-            render: (row: VendorUserOrderGarment) =>
-              h(LogoChecker, {
-                checked: row.allowPending,
-                size: 1.5,
-                onClick: async () => {
-                  if (
-                    (!row.allowPending === false && row.pendingCnt === 0) ||
-                    !row.allowPending === true
-                  ) {
-                    row.allowPending = !row.allowPending;
-                    await VendorGarment.fromJson(row)!.update();
-                    msg.success(
-                      "미송정보 수정에 성공하였습니다.",
-                      makeMsgOpt()
-                    );
-                  } else {
-                    msg.error(
-                      "미송 비활성화를 위해서는 미송 개수가 0이어야합니다.",
-                      makeMsgOpt()
-                    );
-                  }
+  const editOrderCols = computed(() => {
+    return [
+      ...basicCols.value,
+      ...[
+        {
+          title: "미송설정",
+          key: "allowPending",
+          render: (row: VendorUserOrderGarment) =>
+            h(LogoChecker, {
+              checked: row.allowPending,
+              size: 1.5,
+              onClick: async () => {
+                if (
+                  (!row.allowPending === false && row.pendingCnt === 0) ||
+                  !row.allowPending === true
+                ) {
+                  row.allowPending = !row.allowPending;
+                  await VendorGarment.fromJson(row)!.update();
+                  msg.success("미송정보 수정에 성공하였습니다.", makeMsgOpt());
+                } else {
+                  msg.error(
+                    "미송 비활성화를 위해서는 미송 개수가 0이어야합니다.",
+                    makeMsgOpt()
+                  );
+                }
+              },
+            }),
+        },
+        {
+          title: "수정",
+          key: "editOrder",
+          render: (row: VendorUserOrderGarment) =>
+            h(
+              NButton,
+              {
+                round: true,
+                onClick: () => {
+                  onShowProdEdit(VendorGarment.fromJson(row));
                 },
-              }),
-          },
-          {
-            title: "수정",
-            key: "editOrder",
-            render: (row: VendorUserOrderGarment) =>
-              h(
-                NButton,
-                {
-                  round: true,
-                  onClick: () => {
-                    onShowProdEdit(VendorGarment.fromJson(row));
-                  },
+              },
+              { default: () => "수정" }
+            ),
+        },
+        {
+          title: "삭제",
+          key: "delete",
+          render: (row: VendorUserOrderGarment) =>
+            h(
+              NButton,
+              {
+                round: true,
+                onClick: () => {
+                  VENDOR_GARMENT_DB.delete(row.vendorProdId)
+                    .then(() => msg.success("삭제성공.", makeMsgOpt()))
+                    .catch((err) => {
+                      const message = `삭제실패. ${
+                        err instanceof Error ? err.message : JSON.stringify(err)
+                      }`;
+                      msg.error(message, makeMsgOpt());
+                      logger.error(auth.currUser.userInfo.userId, message);
+                    });
                 },
-                { default: () => "수정" }
-              ),
-          },
-          {
-            title: "삭제",
-            key: "delete",
-            render: (row: VendorUserOrderGarment) =>
-              h(
-                NButton,
-                {
-                  round: true,
-                  onClick: () => {
-                    VENDOR_GARMENT_DB.delete(row.vendorProdId)
-                      .then(() => msg.success("삭제성공.", makeMsgOpt()))
-                      .catch((err) => {
-                        const message = `삭제실패. ${
-                          err instanceof Error
-                            ? err.message
-                            : JSON.stringify(err)
-                        }`;
-                        msg.error(message, makeMsgOpt());
-                        logger.error(auth.currUser.userInfo.userId, message);
-                      });
-                  },
-                },
-                { default: () => "삭제" }
-              ),
-          },
-        ],
-      ].map((x) => {
-        x.minWidth = "100px";
-        return x;
-      }) as typeof basicCols.value;
-    } else {
-      return basicCols.value.map((x) => {
-        x.minWidth = "100px";
-        return x;
-      });
-    }
+              },
+              { default: () => "삭제" }
+            ),
+        },
+      ],
+    ].map((x) => {
+      x.minWidth = "100px";
+      return x;
+    }) as typeof basicCols.value;
+  });
+  const cols = computed(() => {
+    return basicCols.value.map((x) => {
+      x.minWidth = "100px";
+      return x;
+    });
   });
 
   return {
-    columns,
+    columns: editOrder ? editOrderCols : cols,
     showProdEdit,
     prodEditTarget,
     onShowProdEdit,

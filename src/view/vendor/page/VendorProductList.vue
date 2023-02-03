@@ -7,7 +7,7 @@ const store = useVendorOrderStore();
 const orders = store.getOrders([]);
 const vendorOrderGarments = store.getVendorOrderGarments(orders);
 const { columns, showProdEdit, prodEditTarget, onShowProdEdit } =
-  useVendorProdCols(true);
+  useVendorProdCols(true, false);
 
 const { search, searchedData, searchInputVal } = useSearch({
   data: vendorOrderGarments,
