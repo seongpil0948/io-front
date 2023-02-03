@@ -150,8 +150,6 @@ export const useShopProdStore = defineStore("ShopProdStore", () => {
           )
         );
       }
-      console.log("ShopProdStore shopProds: ", prods, "userProd: ", userProds);
-      console.log("ShopProdStore data: ", data.value);
       userProd.value = userProds;
     }
   );
