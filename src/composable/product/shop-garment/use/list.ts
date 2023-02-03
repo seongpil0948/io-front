@@ -10,7 +10,6 @@ import { ShopUserGarment } from "../domain";
 import { storeToRefs } from "pinia";
 
 export function useShopGarmentTable(briefly: boolean) {
-  // TODO: to useShopProdTable
   const rowIdField = "shopProdId";
   const msg = useMessage();
   const authStore = useAuthStore();
