@@ -1,15 +1,16 @@
 import { SHOP_GARMENT_DB, usePopSelTable } from "@/composable";
 import { useTable } from "@/composable/common";
 import { useAuthStore } from "@/store";
-import { useShopProdStore } from "@/store/shopProd";
 import { makeMsgOpt } from "@/util";
 import { DataTableColumns, useMessage, useDialog } from "naive-ui";
-import { ref, computed } from "vue";
+import { ref, computed, Ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { ShopUserGarment } from "../domain";
-import { storeToRefs } from "pinia";
 
-export function useShopGarmentTable(briefly: boolean) {
+export function useShopGarmentTable(
+  briefly: boolean,
+  data: Ref<ShopUserGarment[]>
+) {
   const rowIdField = "shopProdId";
   const msg = useMessage();
   const authStore = useAuthStore();
@@ -17,8 +18,7 @@ export function useShopGarmentTable(briefly: boolean) {
   const tableRef = ref<any>(null);
   const dialog = useDialog();
   const openSelectList = ref(false);
-  const shopProdStore = useShopProdStore();
-  const { data } = storeToRefs(shopProdStore);
+
   const selectFunc = ref<((s: ShopUserGarment) => Promise<void>) | null>(null);
   const logger = useLogger();
 
@@ -112,7 +112,7 @@ export function useShopGarmentTable(briefly: boolean) {
     if (mapper.value === null) return [];
     columns.value.forEach((x) => {
       if (["userName", "prodName", "vendorName"].includes(x.key.toString())) {
-        x.width = 200;
+        x.width = 150;
       } else {
         x.minWidth = 100;
       }
@@ -124,7 +124,6 @@ export function useShopGarmentTable(briefly: boolean) {
     mapper,
     mapperUpdate,
     checkedKeys,
-    userProd: data,
     popVal,
     selectedRow,
     selectFunc,
@@ -132,6 +131,5 @@ export function useShopGarmentTable(briefly: boolean) {
     deleteGarments,
     onCheckedDelete,
     tableRef,
-    data,
   };
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { lightTheme } from "naive-ui";
-import { lightThemeOver } from "@/composable/config";
+import { lightThemeOver, useNaiveConfig } from "@/composable/config";
 import { onBeforeUnmount, ref } from "vue";
 
 import {
@@ -14,6 +14,7 @@ import {
 import { USER_DB, ShopOperInfo, VendorOperInfo } from "@io-boxies/js-lib";
 import { ioFireStore } from "@/plugin/firebase";
 
+const { naiveLocate } = useNaiveConfig();
 const userInfoRef = ref<UserInfoInst | null>(null);
 const companyInfoRef = ref<InstanceType<typeof AsyncCompanyInfoForm> | null>(
   null
@@ -82,7 +83,12 @@ const {
 onBeforeUnmount(() => stop());
 </script>
 <template>
-  <n-config-provider :theme="lightTheme" :theme-overrides="lightThemeOver">
+  <n-config-provider
+    :locale="naiveLocate.naiveLocale"
+    :date-locale="naiveLocate.naiveDate"
+    :theme="lightTheme"
+    :theme-overrides="lightThemeOver"
+  >
     <n-space id="signup-page-container" vertical>
       <n-image preview-disabled class="vibe" src="/logo.png" width="100" />
       <n-card

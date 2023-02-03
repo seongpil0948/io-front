@@ -22,36 +22,37 @@ import {
 } from "naive-ui";
 import { uuidv4 } from "@firebase/util";
 import { computed, shallowRef, watchEffect } from "vue";
+import { useShopProdStore } from "@/store/shopProd";
+import { storeToRefs } from "pinia";
 
 const authStore = useAuthStore();
+const shopProdStore = useShopProdStore();
+const { data } = storeToRefs(shopProdStore);
 const msg = useMessage();
 const {
   tableCols,
   mapper,
   mapperUpdate,
   checkedKeys,
-  userProd,
   popVal,
   selectedRow,
   onCheckedDelete,
   tableRef,
-} = useShopGarmentTable(false);
+} = useShopGarmentTable(false, data);
 const cols = computed(() =>
   tableCols.value.filter((x) => (x as any).key !== "select")
 );
 
 const vendorProds = shallowRef<VendorGarment[]>([]);
 watchEffect(async () => {
-  const ids = userProd.value.map((x) => x.vendorProdId);
+  const ids = data.value.map((x) => x.vendorProdId);
   const result = await VENDOR_GARMENT_DB.listByIds(ids);
   vendorProds.value = result;
 });
 async function onCheckedOrder() {
   const orders: IoOrder[] = [];
   for (let i = 0; i < checkedKeys.value.length; i++) {
-    const prod = userProd.value.find(
-      (x) => x.shopProdId === checkedKeys.value[i]
-    )!;
+    const prod = data.value.find((x) => x.shopProdId === checkedKeys.value[i])!;
     if (!prod) continue;
 
     const vendorProd = vendorProds.value.find(
@@ -127,7 +128,7 @@ function updateOrderId(arr: string[]) {
       <n-data-table
         ref="tableRef"
         :columns="cols"
-        :data="userProd"
+        :data="data"
         :pagination="{
           showSizePicker: true,
           pageSizes: [5, 10, 25, 50, 100],

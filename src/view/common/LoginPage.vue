@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { lightThemeOver } from "@/composable/config";
+import { lightThemeOver, useNaiveConfig } from "@/composable/config";
 import { lightTheme, NSpace, useMessage } from "naive-ui";
 import { useAuthStore } from "@/store";
 import { useRouter } from "vue-router";
@@ -14,6 +14,7 @@ import { LoginReturn } from "@/component/common/login/login";
 const LoginView = defineAsyncComponent(
   () => import("@/component/common/login/login-view")
 );
+const { naiveLocate } = useNaiveConfig();
 
 const msg = useMessage();
 const authS = useAuthStore();
@@ -45,7 +46,12 @@ const onInternalError = (err: any) =>
   log.error(null, `code: ${err.code}, message: ${err.message}`, err);
 </script>
 <template>
-  <n-config-provider :theme="lightTheme" :theme-overrides="lightThemeOver">
+  <n-config-provider
+    :locale="naiveLocate.naiveLocale"
+    :date-locale="naiveLocate.naiveDate"
+    :theme="lightTheme"
+    :theme-overrides="lightThemeOver"
+  >
     <n-space id="login-page-container" vertical>
       <LoginView
         :store="ioFireStore"

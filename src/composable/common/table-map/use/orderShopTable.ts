@@ -204,8 +204,7 @@ export function useOrderTable(d: orderTableParam) {
                 h(
                   InfoCell,
                   {
-                    first: x.shopProd.prodName,
-                    second:
+                    first:
                       x.shopProd.visible === "ME"
                         ? "(가상)" + x.vendorProd.vendorProdName
                         : x.vendorProd.vendorProdName,

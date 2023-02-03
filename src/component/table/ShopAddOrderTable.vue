@@ -229,7 +229,7 @@ const operOpts = [
           :options="uploadOpts"
           @select="handleUploadSelect"
         >
-          <n-button>주문 취합/업로드</n-button>
+          <n-button size="small">주문 취합/업로드</n-button>
         </n-dropdown>
         <n-dropdown
           v-if="filteredOrders.length > 0"
@@ -237,7 +237,7 @@ const operOpts = [
           :options="operOpts"
           @select="handleOperSelect"
         >
-          <n-button>주문 처리</n-button>
+          <n-button size="small">주문 처리</n-button>
         </n-dropdown>
       </n-space>
     </template>
@@ -317,29 +317,75 @@ const operOpts = [
   </n-modal>
   <n-modal v-model:show="openSelectList" style="margin: 5%">
     <n-card>
-      <template #header>
-        상품선택<n-text v-if="targetGarment">
-          ({{
-            `${targetGarment?.inputProdName} | ${targetGarment?.inputColor} | ${targetGarment?.inputSize}`
-          }})</n-text
-        >
-      </template>
-      <template #header-extra>
-        <n-input v-model:value="searchInputVal" placeholder="상품검색" />
-        <n-button @click="search"> 검색 </n-button>
-      </template>
-      <n-data-table
-        ref="tableRef"
-        :columns="tableCols"
-        :data="searchedData"
-        :pagination="{
-          showSizePicker: true,
-          pageSizes: [5, 10, 25, 50, 100],
-        }"
-        :bordered="false"
-        :table-layout="'fixed'"
-        :scroll-x="1200"
-      />
+      <n-space vertical>
+        <n-space>
+          상품선택<n-text v-if="targetGarment"
+            >({{
+              `${targetGarment?.inputProdName} | ${targetGarment?.inputColor} | ${targetGarment?.inputSize}`
+            }})</n-text
+          >
+        </n-space>
+        <n-space>
+          <n-input
+            v-model:value="searchInputVal"
+            size="small"
+            placeholder="상품검색"
+          />
+          <n-button size="small" @click="search"> 검색 </n-button>
+        </n-space>
+        <n-data-table
+          ref="tableRef"
+          :columns="tableCols"
+          :data="searchedData"
+          :pagination="{
+            showSizePicker: true,
+            pageSizes: [5, 10, 25, 50, 100],
+          }"
+          :bordered="false"
+          :table-layout="'fixed'"
+          :scroll-x="1200"
+        />
+      </n-space>
     </n-card>
   </n-modal>
 </template>
+
+<style>
+@media (max-width: 500px) {
+  * .n-text {
+    font-size: x-small;
+  }
+  .n-data-table .n-data-table-td {
+    font-size: x-small;
+  }
+  .n-button {
+    font-size: x-small;
+  }
+  .n-data-table .n-data-table-th {
+    font-size: small;
+  }
+  :root {
+    --n-title-font-size: 10;
+  }
+}
+@media (max-width: 310px) {
+  * .n-text {
+    font-size: xx-small;
+  }
+  .n-data-table .n-data-table-td {
+    font-size: xx-small;
+  }
+  .n-button {
+    font-size: xx-small;
+  }
+  .n-data-table .n-data-table-th {
+    font-size: x-small;
+  }
+  .n-tabs-tab__label {
+    font-size: small;
+  }
+  :root {
+    --n-title-font-size: 8;
+  }
+}
+</style>

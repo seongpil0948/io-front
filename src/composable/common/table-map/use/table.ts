@@ -157,8 +157,10 @@ export function useTable<T extends MapperFields>(
           }),
         align: "left",
         width: 50,
-        render: (row) =>
-          h(LogoChecker, {
+        render: (row) => {
+          console.log("row: ", row, "checkedKeys:", checkedKeys.value);
+          console.log("p.keyField:", p.keyField, row[p.keyField!]);
+          return h(LogoChecker, {
             size: 1,
             checked: checkedKeys.value.includes(row[p.keyField!]!.toString()),
             onClick: () => {
@@ -169,7 +171,8 @@ export function useTable<T extends MapperFields>(
                 checkedKeys.value.push(val);
               }
             },
-          }),
+          });
+        },
       });
     }
     if (onSelect) {
@@ -180,6 +183,7 @@ export function useTable<T extends MapperFields>(
           h(
             NButton,
             {
+              size: "small",
               onClick: () => onSelect(row),
             },
             { default: () => "선택" }

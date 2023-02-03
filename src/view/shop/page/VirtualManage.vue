@@ -31,7 +31,7 @@ const {
   regitProdModal,
   changeRegitProdModal,
   onRegistered,
-  virShopCols,
+  virProdCols,
   searchedData,
   virtualVendors,
   searchInputVal,
@@ -41,6 +41,7 @@ const {
   virtualVendorById,
   virProdEditTarget,
   virShopProds,
+  userVirProds,
 } = useShopVirtualProd(auth.currUser);
 const selectedVendorId = ref<string | null>(null);
 const vendorOpts = computed(() =>
@@ -50,8 +51,11 @@ const vendorOpts = computed(() =>
   }))
 );
 
-const { selectFunc, userProd, tableCols, openSelectList } =
-  useShopGarmentTable(true);
+const {
+  selectFunc,
+  tableCols: prodTableCols,
+  openSelectList,
+} = useShopGarmentTable(true, userVirProds);
 type PartialInner = Partial<ProdInnerIdSrc>;
 const batchRef = ref<InstanceType<typeof BatchCreateVirProd> | null>(null);
 function onClickId(value: {
@@ -82,9 +86,9 @@ watchEffect(async () => {
       vendorByName.value[uName] = virtualVendorById.value[vk];
     }
   });
-  for (let i = 0; i < userProd.value.length; i++) {
-    const sug = userProd.value[i];
-    const uName = mapTxt(getUserName(userProd.value[i]));
+  for (let i = 0; i < userVirProds.value.length; i++) {
+    const sug = userVirProds.value[i];
+    const uName = mapTxt(getUserName(userVirProds.value[i]));
     if (sug.visible === "GLOBAL" && !vendorByName.value[uName]) {
       const u = await USER_DB.getUserById(ioFireStore, sug.vendorId);
       if (u) {
@@ -100,7 +104,7 @@ const {
   searchedData: searchedData2,
   searchInputVal: searchInputVal2,
 } = useSearch({
-  data: userProd,
+  data: userVirProds,
   filterFunc: (x, searchVal) => {
     const v: typeof searchVal = searchVal;
     return v === null
@@ -152,7 +156,7 @@ async function submitEdit() {
           <n-button @click="search"> 검색 </n-button>
           <batch-create-vir-prod
             ref="batchRef"
-            :data="userProd"
+            :data="userVirProds"
             :user-id="uid"
             :vendor-by-name="vendorByName"
             @select="onClickId"
@@ -165,7 +169,7 @@ async function submitEdit() {
         <n-data-table
           ref="tableRef"
           :scroll-x="1200"
-          :columns="virShopCols"
+          :columns="virProdCols"
           :data="searchedData"
           :pagination="{
             showSizePicker: true,
@@ -184,8 +188,7 @@ async function submitEdit() {
         <n-button @click="search2"> 검색 </n-button>
       </template>
       <n-data-table
-        ref="tableRef"
-        :columns="tableCols"
+        :columns="prodTableCols"
         :data="searchedData2"
         :pagination="{
           showSizePicker: true,

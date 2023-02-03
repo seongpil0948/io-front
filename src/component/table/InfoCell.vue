@@ -2,9 +2,9 @@
 import { toRefs } from "vue";
 
 const props = defineProps<{
-  first: string;
-  second: string;
-  third: string;
+  first?: string;
+  second?: string;
+  third?: string;
 }>();
 const { first, second, third } = toRefs(props);
 </script>

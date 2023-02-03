@@ -5,15 +5,6 @@ import { computed, h } from "vue";
 export function getMatchCols(onClickId: (row: MatchGarment) => Promise<void>) {
   return computed(() => [
     {
-      title: "서비스",
-      key: "service",
-      sorter: "default",
-    },
-    {
-      title: "주문개수",
-      key: "orderCnt",
-    },
-    {
       title: "매칭",
       key: "id",
       render: (row: MatchGarment) =>
@@ -21,6 +12,7 @@ export function getMatchCols(onClickId: (row: MatchGarment) => Promise<void>) {
           NButton,
           {
             type: row.id ? "info" : "error",
+            size: "small",
             style: {
               color: "white",
             },
@@ -42,6 +34,15 @@ export function getMatchCols(onClickId: (row: MatchGarment) => Promise<void>) {
           key: "inputProdName",
         },
       ],
+    },
+    {
+      title: "서비스",
+      key: "service",
+      sorter: "default",
+    },
+    {
+      title: "주문개수",
+      key: "orderCnt",
     },
     {
       title: "주문번호",

@@ -39,6 +39,7 @@ export function useShopVirtualProd(user: IoUser) {
     virVendorProds,
     userVirProds,
     virShopProds,
+    data,
   } = storeToRefs(shopProdStore);
 
   const getVirSimilarProds = async (
@@ -67,7 +68,10 @@ export function useShopVirtualProd(user: IoUser) {
   //     return uProds;
   //   });
 
-  const { tableCols, checkedKeys, tableRef } = useShopGarmentTable(false);
+  const { tableCols, checkedKeys, tableRef } = useShopGarmentTable(
+    false,
+    userVirProds
+  );
   const virProdEditTarget = ref<VendorGarment | null>(null);
 
   const { selectedRow, popVal, optionCol } = usePopSelTable<ShopUserGarment>({
@@ -77,7 +81,7 @@ export function useShopVirtualProd(user: IoUser) {
         virVendorProds.value.find((x) => x.vendorProdId === p.vendorProdId) ??
         null),
   });
-  const virShopCols = computed(() => {
+  const virProdCols = computed(() => {
     const t = tableCols.value.filter(
       (x: any) =>
         ![
@@ -164,13 +168,14 @@ export function useShopVirtualProd(user: IoUser) {
     onCheckedOrder,
     popVal,
     selectedRow,
-    virShopCols,
+    virProdCols,
     searchedData,
     userVirProds,
     tableRef,
     virtualVendors,
     virtualVendorById,
     virProdEditTarget,
+    data,
   };
 }
 

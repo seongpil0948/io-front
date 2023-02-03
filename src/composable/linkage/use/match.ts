@@ -28,6 +28,7 @@ import {
 } from "@/composable/product";
 import { logger } from "@/plugin/logger";
 import { useShopOrderStore } from "@/store";
+import { useShopProdStore } from "@/store/shopProd";
 import { dateRanges, makeMsgOpt } from "@/util";
 import { MessageApiInjection } from "naive-ui/es/message/src/MessageProvider";
 import { storeToRefs } from "pinia";
@@ -63,12 +64,16 @@ export function useMatch(d: {
   const { existOrderIds, mapper } = storeToRefs(shopOrderStore);
   onBeforeUnmount(() => unsubscribe());
 
-  const { selectFunc, userProd, tableCols, openSelectList } =
-    useShopGarmentTable(true);
+  const shopProdStore = useShopProdStore();
+  const { data } = storeToRefs(shopProdStore);
+  const { selectFunc, tableCols, openSelectList } = useShopGarmentTable(
+    true,
+    data
+  );
 
   const vendorProds = shallowRef<VendorGarment[]>([]);
   watchEffect(async () => {
-    const ids = userProd.value.map((x) => x.vendorProdId);
+    const ids = data.value.map((x) => x.vendorProdId);
     vendorProds.value = [
       ...d.virVendorProds.value,
       ...(await VENDOR_GARMENT_DB.listByIds(ids)),
@@ -199,7 +204,7 @@ export function useMatch(d: {
     try {
       const cnt = await saveMatch(
         matchData.value,
-        userProd.value,
+        data.value,
         uid.value,
         existOrderIds,
         vendorProds.value
@@ -214,7 +219,7 @@ export function useMatch(d: {
     const { result, cnt } = matchAblyOrder(
       ablyOrders.value,
       existOrderIds.value,
-      userProd.value
+      data.value
     );
     matchData.value.push(...result);
     expressParseResult(cnt, msg, uid.value);
@@ -224,7 +229,7 @@ export function useMatch(d: {
       const { result, cnt } = matchZigzagOrder(
         zigzagOrders.value,
         existOrderIds.value,
-        userProd.value
+        data.value
       );
       matchData.value.push(...result);
       expressParseResult(cnt, msg, uid.value);
@@ -244,12 +249,12 @@ export function useMatch(d: {
       // orders = cafeMapProcessor.getOrdersByCondi(
       //   conditions,
       //   vendorProds.value,
-      //   userProd.value
+      //   data.value
       // );
     }
     if (useMatching.value) {
       matchData.value.push(
-        ...matchCafeOrder(cafeOrders.value, existOrderIds.value, userProd.value)
+        ...matchCafeOrder(cafeOrders.value, existOrderIds.value, data.value)
       );
     }
     // if ((!orders || orders.length < 1) && matchData.value.length < 1) {
@@ -283,7 +288,7 @@ export function useMatch(d: {
   });
 
   const { search, searchedData, searchInputVal } = useSearch({
-    data: userProd,
+    data: data,
     filterFunc: (x, searchVal) => {
       const v: typeof searchVal = searchVal;
       return v === null
@@ -317,7 +322,7 @@ export function useMatch(d: {
     authorizeCafe,
     mallId,
     onGetOrder,
-    userProd,
+    data,
     selectFunc,
     onSaveMatch,
     tableCols,
