@@ -152,3 +152,41 @@ table th {
 ::-webkit-scrollbar-thumb:hover {
     background: transparent;
 }
+
+@media (max-width: 500px) {
+    * .n-text {
+        font-size: x-small;
+    }
+    .n-data-table .n-data-table-td {
+        font-size: x-small;
+    }
+    .n-button {
+        font-size: x-small;
+    }
+    .n-data-table .n-data-table-th {
+        font-size: small;
+    }
+    :root {
+        --n-title-font-size: 10;
+    }
+}
+@media (max-width: 310px) {
+    * .n-text {
+        font-size: xx-small;
+    }
+    .n-data-table .n-data-table-td {
+        font-size: xx-small;
+    }
+    .n-button {
+        font-size: xx-small;
+    }
+    .n-data-table .n-data-table-th {
+        font-size: x-small;
+    }
+    .n-tabs-tab__label {
+        font-size: small;
+    }
+    :root {
+        --n-title-font-size: 8;
+    }
+}

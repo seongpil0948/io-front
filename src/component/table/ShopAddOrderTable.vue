@@ -46,6 +46,11 @@ const {
   downOrderItems,
   orderDoneInner,
 } = useOrderBasic(user, filteredOrders, orders, checkedDetailKeys);
+const loadingReqOrder = ref(false);
+function reqOrderConfirmWrap() {
+  loadingReqOrder.value = true;
+  onReqOrderConfirm().finally(() => (loadingReqOrder.value = false));
+}
 
 const { virVendorProds, userVirProds } = useShopVirtualProd(auth.currUser);
 const vendorProds = shallowRef<VendorGarment[]>([]);
@@ -270,22 +275,25 @@ const operOpts = [
       :bordered="false"
     />
   </drop-zone-card>
-  <coin-reduce-confirm-modal
-    v-if="orders && orders.length > 0"
-    :show-modal="showReqOrderModal"
-    :user-id="user.userInfo.userId"
-    :expected-reduce-coin="expectedReduceCoin"
-    @update:show-modal="updateReqOrderShow"
-    @on-confirm="onReqOrderConfirm"
-  >
-    <template #title> 주문을 전송 하시겠습니까? </template>
-    <template #default>
-      도매처에 주문 데이터를 전송 후
-      <br />
-      도매처에서 [<n-text class="under-bar"> 승인 </n-text>]할 경우 상품당
-      {{ IO_COSTS.REQ_ORDER }} 코인이 소모 됩니다.
-    </template>
-  </coin-reduce-confirm-modal>
+  <n-spin :show="loadingReqOrder">
+    <coin-reduce-confirm-modal
+      v-if="orders && orders.length > 0"
+      :show-modal="showReqOrderModal"
+      :user-id="user.userInfo.userId"
+      :expected-reduce-coin="expectedReduceCoin"
+      :loading="loadingReqOrder"
+      @update:show-modal="updateReqOrderShow"
+      @on-confirm="reqOrderConfirmWrap"
+    >
+      <template #title> 주문을 전송 하시겠습니까? </template>
+      <template #default>
+        도매처에 주문 데이터를 전송 후
+        <br />
+        도매처에서 [<n-text class="under-bar"> 승인 </n-text>]할 경우 상품당
+        {{ IO_COSTS.REQ_ORDER }} 코인이 소모 됩니다.
+      </template>
+    </coin-reduce-confirm-modal>
+  </n-spin>
   <n-modal v-model:show="showMatchModal" style="margin: 5%">
     <n-card>
       <n-space style="margin-bottom: 10px" justify="end">
@@ -349,43 +357,3 @@ const operOpts = [
     </n-card>
   </n-modal>
 </template>
-
-<style>
-@media (max-width: 500px) {
-  * .n-text {
-    font-size: x-small;
-  }
-  .n-data-table .n-data-table-td {
-    font-size: x-small;
-  }
-  .n-button {
-    font-size: x-small;
-  }
-  .n-data-table .n-data-table-th {
-    font-size: small;
-  }
-  :root {
-    --n-title-font-size: 10;
-  }
-}
-@media (max-width: 310px) {
-  * .n-text {
-    font-size: xx-small;
-  }
-  .n-data-table .n-data-table-td {
-    font-size: xx-small;
-  }
-  .n-button {
-    font-size: xx-small;
-  }
-  .n-data-table .n-data-table-th {
-    font-size: x-small;
-  }
-  .n-tabs-tab__label {
-    font-size: small;
-  }
-  :root {
-    --n-title-font-size: 8;
-  }
-}
-</style>

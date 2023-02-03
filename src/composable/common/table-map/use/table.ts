@@ -123,7 +123,7 @@ export function useTable<T extends MapperFields>(
           return h(
             NImage as Component,
             {
-              src,
+              src: src ?? "/img/no_image.png",
               fallbackSrc: "/img/no_image.png",
               alt: "X",
               objectFit: "contain",

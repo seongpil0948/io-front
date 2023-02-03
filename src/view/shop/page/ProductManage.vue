@@ -27,7 +27,7 @@ import { storeToRefs } from "pinia";
 
 const authStore = useAuthStore();
 const shopProdStore = useShopProdStore();
-const { data } = storeToRefs(shopProdStore);
+const { userProd } = storeToRefs(shopProdStore);
 const msg = useMessage();
 const {
   tableCols,
@@ -38,21 +38,23 @@ const {
   selectedRow,
   onCheckedDelete,
   tableRef,
-} = useShopGarmentTable(false, data);
+} = useShopGarmentTable(false, userProd);
 const cols = computed(() =>
   tableCols.value.filter((x) => (x as any).key !== "select")
 );
 
 const vendorProds = shallowRef<VendorGarment[]>([]);
 watchEffect(async () => {
-  const ids = data.value.map((x) => x.vendorProdId);
+  const ids = userProd.value.map((x) => x.vendorProdId);
   const result = await VENDOR_GARMENT_DB.listByIds(ids);
   vendorProds.value = result;
 });
 async function onCheckedOrder() {
   const orders: IoOrder[] = [];
   for (let i = 0; i < checkedKeys.value.length; i++) {
-    const prod = data.value.find((x) => x.shopProdId === checkedKeys.value[i])!;
+    const prod = userProd.value.find(
+      (x) => x.shopProdId === checkedKeys.value[i]
+    )!;
     if (!prod) continue;
 
     const vendorProd = vendorProds.value.find(
@@ -100,9 +102,7 @@ function updateOrderId(arr: string[]) {
   >
     <n-card>
       <template #header>
-        <n-h4 v-if="!isMobile()">
-          상품정보 변경을 위해서 옵션 선택을 이용 해주세요!
-        </n-h4>
+        <n-h4> 상품정보 변경을 위해서 옵션 선택을 이용 해주세요! </n-h4>
       </template>
       <template #header-extra>
         <n-button
@@ -128,7 +128,7 @@ function updateOrderId(arr: string[]) {
       <n-data-table
         ref="tableRef"
         :columns="cols"
-        :data="data"
+        :data="userProd"
         :pagination="{
           showSizePicker: true,
           pageSizes: [5, 10, 25, 50, 100],

@@ -34,7 +34,6 @@ export const useShopProdStore = defineStore("ShopProdStore", () => {
   logger.debug("=== called ShopProdStore ===");
 
   const authStore = useAuthStore();
-  const shopId = ref<string | null>(null);
   let shopGarmentUnSub: null | Unsubscribe = null;
   const { shopProds, unsubscribe } = SHOP_GARMENT_DB.useGetShopGarments(
     authStore.uid,
@@ -162,6 +161,7 @@ export const useShopProdStore = defineStore("ShopProdStore", () => {
     }
     unsubscribeVirtual();
     unsubscribeShopProd();
+    unsubscribe();
   }
 
   return {
