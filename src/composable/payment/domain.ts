@@ -90,18 +90,32 @@ export interface IoPayCRT {
   pendingBudget: number;
   history: PayHistoryCRT[];
 }
-export type PAY_HIST_STATE = "CHARGE" | "WITH_DRAW" | "USE";
+export type PAY_HIST_STATE =
+  | "CHARGE"
+  | "WITH_DRAW"
+  | "USE"
+  | "ADMIN_MODIFY"
+  | "APPROVE_PICKUP"
+  | "ORDER_GARMENT"
+  | "ORDER_APPROVE"
+  | "ORDER_REJECT";
+
 export const PAY_HIST_STATE: { [key in PAY_HIST_STATE]: string } = {
   CHARGE: "충전",
   WITH_DRAW: "인출",
   USE: "사용",
+  ADMIN_MODIFY: "관리자수정",
+  ORDER_GARMENT: "도매처주문",
+  ORDER_APPROVE: "도매처주문승인",
+  ORDER_REJECT: "도매처주문거절",
+  APPROVE_PICKUP: "픽업승인",
 };
 
 export interface PayHistoryCRT {
   createdAt?: Date;
-  updatedAt?: Date;
   userId: string;
-  amount: number; // 변동 스푼 량
+  amount: number; // 변동 보류 금액량
+  pendingAmount: number; // 변동 보류 금액량
   state: PAY_HIST_STATE;
   tbd: { [k: string]: any };
 }

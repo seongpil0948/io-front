@@ -9,6 +9,7 @@ import {
   VendorGarment,
   OrderItem,
   catchError,
+  PayHistoryCRT,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
@@ -21,7 +22,7 @@ import {
 } from "naive-ui";
 import { computed, h, ref, Ref, VNode, defineAsyncComponent } from "vue";
 import { useAuthStore } from "@/store";
-import { doc, getDoc, updateDoc } from "@firebase/firestore";
+import { doc, FieldValue, getDoc, updateDoc } from "@firebase/firestore";
 import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { ioFire, ioFireStore } from "@/plugin/firebase";
@@ -99,13 +100,27 @@ export function useApproveOrder(p: ApproveParam) {
             update: false,
           });
           const docRef = doc(
-            getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }),
+            getIoCollection(ioFireStore, { c: "IO_PAY" }),
             o.shopId
           ).withConverter(IoPay.fireConverter());
           const docSnap = await getDoc(docRef);
           const userPay = docSnap.data();
           if (docSnap.exists() && userPay) {
-            updateDoc(docRef, { pendingBudget: userPay.pendingBudget + 1 });
+            const cost = IO_COSTS.APPROVE_ORDER;
+            updateDoc(docRef, {
+              pendingBudget: userPay.pendingBudget + cost,
+              history: [
+                ...userPay.history,
+                {
+                  createdAt: new Date(),
+                  userId: item.vendorId,
+                  amount: 0,
+                  pendingAmount: cost,
+                  state: "ORDER_APPROVE",
+                  tbd: {},
+                },
+              ] as Partial<PayHistoryCRT>[],
+            });
           }
           await ORDER_GARMENT_DB.updateOrder(o);
           ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [newId])

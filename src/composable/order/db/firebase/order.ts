@@ -42,6 +42,7 @@ import {
   reduceStockCnt,
   getPartnerDoc,
   VENDOR_GARMENT_DB,
+  PayHistoryCRT,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { ioFireStore } from "@/plugin/firebase";
@@ -164,6 +165,8 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       acc[curr] = 0;
       return acc;
     }, {} as { [shopId: string]: number });
+
+    let vendorId: string | null = null;
     await runTransaction(ioFireStore, async (transaction) => {
       const { getOrdRef, converterGarment } = getSrc();
       // 2. update order state, reduce shop coin
@@ -171,6 +174,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         const o = orders[i];
         for (let j = 0; j < o.items.length; j++) {
           const item = o.items[j];
+          if (!vendorId && item.vendorId) vendorId = item.vendorId;
           if (
             orderItemIds.includes(item.id) &&
             (item.state === "BEFORE_APPROVE" || item.state === "BEFORE_PAYMENT")
@@ -191,10 +195,20 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         const shopPay = await IO_PAY_DB.getIoPayByUser(shopId);
         const cost = IO_COSTS.REQ_ORDER * cnt;
         transaction.update(
-          doc(getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }), shopId),
+          doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), shopId),
           {
             pendingBudget: shopPay.pendingBudget - cost,
             budget: shopPay.budget + cost,
+            history: [
+              ...shopPay.history,
+              {
+                createdAt: new Date(),
+                userId: vendorId ?? "",
+                amount: cost,
+                pendingAmount: -cost,
+                state: "ORDER_REJECT",
+              } as PayHistoryCRT,
+            ],
           }
         );
       }
@@ -225,9 +239,19 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       }
       vendorPay.budget -= vReduceCoin;
       transaction.update(
-        doc(getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }), vendorId),
+        doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), vendorId),
         {
           budget: vendorPay.budget,
+          history: [
+            ...vendorPay.history,
+            {
+              createdAt: new Date(),
+              userId: vendorId,
+              amount: -vReduceCoin,
+              pendingAmount: 0,
+              state: "ORDER_APPROVE",
+            } as PayHistoryCRT,
+          ],
         }
       );
       // 2. update order state, reduce shop coin
@@ -259,9 +283,19 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
             `shop(${shopId}) not enough pendingBudget(${cost}) for request order`
           );
         transaction.update(
-          doc(getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }), shopId),
+          doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), shopId),
           {
             pendingBudget: shopPay.pendingBudget - cost,
+            history: [
+              ...shopPay.history,
+              {
+                createdAt: new Date(),
+                userId: vendorId,
+                amount: 0,
+                pendingAmount: -cost,
+                state: "ORDER_APPROVE",
+              } as PayHistoryCRT,
+            ],
           }
         );
       }
@@ -338,13 +372,20 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         );
       }
       transaction.update(
-        doc(
-          getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }),
-          userPay.userId
-        ),
+        doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), userPay.userId),
         {
           pendingBudget: userPay.pendingBudget + reduceCoin,
           budget: userPay.budget - reduceCoin,
+          history: [
+            ...userPay.history,
+            {
+              createdAt: new Date(),
+              userId: userPay.userId,
+              amount: -reduceCoin,
+              pendingAmount: +reduceCoin,
+              state: "ORDER_GARMENT",
+            } as PayHistoryCRT,
+          ],
         }
       );
       return newOrds;

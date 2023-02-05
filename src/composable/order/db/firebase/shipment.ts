@@ -7,6 +7,7 @@ import {
   setState,
   uncleAvailShip,
   VENDOR_GARMENT_DB,
+  PayHistoryCRT,
 } from "@/composable";
 import { getIoCollection, IoCollection, USER_DB } from "@io-boxies/js-lib";
 import { uuidv4 } from "@firebase/util";
@@ -112,13 +113,20 @@ export const ShipmentFB: ShipDB<IoOrder> = {
       }
       t.update(ordDocRef, converterGarment.toFirestore(ord));
       t.update(
-        doc(
-          getIoCollection(ioFireStore, { c: IoCollection.IO_PAY }),
-          userPay.userId
-        ),
+        doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), userPay.userId),
         {
           pendingBudget: userPay.pendingBudget + expectedReduceCoin,
           budget: userPay.budget - expectedReduceCoin,
+          history: [
+            ...userPay.history,
+            {
+              createdAt: new Date(),
+              userId: userPay.userId,
+              amount: -expectedReduceCoin,
+              pendingAmount: +expectedReduceCoin,
+              state: "APPROVE_PICKUP",
+            } as PayHistoryCRT,
+          ],
         }
       );
 
