@@ -108,7 +108,7 @@ function getRowKey(row: OrderItemByShop) {
       <br />
       나머지 개수는 미송 주문건으로 이동됩니다.
       <br />
-      (승인시 {{ IO_COSTS.REQ_ORDER }} 코인이 소모 됩니다.)
+      (승인시 {{ IO_COSTS.REQ_ORDER }} 원이 소모 됩니다.)
     </template>
   </coin-reduce-confirm-modal>
   <coin-reduce-confirm-modal
@@ -122,7 +122,7 @@ function getRowKey(row: OrderItemByShop) {
     <template #title> 해당 주문건들을 승인 하시겠습니까? </template>
     <template #default>
       {{ orderTargets.length }} 건의 주문건을 승인 하시면
-      {{ orderReduceCoins }} 코인이 소모 됩니다.
+      {{ orderReduceCoins }} 원이 소모 됩니다.
       <br />
       승인된 주문건은 [<n-text class="under-bar"> 승인 완료된 주문 </n-text>]
       에서 조회 가능합니다.

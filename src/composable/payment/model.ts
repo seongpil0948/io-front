@@ -65,7 +65,7 @@ export class IoPay extends CommonField implements IoPayCRT {
   static moneyToCoin(money: number) {
     if (money % COIN_PAY_RATIO !== 0)
       throw new Error(
-        `코인으로 변경시 금액은 ${COIN_PAY_RATIO} 으로 나뉘어져야 합니다.`
+        `금액으로 변경시 ${COIN_PAY_RATIO} 으로 나뉘어져야 합니다.`
       );
 
     return money / COIN_PAY_RATIO;

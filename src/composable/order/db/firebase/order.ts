@@ -221,7 +221,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       const vendorPay = await IO_PAY_DB.getIoPayByUser(vendorId);
       const vReduceCoin = shopIds.length * IO_COSTS.APPROVE_ORDER;
       if (vendorPay.budget < vReduceCoin) {
-        throw new Error("유저 코인이 부족합니다.");
+        throw new Error("유저 금액이 부족합니다.");
       }
       vendorPay.budget -= vReduceCoin;
       transaction.update(
@@ -282,7 +282,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     const orders = await getOrders(constraints);
     const userPay = await IO_PAY_DB.getIoPayByUser(shopId);
     const reduceCoin = IO_COSTS.REQ_ORDER * orderItemIds.length;
-    if (userPay.budget < reduceCoin) throw new Error("보유 코인이 부족합니다.");
+    if (userPay.budget < reduceCoin) throw new Error("보유 금액이 부족합니다.");
 
     const result = runTransaction(ioFireStore, async (transaction) => {
       const newOrds: IoOrder[] = [];

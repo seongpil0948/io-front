@@ -131,7 +131,7 @@ const reqCols = getPickReqCols(onClickDetail);
       @on-confirm="onReqOrderConfirm"
     >
       <template #default>
-        픽업 승인 완료처리가 되면 품목별 1코인이 소모됩니다.
+        픽업 승인 완료처리가 되면 품목별 1원이 소모됩니다.
       </template>
     </coin-reduce-confirm-modal>
   </n-card>

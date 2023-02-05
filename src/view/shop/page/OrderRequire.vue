@@ -77,7 +77,7 @@ const {
           도매처에 주문 데이터를 전송 후
           <br />
           도매처에서 [<n-text class="under-bar"> 승인 </n-text>]할 경우 상품당
-          {{ IO_COSTS.REQ_ORDER }} 코인이 소모 됩니다.
+          {{ IO_COSTS.REQ_ORDER }} 금액이 소모 됩니다.
         </template>
       </coin-reduce-confirm-modal>
     </n-space>

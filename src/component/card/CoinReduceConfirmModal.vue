@@ -44,8 +44,8 @@ function onCancelClick() {
 
       <template #footer>
         <n-space justify="center" style="font-size: 1.2rem">
-          <n-text>(예상 소모 코인: {{ expectedReduceCoin }})</n-text>
-          <n-text v-if="userPay"> 사용가능 코인 {{ userPay.budget }} </n-text>
+          <n-text>(예상 소모 금액: {{ expectedReduceCoin }})</n-text>
+          <n-text v-if="userPay"> 사용 가능 금액 {{ userPay.budget }} </n-text>
         </n-space>
       </template>
       <template #action>

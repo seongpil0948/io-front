@@ -23,7 +23,7 @@ export const ShipmentFB: ShipDB<IoOrder> = {
     if (!row.shipManagerId) throw new Error("shipManagerId is null");
     const userPay = await IO_PAY_DB.getIoPayByUser(row.shipManagerId);
     if (userPay.budget < expectedReduceCoin)
-      throw new Error("보유 코인이 부족합니다.");
+      throw new Error("보유 금액이 부족합니다.");
     const ordRef = getOrdRef(row.shopId);
     const ordDocRef = doc(ordRef, row.dbId).withConverter(converterGarment);
     return runTransaction(ioFireStore, async (t) => {
