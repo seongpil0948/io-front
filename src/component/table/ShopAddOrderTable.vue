@@ -9,17 +9,28 @@ import {
   VendorGarment,
   VENDOR_GARMENT_DB,
   useMatch,
+  useContactUncle,
+  ORDER_GARMENT_DB,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
-import { ref, shallowRef, watchEffect, defineAsyncComponent } from "vue";
+import { ref, shallowRef, watchEffect, defineAsyncComponent, h } from "vue";
 import { IO_COSTS } from "@/constants";
 import { storeToRefs } from "pinia";
 import { ExclamationCircleOutlined } from "@vicons/antd";
+import { axiosConfig } from "@/plugin/axios";
+import { useAlarm } from "@io-boxies/vue-lib";
+import { validateUser } from "@/composable/order/db/firebase";
+import { getAnalytics, logEvent } from "@firebase/analytics";
+import { getUserName } from "@io-boxies/js-lib";
+import { ioFire } from "@/plugin/firebase";
+import { useDialog, NSelect } from "naive-ui";
 
 interface Props {
   inStates?: ORDER_STATE[];
 }
 
+const dialog = useDialog();
+const smtp = useAlarm();
 const props = defineProps<Props>();
 const auth = useAuthStore();
 const user = auth.currUser;
@@ -29,11 +40,65 @@ const shopOrderStore = useShopOrderStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
 const filteredOrders = shopOrderStore.getFilteredOrder(props.inStates ?? []);
 const orders = shopOrderStore.getOrders(props.inStates ?? []);
-const { checkedDetailKeys, tableCol, tableRef } = useOrderTable({
-  ioOrders: filteredOrders,
-  orders,
-  updateOrderCnt: true,
-});
+const { checkedDetailKeys, tableCol, tableRef, targetIds, targetOrdDbIds } =
+  useOrderTable({
+    ioOrders: filteredOrders,
+    orders,
+    updateOrderCnt: true,
+  });
+const { targetUncleId, contactUncleOpts, contractUncles } = useContactUncle();
+function pickupRequest() {
+  const d = dialog.success({
+    title: "엉클 선택",
+    content: () =>
+      h(NSelect, {
+        value: targetUncleId.value,
+        onUpdateValue: (v) => {
+          targetUncleId.value = v;
+        },
+        options: contactUncleOpts.value,
+      }),
+    positiveText: "픽업 요청",
+    onPositiveClick: () => {
+      d.loading = true;
+      return new Promise((resolve) => {
+        const uncle = contractUncles.value.find(
+          (x) => x.userInfo.userId === targetUncleId.value
+        )!;
+        if (!uncle) return msg.error("엉클을 선택 해주세요");
+        else if (targetIds.value.size < 1 || targetOrdDbIds.value.size < 1) {
+          return msg.error("주문을 선택 해주세요");
+        }
+        validateUser(auth.currUser, auth.currUser.userInfo.userId);
+
+        ORDER_GARMENT_DB.reqPickup(
+          [...targetOrdDbIds.value],
+          [...targetIds.value],
+          uncle.userInfo.userId
+        ).then(async () => {
+          msg.success("픽업 요청 성공!");
+          logEvent(getAnalytics(ioFire.app), "order_pickup_request_directed", {
+            len: targetIds.value.size,
+          });
+          resolve("");
+          smtp.sendAlarm({
+            toUserIds: [uncle.userInfo.userId],
+            subject: `inoutbox 주문 처리내역 알림.`,
+            body: `${getUserName(
+              auth.currUser
+            )} 으로부터 픽업요청이 도착하였습니다. `,
+            notiLoadUri: "/",
+            uriArgs: {},
+            sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+            pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
+          });
+        });
+      }).finally(() => {
+        d.loading = false;
+      });
+    },
+  });
+}
 const {
   orderAll,
   orderChecked,
@@ -190,6 +255,9 @@ async function handleOperSelect(key: string | number) {
     case "downOrder":
       await downOrder();
       break;
+    case "pickupRequest":
+      pickupRequest();
+      break;
   }
 }
 const operOpts = [
@@ -216,6 +284,10 @@ const operOpts = [
   {
     label: "주문 다운",
     key: "downOrder",
+  },
+  {
+    label: "선택 픽업요청",
+    key: "pickupRequest",
   },
 ];
 </script>

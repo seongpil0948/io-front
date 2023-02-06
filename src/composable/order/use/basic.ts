@@ -168,12 +168,11 @@ export function useOrderBasic(
       orders.value
         .filter((y) => y.items.some((item) => ids.includes(item.id)))
         .map((x) => x.dbId),
-      ids,
-      true
+      ids
     )
       .then(() => {
         msg.success(`${ids.length} 개 성공`);
-        logEvent(getAnalytics(ioFire.app), "order_done_inner", {
+        logEvent(getAnalytics(ioFire.app), "order_done_directed", {
           len: orders.value.length,
         });
       })

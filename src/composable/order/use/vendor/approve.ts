@@ -1,4 +1,4 @@
-import { getUserName, getIoCollection, IoCollection } from "@io-boxies/js-lib";
+import { getUserName, getIoCollection } from "@io-boxies/js-lib";
 import {
   IoOrder,
   IoPay,
@@ -22,7 +22,7 @@ import {
 } from "naive-ui";
 import { computed, h, ref, Ref, VNode, defineAsyncComponent } from "vue";
 import { useAuthStore } from "@/store";
-import { doc, FieldValue, getDoc, updateDoc } from "@firebase/firestore";
+import { doc, getDoc, updateDoc } from "@firebase/firestore";
 import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { ioFire, ioFireStore } from "@/plugin/firebase";

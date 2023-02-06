@@ -4,8 +4,8 @@ import {
   catchError,
   ORDER_GARMENT_DB,
   ORDER_STATE,
-  useOrderTable,
   useContactUncle,
+  useOrderTable,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { uniqueArr } from "@/util";
@@ -20,7 +20,6 @@ import {
   NTabs,
   useMessage,
 } from "naive-ui";
-import { useLogger } from "vue-logger-plugin";
 import { validateUser } from "@/composable/order/db/firebase";
 import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
@@ -57,7 +56,6 @@ const {
   orders: targetOrders,
   updateOrderCnt: true,
 });
-const log = useLogger();
 const msg = useMessage();
 const smtp = useAlarm();
 
@@ -94,7 +92,7 @@ async function returnReq() {
         len: orderItemIds.length,
       });
     })
-    .catch((err) =>
+    .catch((err: any) =>
       catchError({
         prefix: "반품 요청이 실패 되었습니다.",
         err,
@@ -145,13 +143,14 @@ async function pickupRequest() {
           len: orderItemIds.length,
         });
       })
-      .catch((err) => {
-        const message = `픽업 요청 실패! ${
-          err instanceof Error ? err.message : JSON.stringify(err)
-        }`;
-        log.error(u.userInfo.userId, message);
-        msg.error(message);
-      });
+      .catch((err: any) =>
+        catchError({
+          prefix: "픽업 요청 실패.",
+          err,
+          msg,
+          uid: u.userInfo.userId,
+        })
+      );
   } else {
     msg.warning("행을 선택 해주세요");
   }
