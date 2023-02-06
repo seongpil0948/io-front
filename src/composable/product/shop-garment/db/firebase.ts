@@ -106,6 +106,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
   getBatchShopProds: async function (
     shopIds: string[]
   ): Promise<ShopUserGarment[]> {
+    console.log("shopIds in getBatchShopProds: ", shopIds);
     const users = await USER_DB.getUserByIds(ioFireStore, [...shopIds]);
     const snapshots = await batchInQuery<ShopGarment | null>(
       [...shopIds],
@@ -121,7 +122,12 @@ export const ShopGarmentFB: ShopGarmentDB = {
         );
         return acc;
       }
-      acc.push(Object.assign({}, shop, curr));
+      const g = Object.assign({}, curr, shop);
+      if (!g.userInfo) {
+        console.error("g: ", g, "is not contain user info");
+      } else {
+        acc.push(g);
+      }
       return acc;
     }, [] as ShopUserGarment[]);
   },

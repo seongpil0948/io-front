@@ -17,18 +17,21 @@ export function extractGarmentOrd(
     for (let i = 0; i < order.items.length; i++) {
       const ordShopProd = order.items[i].shopProd;
       const sId = ordShopProd.shopProdId;
-      const shopProd =
-        ordShopProd.visible && ordShopProd.visible === "ME"
-          ? (ordShopProd as ShopUserGarment)
-          : shopProds.find((j) => j.shopProdId === sId);
+      const shopProd = shopProds.find((j) => j.shopProdId === sId);
       if (!shopProd) {
-        // console.warn(`not matched order(${order.dbId}) shop garment(${sId})`);
+        console.warn(`not matched order(${order.dbId}) shop garment(${sId})`);
+        continue;
+      } else if (!shopProd.userInfo) {
+        console.warn("not shop user garment", shopProd);
         continue;
       }
       const vId = order.items[i].vendorProd.vendorProdId;
       const vendorProd = vendorProds.find((k) => k.vendorProdId === vId);
       if (!vendorProd) {
         // console.warn(`not matched order(${order.dbId}) vendor garment(${vId})`);
+        continue;
+      } else if (!vendorProd.userInfo) {
+        console.warn("not vendor user garment", vendorProd);
         continue;
       }
       const item: OrderItemCombined = Object.assign({}, order.items[i], {

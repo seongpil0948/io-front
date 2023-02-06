@@ -77,6 +77,7 @@ export async function vendorUserProdFromOrders(
   items: OrderItem[],
   virtualVendors: IoUser[]
 ) {
+  // only used Combined
   const vendorProdIds: string[] = [];
   const vendorProds: VendorUserGarment[] = [];
   // const items = orders.flatMap((o) => o.items); ;

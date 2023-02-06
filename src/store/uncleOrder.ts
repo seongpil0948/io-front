@@ -1,4 +1,4 @@
-import { extractGarmentOrd, uniqueArr } from "@/util";
+import { dataFromSnap, extractGarmentOrd, uniqueArr } from "@/util";
 import {
   ORDER_STATE,
   IoOrder,
@@ -8,12 +8,16 @@ import {
   SHOP_GARMENT_DB,
   OrderItemByShop,
   VENDOR_GARMENT_DB,
+  VendorGarment,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { Unsubscribe } from "@firebase/util";
 import { defineStore } from "pinia";
 import { ref, computed, watchEffect } from "vue";
 import { useAuthStore } from "./auth";
+import { IoUser } from "@io-boxies/js-lib";
+import { batchInQuery, ioFireStore } from "@/plugin/firebase";
+import { collectionGroup } from "@firebase/firestore";
 
 export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   console.log(`=== called useUncleOrderStore ===`);
@@ -47,13 +51,15 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   function getGarmentOrdersByShop(ioOrders: typeof _ioOrders) {
     return computed(() =>
       ioOrders.value.reduce((acc, curr) => {
+        if (!curr.shopProd.userInfo || !curr.vendorProd.userInfo) return acc;
         const exist = acc.find((x) => x.shopId === curr.shopProd.shopId);
         if (!exist) {
           acc.push({
             shopId: curr.shopProd.shopId,
-            shopName:
-              curr.shopProd.userInfo.displayName ??
-              curr.shopProd.userInfo.userName,
+            shopName: curr.shopProd.userInfo
+              ? curr.shopProd.userInfo.displayName ??
+                curr.shopProd.userInfo.userName
+              : "-",
             items: [curr],
           });
           return acc;
@@ -66,6 +72,8 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   function getOrdersByShop(ioOrders: typeof _ioOrders) {
     return computed(() =>
       ioOrders.value.reduce((acc, curr) => {
+        if (!curr.shopProd.userInfo || !curr.vendorProd.userInfo) return acc;
+        console.info("===> ", curr.shopProd.userInfo);
         const exist = acc.find((x) => x.shopId === curr.shopProd.shopId);
         if (!exist) {
           acc.push({
@@ -87,14 +95,36 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
     if (orders.value.length > 0) {
       shopProds.value = [];
       const shopIds = uniqueArr(orders.value.map((x) => x.shopId));
+      // "8217cc56-c971-5426-981f-22ad06040417", "C9C0nsNhdsTZ5F5sL3eJFzCH6kw1"
+      shopProds.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
       const vendorIds = uniqueArr(orders.value.flatMap((x) => x.vendorIds));
       const vendorProds = await VENDOR_GARMENT_DB.listByVendorIds(vendorIds);
-      shopProds.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
-      _ioOrders.value = extractGarmentOrd(
-        orders.value,
-        shopProds.value,
-        vendorProds
+      const virVendorGarmentSnap = await batchInQuery<VendorGarment>(
+        vendorIds,
+        collectionGroup(ioFireStore, "virtualVendorProduct"),
+        "vendorId"
       );
+      const virVendorGarments = virVendorGarmentSnap.flatMap(
+        dataFromSnap<VendorGarment>
+      );
+      const virVendorSnap = await batchInQuery<IoUser>(
+        uniqueArr(virVendorGarments.map((x) => x.vendorId)),
+        collectionGroup(ioFireStore, "virtualUser"),
+        "userInfo.userId"
+      );
+      const virVendors = virVendorSnap.flatMap(dataFromSnap<IoUser>);
+      const virVendorUserGarment: typeof vendorProds = [];
+      for (let i = 0; i < virVendorGarments.length; i++) {
+        const vvg = virVendorGarments[i];
+        const vu = virVendors.find((x) => x.userInfo.userId === vvg.vendorId);
+        if (vu) {
+          virVendorUserGarment.push(Object.assign({}, vvg, vu));
+        }
+      }
+      _ioOrders.value = extractGarmentOrd(orders.value, shopProds.value, [
+        ...vendorProds,
+        ...virVendorUserGarment,
+      ]);
     }
   });
 
@@ -149,7 +179,6 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
     uncleId.value = null;
     _orders.value = [];
     _ioOrders.value = [];
-    shopProds.value = [];
     initial = true;
   }
 
