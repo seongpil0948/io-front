@@ -16,7 +16,7 @@ const emits = defineEmits<{
   (e: "submit:workerInfo", value: WorkerInfo): void;
 }>();
 const authStore = useAuthStore();
-const u = authStore.currUser;
+const u = authStore.currUser();
 
 const msg = useMessage();
 async function onSubmit(e: MouseEvent) {

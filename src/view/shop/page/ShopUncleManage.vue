@@ -34,7 +34,7 @@ const myUncles = computed(() =>
 const allUncles = ref<IoUser[]>([]);
 onBeforeMount(async () => {
   if (!user.value) {
-    user.value = auth.currUser;
+    user.value = auth.currUser();
   }
   allUncles.value = await USER_DB.getUsersByRole(ioFireStore, "UNCLE");
 });

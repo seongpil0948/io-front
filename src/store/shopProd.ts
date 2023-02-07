@@ -42,7 +42,7 @@ export const useShopProdStore = defineStore("ShopProdStore", () => {
 
   const userProd: Ref<ShopUserGarment[]> = ref([]);
   const name = "VirtualVendorProd snapshot";
-  const uid = authStore.currUser.userInfo.userId;
+  const uid = authStore.currUser().userInfo.userId;
   const virVendorProdC = () =>
     getIoCollection(ioFireStore, {
       uid,
@@ -87,7 +87,7 @@ export const useShopProdStore = defineStore("ShopProdStore", () => {
 
   const userVirProds = computed(() => {
     return virShopProds.value.map((x) => {
-      const u = virtualVendorById.value[x.vendorId] ?? authStore.currUser;
+      const u = virtualVendorById.value[x.vendorId] ?? authStore.currUser();
       return Object.assign(
         { userName: u.userInfo.userName },
         x,

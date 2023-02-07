@@ -2,7 +2,7 @@
 import { useAuthStore } from "@/store";
 import { availUncleAdvertise } from "@io-boxies/js-lib";
 const auth = useAuthStore();
-const u = auth.currUser;
+const u = auth.currUser();
 </script>
 <template>
   <n-space vertical align="center" item-style="width: 100%">

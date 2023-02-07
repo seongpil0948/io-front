@@ -3,7 +3,7 @@ import { usePickArea, usePickAreaCols, isSamePickLocate } from "@/composable";
 import { LocateAmount, USER_DB } from "@io-boxies/js-lib";
 import { useAuthStore } from "@/store";
 import { useMessage } from "naive-ui";
-import { ref, computed, onBeforeUnmount } from "vue";
+import { ref, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { ioFireStore } from "@/plugin/firebase";
 
@@ -12,9 +12,7 @@ const auth = useAuthStore();
 const pickAmount = ref(1000);
 const pickId = ref<string | null>(null);
 const { user } = storeToRefs(auth);
-const { addPickArea, unsubscribe } = usePickArea();
-onBeforeUnmount(() => unsubscribe());
-
+const { addPickArea, officeOpt } = usePickArea();
 async function onClickAdd() {
   if (!pickId.value) return msg.error("픽업지역을 선택 해주세요.");
   const locate = addPickArea(pickId.value);
@@ -52,7 +50,7 @@ const data = computed(() =>
 </script>
 <template>
   <n-space style="margin-top: 2.5%; margin-bottom: 2.5%">
-    <pick-area-selector v-model:pickId="pickId" />
+    <pick-area-selector v-model:pickId="pickId" :office-opt="officeOpt" />
     <n-input-number
       v-model:value="pickAmount"
       clearable

@@ -5,8 +5,8 @@ import {
   locateToStr,
   IoUser,
 } from "@io-boxies/js-lib";
-import { getDefaultUser, useLocateAppend } from "@/composable";
-import { ref } from "vue";
+import { getDefaultUser, usePickArea } from "@/composable";
+import { ref, watch } from "vue";
 import {
   NText,
   FormInst,
@@ -24,7 +24,7 @@ import { ioFireStore } from "@/plugin/firebase";
 const auth = useAuthStore();
 const virVendorConverter = fireConverter<IoUser>();
 const virVendorC = getIoCollection(ioFireStore, {
-  uid: auth.currUser.userInfo.userId,
+  uid: auth.currUser().userInfo.userId,
   c: "VIRTUAL_USER",
 }).withConverter(virVendorConverter);
 const saveVirVendor = (v: IoUser) =>
@@ -33,12 +33,11 @@ const emits = defineEmits<{
   (e: "submitVirtualVendor", value: IoUser): void;
 }>();
 
-const { onClickLocateBtn, showAppendModal } = useLocateAppend();
 const formRef = ref<FormInst | null>(null);
-const formValue = ref<{ [k: string]: any }>({
+const formValue = ref({
   name: undefined,
   phone: undefined,
-  locate: undefined,
+  locate: undefined as Locate | undefined,
 });
 const msg = useMessage();
 const rule: { [path: string]: any } = {
@@ -46,17 +45,27 @@ const rule: { [path: string]: any } = {
   phone: strLenRule(11),
   locate: notNullRule,
 };
-function onAppendLocate(l: Locate) {
-  formValue.value.locate = l;
-  showAppendModal.value = false;
-}
+
+const pickId = ref<string | null>(null);
+const addDetailStr = ref<string>("");
+const { addPickArea, officeOpt } = usePickArea();
+watch(
+  () => pickId.value,
+  (val) => {
+    formValue.value.locate = val ? addPickArea(val) : undefined;
+  }
+);
+
 function handleValidateClick(e: MouseEvent) {
   e.preventDefault();
   formRef.value?.validate((errors) => {
-    if (!errors) {
-      const v = formValue.value;
+    const v = formValue.value;
+    if (!errors && v.name && v.locate) {
       const user = getDefaultUser("VENDOR", v.name);
       user.userInfo.phone = v.phone;
+      if (addDetailStr.value.length > 0) {
+        v.locate.detailLocate += `, ${addDetailStr.value}`;
+      }
       user.companyInfo!.locations.push(v.locate);
       user.companyInfo!.shipLocate = v.locate;
       user.companyInfo!.companyName = v.name;
@@ -81,18 +90,18 @@ function handleValidateClick(e: MouseEvent) {
       <n-input v-model:value="formValue.phone" />
     </n-form-item>
     <n-form-item label="주소지 " path="locate">
-      <n-text v-if="formValue.locate" type="info">
-        {{ locateToStr(formValue.locate) }}
-      </n-text>
-      <n-button v-else @click="onClickLocateBtn"> 주소지 등록 </n-button>
+      <n-space vertical>
+        <n-text v-if="formValue.locate" type="info">
+          {{ locateToStr(formValue.locate) }}, {{ addDetailStr }}
+        </n-text>
+        <n-space>
+          <pick-area-selector v-model:pickId="pickId" :office-opt="officeOpt" />
+          <n-input v-model:value="addDetailStr" placeholder="상세주소 입력" />
+        </n-space>
+      </n-space>
     </n-form-item>
     <n-form-item>
       <n-button @click="handleValidateClick"> 도매처 등록 </n-button>
     </n-form-item>
   </n-form>
-  <locate-append-modal
-    v-if="showAppendModal"
-    v-model:show-append-modal="showAppendModal"
-    @append-locate="onAppendLocate"
-  />
 </template>

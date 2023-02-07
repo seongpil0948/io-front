@@ -22,7 +22,7 @@ async function cancelSubmit() {
   if (cancelCnt.value < 1) return;
   const claim = getCancel(p.value.id, p.value.state, "", "ETC");
   await cancelSelected(
-    getUserName(auth.currUser),
+    getUserName(auth.currUser()),
     p.value.shopId,
     p.value.vendorId,
     p.value.orderDbId!,

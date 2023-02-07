@@ -5,7 +5,7 @@ import { onBeforeMount, ref } from "vue";
 const currTab = ref<string>("BEFORE_READY");
 
 const auth = useAuthStore();
-const user = auth.currUser;
+const user = auth.currUser();
 const store = useVendorOrderStore();
 onBeforeMount(() => store.init(user.userInfo.userId));
 </script>

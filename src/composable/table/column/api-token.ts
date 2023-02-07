@@ -16,7 +16,7 @@ export function useApiTokenCols() {
   const log = useLogger();
   const msg = useMessage();
   const auth = useAuthStore();
-  const uid = computed(() => auth.currUser.userInfo.userId);
+  const uid = computed(() => auth.currUser().userInfo.userId);
 
   async function handleSelect(
     row: ApiToken,

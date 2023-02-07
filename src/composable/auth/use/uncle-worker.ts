@@ -13,7 +13,7 @@ import { ioFireStore } from "@/plugin/firebase";
 
 export function useUncleWorkers() {
   const auth = useAuthStore();
-  const u = auth.currUser;
+  const u = auth.currUser();
   const workers = ref<IoUser[]>([]);
 
   const imageById = computed(() =>

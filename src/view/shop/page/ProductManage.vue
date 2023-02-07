@@ -81,7 +81,7 @@ async function onCheckedOrder() {
     orders.push(order);
   }
   await ORDER_GARMENT_DB.batchCreate(
-    authStore.currUser.userInfo.userId,
+    authStore.currUser().userInfo.userId,
     orders
   );
   msg.success(

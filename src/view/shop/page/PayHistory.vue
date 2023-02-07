@@ -7,7 +7,7 @@ import { NGradientText } from "naive-ui";
 
 const auth = useAuthStore();
 const shopOrderStore = useShopOrderStore();
-onBeforeMount(() => shopOrderStore.init(auth.currUser.userInfo.userId));
+onBeforeMount(() => shopOrderStore.init(auth.currUser().userInfo.userId));
 const { ioOrders, orders } = storeToRefs(shopOrderStore);
 
 const { tableCol, tableRef } = useOrderTable({

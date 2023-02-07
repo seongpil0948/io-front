@@ -2,14 +2,15 @@
 import {
   useOrderTable,
   ORDER_STATE,
-  ORDER_GARMENT_DB,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OrderItemCombined,
   useContactUncle,
+  useOrderBasic,
+  catchError,
+  validateUser,
+  checkOrderShipLocate,
 } from "@/composable";
-import { validateUser } from "@/composable/order/db/firebase/shipment";
 import { useAuthStore, useShopOrderStore } from "@/store";
-import { getUserName } from "@io-boxies/js-lib";
 import {
   NButton,
   NCard,
@@ -18,16 +19,11 @@ import {
   NSpace,
   useMessage,
 } from "naive-ui";
-import { axiosConfig } from "@/plugin/axios";
-import { useAlarm } from "@io-boxies/vue-lib";
-import { ioFire } from "@/plugin/firebase";
-import { getAnalytics, logEvent } from "@firebase/analytics";
 
 const msg = useMessage();
 const inStates: ORDER_STATE[] = ["BEFORE_PICKUP_REQ"];
 const shopOrderStore = useShopOrderStore();
 
-const smtp = useAlarm();
 const auth = useAuthStore();
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 const orders = shopOrderStore.getOrders(inStates);
@@ -37,15 +33,24 @@ const {
   tableRef,
   byVendorCol,
   selectedData, // selected
+  targetOrdItemIds,
   targetIds,
   targetOrdDbIds,
   tableCol,
+  targetOrdItems,
 } = useOrderTable({
   ioOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
   useAccountStr: false,
 });
+const { reqPickupRequest } = useOrderBasic(
+  auth.currUser(),
+  filteredOrders,
+  orders,
+  targetOrdItemIds
+);
+
 const { targetUncleId, contactUncleOpts, contractUncles } = useContactUncle();
 async function pickupRequest() {
   const uncle = contractUncles.value.find(
@@ -55,27 +60,28 @@ async function pickupRequest() {
   else if (targetIds.value.size < 1 || targetOrdDbIds.value.size < 1) {
     return msg.error("주문을 선택 해주세요");
   }
-  validateUser(auth.currUser, auth.currUser.userInfo.userId);
-
-  await ORDER_GARMENT_DB.reqPickup(
-    [...targetOrdDbIds.value],
-    [...targetIds.value],
-    uncle.userInfo.userId
+  validateUser(auth.currUser(), auth.currUser().userInfo.userId);
+  targetOrdItems.value.forEach((x) =>
+    checkOrderShipLocate(x, auth.currUser(), x.vendorProd, uncle)
   );
-  msg.success("픽업 요청 성공!");
-  selectedData.value = null;
-  logEvent(getAnalytics(ioFire.app), "order_pickup_request", {
-    len: targetIds.value.size,
-  });
-  await smtp.sendAlarm({
-    toUserIds: [uncle.userInfo.userId],
-    subject: `inoutbox 주문 처리내역 알림.`,
-    body: `${getUserName(auth.currUser)} 으로부터 픽업요청이 도착하였습니다. `,
-    notiLoadUri: "/",
-    uriArgs: {},
-    sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
-    pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
-  });
+  return reqPickupRequest({
+    uncle,
+    shop: auth.currUser(),
+    orderDbIds: targetOrdDbIds.value,
+    orderItemIds: targetIds.value,
+    direct: false,
+  })
+    .catch((err) => {
+      catchError({
+        prefix: "픽업 요청 실패.",
+        err,
+        msg,
+        uid: auth.currUser().userInfo.userId,
+      });
+    })
+    .finally(() => {
+      selectedData.value = null;
+    });
 }
 </script>
 

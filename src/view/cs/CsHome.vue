@@ -42,7 +42,7 @@ function callCsChat() {
         <logo-image
           style="margin-top: 30%"
           size="2.0rem"
-          @click="router.goHome(auth.currUser)"
+          @click="router.goHome(auth.currUser())"
         />
         <n-h2 style="margin: auto; text-align: center"> 자주 묻는 질문 </n-h2>
       </n-space>

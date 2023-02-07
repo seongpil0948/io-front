@@ -151,7 +151,7 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
   const { columns: basicCols } = useTable<
     Omit<VendorUserOrderGarment, "account">
   >({
-    userId: auth.currUser.userInfo.userId,
+    userId: auth.currUser().userInfo.userId,
     colKeys,
   });
   const editOrderCols = computed(() => {
@@ -213,7 +213,7 @@ export function useVendorProdCols(editOrder = true, editProd = false) {
                         err instanceof Error ? err.message : JSON.stringify(err)
                       }`;
                       msg.error(message, makeMsgOpt());
-                      logger.error(auth.currUser.userInfo.userId, message);
+                      logger.error(auth.currUser().userInfo.userId, message);
                     });
                 },
               },

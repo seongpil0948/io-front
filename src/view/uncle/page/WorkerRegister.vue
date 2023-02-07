@@ -138,13 +138,13 @@ async function onSignUp() {
         profileImg: profileImg.value ?? undefined,
         fcmTokens: [],
         passed: false,
-        managerId: auth.currUser.userInfo.userId,
+        managerId: auth.currUser().userInfo.userId,
         account: account.value,
       },
     };
     console.log("Signed User: ", user);
     await USER_DB.updateUser(ioFireStore, user);
-    await setWorkerId(auth.currUser, userId.value!);
+    await setWorkerId(auth.currUser(), userId.value!);
     msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
     authed.value = false;
   }

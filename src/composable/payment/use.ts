@@ -7,7 +7,7 @@ export function useUserPay(userId?: string) {
   const { userPay, unsubscribe } =
     userId !== null
       ? IO_PAY_DB.getIoPayByUserListen(userId!)
-      : IO_PAY_DB.getIoPayByUserListen(auth.currUser.userInfo.userId);
+      : IO_PAY_DB.getIoPayByUserListen(auth.currUser().userInfo.userId);
 
   onBeforeUnmount(() => unsubscribe());
   return { userPay };

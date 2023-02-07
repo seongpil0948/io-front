@@ -23,7 +23,7 @@ const rules = {
   accessKey: strLenEqualRule(36),
   secretKey: strLenEqualRule(40),
 };
-const u = auth.currUser;
+const u = auth.currUser();
 async function handleSubmit(e: MouseEvent) {
   e.preventDefault();
   formRef.value?.validate((errors) => {

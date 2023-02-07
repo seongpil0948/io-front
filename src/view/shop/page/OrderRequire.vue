@@ -7,7 +7,7 @@ import { onBeforeMount } from "vue";
 const auth = useAuthStore();
 const inStates: ORDER_STATE[] = ["BEFORE_ORDER"];
 const shopOrderStore = useShopOrderStore();
-onBeforeMount(() => shopOrderStore.init(auth.currUser.userInfo.userId));
+onBeforeMount(() => shopOrderStore.init(auth.currUser().userInfo.userId));
 const orders = shopOrderStore.getOrders(inStates);
 const filteredOrders = shopOrderStore.getFilteredOrder(inStates);
 
@@ -26,7 +26,7 @@ const {
   updateReqOrderShow,
   onReqOrderConfirm,
   deleteChecked,
-} = useOrderBasic(auth.currUser, filteredOrders, orders, checkedDetailKeys);
+} = useOrderBasic(auth.currUser(), filteredOrders, orders, checkedDetailKeys);
 </script>
 <template>
   <n-card
@@ -67,7 +67,7 @@ const {
       />
       <coin-reduce-confirm-modal
         :show-modal="showReqOrderModal"
-        :user-id="auth.currUser.userInfo.userId"
+        :user-id="auth.currUser().userInfo.userId"
         :expected-reduce-coin="expectedReduceCoin"
         @update:show-modal="updateReqOrderShow"
         @on-confirm="onReqOrderConfirm"

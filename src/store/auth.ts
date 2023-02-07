@@ -4,74 +4,80 @@ import { IoUser, userFromJson } from "@io-boxies/js-lib";
 import { getActivePinia } from "pinia";
 import { ioFire } from "@/plugin/firebase";
 import { getAnalytics, setUserId } from "@firebase/analytics";
-interface AuthStoreInterface {
-  user: IoUser | null;
-}
+import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
+
 const userKey = "user";
-export const useAuthStore = defineStore({
-  id: "auth",
-  state: () =>
-    <AuthStoreInterface>{
-      user: null,
-    },
-  getters: {
-    currUser(): IoUser {
-      if (!this.user) {
-        const userStr = localStorage.getItem(userKey);
-        if (userStr) {
-          const u = userFromJson(JSON.parse(userStr));
-          if (!u) {
-            this.$router.replace({ name: "Login" });
-          }
-          this.user = u!;
-          return u!;
-        } else {
-          this.$router.replace({ name: "Login" });
+export const useAuthStore = defineStore("auth", () => {
+  const user = ref<IoUser | null>(null);
+  const router = useRouter();
+  const currUser = () => {
+    if (!user.value) {
+      const userStr = localStorage.getItem(userKey);
+      if (userStr) {
+        const u = userFromJson(JSON.parse(userStr));
+        if (!u) {
+          router.replace({ name: "Login" });
         }
+        user.value = u!;
+        return user.value!;
+      } else {
+        router.replace({ name: "Login" });
       }
-      return this.user as IoUser;
-    },
-    // Getters are exactly the equivalent of computed
-    currUserRole: (state) =>
-      state.user === null ? "ANONYMOUSE" : state.user?.userInfo.role,
-    uid(): string {
-      return this.user === null
-        ? this.currUser.userInfo.userId
-        : this.user.userInfo.userId;
-    },
-  },
-  actions: {
-    setUser(u: IoUser) {
-      this.user = u;
-      localStorage.setItem(userKey, JSON.stringify(this.user));
-      setUserId(getAnalytics(ioFire.app), u.userInfo.userId);
-    },
-    login(u: IoUser) {
-      if (this.user) {
-        if (this.user.userInfo.userId === u.userInfo.userId) return;
-        else this.clearUser();
-      }
-      this.setUser(u);
-    },
-    clearUser() {
-      localStorage.clear();
-      this.user = null;
-    },
-    async logout(replace = true) {
-      this.clearUser();
-      const auth = getAuth(ioFire.app);
-      await signOut(auth);
-      if (replace) this.$router.replace({ name: "Login" });
-      // map through that list and use the **$reset** fn to reset the state
-      const pinia = getActivePinia();
-      console.log("pinia:", pinia);
-      if (pinia) {
-        (pinia as any)._s.forEach((store: any) => {
-          if (store.discard) store.discard();
-          if (store.$reset) store.$reset();
-          if (store.$dispose) store.$dispose();
-        });
-      }
-    },
-  },
+    }
+    return user.value as IoUser;
+  };
+  const currUserRole = computed(() =>
+    user.value ? user.value.userInfo.role : "ANONYMOUSE"
+  );
+  const uid = computed(() =>
+    user.value === null
+      ? currUser().userInfo.userId
+      : user.value.userInfo.userId
+  );
+  function setUser(u: IoUser) {
+    user.value = u;
+    localStorage.setItem(userKey, JSON.stringify(user.value));
+    setUserId(getAnalytics(ioFire.app), u.userInfo.userId);
+  }
+  function login(u: IoUser) {
+    if (user.value) {
+      if (user.value.userInfo.userId === u.userInfo.userId) return;
+      else clearUser();
+    }
+    setUser(u);
+  }
+
+  function clearUser() {
+    localStorage.clear();
+    user.value = null;
+  }
+
+  async function logout(replace = true) {
+    clearUser();
+    const auth = getAuth(ioFire.app);
+    await signOut(auth);
+    if (replace) router.replace({ name: "Login" });
+    // map through that list and use the **$reset** fn to reset the state
+    const pinia = getActivePinia();
+    console.log("pinia:", pinia);
+    if (pinia) {
+      (pinia as any)._s.forEach((store: any) => {
+        if (store.discard) store.discard();
+        if (store.$reset) store.$reset();
+        if (store.$dispose) store.$dispose();
+      });
+    }
+  }
+
+  return {
+    user,
+    currUser,
+    currUserRole,
+    uid,
+    setUser,
+    login,
+    clearUser,
+    logout,
+  };
 });

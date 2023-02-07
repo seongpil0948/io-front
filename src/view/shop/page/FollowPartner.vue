@@ -10,7 +10,7 @@ const auth = useAuthStore();
 const partners = shallowRef<IoPartner[]>([]);
 const vendorById = shallowRef<{ [userId: string]: IoUser }>({});
 onBeforeMount(async () => {
-  partners.value = await loadPartnerVendors(auth.currUser.userInfo.userId);
+  partners.value = await loadPartnerVendors(auth.currUser().userInfo.userId);
   const vendors = await USER_DB.getUserByIds(
     ioFireStore,
     partners.value.map((x) => x.vendorId)

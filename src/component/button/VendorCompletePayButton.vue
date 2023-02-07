@@ -57,7 +57,7 @@ async function completePay() {
     [...targetOrdDbIds.value],
     [...targetOrdItemIds.value],
     targetShop.value.userInfo.userId,
-    auth.currUser.userInfo.userId,
+    auth.currUser().userInfo.userId,
     defrayInfo.value
   )
     .then(async () => {
@@ -66,14 +66,14 @@ async function completePay() {
       await sendAlarm({
         toUserIds: targetShopIds.value,
         subject: `inoutbox 주문 처리내역 알림.`,
-        body: `${getUserName(auth.currUser)} 에서 결제를 승인 하였습니다. `,
+        body: `${getUserName(auth.currUser())} 에서 결제를 승인 하였습니다. `,
         notiLoadUri: "/",
         uriArgs: {},
         sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
         pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
       });
       logEvent(getAnalytics(ioFire.app), "order_complete_pay", {
-        approver: auth.currUser.userInfo.userId,
+        approver: auth.currUser().userInfo.userId,
       });
     })
     .catch((err) => {
@@ -81,7 +81,7 @@ async function completePay() {
         err instanceof Error ? err.message : JSON.stringify(err)
       }`;
       msg.error(message, makeMsgOpt());
-      logger.error(auth.currUser.userInfo.userId, message);
+      logger.error(auth.currUser().userInfo.userId, message);
     });
 }
 </script>

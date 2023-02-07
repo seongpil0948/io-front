@@ -107,7 +107,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
     },
     true
   );
-  const uid = () => authStore.currUser.userInfo.userId;
+  const uid = () => authStore.currUser().userInfo.userId;
   const { virtualVendors } = useVirtualVendor(uid());
   watchEffect(async () => {
     if (shopId.value && orders.value.length > 0 && shopProds.value.length > 0) {

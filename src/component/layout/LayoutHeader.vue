@@ -9,7 +9,10 @@ const router = useRouter();
   <n-layout-header bordered>
     <n-space justify="space-between" style="margin: 0% 2.5%">
       <n-space style="align-items: center" inline>
-        <logo-image size="3.5rem" @click="router.goHome(authStore.currUser)" />
+        <logo-image
+          size="3.5rem"
+          @click="router.goHome(authStore.currUser())"
+        />
       </n-space>
       <user-profile />
     </n-space>

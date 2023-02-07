@@ -26,7 +26,7 @@ const BatchCreateVirProd = defineAsyncComponent(
 );
 
 const auth = useAuthStore();
-const uid = auth.currUser.userInfo.userId;
+const uid = auth.currUser().userInfo.userId;
 const {
   regitProdModal,
   changeRegitProdModal,
@@ -42,7 +42,7 @@ const {
   virProdEditTarget,
   virShopProds,
   userVirProds,
-} = useShopVirtualProd(auth.currUser);
+} = useShopVirtualProd(auth.currUser());
 const selectedVendorId = ref<string | null>(null);
 const vendorOpts = computed(() =>
   virtualVendors.value.map((v) => ({

@@ -219,7 +219,7 @@ export function useApproveOrder(p: ApproveParam) {
           toUserIds: shopIds,
           subject: `inoutbox 주문 처리내역 알림.`,
           body: `${getUserName(
-            auth.currUser
+            auth.currUser()
           )} 에서 주문 요청을 승인하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
@@ -267,7 +267,7 @@ export function useApproveOrder(p: ApproveParam) {
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
           body: `${getUserName(
-            auth.currUser
+            auth.currUser()
           )} 에서 주문 요청을 거절 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
@@ -298,7 +298,7 @@ export function useApproveOrder(p: ApproveParam) {
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${getUserName(auth.currUser)} 에서 반품을 승인 하였습니다. `,
+          body: `${getUserName(auth.currUser())} 에서 반품을 승인 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
           sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
@@ -322,7 +322,7 @@ export function useApproveOrder(p: ApproveParam) {
         await smtp.sendAlarm({
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${getUserName(auth.currUser)} 에서 반품을 거절 하였습니다. `,
+          body: `${getUserName(auth.currUser())} 에서 반품을 거절 하였습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
           sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
@@ -347,7 +347,7 @@ export function useApproveOrder(p: ApproveParam) {
           toUserIds: targetShopIds.value,
           subject: `inoutbox 주문 처리내역 알림.`,
           body: `${getUserName(
-            auth.currUser
+            auth.currUser()
           )} 에서 출고리스트에 주문을 업로드 하였습니다. 이제 배송요청이 가능합니다. `,
           notiLoadUri: "/",
           uriArgs: {},

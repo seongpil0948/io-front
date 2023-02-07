@@ -1,4 +1,5 @@
 import {
+  collectionGroup,
   getDoc,
   getDocs,
   increment,
@@ -165,8 +166,19 @@ export const VendorGarmentFB: VendorGarmentDB = {
   },
   getById: async function (vendorProdId) {
     const docSnap = await getDoc(doc(vendorProdC, vendorProdId));
-    const data = docSnap.data();
-    return data ?? null;
+    if (!docSnap.exists()) {
+      const virtualVendorProdQ = query(
+        collectionGroup(ioFireStore, "virtualVendorProduct").withConverter(
+          VendorGarment.fireConverter()
+        ),
+        where("vendorProdId", "==", vendorProdId)
+      );
+      const querySnapshot = await getDocs(virtualVendorProdQ);
+      if (querySnapshot.empty) return null;
+      return querySnapshot.docs[0].data() ?? null;
+    } else {
+      return docSnap.data() ?? null;
+    }
   },
   getByIdWithUser: async function (vendorProdId) {
     const docSnap = await getDoc(doc(vendorProdC, vendorProdId));

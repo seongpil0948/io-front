@@ -8,13 +8,13 @@ import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ShipOrder,
   useShipmentUncle,
+  catchError,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { NButton, useMessage } from "naive-ui";
 import { computed, ref } from "vue";
-import { useLogger } from "vue-logger-plugin";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { axiosConfig } from "@/plugin/axios";
 const smtp = useAlarm();
@@ -40,14 +40,14 @@ function updateReqOrderShow(val: boolean) {
   showApprovePickup.value = val;
 }
 const msg = useMessage();
-const log = useLogger();
 const auth = useAuthStore();
 const expectedReduceCoin = computed(
   () => IO_COSTS.APPROVE_PICKUP * orderTargets.value.length
 );
-const u = auth.currUser;
+const u = auth.currUser();
 
 async function onReqOrderConfirm() {
+  approveLoading.value = true;
   // orderItemIds
   const ids = orderTargets.value.map((x) => x.id);
   const targetOrd = orders.value.filter((y) =>
@@ -73,14 +73,18 @@ async function onReqOrderConfirm() {
         pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
       });
     })
-    .catch((err) => {
-      const message = err instanceof Error ? err.message : JSON.stringify(err);
-      msg.error(`픽업 승인 실패. ${message}`, makeMsgOpt());
-      log.error(u.userInfo.userId, `픽업 승인 실패. ${message}`);
-    })
+    .catch((err) =>
+      catchError({
+        err,
+        msg,
+        prefix: "픽업 승인 실패.",
+        uid: u.userInfo.userId,
+      })
+    )
     .finally(() => {
       orderTargets.value = [];
       showApprovePickup.value = false;
+      approveLoading.value = false;
     });
 }
 
@@ -101,6 +105,7 @@ const targetIds = computed(() => {
   // return ioOrders.value.filter((z) => itemIds.has(z.id));
   return itemIds;
 });
+const approveLoading = ref(false);
 function approveSelected() {
   orderTargets.value = ioOrders.value.filter((x) => targetIds.value.has(x.id));
   showApprovePickup.value = true;
@@ -126,6 +131,7 @@ const reqCols = getPickReqCols(onClickDetail);
       v-if="ioOrdersByShop.length > 0"
       :show-modal="showApprovePickup"
       :user-id="u.userInfo.userId"
+      :loading="approveLoading"
       :expected-reduce-coin="expectedReduceCoin"
       @update:show-modal="updateReqOrderShow"
       @on-confirm="onReqOrderConfirm"

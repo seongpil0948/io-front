@@ -5,14 +5,15 @@ import { ioFireStore } from "@/plugin/firebase";
 
 export function useContactUncle() {
   const auth = useAuthStore();
-  const u = auth.currUser;
+  const u = auth.currUser();
   const targetUncleId = ref<string | null>(null);
   const contractUncles = ref<IoUser[]>([]);
-  const uncleUserIds = computed(() => u.shopInfo?.uncleUserIds ?? []);
+
   watch(
-    () => uncleUserIds.value,
+    () => u.shopInfo?.uncleUserIds,
     async function (ids, prev) {
-      if (ids === prev) return;
+      console.log("uncleUserIds: ", u, ids);
+      if (!ids || ids === prev) return;
       contractUncles.value = await USER_DB.getUserByIds(ioFireStore, ids);
     },
     { immediate: true, deep: true }

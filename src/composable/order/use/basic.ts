@@ -1,4 +1,9 @@
-import { catchError, IoOrder, vendorUserProdFromOrders } from "@/composable";
+import {
+  catchError,
+  IoOrder,
+  validateUser,
+  vendorUserProdFromOrders,
+} from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
 import { useMessage } from "naive-ui";
@@ -6,7 +11,7 @@ import { ref, computed, Ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { ORDER_GARMENT_DB } from "../db";
 import { OrderItemCombined } from "../domain";
-
+import { useDialog } from "naive-ui";
 import { IoUser, getUserName, locateToStr } from "@io-boxies/js-lib";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { axiosConfig } from "@/plugin/axios";
@@ -22,7 +27,7 @@ export function useOrderBasic(
 ) {
   const log = useLogger();
   const msg = useMessage();
-
+  const dialog = useDialog();
   const smtp = useAlarm();
   const orderTargets = ref<OrderItemCombined[]>([]);
   const expectedReduceCoin = computed(
@@ -179,6 +184,43 @@ export function useOrderBasic(
       .catch((err) => catchError({ err, msg }));
   }
 
+  async function reqPickupRequest(p: {
+    uncle: IoUser;
+    shop: IoUser;
+    orderDbIds: Set<string>; // targetOrdDbIds
+    orderItemIds: Set<string>; // targetIds
+    direct: boolean;
+  }) {
+    return new Promise((resolve) => {
+      if (p.orderDbIds.size < 1 || p.orderItemIds.size < 1) {
+        return msg.error("주문을 선택 해주세요");
+      }
+      validateUser(p.shop, p.shop.userInfo.userId);
+
+      ORDER_GARMENT_DB.reqPickup(
+        [...p.orderDbIds],
+        [...p.orderItemIds],
+        p.uncle.userInfo.userId
+      ).then(async () => {
+        msg.success("픽업 요청 성공!");
+        let evt = "order_pickup_request";
+        if (p.direct) evt += "_directed";
+        logEvent(getAnalytics(ioFire.app), evt, {
+          len: p.orderItemIds.size,
+        });
+        resolve("");
+        smtp.sendAlarm({
+          toUserIds: [p.uncle.userInfo.userId],
+          subject: `inoutbox 주문 처리내역 알림.`,
+          body: `${getUserName(p.shop)} 으로부터 픽업요청이 도착하였습니다. `,
+          notiLoadUri: "/",
+          uriArgs: {},
+          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
+        });
+      });
+    });
+  }
   return {
     orderAll,
     orderChecked,
@@ -192,6 +234,8 @@ export function useOrderBasic(
     deleteChecked,
     downOrderItems,
     orderDoneInner,
+    dialog,
+    reqPickupRequest,
   };
 }
 

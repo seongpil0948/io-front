@@ -75,7 +75,13 @@ export function useShopVirtualProd(user: IoUser) {
   const virProdEditTarget = ref<VendorGarment | null>(null);
 
   const { selectedRow, popVal, optionCol } = usePopSelTable<ShopUserGarment>({
-    onDelete: (p) => deleteVirGarments(uid, [p.shopProdId]),
+    onDelete: (p) => {
+      console.log("in onDelete: ", p);
+      msg.info("준비중.. 찡끗 ㅇ_<", makeMsgOpt());
+      return Promise.resolve();
+      // FIXME: 주문건에 엮이면서 함부로 삭제 할 수 없다.
+      // deleteVirGarments(uid, [p.shopProdId]);
+    },
     onEdit: (p) =>
       (virProdEditTarget.value =
         virVendorProds.value.find((x) => x.vendorProdId === p.vendorProdId) ??

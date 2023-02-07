@@ -24,7 +24,7 @@ watchEffect(() => {
 const msg = useMessage();
 const formRef = ref<FormInst | null>(null);
 const auth = useAuthStore();
-const uid = auth.currUser.userInfo.userId;
+const uid = auth.currUser().userInfo.userId;
 const rules = {
   vendorProdName: nameLenRule,
   vendorPrice: biggerThanNRule(999),

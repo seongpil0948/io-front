@@ -51,7 +51,7 @@ const auth = useAuthStore();
 const msg = useMessage();
 const shopOrdStore = useShopOrderStore();
 const log = useLogger();
-const uid = auth.currUser.userInfo.userId;
+const uid = auth.currUser().userInfo.userId;
 
 async function onSubmit() {
   let addCnt = selectedProdIds.value.length;
@@ -109,7 +109,7 @@ async function onSubmit() {
         {},
         vendorUnit,
         shopProd,
-        auth.currUser
+        auth.currUser()
         // vendor
       );
       shopOrdStore.$patch({

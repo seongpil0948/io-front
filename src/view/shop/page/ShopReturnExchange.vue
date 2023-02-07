@@ -6,6 +6,9 @@ import {
   ORDER_STATE,
   useContactUncle,
   useOrderTable,
+  useOrderBasic,
+  validateUser,
+  checkOrderShipLocate,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { uniqueArr } from "@/util";
@@ -20,7 +23,6 @@ import {
   NTabs,
   useMessage,
 } from "naive-ui";
-import { validateUser } from "@/composable/order/db/firebase";
 import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { ioFire } from "@/plugin/firebase";
@@ -73,12 +75,10 @@ async function returnReq() {
       orderDbIds.push(orderItem.orderDbId);
     if (!orderItemIds.includes(orderItem.id)) orderItemIds.push(orderItem.id);
   }
+  const targetVendorIds = uniqueArr(returnTargets.map((x) => x.vendorId));
   ORDER_GARMENT_DB.returnReq(uniqueArr(orderDbIds), uniqueArr(orderItemIds))
     .then(async () => {
-      msg.success(`${orderItemIds.length}건의 반품 요청이 완료 되었습니다.`);
-      const targetVendorIds = uniqueArr(
-        targetOrderItems.value.map((x) => x.vendorId)
-      );
+      msg.success(`${returnTargets.length}건의 반품 요청이 완료 되었습니다.`);
       await smtp.sendAlarm({
         toUserIds: targetVendorIds,
         subject: `inoutbox 주문 처리내역 알림.`,
@@ -97,24 +97,36 @@ async function returnReq() {
         prefix: "반품 요청이 실패 되었습니다.",
         err,
         msg,
-        uid: auth.currUser.userInfo.userId,
+        uid: auth.currUser().userInfo.userId,
       })
     );
 }
 // request return  <<<
 // pickup request in return approved   >>>
-const u = auth.currUser;
+const u = auth.currUser();
 const { targetUncleId, contactUncleOpts, contractUncles } = useContactUncle();
 const filteredOrders = shopOrderStore.getFilteredOrder(["RETURN_APPROVED"]);
 const orders = shopOrderStore.getOrders(["RETURN_APPROVED"]);
 const ioOrdersByVendor =
   shopOrderStore.getGarmentOrdersByVendor(filteredOrders);
-const { tableRef, byVendorCol, byVendorKeys } = useOrderTable({
+const {
+  tableRef,
+  byVendorCol,
+  byVendorKeys,
+  targetOrdItemIds,
+  targetOrdItems,
+} = useOrderTable({
   ioOrders: filteredOrders,
   orders,
   updateOrderCnt: true,
 });
 
+const { reqPickupRequest } = useOrderBasic(
+  u,
+  filteredOrders,
+  orders,
+  targetOrdItemIds
+);
 async function pickupRequest() {
   const uncle = contractUncles.value.find(
     (x) => x.userInfo.userId === targetUncleId.value
@@ -124,23 +136,28 @@ async function pickupRequest() {
     return msg.error("주문을 선택 해주세요");
   }
   validateUser(u, u.userInfo.userId);
-  const filtered = ioOrdersByVendor.value.filter((x) =>
-    byVendorKeys.value.includes(x.vendorId)
-  );
-  const orderItemIds = filtered.flatMap((x) => x.items).map((y) => y.id);
+
   const orderIds: string[] = [];
   orders.value.forEach((x) => {
-    if (x.itemIds.some((y) => orderItemIds.includes(y))) {
+    if (x.itemIds.some((y) => targetOrdItemIds.value.includes(y))) {
       orderIds.push(x.dbId);
     }
   });
-
+  targetOrdItems.value.forEach((x) =>
+    checkOrderShipLocate(x, u, x.vendorProd, uncle)
+  );
   if (orderIds.length > 0) {
-    ORDER_GARMENT_DB.reqPickup(orderIds, orderItemIds, uncle.userInfo.userId)
+    return reqPickupRequest({
+      uncle,
+      shop: auth.currUser(),
+      orderDbIds: new Set(orderIds),
+      orderItemIds: new Set(targetOrdItemIds.value),
+      direct: false,
+    })
       .then(() => {
         msg.success("픽업 요청 성공!");
         logEvent(getAnalytics(ioFire.app), "order_pickup_request", {
-          len: orderItemIds.length,
+          len: targetOrdItemIds.value.length,
         });
       })
       .catch((err: any) =>

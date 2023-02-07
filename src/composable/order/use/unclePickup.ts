@@ -23,7 +23,7 @@ import { ioFireStore } from "@/plugin/firebase";
 
 export function useShipmentUncle(inStates: ORDER_STATE[]) {
   const auth = useAuthStore();
-  const u = auth.currUser;
+  const u = auth.currUser();
   const ordStore = useUncleOrderStore();
   const orders = computed(() => ordStore.orders);
   const ioOrders = ordStore.getFilteredOrder(inStates);

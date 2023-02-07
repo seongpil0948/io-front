@@ -15,7 +15,7 @@ const props = defineProps<{
 }>();
 
 const auth = useAuthStore();
-const u = auth.currUser;
+const u = auth.currUser();
 const store = useVendorOrderStore();
 const orders = store.getOrders(props.inStates ?? []);
 const ioOrders = store.getFilteredOrder(props.inStates ?? []);

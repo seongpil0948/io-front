@@ -49,7 +49,7 @@ export function useCafeAuth() {
   const stateStr = computed(() =>
     JSON.stringify({
       mallId: mallId.value,
-      userId: auth.currUser.userInfo.userId,
+      userId: auth.currUser().userInfo.userId,
     })
   );
 

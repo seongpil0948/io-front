@@ -16,7 +16,7 @@ const minHeight = "100vh";
 const router = useRouter();
 const authStore = useAuthStore();
 const common = useCommonStore();
-const user = authStore.currUser;
+const user = authStore.currUser();
 
 const shopOrderStore = useShopOrderStore();
 onBeforeMount(() => shopOrderStore.init(user.userInfo.userId));

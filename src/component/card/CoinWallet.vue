@@ -13,7 +13,7 @@ import { formatDate, loadDate, locateToStr } from "@io-boxies/js-lib";
 const inst = getCurrentInstance();
 const APP_ID = "62b45e0fe38c3000215aec6b";
 const authStore = useAuthStore();
-const user = authStore.currUser;
+const user = authStore.currUser();
 const { userPay } = useUserPay(user.userInfo.userId);
 const log = useLogger();
 const uid = user.userInfo.userId;

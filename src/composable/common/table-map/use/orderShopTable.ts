@@ -103,7 +103,7 @@ export function useOrderTable(d: orderTableParam) {
   }
   const { columns: byVendorCol, checkedKeys: byVendorKeys } =
     useTable<OrderItemByVendor>({
-      userId: auth.currUser.userInfo.userId,
+      userId: auth.currUser().userInfo.userId,
       colKeys: byVendorColKeys,
       useChecker: d.useChecker ?? true,
       keyField: "vendorId",
@@ -114,7 +114,7 @@ export function useOrderTable(d: orderTableParam) {
     checkedKeys: checkedDetailKeys,
     mapper,
   } = useTable<OrderItemCombined>({
-    userId: auth.currUser.userInfo.userId,
+    userId: auth.currUser().userInfo.userId,
     colKeys,
     useChecker: d.useChecker ?? true,
     keyField,
@@ -229,20 +229,21 @@ export function useOrderTable(d: orderTableParam) {
         })
       : [];
   });
-  const targetIds = computed(() => {
-    const itemIds = new Set<string>(
-      d.ioOrders.value
-        .filter(
-          (x) =>
-            checkedDetailKeys.value.includes(x.id) ||
-            byVendorKeys.value.includes(x.vendorId)
-        )
-        .map((y) => y.id)
-    );
+  const targetOrdItemIds = computed(() => {
+    const itemIds = d.ioOrders.value
+      .filter(
+        (x) =>
+          checkedDetailKeys.value.includes(x.id) ||
+          byVendorKeys.value.includes(x.vendorId)
+      )
+      .map((y) => y.id);
     if (selectedData.value) {
-      selectedData.value.items.forEach((z: any) => itemIds.add(z.id));
+      selectedData.value.items.forEach((z: any) => itemIds.push(z.id));
     }
     return itemIds;
+  });
+  const targetIds = computed(() => {
+    return new Set(targetOrdItemIds.value);
   });
   const targetOrdDbIds = computed(() => {
     const orderIds = new Set<string>();
@@ -258,6 +259,10 @@ export function useOrderTable(d: orderTableParam) {
     }
     return orderIds;
   });
+  const targetOrdItems = computed(() =>
+    d.ioOrders.value.filter((x) => targetIds.value.has(x.id))
+  );
+
   return {
     tableRef,
     columns,
@@ -270,5 +275,7 @@ export function useOrderTable(d: orderTableParam) {
     checkedDetailKeys,
     targetIds,
     targetOrdDbIds,
+    targetOrdItemIds,
+    targetOrdItems,
   };
 }

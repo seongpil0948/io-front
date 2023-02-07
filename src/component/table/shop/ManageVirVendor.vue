@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { locateToStr, IoUser, getIoCollection } from "@io-boxies/js-lib";
+import { locateToStr, IoUser } from "@io-boxies/js-lib";
 import { h, ref, toRefs } from "vue";
 import {
   NText,
@@ -9,54 +9,51 @@ import {
   NDataTable,
   useMessage,
 } from "naive-ui";
-import { deleteVirGarments, ShopGarment, usePopSelTable } from "@/composable";
-import { ioFireStore } from "@/plugin/firebase";
-import { useAuthStore } from "@/store";
-import { fireConverter, makeMsgOpt } from "@/util";
-import {
-  doc,
-  getDocs,
-  query,
-  runTransaction,
-  where,
-} from "@firebase/firestore";
+import { usePopSelTable } from "@/composable";
+import { makeMsgOpt } from "@/util";
 
 const props = defineProps<{
   virtualVendors: IoUser[];
 }>();
 const { virtualVendors } = toRefs(props);
-const auth = useAuthStore();
+// const auth = useAuthStore();
 const msg = useMessage();
-const virVendorConverter = fireConverter<IoUser>();
-const virVendorC = getIoCollection(ioFireStore, {
-  uid: auth.uid,
-  c: "VIRTUAL_USER",
-}).withConverter(virVendorConverter);
+// const virVendorConverter = fireConverter<IoUser>();
+// const virVendorC = getIoCollection(ioFireStore, {
+//   uid: auth.uid,
+//   c: "VIRTUAL_USER",
+// }).withConverter(virVendorConverter);
 
 const { optionCol } = usePopSelTable<IoUser>({
-  onDelete: (p) =>
-    runTransaction(ioFireStore, async (t) => {
-      const targetUid = p.userInfo.userId;
-      const snap = await getDocs(
-        query(
-          getIoCollection(ioFireStore, { c: "SHOP_PROD" }).withConverter(
-            fireConverter<ShopGarment>()
-          ),
-          where("visible", "==", "ME"),
-          where("vendorId", "==", targetUid)
-        )
-      );
-      const delProdIds: string[] = [];
-      snap.forEach((doc) => {
-        const data = doc.data();
-        console.log("delete target vir prod: ", data);
-        if (data) {
-          delProdIds.push(data.shopProdId);
-        }
-      });
-      await deleteVirGarments(auth.uid, delProdIds);
-      t.delete(doc(virVendorC, targetUid));
-    }),
+  onDelete: (p) => {
+    console.log("onDelete: ", p);
+    msg.info("준비중.. 찡끗 ㅇ_<", makeMsgOpt());
+    return Promise.resolve();
+    // FIXME: 주문건에 엮이면서 함부로 삭제 할 수 없다.
+    // runTransaction(ioFireStore, async (t) => {
+    //   const targetUid = p.userInfo.userId;
+    //   const snap = await getDocs(
+    //     query(
+    //       getIoCollection(ioFireStore, { c: "SHOP_PROD" }).withConverter(
+    //         fireConverter<ShopGarment>()
+    //       ),
+    //       where("visible", "==", "ME"),
+    //       where("vendorId", "==", targetUid)
+    //     )
+    //   );
+    //   const delProdIds: string[] = [];
+    //   snap.forEach((doc) => {
+    //     const data = doc.data();
+    //     console.log("delete target vir prod: ", data);
+    //     if (data) {
+    //       delProdIds.push(data.shopProdId);
+    //     }
+    //   });
+    //   await deleteVirGarments(auth.uid, delProdIds);
+    //   t.delete(doc(virVendorC, targetUid));
+    // });
+  },
+
   onEdit: () => msg.info("준비중.. 찡끗 ㅇ_<", makeMsgOpt()),
 });
 const virVendorCols = [
@@ -78,7 +75,9 @@ const virVendorCols = [
         {
           default: () =>
             r.companyInfo?.shipLocate
-              ? locateToStr(r.companyInfo?.shipLocate)
+              ? `${locateToStr(r.companyInfo.shipLocate)}, ${
+                  r.companyInfo.shipLocate.detailLocate
+                }`
               : "X",
         }
       ),

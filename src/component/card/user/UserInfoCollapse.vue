@@ -27,7 +27,7 @@ const authStore = useAuthStore();
 const msg = useMessage();
 const authModel = ref<IoUser | null>(null);
 onBeforeMount(async () => {
-  authModel.value = clone(authStore.currUser);
+  authModel.value = clone(authStore.currUser());
   const a = authModel.value;
   if (a) {
     let update = false;

@@ -7,12 +7,12 @@ import { computed, Ref } from "vue";
 const authStore = useAuthStore();
 
 const { userLogs: errLogs } = useReadLogger({
-  uid: authStore.currUser.userInfo.userId,
+  uid: authStore.currUser().userInfo.userId,
   limit: 30,
   severity: ["error", "warn"],
 });
 const { userLogs: infoLogs } = useReadLogger({
-  uid: authStore.currUser.userInfo.userId,
+  uid: authStore.currUser().userInfo.userId,
   limit: 30,
   severity: ["info"],
 });

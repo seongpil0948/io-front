@@ -17,15 +17,15 @@ router.beforeEach(async (to) => {
   const notAuth = to.name && notAuthName.includes(to.name.toString());
 
   if (!notAuth) {
-    if (authStore.currUser === null) {
+    if (authStore.currUser() === null) {
       return { name: "Login" };
     }
-    const role = authStore.currUser.userInfo.role;
+    const role = authStore.currUser().userInfo.role;
     if (to.path === "/") {
       return { name: getHomeName(role) };
     } else if (to.meta.allowRoles && !to.meta.allowRoles.includes(role)) {
       logger.error(
-        authStore.currUser.userInfo.userId,
+        authStore.currUser().userInfo.userId,
         "유효하지 않은 페이지 접근",
         to.fullPath
       );
@@ -35,7 +35,7 @@ router.beforeEach(async (to) => {
           content: "소유한 권한에 대해 유효하지 않은 페이지입니다.",
         });
       });
-      return { name: getHomeName(authStore.currUser.userInfo.role) };
+      return { name: getHomeName(authStore.currUser().userInfo.role) };
     }
   }
 });

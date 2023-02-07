@@ -14,7 +14,7 @@ export function useShopGarmentTable(
   const rowIdField = "shopProdId";
   const msg = useMessage();
   const authStore = useAuthStore();
-  const shopId = authStore.currUser.userInfo.userId;
+  const shopId = authStore.currUser().userInfo.userId;
   const tableRef = ref<any>(null);
   const dialog = useDialog();
   const openSelectList = ref(false);

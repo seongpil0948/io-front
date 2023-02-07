@@ -19,7 +19,7 @@ import { useLogger } from "vue-logger-plugin";
 export function useBatchVendorProd(d: { visible: VISIBILITY }) {
   const excelInputRef = ref<null | HTMLInputElement>(null);
   const authStore = useAuthStore();
-  const u = authStore.currUser;
+  const u = authStore.currUser();
   const msg = useMessage();
   const router = useRouter();
   const disableModalSave = ref(false);

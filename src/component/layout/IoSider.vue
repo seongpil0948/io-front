@@ -10,7 +10,7 @@ const props = defineProps<{
 }>();
 const router = useRouter();
 const authStore = useAuthStore();
-const u = authStore.currUser;
+const u = authStore.currUser();
 const { menuOptions } = toRefs(props);
 const collapsed = ref(false);
 </script>

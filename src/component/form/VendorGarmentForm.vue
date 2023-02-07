@@ -47,7 +47,7 @@ const formRef = ref<FormInst | null>(null);
 const auth = useAuthStore();
 const u = computed(() => auth.user);
 const { getVirSimilarProds, existVirSameProd, createVirVendorGarments } =
-  useShopVirtualProd(auth.currUser);
+  useShopVirtualProd(auth.currUser());
 const router = useRouter();
 const { saveEditor, clearEditor } = useEditor({
   readOnly: false,

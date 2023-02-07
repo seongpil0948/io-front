@@ -17,7 +17,7 @@ const LogoImageVue = defineAsyncComponent(
 );
 const common = useCommonStore();
 const auth = useAuthStore();
-const user = auth.currUser;
+const user = auth.currUser();
 const store = useVendorOrderStore();
 const router = useRouter();
 onBeforeMount(() => store.init(user.userInfo.userId));

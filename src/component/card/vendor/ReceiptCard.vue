@@ -14,7 +14,7 @@ const props = defineProps<{
 const { customer, items } = toRefs(props);
 const msg = useMessage();
 const auth = useAuthStore();
-const u = auth.currUser;
+const u = auth.currUser();
 const { toggleEditor, saveEditor, editor } = useEditor({
   readOnly: true,
   elementId: "io-editor",

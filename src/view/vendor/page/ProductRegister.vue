@@ -53,7 +53,7 @@ function downSampleXlsx() {
       :bordered="false"
     />
   </n-modal>
-  <n-card v-if="authStore.currUser" title="도매 상품 등록">
+  <n-card v-if="authStore.currUser()" title="도매 상품 등록">
     <template #header-extra>
       <n-space>
         <n-button @click="onBtnClick">
@@ -74,7 +74,7 @@ function downSampleXlsx() {
     <vendor-garment-form
       :minimal="false"
       :virtual="false"
-      :vendor-id="authStore.currUser.userInfo.userId"
+      :vendor-id="authStore.currUser().userInfo.userId"
     />
   </n-card>
 </template>

@@ -10,7 +10,7 @@ import _axios from "@/plugin/axios";
 import { useAuthStore } from "@/store";
 
 const auth = useAuthStore();
-const { virVendorProds, userVirProds } = useShopVirtualProd(auth.currUser);
+const { virVendorProds, userVirProds } = useShopVirtualProd(auth.currUser());
 const {
   range,
   updateRangeNaive,

@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { usePickArea } from "@/composable";
 import { Locate } from "@io-boxies/js-lib";
-import { toRefs, onBeforeUnmount } from "vue";
+import { toRefs } from "vue";
 
 const props = defineProps<{
   pickId: Locate;
+  officeOpt: {
+    label: string;
+    value: string;
+  }[];
 }>();
-const { pickId } = toRefs(props);
+const { pickId, officeOpt } = toRefs(props);
 const emits = defineEmits<{
   (e: "update:pickId", value: Locate): void;
 }>();
-const { officeOpt, unsubscribe } = usePickArea();
-onBeforeUnmount(() => unsubscribe());
 function onUpdateOffice(val: Locate) {
   emits("update:pickId", val);
 }

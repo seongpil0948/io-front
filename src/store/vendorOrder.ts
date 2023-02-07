@@ -32,9 +32,9 @@ export const useVendorOrderStore = defineStore("vendorOrderStore", () => {
   const orders = computed(() => [..._orders.value]);
 
   const { items: prods, unsubscribe: garmentUnSub } =
-    VENDOR_GARMENT_DB.batchReadListen([authStore.currUser.userInfo.userId]);
+    VENDOR_GARMENT_DB.batchReadListen([authStore.currUser().userInfo.userId]);
   const vendorProds = computed(() =>
-    prods.value.map((prod) => Object.assign({}, prod, authStore.currUser))
+    prods.value.map((prod) => Object.assign({}, prod, authStore.currUser()))
   );
 
   function getVendorOrderGarments(orders: typeof _orders) {

@@ -9,7 +9,7 @@ import {
 import { useShopOrderStore } from "@/store";
 import { computed, h } from "vue";
 
-// const u = auth.currUser;
+// const u = auth.currUser();
 const inStates: ORDER_STATE[] = ["BEFORE_PAYMENT", "BEFORE_APPROVE"];
 const shopOrderStore = useShopOrderStore();
 

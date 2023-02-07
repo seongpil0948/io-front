@@ -12,7 +12,7 @@ export function useCommon() {
   const msg = useMessage();
   const log = useLogger();
   const auth = useAuthStore();
-  const u = auth.user ?? auth.currUser;
+  const u = auth.user ?? auth.currUser();
   const uid = computed(() => u.userInfo.userId);
   const smtp = useAlarm();
   const apiBaseUrl = axiosConfig.baseURL;

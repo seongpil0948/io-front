@@ -116,7 +116,7 @@ const menuOptions: MenuOption[] = [
     ],
   },
 ];
-const user = useAuthStore().currUser;
+const user = useAuthStore().currUser();
 const mobileOpts = [
   {
     key: "home",

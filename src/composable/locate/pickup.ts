@@ -1,16 +1,23 @@
-import { onSnapshot } from "@firebase/firestore";
-import { computed, ref } from "vue";
+import { getDocs } from "@firebase/firestore";
+import { computed, onBeforeMount, shallowRef } from "vue";
 import { useMessage } from "naive-ui";
-import { onFirestoreErr, onFirestoreCompletion } from "../common";
 import {
   getIoCollection,
   Locate,
   locateFireConverter,
 } from "@io-boxies/js-lib";
-import { ioFireStore } from "@/plugin/firebase";
+import { dataFromSnap, ioFireStore } from "@/plugin/firebase";
 export function usePickArea() {
   const msg = useMessage();
-  const locates = ref<Locate[]>([]);
+  const locates = shallowRef<Locate[]>([]);
+  const locateCollection = getIoCollection(ioFireStore, {
+    c: "PICKUP_LOCATES",
+  }).withConverter(locateFireConverter);
+
+  onBeforeMount(async () => {
+    const snap = await getDocs(locateCollection);
+    locates.value = dataFromSnap(snap);
+  });
 
   function addPickArea(pickId: string) {
     const target = locates.value.find((x) => getPickId(x) === pickId);
@@ -19,28 +26,6 @@ export function usePickArea() {
     }
     return target;
   }
-
-  const locateCollection = getIoCollection(ioFireStore, {
-    c: "PICKUP_LOCATES",
-  }).withConverter(locateFireConverter);
-  const name = "pickupArea snapshot";
-  const unsubscribe = onSnapshot(
-    locateCollection,
-    (snapshot) => {
-      locates.value = [];
-      snapshot.forEach((s) => {
-        const data = s.data();
-        if (data) {
-          locates.value.push(data);
-        }
-      });
-    },
-    async (err) => {
-      await onFirestoreErr(name, err);
-      throw err;
-    },
-    () => onFirestoreCompletion(name)
-  );
 
   const areaOpt = computed(() =>
     locates.value.map((x) => {
@@ -65,7 +50,6 @@ export function usePickArea() {
     locates,
     addPickArea,
     getPickId,
-    unsubscribe,
   };
 }
 

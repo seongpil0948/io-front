@@ -42,7 +42,7 @@ async function updateShop(shop: IoUser) {
   if (!targetShop.value) return msg.error("존재하지 않는 유저입니다.");
   const param = {
     shopId: shop.userInfo.userId,
-    vendorId: auth.currUser.userInfo.userId,
+    vendorId: auth.currUser().userInfo.userId,
   };
   shopProds.value = await SHOP_GARMENT_DB.getShopGarments(param);
   partner.value = await loadPartner(param);
@@ -61,7 +61,7 @@ async function onComplete(addedCredit: number) {
   await sendAlarm({
     toUserIds: [targetShop.value!.userInfo.userId],
     subject: `inoutbox 주문 처리내역 알림.`,
-    body: `${getUserName(auth.currUser)} 에서 결제를 승인 하였습니다. `,
+    body: `${getUserName(auth.currUser())} 에서 결제를 승인 하였습니다. `,
     notiLoadUri: "/",
     uriArgs: {},
     sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
