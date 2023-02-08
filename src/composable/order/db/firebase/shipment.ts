@@ -89,7 +89,7 @@ export const ShipmentFB: ShipDB<IoOrder> = {
         );
         item.shipmentId = shipment.shippingId;
         // setState(ord, item.id, "BEFORE_ASSIGN_PICKUP");
-        setState(ord, item.id, "CHECK_PAYMENT_ADMIN_SHIP_AMOUNT");
+        setState(ord, item.id, "BEFORE_ASSIGN_PICKUP");
       }
       t.update(ordDocRef, converterGarment.toFirestore(ord));
       t.update(

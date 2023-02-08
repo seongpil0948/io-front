@@ -92,13 +92,10 @@ export interface OrderParent {
 export type ORDER_STATE =
   | "BEFORE_ORDER"
   | "BEFORE_APPROVE"
-  // TODO: Replace BEFORE_PAYMENT to CHECK_PAYMENT_ADMIN_ORDER_AMOUNT
-  | "CHECK_PAYMENT_ADMIN_ORDER_AMOUNT" // 관리자 도매처 주문 금액 결제 확인전
   | "BEFORE_PAYMENT"
   | "BEFORE_READY" // 결제완료후 출고리스트 전 = 미송
   | "BEFORE_PICKUP_REQ" // 출고가능 물품들의 픽업 요청전
   | "BEFORE_APPROVE_PICKUP" // 픽업 승인전
-  | "CHECK_PAYMENT_ADMIN_SHIP_AMOUNT" // 관리자 픽업금액 결제확인전
   | "BEFORE_ASSIGN_PICKUP" // 픽업 담당자 배정전
   | "BEFORE_PICKUP" // 담당자 배정 후 픽업전
   | "ONGOING_PICKUP" // 도매처 배송중
@@ -120,12 +117,10 @@ export type ORDER_STATE =
 export const ORDER_STATE: { [key in ORDER_STATE]: string } = Object.freeze({
   BEFORE_ORDER: "주문전",
   BEFORE_APPROVE: "승인전",
-  CHECK_PAYMENT_ADMIN_ORDER_AMOUNT: "관리자 도매처 주문 금액 결제 확인전",
   BEFORE_PAYMENT: "결제전",
   BEFORE_READY: "출고전",
   BEFORE_PICKUP_REQ: "픽업요청전",
   BEFORE_APPROVE_PICKUP: "픽업승인전",
-  CHECK_PAYMENT_ADMIN_SHIP_AMOUNT: "관리자 픽업금액 결제확인전",
   BEFORE_ASSIGN_PICKUP: "담당자배정전",
   BEFORE_PICKUP: "픽업전",
   ONGOING_PICKUP: "도매처 배송중",

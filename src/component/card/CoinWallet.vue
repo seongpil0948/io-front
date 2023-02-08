@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, getCurrentInstance, h, ref } from "vue";
-
 import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
 import { IoPay, useUserPay } from "@/composable";
@@ -186,6 +185,12 @@ const zz = 1224512435;
 const hh = 234567890987654;
 const ee = (p: number) => (Number(p) + zz) ^ hh;
 const dd = (p: number) => (Number(p) ^ hh) - zz;
+
+// >>> encashment >>>
+const encash = ref(0);
+async function reqEncashment() {
+  console.log("reqEncashment: ", encash.value);
+}
 </script>
 <template>
   <n-space v-if="userPay" vertical style="text-align: start">
@@ -214,37 +219,62 @@ const dd = (p: number) => (Number(p) ^ hh) - zz;
       <n-text type="info"> {{ userPay.pendingBudget }} 원 </n-text>
     </n-space>
     <n-divider />
-    <n-space justify="space-between">
-      <n-text strong> 금액충전 </n-text>
-      <n-input-number
-        v-model:value="chargeCoin"
-        :step="10"
-        :validator="chargeValidator"
-      />
-    </n-space>
-    <n-space justify="end">
-      <n-text depth="3"> 10원 단위로 입력 </n-text>
-    </n-space>
-    <n-space justify="space-between">
-      <n-button
-        v-for="m in [100, 1000, 2000, 5000, 10000, 10000].map((x) =>
-          IoPay.moneyToCoin(x)
-        )"
-        :key="m"
-        @click="chargeCoin += m"
-      >
-        {{ m.toLocaleString() }}
-      </n-button>
-    </n-space>
-    <n-space justify="space-between" style="line-height: 2rem">
-      <div>
-        <n-text strong> 결제금액: </n-text>
-        <n-text>{{ chargeString }} </n-text>
-      </div>
+    <n-collapse arrow-placement="right" accordion>
+      <n-collapse-item name="1">
+        <template #header>
+          <n-text strong>금액충전</n-text>
+        </template>
+        <n-space justify="space-between">
+          <n-text strong> 충전 금액 </n-text>
+          <n-input-number
+            v-model:value="chargeCoin"
+            :step="10"
+            :validator="chargeValidator"
+          />
+        </n-space>
+        <n-space justify="end">
+          <n-text depth="3"> 10원 단위로 입력 </n-text>
+        </n-space>
+        <n-space justify="space-between">
+          <n-button
+            v-for="m in [100, 1000, 2000, 5000, 10000, 10000].map((x) =>
+              IoPay.moneyToCoin(x)
+            )"
+            :key="m"
+            @click="chargeCoin += m"
+          >
+            {{ m.toLocaleString() }}
+          </n-button>
+        </n-space>
+        <n-space justify="space-between" style="line-height: 2rem">
+          <div>
+            <n-text strong> 결제금액: </n-text>
+            <n-text>{{ chargeString }} </n-text>
+          </div>
 
-      <n-button @click="reqPay">
-        충전하기<coin-image size="1.6rem" />
-      </n-button>
-    </n-space>
+          <n-button @click="reqPay">
+            충전하기<coin-image size="1.6rem" />
+          </n-button>
+        </n-space>
+      </n-collapse-item>
+      <n-collapse-item name="2">
+        <template #header>
+          <n-text strong>출금하기</n-text>
+        </template>
+        <n-space justify="space-between">
+          <n-text strong> 출금 금액 </n-text>
+          <n-input-number
+            v-model:value="encash"
+            :step="10"
+            :max="userPay.budget"
+          />
+        </n-space>
+        <n-space justify="space-between" style="line-height: 2rem">
+          <n-button @click="reqEncashment">
+            출금 요청<coin-image size="1.6rem" />
+          </n-button>
+        </n-space>
+      </n-collapse-item>
+    </n-collapse>
   </n-space>
 </template>
