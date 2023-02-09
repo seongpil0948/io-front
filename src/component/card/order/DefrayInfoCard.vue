@@ -38,7 +38,7 @@ watch(
   () => isTax.value,
   (isTax, prev) => {
     if (isTax === prev) return console.log("???");
-    const tax = isTax ? getTax(item.value.amount.orderAmount) : 0;
+    const tax = isTax ? getTax(item.value.prodAmount.amount) : 0;
     defray.value.tax = tax;
     emits("update:defray", defray.value);
     updateAmount();
@@ -47,8 +47,8 @@ watch(
 
 function updateAmount() {
   console.log("defray", defray.value);
-  const { newAmount } = defrayAmount(item.value.amount, defray.value);
-  item.value.amount = newAmount;
+  const { newAmount } = defrayAmount(item.value.prodAmount, defray.value);
+  item.value.prodAmount = newAmount;
   console.log("new amount", newAmount);
   emits("update:item", item.value);
 }
@@ -69,11 +69,11 @@ defineExpose({ applyTax });
           <n-text>청구 금액</n-text>
           <n-tooltip trigger="hover">
             <template #trigger>
-              <n-text>{{ item.amount.orderAmount }}</n-text>
+              <n-text>{{ item.prodAmount.amount }}</n-text>
             </template>
             <n-space vertical>
-              <n-text>상품금액: {{ item.amount.pureAmount }}</n-text>
-              <n-text>부가세: {{ item.amount.tax }}</n-text>
+              <n-text>상품금액: {{ item.prodAmount.pureAmount }}</n-text>
+              <n-text>부가세: {{ item.prodAmount.tax }}</n-text>
             </n-space>
           </n-tooltip>
         </n-space>

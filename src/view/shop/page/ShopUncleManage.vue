@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/store";
-import { IoUser, USER_DB, availUncleAdvertise } from "@io-boxies/js-lib";
+import { IoUser, USER_DB, availUncleAdvertise } from "@/composable";
 import {
   NButton,
   NCard,
@@ -143,6 +143,10 @@ const showModal = ref(false);
         style="padding-bottom: 5%"
         :locates="selectedUser.uncleInfo.shipLocates"
       />
+      <n-space v-if="selectedUser.uncleInfo.shipPendingAmount">
+        <ship-pending-amount-tooltip type="info" />
+        {{ selectedUser.uncleInfo.shipPendingAmount }}
+      </n-space>
     </n-space>
     <div
       v-if="

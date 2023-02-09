@@ -1,4 +1,4 @@
-import { ioFireStore } from "@/plugin/firebase";
+import { getIoCollectionGroup, ioFireStore } from "@/plugin/firebase";
 import { UserCredential } from "@firebase/auth";
 import {
   getDocs,
@@ -8,7 +8,6 @@ import {
   doc,
   getDoc,
   Firestore,
-  collectionGroup,
 } from "@firebase/firestore";
 import {
   getIoCollection,
@@ -60,7 +59,7 @@ export const UserFB: UserDB = {
     }
     if (okVirtual) {
       const virtualUserQ = query(
-        collectionGroup(ioFireStore, "virtualUser").withConverter(
+        getIoCollectionGroup(ioFireStore, "VIRTUAL_USER").withConverter(
           userFireConverter
         ),
         where("userInfo.userId", "==", uid)

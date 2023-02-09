@@ -191,18 +191,21 @@ export function useOrderBasic(
     orderItemIds: Set<string>; // targetIds
     direct: boolean;
   }) {
+    p.uncle.uncleInfo?.pickupLocates;
     return new Promise((resolve) => {
       if (p.orderDbIds.size < 1 || p.orderItemIds.size < 1) {
         return msg.error("주문을 선택 해주세요");
       }
       validateUser(p.shop, p.shop.userInfo.userId);
-
       ORDER_GARMENT_DB.reqPickup(
         [...p.orderDbIds],
         [...p.orderItemIds],
-        p.uncle.userInfo.userId
-      ).then(async () => {
+        p.uncle.userInfo.userId,
+        p.shop.userInfo.userId,
+        p.direct
+      ).then(async (result) => {
         msg.success("픽업 요청 성공!");
+        console.log("result of request pickup: ", result);
         let evt = "order_pickup_request";
         if (p.direct) evt += "_directed";
         logEvent(getAnalytics(ioFire.app), evt, {

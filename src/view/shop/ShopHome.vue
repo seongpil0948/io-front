@@ -20,9 +20,9 @@ const numOfNotApprove = computed(
 );
 const amountNotPaid = computed(() => {
   return ioOrders.value
-    .map((x) => x.amount)
+    .map((x) => x.prodAmount)
     .reduce((acc, curr) => {
-      const notPaidAmount = curr.orderAmount - curr.paidAmount;
+      const notPaidAmount = curr.amount - curr.paidAmount;
       return acc + notPaidAmount;
     }, 0)
     .toLocaleString();

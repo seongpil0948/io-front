@@ -1,16 +1,24 @@
 import { defineStore } from "pinia";
 import { getAuth, signOut } from "firebase/auth";
-import { IoUser, userFromJson } from "@io-boxies/js-lib";
+import { IoUser, userFromJson, USER_DB } from "@/composable";
 import { getActivePinia } from "pinia";
-import { ioFire } from "@/plugin/firebase";
+import { ioFire, ioFireStore } from "@/plugin/firebase";
+import router from "@/plugin/router";
 import { getAnalytics, setUserId } from "@firebase/analytics";
-import { computed, ref } from "vue";
-import { useRouter } from "vue-router";
+import { computed, ref, shallowRef, watchEffect } from "vue";
 
 const userKey = "user";
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<IoUser | null>(null);
-  const router = useRouter();
+  const contractUncles = shallowRef<IoUser[]>([]);
+
+  watchEffect(async () => {
+    if (!user.value || !user.value?.shopInfo) return;
+    const ids = user.value?.shopInfo?.uncleUserIds;
+    if (!ids) return;
+    contractUncles.value = await USER_DB.getUserByIds(ioFireStore, ids);
+  });
+
   const currUser = () => {
     if (!user.value) {
       const userStr = localStorage.getItem(userKey);
@@ -79,5 +87,6 @@ export const useAuthStore = defineStore("auth", () => {
     login,
     clearUser,
     logout,
+    contractUncles,
   };
 });

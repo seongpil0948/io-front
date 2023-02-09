@@ -1,10 +1,3 @@
-import {
-  getIoCollection,
-  getIoCollectionGroup,
-  IoCollection,
-  insertById,
-  userFireConverter,
-} from "@io-boxies/js-lib";
 import { uniqueArr } from "@/util";
 import {
   doc,
@@ -42,10 +35,25 @@ import {
   reduceStockCnt,
   getPartnerDoc,
   VENDOR_GARMENT_DB,
-  PayHistoryCRT,
+  IoUser,
+  deleteItem,
+  newOrdFromItem,
+  checkOrderShipLocate,
+  getPickId,
+  newPayAmount,
+  newPayHistory,
+  USER_DB,
+  PayAmount,
+  userFireConverter,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
-import { ioFireStore } from "@/plugin/firebase";
+import {
+  ioFireStore,
+  getIoCollection,
+  getIoCollectionGroup,
+  IoCollection,
+} from "@/plugin/firebase";
+import { insertById } from "@io-boxies/js-lib";
 
 const cancelTargetState = [
   "BEFORE_ORDER",
@@ -92,19 +100,154 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       orderFireConverter
     );
   },
+  /**
+   * @param isDirect - 도매처 없이 바로 픽업요청 여부
+   */
   reqPickup: async function (
     orderDbIds: string[],
     orderItemIds: string[],
-    uncleId: string
+    uncleId: string,
+    shopId: string,
+    isDirect: boolean
   ) {
-    await stateModify({
-      orderDbIds,
-      orderItemIds,
-      afterState: "BEFORE_APPROVE_PICKUP",
-      onItem: async function (o) {
-        o.shipManagerId = uncleId;
-        return o;
-      },
+    const { getUserDocRef, getOrdRef, getPayDocRef, getPayHistDocRef } =
+      getSrc();
+    const orders = await OrderGarmentFB.batchRead(orderDbIds);
+    console.log("before orders combine", JSON.parse(JSON.stringify(orders)));
+    return runTransaction<IoOrder>(ioFireStore, async (t) => {
+      // >>> combine items >>>
+      const targetItems: OrderItem[] = [];
+      for (let i = 0; i < orders.length; i++) {
+        const o = orders[i];
+        for (let j = 0; j < o.items.length; j++) {
+          const item = o.items[j];
+          if (shopId !== item.shopId || !orderItemIds.includes(item.id))
+            continue;
+          targetItems.push(deleteItem({ order: o, itemId: item.id }));
+        }
+      }
+      const cOrder = newOrdFromItem(targetItems); // combined order
+      cOrder.isDirectToShip = isDirect;
+      console.log("new combined order ", cOrder);
+      // <<< combine items <<<
+
+      // get users data
+      const getU = async (uid: string) =>
+        (await t.get(getUserDocRef(uid))).data() ?? null;
+      const shop = await getU(shopId);
+      if (!shop) throw new Error("쇼핑몰 계정이 존재하지 않습니다.");
+      const shopPay = await IO_PAY_DB.getIoPayByUser(shopId);
+      const uncle = await getU(uncleId);
+      if (!uncle) throw new Error("엉클 관리자 계정이 존재하지 않습니다.");
+      const vendorIds = uniqueArr(cOrder.items.map((x) => x.vendorId));
+      const vs = await Promise.all(
+        vendorIds.map((vid) => USER_DB.getUserById(ioFireStore, vid, true))
+      );
+      const vendors = vs.filter((y) => y !== null) as IoUser[];
+
+      const cnt = {} as {
+        [pickId: string]: {
+          price: number;
+          byVendor: { [vid: string]: OrderItem[] };
+        };
+      };
+      for (let i = 0; i < cOrder.items.length; i++) {
+        const item = cOrder.items[i];
+        const vendor = vendors.find((v) => v.userInfo.userId === item.vendorId);
+        if (!vendor) throw new Error("도매 유저가 존재하지 않습니다.");
+        const { pickLocateUncle } = checkOrderShipLocate(
+          item,
+          shop,
+          vendor,
+          uncle
+        );
+        const pickId = getPickId(pickLocateUncle.locate);
+        if (!cnt[pickId]) {
+          cnt[pickId] = { price: pickLocateUncle.amount, byVendor: {} };
+          cnt[pickId].byVendor[item.vendorId] = [item];
+        } else if (!cnt[pickId].byVendor[item.vendorId]) {
+          cnt[pickId].byVendor[item.vendorId] = [item];
+        } else if (cnt[pickId] && cnt[pickId].byVendor[item.vendorId]) {
+          cnt[pickId].byVendor[item.vendorId].push(item);
+        }
+        item.shipManagerId = uncleId;
+        setState(cOrder, item.id, "BEFORE_APPROVE_PICKUP");
+      }
+      let pickPrice = Object.entries(cnt).reduce((acc, curr) => {
+        const priceByBuild = curr[1].price;
+        const vendorIds: string[] = Object.keys(curr[1].byVendor);
+        return acc + priceByBuild * vendorIds.length;
+      }, 0);
+      const goDefray = (amount: PayAmount) => {
+        const { newAmount } = defrayAmount(amount, {}, true);
+        return newAmount;
+      };
+      if (cOrder.isDirectToShip) {
+        pickPrice += cOrder.prodAmount.amount;
+        cOrder.items.forEach(
+          (item) => (item.prodAmount = goDefray(item.prodAmount))
+        );
+      }
+      console.info("pick price: ", pickPrice, "agg info: ", cnt);
+
+      cOrder.pickAmount = newPayAmount({
+        pureAmount: pickPrice,
+      });
+      console.log(
+        "before defray pick amount: ",
+        JSON.parse(JSON.stringify(cOrder.pickAmount))
+      );
+      cOrder.pickAmount = goDefray(cOrder.pickAmount);
+      console.log("after defray pick amount: ", cOrder.pickAmount);
+      cOrder.shipAmount = newPayAmount({
+        pureAmount: (uncle as IoUser).uncleInfo?.shipPendingAmount,
+      });
+      cOrder.shipAmount = goDefray(cOrder.shipAmount);
+      console.log("before shop pay: ", JSON.parse(JSON.stringify(shopPay)));
+      const shipPendingAmount = cOrder.shipAmount.amount;
+      const price = cOrder.pickAmount.amount + (shipPendingAmount ?? 0);
+      console.info(
+        `total price: ${price}, shipPendingAmount: ${shipPendingAmount}`
+      );
+      if (!uncle.uncleInfo) throw new Error("엉클정보가 없습니다.");
+      else if (!shipPendingAmount || shipPendingAmount < 1000)
+        throw new Error("배송 보류금액을 1000원 이상으로 설정 해주세요.");
+      else if (shopPay.budget < price)
+        throw new Error(
+          `유저캐쉬(${shopPay.budget})가 필요캐쉬(${price}) 보다 작습니다.`
+        );
+      shopPay.budget -= price;
+      shopPay.pendingBudget += price;
+      console.log("after shop pay: ", shopPay);
+      const h = newPayHistory({
+        amount: -price,
+        pendingAmount: price,
+        userId: shopPay.userId,
+        state: "REQUEST_PICKUP",
+      });
+      t.set(getPayHistDocRef(h.userId), h);
+
+      t.update(getPayDocRef(shopPay.userId), {
+        budget: shopPay.budget,
+        pendingBudget: shopPay.pendingBudget,
+        updateAt: new Date(),
+      });
+
+      cOrder.shipManagerId = uncleId;
+      refreshOrder(cOrder, false);
+      t.set(doc(getOrdRef(shopId), cOrder.dbId), cOrder);
+
+      // >>> furbish combined items >>>
+      for (let z = 0; z < orders.length; z++) {
+        const o = orders[z];
+        refreshOrder(o);
+        const docRef = doc(getOrdRef(shopId), o.dbId);
+        if (o.items.length < 1) t.delete(docRef);
+        else t.set(docRef, o);
+      }
+      console.log("after orders combine", orders);
+      // <<< furbish combined items <<<
+      return cOrder;
     });
   },
   completePay: async function (
@@ -121,12 +264,12 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       afterState: "BEFORE_READY",
       beforeState: ["BEFORE_PAYMENT"],
       onItem: async function (po) {
-        console.log("before amount", po.amount);
+        console.log("before amount", po.prodAmount);
         const { newAmount, creditAmount } = defrayAmount(
-          po.amount,
+          po.prodAmount,
           param[po.id]!
         );
-        po.amount = newAmount;
+        po.prodAmount = newAmount;
         addedCredit += creditAmount;
         return po;
       },
@@ -168,7 +311,8 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
 
     let vendorId: string | null = null;
     await runTransaction(ioFireStore, async (transaction) => {
-      const { getOrdRef, converterGarment } = getSrc();
+      const { getOrdRef, converterGarment, getPayDocRef, getPayHistDocRef } =
+        getSrc();
       // 2. update order state, reduce shop coin
       for (let i = 0; i < orders.length; i++) {
         const o = orders[i];
@@ -194,23 +338,19 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         const [shopId, cnt] = entries[k];
         const shopPay = await IO_PAY_DB.getIoPayByUser(shopId);
         const cost = IO_COSTS.REQ_ORDER * cnt;
-        transaction.update(
-          doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), shopId),
-          {
-            pendingBudget: shopPay.pendingBudget - cost,
-            budget: shopPay.budget + cost,
-            history: [
-              ...shopPay.history,
-              {
-                createdAt: new Date(),
-                userId: vendorId ?? "",
-                amount: cost,
-                pendingAmount: -cost,
-                state: "ORDER_REJECT",
-              } as PayHistoryCRT,
-            ],
-          }
-        );
+        const h = newPayHistory({
+          createdAt: new Date(),
+          userId: vendorId ?? "",
+          amount: cost,
+          pendingAmount: -cost,
+          state: "ORDER_REJECT",
+        });
+        transaction.set(getPayHistDocRef(h.userId), h);
+        transaction.update(getPayDocRef(shopId), {
+          pendingBudget: shopPay.pendingBudget - cost,
+          budget: shopPay.budget + cost,
+          updatedAt: new Date(),
+        });
       }
     });
     await Promise.all(
@@ -230,7 +370,8 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       return acc;
     }, {} as { [shopId: string]: number });
     await runTransaction(ioFireStore, async (transaction) => {
-      const { getOrdRef, converterGarment } = getSrc();
+      const { getOrdRef, converterGarment, getPayDocRef, getPayHistDocRef } =
+        getSrc();
       // 1. vendor pay
       const vendorPay = await IO_PAY_DB.getIoPayByUser(vendorId);
       const vReduceCoin = shopIds.length * IO_COSTS.APPROVE_ORDER;
@@ -238,22 +379,18 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         throw new Error("유저 금액이 부족합니다.");
       }
       vendorPay.budget -= vReduceCoin;
-      transaction.update(
-        doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), vendorId),
-        {
-          budget: vendorPay.budget,
-          history: [
-            ...vendorPay.history,
-            {
-              createdAt: new Date(),
-              userId: vendorId,
-              amount: -vReduceCoin,
-              pendingAmount: 0,
-              state: "ORDER_APPROVE",
-            } as PayHistoryCRT,
-          ],
-        }
-      );
+      transaction.update(getPayDocRef(vendorId), {
+        budget: vendorPay.budget,
+        updatedAt: new Date(),
+      });
+      const h = newPayHistory({
+        createdAt: new Date(),
+        userId: vendorId,
+        amount: -vReduceCoin,
+        pendingAmount: 0,
+        state: "ORDER_APPROVE",
+      });
+      transaction.set(getPayHistDocRef(h.userId), h);
       // 2. update order state, reduce shop coin
       for (let i = 0; i < orders.length; i++) {
         const o = orders[i];
@@ -282,22 +419,18 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
           throw new Error(
             `shop(${shopId}) not enough pendingBudget(${cost}) for request order`
           );
-        transaction.update(
-          doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), shopId),
-          {
-            pendingBudget: shopPay.pendingBudget - cost,
-            history: [
-              ...shopPay.history,
-              {
-                createdAt: new Date(),
-                userId: vendorId,
-                amount: 0,
-                pendingAmount: -cost,
-                state: "ORDER_APPROVE",
-              } as PayHistoryCRT,
-            ],
-          }
-        );
+        transaction.update(getPayDocRef(shopId), {
+          pendingBudget: shopPay.pendingBudget - cost,
+          updatedAt: new Date(),
+        });
+        const sh = newPayHistory({
+          createdAt: new Date(),
+          userId: vendorId,
+          amount: 0,
+          pendingAmount: -cost,
+          state: "ORDER_APPROVE",
+        });
+        transaction.set(getPayHistDocRef(sh.userId), sh);
       }
     });
     await Promise.all(
@@ -311,7 +444,8 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     orderItemIds: string[],
     shopId: string
   ) {
-    const { getOrdRef, converterGarment } = getSrc();
+    const { getOrdRef, converterGarment, getPayDocRef, getPayHistDocRef } =
+      getSrc();
     const constraints = [where("dbId", "in", orderDbIds)];
     const orders = await getOrders(constraints);
     const userPay = await IO_PAY_DB.getIoPayByUser(shopId);
@@ -371,23 +505,19 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
           converterGarment.toFirestore(newOrd)
         );
       }
-      transaction.update(
-        doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), userPay.userId),
-        {
-          pendingBudget: userPay.pendingBudget + reduceCoin,
-          budget: userPay.budget - reduceCoin,
-          history: [
-            ...userPay.history,
-            {
-              createdAt: new Date(),
-              userId: userPay.userId,
-              amount: -reduceCoin,
-              pendingAmount: +reduceCoin,
-              state: "ORDER_GARMENT",
-            } as PayHistoryCRT,
-          ],
-        }
-      );
+      transaction.update(getPayDocRef(userPay.userId), {
+        pendingBudget: userPay.pendingBudget + reduceCoin,
+        budget: userPay.budget - reduceCoin,
+        updatedAt: new Date(),
+      });
+      const uh = newPayHistory({
+        createdAt: new Date(),
+        userId: userPay.userId,
+        amount: -reduceCoin,
+        pendingAmount: +reduceCoin,
+        state: "ORDER_GARMENT",
+      });
+      transaction.set(getPayHistDocRef(uh.userId), uh);
       return newOrds;
     });
     await mergeSameOrders("BEFORE_APPROVE", shopId);
@@ -724,7 +854,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     );
 
     const processing = async (i: OrderItem, c: OrderCancel) => {
-      const paid = i.amount.paid;
+      const paid = i.prodAmount.paid;
       if (paid === "NO") {
         c.done = true;
         c.canceledDate = new Date();
@@ -826,7 +956,26 @@ export function getSrc() {
       c: IoCollection.ORDER_PROD_NUMBER,
       uid: shopId,
     });
-  return { batch, getOrdRef, getOrderNumberRef, converterGarment };
+  const getUserDocRef = (uid: string) =>
+    doc(
+      getIoCollection(ioFireStore, { c: "USER" }).withConverter(
+        userFireConverter
+      ),
+      uid
+    );
+  const getPayDocRef = (uid: string) =>
+    doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), uid);
+  const getPayHistDocRef = (uid: string) =>
+    doc(getIoCollection(ioFireStore, { c: "PAY_HISTORY", uid }));
+  return {
+    batch,
+    getOrdRef,
+    getOrderNumberRef,
+    converterGarment,
+    getUserDocRef,
+    getPayDocRef,
+    getPayHistDocRef,
+  };
 }
 
 async function stateModify(d: {

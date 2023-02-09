@@ -71,27 +71,30 @@ const ordCnts = computed(() =>
   items.value.reduce((acc, curr) => acc + curr.orderCnt, 0).toLocaleString()
 );
 const taxs = computed(() =>
-  items.value.reduce((acc, curr) => acc + curr.amount.tax, 0).toLocaleString()
+  items.value
+    .reduce((acc, curr) => acc + curr.prodAmount.tax, 0)
+    .toLocaleString()
 );
 const pureAmounts = computed(() =>
   items.value
-    .reduce((acc, curr) => acc + curr.amount.pureAmount, 0)
+    .reduce((acc, curr) => acc + curr.prodAmount.pureAmount, 0)
     .toLocaleString()
 );
-const orderAmounts = computed(() =>
+const prodAmounts = computed(() =>
   items.value
-    .reduce((acc, curr) => acc + curr.amount.orderAmount, 0)
+    .reduce((acc, curr) => acc + curr.prodAmount.amount, 0)
     .toLocaleString()
 );
 const paidAmounts = computed(() =>
   items.value
-    .reduce((acc, curr) => acc + curr.amount.paidAmount, 0)
+    .reduce((acc, curr) => acc + curr.prodAmount.paidAmount, 0)
     .toLocaleString()
 );
 const credits = computed(() =>
   items.value
     .reduce(
-      (acc, curr) => acc + (curr.amount.orderAmount - curr.amount.paidAmount),
+      (acc, curr) =>
+        acc + (curr.prodAmount.amount - curr.prodAmount.paidAmount),
       0
     )
     .toLocaleString()
@@ -156,7 +159,7 @@ defineExpose({ printReceipt });
         </n-space>
         <n-space justify="space-between">
           <n-text type="info">총 결제 금액</n-text>
-          <n-text>{{ orderAmounts }}</n-text>
+          <n-text>{{ prodAmounts }}</n-text>
         </n-space>
         <n-space justify="space-between">
           <n-text type="info">받은 금액</n-text

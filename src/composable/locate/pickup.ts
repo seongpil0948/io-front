@@ -54,6 +54,10 @@ export function usePickArea() {
 }
 
 export const getPickId = (x: Locate) => `${x.code}__${x.alias}`;
+export const extractPickId = (pickId: string) => ({
+  code: pickId.split("__")[0],
+  alias: pickId.split("__")[1],
+});
 export const isSamePickLocate = (a: Locate, b: Locate) =>
   getPickId(a) === getPickId(b);
 

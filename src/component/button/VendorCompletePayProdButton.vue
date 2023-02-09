@@ -76,11 +76,11 @@ watch(
           prod.vendorGarment.stockCnt,
           prod.vendorGarment.allowPending,
           false,
-          item.amount.paid
+          item.prodAmount.paid
         );
       }
       if (!showModal.value) {
-        defrayInfo.value[item.id].paidAmount = item.amount.orderAmount;
+        defrayInfo.value[item.id].paidAmount = item.prodAmount.amount;
       }
     });
   },
@@ -95,7 +95,7 @@ async function completePay() {
   items.value = [];
 }
 
-const { showModal, defrayInfo, orderAmounts, receiptRef, newCredit } =
+const { showModal, defrayInfo, prodAmounts, receiptRef, newCredit } =
   useCompletePay({
     items,
   });
@@ -122,7 +122,7 @@ const { showModal, defrayInfo, orderAmounts, receiptRef, newCredit } =
         <n-card>
           <n-space justify="space-between">
             <n-text>총 결제 금액: </n-text>
-            <n-text type="info">{{ orderAmounts.toLocaleString() }} </n-text>
+            <n-text type="info">{{ prodAmounts.toLocaleString() }} </n-text>
           </n-space>
           <n-space justify="space-between">
             <n-text>추가 미 결제금액: </n-text>

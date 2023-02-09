@@ -10,6 +10,7 @@ import {
   USER_DB,
   checkOrderShipLocate,
   validateUser,
+  newPayHistory,
 } from "@/composable";
 import {
   getIoCollection,
@@ -25,10 +26,12 @@ import { ioFireStore } from "@/plugin/firebase";
 export const ShipmentFB: ShipDB<IoOrder> = {
   approvePickUp: async function (row: IoOrder, expectedReduceCoin: number) {
     isValidOrder(row);
-    const { getOrdRef, converterGarment } = getSrc();
+    const { getOrdRef, converterGarment, getPayDocRef, getPayHistDocRef } =
+      getSrc();
     if (!row.shipManagerId) throw new Error("shipManagerId is null");
-    const userPay = await IO_PAY_DB.getIoPayByUser(row.shipManagerId);
-    if (userPay.budget < expectedReduceCoin)
+    const unclePay = await IO_PAY_DB.getIoPayByUser(row.shipManagerId);
+    const shopPay = await IO_PAY_DB.getIoPayByUser(row.shopId);
+    if (unclePay.budget < expectedReduceCoin)
       throw new Error("보유 금액이 부족합니다.");
     const ordRef = getOrdRef(row.shopId);
     const ordDocRef = doc(ordRef, row.dbId).withConverter(converterGarment);
@@ -36,14 +39,60 @@ export const ShipmentFB: ShipDB<IoOrder> = {
       // >>> read order
       const ordDoc = await t.get(ordDocRef);
       if (!ordDoc.exists()) throw new Error("order doc does not exist!");
-      const ord = ordDoc.data()!;
+      const ord = ordDoc.data();
       if (ord.items.length < 1)
         throw new Error("request order items not exist");
+      else if (ord.shopId !== row.shopId)
+        throw new Error(
+          `input shopId(${row.shopId}) not equal to order shopId(${ord.shopId})`
+        );
 
       const uncleDoc = await t.get(doc(uConverter, ord.shipManagerId));
       const shopDoc = await t.get(doc(uConverter, ord.shopId));
       const uncle = validateUser(uncleDoc.data(), ord.shipManagerId!);
       const shop = validateUser(shopDoc.data(), ord.shopId);
+      const shipPendingAmount = ord.shipAmount.pendingAmount;
+      const price = ord.pickAmount.pendingAmount + (shipPendingAmount ?? 0);
+      if (!uncle.uncleInfo) throw new Error("엉클정보가 없습니다.");
+      else if (price < shopPay.pendingBudget)
+        throw new Error(
+          `유저 보류캐쉬(${shopPay.pendingBudget})가 필요캐쉬(${price}) 보다 작습니다.`
+        );
+      console.log(
+        "before shop/uncle Pay: ",
+        JSON.parse(JSON.stringify(shopPay)),
+        JSON.parse(JSON.stringify(unclePay))
+      );
+      shopPay.pendingBudget -= price;
+      unclePay.pendingBudget += price;
+
+      t.set(
+        getPayHistDocRef(shopPay.userId),
+        newPayHistory({
+          pendingAmount: -price,
+          userId: shopPay.userId,
+          state: "APPROVE_PICKUP",
+        })
+      );
+      t.set(
+        getPayHistDocRef(unclePay.userId),
+        newPayHistory({
+          userId: unclePay.userId,
+          pendingAmount: price,
+          state: "APPROVE_PICKUP",
+        })
+      );
+
+      t.update(getPayDocRef(shopPay.userId), {
+        budget: shopPay.budget,
+        pendingBudget: shopPay.pendingBudget,
+        updatedAt: new Date(),
+      });
+      t.update(getPayDocRef(unclePay.userId), {
+        pendingBudget: unclePay.pendingBudget,
+        updatedAt: new Date(),
+      });
+      console.log("after shop/uncle Pay: ", shopPay, unclePay);
       for (let i = 0; i < ord.items.length; i++) {
         const item = ord.items[i];
         const prod = await VENDOR_GARMENT_DB.getById(
@@ -93,21 +142,21 @@ export const ShipmentFB: ShipDB<IoOrder> = {
       }
       t.update(ordDocRef, converterGarment.toFirestore(ord));
       t.update(
-        doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), userPay.userId),
+        doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), unclePay.userId),
         {
-          pendingBudget: userPay.pendingBudget + expectedReduceCoin,
-          budget: userPay.budget - expectedReduceCoin,
-          history: [
-            ...userPay.history,
-            {
-              createdAt: new Date(),
-              userId: userPay.userId,
-              amount: -expectedReduceCoin,
-              pendingAmount: +expectedReduceCoin,
-              state: "APPROVE_PICKUP",
-            } as PayHistoryCRT,
-          ],
+          pendingBudget: unclePay.pendingBudget + expectedReduceCoin,
+          budget: unclePay.budget - expectedReduceCoin,
         }
+      );
+      t.set(
+        getPayHistDocRef(unclePay.userId),
+        newPayHistory({
+          createdAt: new Date(),
+          userId: unclePay.userId,
+          amount: -expectedReduceCoin,
+          pendingAmount: +expectedReduceCoin,
+          state: "APPROVE_PICKUP_FEE",
+        })
       );
 
       return ord;

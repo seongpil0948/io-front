@@ -89,6 +89,7 @@ export interface UncleInfo {
   shipLocates: LocateAmount[];
   amountBySize: { [unit: string]: number };
   amountByWeight: { [unit: string]: number };
+  shipPendingAmount: number;
 }
 export interface ShopInfo {
   uncleUserIds: string[];

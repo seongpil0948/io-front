@@ -16,8 +16,11 @@ import { defineStore } from "pinia";
 import { ref, computed, watchEffect } from "vue";
 import { useAuthStore } from "./auth";
 import { IoUser } from "@io-boxies/js-lib";
-import { batchInQuery, ioFireStore } from "@/plugin/firebase";
-import { collectionGroup } from "@firebase/firestore";
+import {
+  batchInQuery,
+  getIoCollectionGroup,
+  ioFireStore,
+} from "@/plugin/firebase";
 
 export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   console.log(`=== called useUncleOrderStore ===`);
@@ -101,7 +104,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
       const vendorProds = await VENDOR_GARMENT_DB.listByVendorIds(vendorIds);
       const virVendorGarmentSnap = await batchInQuery<VendorGarment>(
         vendorIds,
-        collectionGroup(ioFireStore, "virtualVendorProduct"),
+        getIoCollectionGroup(ioFireStore, "VIRTUAL_VENDOR_PROD"),
         "vendorId"
       );
       const virVendorGarments = virVendorGarmentSnap.flatMap(
@@ -109,7 +112,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
       );
       const virVendorSnap = await batchInQuery<IoUser>(
         uniqueArr(virVendorGarments.map((x) => x.vendorId)),
-        collectionGroup(ioFireStore, "virtualUser"),
+        getIoCollectionGroup(ioFireStore, "VIRTUAL_USER"),
         "userInfo.userId"
       );
       const virVendors = virVendorSnap.flatMap(dataFromSnap<IoUser>);

@@ -41,7 +41,7 @@ watchEffect(async () => {
   targetShop.value = await USER_DB.getUserById(ioFireStore, ids[0]);
 });
 
-const { showModal, defrayInfo, orderAmounts, receiptRef, newCredit } =
+const { showModal, defrayInfo, prodAmounts, receiptRef, newCredit } =
   useCompletePay({
     items,
   });
@@ -107,7 +107,7 @@ async function completePay() {
         <n-card>
           <n-space justify="space-between">
             <n-text>총 결제 금액: </n-text>
-            <n-text type="info">{{ orderAmounts.toLocaleString() }} </n-text>
+            <n-text type="info">{{ prodAmounts.toLocaleString() }} </n-text>
           </n-space>
           <n-space justify="space-between">
             <n-text>추가 미 결제금액: </n-text>

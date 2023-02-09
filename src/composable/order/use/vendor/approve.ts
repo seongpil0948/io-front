@@ -9,7 +9,7 @@ import {
   VendorGarment,
   OrderItem,
   catchError,
-  PayHistoryCRT,
+  IO_PAY_DB,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
@@ -22,7 +22,7 @@ import {
 } from "naive-ui";
 import { computed, h, ref, Ref, VNode, defineAsyncComponent } from "vue";
 import { useAuthStore } from "@/store";
-import { doc, getDoc, updateDoc } from "@firebase/firestore";
+import { doc, updateDoc } from "@firebase/firestore";
 import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { ioFire, ioFireStore } from "@/plugin/firebase";
@@ -99,29 +99,24 @@ export function useApproveOrder(p: ApproveParam) {
             orderCnt: numOfAllow.value,
             update: false,
           });
+          const userPay = await IO_PAY_DB.getIoPayByUser(o.shopId);
           const docRef = doc(
             getIoCollection(ioFireStore, { c: "IO_PAY" }),
             o.shopId
           ).withConverter(IoPay.fireConverter());
-          const docSnap = await getDoc(docRef);
-          const userPay = docSnap.data();
-          if (docSnap.exists() && userPay) {
-            const cost = IO_COSTS.APPROVE_ORDER;
-            updateDoc(docRef, {
-              pendingBudget: userPay.pendingBudget + cost,
-              history: [
-                ...userPay.history,
-                {
-                  createdAt: new Date(),
-                  userId: item.vendorId,
-                  amount: 0,
-                  pendingAmount: cost,
-                  state: "ORDER_APPROVE",
-                  tbd: {},
-                },
-              ] as Partial<PayHistoryCRT>[],
-            });
-          }
+          const cost = IO_COSTS.APPROVE_ORDER;
+          await updateDoc(docRef, {
+            pendingBudget: userPay.pendingBudget + cost,
+            updatedAt: new Date(),
+          });
+          await IO_PAY_DB.addPayHistory({
+            createdAt: new Date(),
+            userId: item.vendorId,
+            amount: 0,
+            pendingAmount: cost,
+            state: "ORDER_APPROVE",
+            tbd: {},
+          });
           await ORDER_GARMENT_DB.updateOrder(o);
           ORDER_GARMENT_DB.orderApprove(p.vendorId, [o.dbId], [newId])
             .then(async () => {
@@ -435,11 +430,11 @@ export function useApproveOrder(p: ApproveParam) {
             row.items.reduce((acc, curr) => acc + curr.pendingCnt, 0),
         },
         {
-          title: "결제금액",
-          key: "orderAmount",
+          title: "상품결제금액",
+          key: "prodAmount",
           render: (row) =>
             row.items
-              .reduce((acc, curr) => acc + curr.amount.orderAmount, 0)
+              .reduce((acc, curr) => acc + curr.prodAmount.amount, 0)
               .toLocaleString(),
         },
       ] as DataTableColumns<OrderItemByShop>)

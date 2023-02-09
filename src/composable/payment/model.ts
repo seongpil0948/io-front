@@ -38,21 +38,18 @@ export class IoPay extends CommonField implements IoPayCRT {
   userId: string;
   budget: number;
   pendingBudget: number;
-  history: PayHistoryCRT[];
 
   constructor(data: IoPayCRT) {
     super(data.createdAt, data.updatedAt);
     this.userId = data.userId;
     this.budget = data.budget;
     this.pendingBudget = data.pendingBudget;
-    this.history = data.history;
   }
   static initial(userId: string) {
     return new IoPay({
       userId,
       budget: 0,
       pendingBudget: 0,
-      history: [],
     });
   }
   static toMoneyString(coin: number) {
@@ -99,3 +96,12 @@ export class IoPay extends CommonField implements IoPayCRT {
     };
   }
 }
+
+export const newPayHistory = (p: Partial<PayHistoryCRT>): PayHistoryCRT => ({
+  createdAt: p.createdAt ?? new Date(),
+  userId: p.userId!,
+  amount: p.amount ?? 0,
+  state: p.state!,
+  pendingAmount: p.pendingAmount ?? 0,
+  tbd: { ...p.tbd },
+});

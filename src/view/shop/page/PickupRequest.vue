@@ -8,7 +8,6 @@ import {
   useOrderBasic,
   catchError,
   validateUser,
-  checkOrderShipLocate,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import {
@@ -61,9 +60,6 @@ async function pickupRequest() {
     return msg.error("주문을 선택 해주세요");
   }
   validateUser(auth.currUser(), auth.currUser().userInfo.userId);
-  targetOrdItems.value.forEach((x) =>
-    checkOrderShipLocate(x, auth.currUser(), x.vendorProd, uncle)
-  );
   return reqPickupRequest({
     uncle,
     shop: auth.currUser(),

@@ -6,7 +6,7 @@ import {
   StockCntObj,
   VendorProdCrt,
   VendorGarment,
-  OrderAmount,
+  PayAmount,
   OrderItem,
   PaginateParam,
 } from "@/composable";
@@ -40,7 +40,7 @@ export interface VendorUserGarmentCombined
 export interface VendorOrderGarment extends VendorGarmentCrt, IoOrder {}
 export interface VendorUserOrderGarment
   extends VendorUserGarment,
-    Partial<OrderAmount>,
+    Partial<PayAmount>,
     Omit<Partial<OrderItem>, "prodType" | "vendorId"> {
   shopUser?: IoUser;
 }

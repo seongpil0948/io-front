@@ -11,7 +11,6 @@ import {
   useMatch,
   useContactUncle,
   catchError,
-  checkOrderShipLocate,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { ref, shallowRef, watchEffect, defineAsyncComponent, h } from "vue";
@@ -34,18 +33,12 @@ const shopOrderStore = useShopOrderStore();
 const { existOrderIds } = storeToRefs(shopOrderStore);
 const filteredOrders = shopOrderStore.getFilteredOrder(props.inStates ?? []);
 const orders = shopOrderStore.getOrders(props.inStates ?? []);
-const {
-  checkedDetailKeys,
-  tableCol,
-  tableRef,
-  targetOrdItems,
-  targetOrdDbIds,
-  targetIds,
-} = useOrderTable({
-  ioOrders: filteredOrders,
-  orders,
-  updateOrderCnt: true,
-});
+const { checkedDetailKeys, tableCol, tableRef, targetOrdDbIds, targetIds } =
+  useOrderTable({
+    ioOrders: filteredOrders,
+    orders,
+    updateOrderCnt: true,
+  });
 const { targetUncleId, contactUncleOpts, contractUncles } = useContactUncle();
 function pickupRequest() {
   const d = dialog.success({
@@ -67,10 +60,6 @@ function pickupRequest() {
       const shop = auth.currUser();
       d.loading = true;
       try {
-        targetOrdItems.value.forEach((x) =>
-          checkOrderShipLocate(x, shop, x.vendorProd, uncle)
-        );
-        console.log("targetOrdItems: ", targetOrdItems);
         return reqPickupRequest({
           uncle,
           shop,

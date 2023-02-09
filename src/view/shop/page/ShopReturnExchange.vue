@@ -8,7 +8,6 @@ import {
   useOrderTable,
   useOrderBasic,
   validateUser,
-  checkOrderShipLocate,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { uniqueArr } from "@/util";
@@ -101,25 +100,20 @@ async function returnReq() {
       })
     );
 }
-// request return  <<<
-// pickup request in return approved   >>>
+
 const u = auth.currUser();
 const { targetUncleId, contactUncleOpts, contractUncles } = useContactUncle();
 const filteredOrders = shopOrderStore.getFilteredOrder(["RETURN_APPROVED"]);
 const orders = shopOrderStore.getOrders(["RETURN_APPROVED"]);
 const ioOrdersByVendor =
   shopOrderStore.getGarmentOrdersByVendor(filteredOrders);
-const {
-  tableRef,
-  byVendorCol,
-  byVendorKeys,
-  targetOrdItemIds,
-  targetOrdItems,
-} = useOrderTable({
-  ioOrders: filteredOrders,
-  orders,
-  updateOrderCnt: true,
-});
+const { tableRef, byVendorCol, byVendorKeys, targetOrdItemIds } = useOrderTable(
+  {
+    ioOrders: filteredOrders,
+    orders,
+    updateOrderCnt: true,
+  }
+);
 
 const { reqPickupRequest } = useOrderBasic(
   u,
@@ -143,9 +137,6 @@ async function pickupRequest() {
       orderIds.push(x.dbId);
     }
   });
-  targetOrdItems.value.forEach((x) =>
-    checkOrderShipLocate(x, u, x.vendorProd, uncle)
-  );
   if (orderIds.length > 0) {
     return reqPickupRequest({
       uncle,

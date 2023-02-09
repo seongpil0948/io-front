@@ -1,12 +1,12 @@
+import { getAmount } from "@/composable";
 import { isSamePickLocate, uncleAvailShip } from "@/composable/locate";
 import { IoUser, locateToStr } from "@io-boxies/js-lib";
-import { IoOrder, OrderItem, OrderItemCombined, OrderAmount } from "../domain";
-import { getOrderAmount } from "./getter";
+import { IoOrder, OrderItem, OrderItemCombined, PayAmount } from "../domain";
 
 export function isValidOrder(o: IoOrder): void {
   if (o.pendingCnts + o.activeCnts !== o.orderCnts) {
     throw new Error("invalid count");
-  } else if (!isValidAmount(o.amount)) {
+  } else if (!isValidAmount(o.prodAmount)) {
     throw new Error("invalid amount");
   }
   o.items.forEach((item) => isValidOrderItem(item));
@@ -19,7 +19,7 @@ export function isValidOrderItem(o: OrderItem | OrderItemCombined): void {
     throw new Error("redundant order id ");
   } else if (o.pendingCnt + o.activeCnt !== o.orderCnt) {
     throw new Error("invalid count");
-  } else if (!isValidAmount(o.amount)) {
+  } else if (!isValidAmount(o.prodAmount)) {
     throw new Error("invalid amount");
   } else if (o.pendingCnt > 0 && o.vendorProd && !o.vendorProd.allowPending) {
     throw new Error("invalid allowPending");
@@ -28,11 +28,11 @@ export function isValidOrderItem(o: OrderItem | OrderItemCombined): void {
   //   throw new Error(`order item(${o.id}) orderDbId is null`);
 }
 
-export function isValidAmount(a: OrderAmount) {
+export function isValidAmount(a: PayAmount) {
   let isValid = true;
-  if (a.orderAmount < 0 || a.orderAmount < a.pureAmount) {
+  if (a.amount < 0 || a.amount < a.pureAmount) {
     isValid = false;
-  } else if (a.orderAmount !== getOrderAmount(a)) {
+  } else if (a.amount !== getAmount(a)) {
     isValid = false;
   }
 

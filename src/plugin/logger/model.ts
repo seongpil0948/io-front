@@ -6,7 +6,6 @@ import {
   orderBy,
   startAfter,
   limit,
-  collectionGroup,
   getDocs,
   query,
   where,
@@ -18,7 +17,7 @@ import { onBeforeMount, ref } from "vue";
 import { CommonField } from "@/composable/common/model";
 import { getIoCollection, IoCollection, loadDate } from "@io-boxies/js-lib";
 import { onFirestoreErr, onFirestoreCompletion } from "@/composable";
-import { ioFireStore } from "@/plugin/firebase";
+import { getIoCollectionGroup, ioFireStore } from "@/plugin/firebase";
 
 export interface IoLogCRT {
   createdAt?: Date;
@@ -120,7 +119,9 @@ export function useReadLogger(param: ReadLogParam) {
     }
     constraints.push(limit(param.limit));
     return query(
-      collectionGroup(ioFireStore, "logs").withConverter(ioLogConverter),
+      getIoCollectionGroup(ioFireStore, "USER_LOG").withConverter(
+        ioLogConverter
+      ),
       ...constraints
     );
   }

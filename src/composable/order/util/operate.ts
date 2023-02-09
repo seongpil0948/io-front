@@ -1,26 +1,11 @@
-import { PAY_METHOD } from "@/composable";
 import { PAID_INFO } from "@/composable/common";
-import { ioFire } from "@/plugin/firebase";
-import { logEvent, getAnalytics } from "@firebase/analytics";
 import { uuidv4 } from "@firebase/util";
 import { uniqueArr } from "@io-boxies/js-lib";
 import cloneDeep from "lodash.clonedeep";
-import { refreshOrder } from ".";
+import { getAmount, getPureAmount, refreshOrder } from ".";
 import { ORDER_GARMENT_DB } from "../db";
-import {
-  IoOrder,
-  OrderAmount,
-  OrderItem,
-  OrderItemCombined,
-  ORDER_STATE,
-} from "../domain";
-import {
-  getPendingCnt,
-  getActiveCnt,
-  getPureAmount,
-  getOrderAmount,
-  getOrderItems,
-} from "./getter";
+import { IoOrder, OrderItem, OrderItemCombined, ORDER_STATE } from "../domain";
+import { getPendingCnt, getActiveCnt, getOrderItems } from "./getter";
 import { isValidOrderItem, isValidOrder } from "./validate";
 
 export function setOrderCnt(d: {
@@ -63,9 +48,9 @@ export function setItemCnt(
   item.activeCnt = getActiveCnt(orderCnt, item.pendingCnt);
   // 4. set prod order amount
   const pureAmount = getPureAmount(orderCnt, item.vendorProd.vendorPrice);
-  item.amount.paid = paid;
-  item.amount.pureAmount = pureAmount;
-  item.amount.orderAmount = getOrderAmount(item.amount);
+  item.prodAmount.paid = paid;
+  item.prodAmount.pureAmount = pureAmount;
+  item.prodAmount.amount = getAmount(item.prodAmount);
   try {
     isValidOrderItem(item);
   } catch (e) {
@@ -108,7 +93,7 @@ export async function dividePartial(d: {
     orderItemId: id,
     orderCnt: d.orderCnt,
     add: false,
-    paid: item.amount.paid,
+    paid: item.prodAmount.paid,
   });
   const newOrder: OrderItemCombined = (
     d.order.items as OrderItemCombined[]
@@ -118,7 +103,7 @@ export async function dividePartial(d: {
     orderItemId: item.id,
     orderCnt: item.orderCnt - newOrder.orderCnt,
     add: false,
-    paid: item.amount.paid,
+    paid: item.prodAmount.paid,
   });
 
   if (item.orderCnt < 1) {
@@ -133,48 +118,24 @@ export async function dividePartial(d: {
   }
 
   d.order.itemIds.push(newOrder.id);
+  refreshOrder(d.order);
   if (d.update) {
     await ORDER_GARMENT_DB.updateOrder(d.order);
   }
   return newOrder.id;
 }
 
-export async function deleteItem(d: { order: IoOrder; itemId: string }) {
+export function deleteItem(d: { order: IoOrder; itemId: string }) {
   const idx = d.order.items.findIndex((x) => x.id === d.itemId);
   if (idx === -1)
     throw new Error(`order(${d.order.dbId}) not has item(${d.itemId})`);
+  const deletedItem = cloneDeep(d.order.items[idx]);
   d.order.items.splice(idx, 1);
-  if (d.order.items.length > 0) {
-    refreshOrder(d.order);
-    await ORDER_GARMENT_DB.updateOrder(d.order);
-  } else {
-    await ORDER_GARMENT_DB.deleteOrder(d.order);
-  }
-  logEvent(getAnalytics(ioFire.app), "order_delete", {
-    len: 1,
-  });
-}
-
-export interface DefrayParam {
-  paidAmount: number;
-  tax: number;
-  payMethod: PAY_METHOD;
-}
-export function defrayAmount(target: OrderAmount, d: DefrayParam) {
-  const t = cloneDeep(target);
-  t.tax = d.tax;
-  t.orderAmount = getOrderAmount(t);
-  t.paidAt = new Date();
-  t.paidAmount = d.paidAmount;
-  t.paymentConfirm = true;
-  t.paymentMethod = d.payMethod;
-  const creditAmount = t.orderAmount - t.paidAmount;
-  if (t.orderAmount === t.paidAmount) {
-    t.paid = "EXACT";
-  } else if (t.orderAmount > t.paidAmount) {
-    t.paid = "CREDIT";
-  } else if (t.orderAmount < t.paidAmount) {
-    t.paid = "OVERCOME";
-  }
-  return { newAmount: t, creditAmount };
+  return deletedItem;
+  // if (d.order.items.length > 0) {
+  //   refreshOrder(d.order);
+  //   await ORDER_GARMENT_DB.updateOrder(d.order);
+  // } else {
+  //   await ORDER_GARMENT_DB.deleteOrder(d.order);
+  // }
 }

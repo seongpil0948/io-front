@@ -20,7 +20,7 @@ export function useCompletePay(param: CompleteParam) {
       if (prev.length !== orderItems.length) {
         defrayInfo.value = orderItems.reduce((acc, curr) => {
           acc[curr.id] = {
-            paidAmount: curr.amount.orderAmount,
+            paidAmount: curr.prodAmount.amount,
             payMethod: "CASH",
             tax: 0,
           };
@@ -31,14 +31,14 @@ export function useCompletePay(param: CompleteParam) {
     { deep: true }
   );
 
-  const orderAmounts = computed(() =>
-    items.value.reduce((acc, curr) => acc + curr.amount.orderAmount, 0)
+  const prodAmounts = computed(() =>
+    items.value.reduce((acc, curr) => acc + curr.prodAmount.amount, 0)
   );
 
   const newCredit = computed(
     () =>
-      orderAmounts.value -
-      items.value.reduce((acc, curr) => acc + curr.amount.paidAmount, 0)
+      prodAmounts.value -
+      items.value.reduce((acc, curr) => acc + curr.prodAmount.paidAmount, 0)
   );
   const receiptRef = ref<typeof ReceiptCard | null>(null);
   function onPrint() {
@@ -49,7 +49,7 @@ export function useCompletePay(param: CompleteParam) {
   return {
     showModal,
     defrayInfo,
-    orderAmounts,
+    prodAmounts,
     receiptRef,
     onPrint,
     newCredit,

@@ -12,19 +12,18 @@ import {
 import { PAY_METHOD } from "@/composable/payment";
 import { PAID_INFO } from "@/composable/common/domain";
 
-export interface OrderAmount {
-  shipFeeAmount: number;
-  shipFeeDiscountAmount: number;
-  pickFeeAmount: number;
-  pickFeeDiscountAmount: number;
-  tax: number; // 주문건 생성시부과하여 지불되야할 금액 orderAmount 에 더해진다
+export interface PayAmount {
+  tax: number; // 주문건 생성시부과하여 지불되야할 금액 amount 에 더해진다
   paidAmount: number; // 지불된 금액
   paid: PAID_INFO; // 지불여부
   pureAmount: number; // 순수 상품 금액 (로그용)
-  orderAmount: number; // 주문 요청 금액
+  amount: number; // 주문 요청 금액
   paymentConfirm: boolean;
   paymentMethod?: PAY_METHOD;
   paidAt?: Date;
+  discountAmount: number;
+  pendingAmount: number;
+  isPending: boolean; // 보류 금액으로 채워진 상태인지.
 }
 
 export interface IoOrder extends CommonField {
@@ -37,6 +36,7 @@ export interface IoOrder extends CommonField {
   DoneAt?: Date;
 
   isDone?: boolean;
+  isDirectToShip: boolean; // direct to uncle
   dbId: string;
   shopId: string;
 
@@ -54,9 +54,12 @@ export interface IoOrder extends CommonField {
   states: ORDER_STATE[];
   cancellations: OrderCancel[];
   prodTypes: PROD_TYPE[];
-  paids: PAID_INFO[];
+  paids: PAID_INFO[]; // product paid
   orderTypes: ORDER_TYPE[];
-  amount: OrderAmount; // 결제완료(completePay)이후 건들면 안댐
+  // 결제완료(completePay)이후 건들면 안댐
+  prodAmount: PayAmount;
+  shipAmount: PayAmount;
+  pickAmount: PayAmount;
 }
 
 export interface OrderItem {
@@ -75,7 +78,7 @@ export interface OrderItem {
   orderDbId?: string;
   orderType: ORDER_TYPE;
   prodType: PROD_TYPE;
-  amount: OrderAmount;
+  prodAmount: PayAmount;
   cancellation?: OrderCancel;
   shipManagerId?: string; // 엉클 매니저 아이디
 }
@@ -299,8 +302,10 @@ export interface OrderDB<T> {
   reqPickup(
     orderDbIds: string[],
     orderItemIds: string[],
-    uncleId: string
-  ): Promise<void>;
+    uncleId: string,
+    shopId: string,
+    isDirect: boolean
+  ): Promise<IoOrder>;
   returnReq(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
   returnApprove(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
   returnReject(orderDbIds: string[], orderItemIds: string[]): Promise<void>;

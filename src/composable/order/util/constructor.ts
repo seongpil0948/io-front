@@ -1,4 +1,11 @@
-import { PAY_METHOD } from "@/composable";
+import {
+  PAY_METHOD,
+  getAmount,
+  getPureAmount,
+  newPayAmount,
+  mergeAmount,
+  refreshAmount,
+} from "@/composable";
 import { PAID_INFO } from "@/composable/common";
 import { VendorGarmentCrt, ShopGarmentCrt } from "@/composable/product";
 import { fireConverter } from "@/util/firebase";
@@ -10,10 +17,8 @@ import {
   OrderItem,
   OrderItemCombined,
   IoOrder,
-  OrderAmount,
   DONE_STATES,
 } from "../domain";
-import { getPureAmount, getOrderAmount } from "./getter";
 import { isValidOrder } from "./validate";
 
 export const orderFireConverter = fireConverter<IoOrder>();
@@ -52,11 +57,11 @@ export function newOrdItem(d: {
     orderDbId: d.orderDbId,
     orderType: d.orderType ?? "STANDARD",
     prodType: d.vendorProd.prodType,
-    amount: {
+    prodAmount: newPayAmount({
       pureAmount,
-      orderAmount: getOrderAmount(Object.assign(d, { pureAmount })),
+      amount: getAmount(Object.assign(d, { pureAmount })),
       ...d,
-    },
+    }),
   };
 }
 
@@ -69,7 +74,7 @@ export function newOrdFromItem(
   return order;
 }
 
-export function refreshOrder(o: IoOrder) {
+export function refreshOrder(o: IoOrder, mergeAmounts = true) {
   o.itemIds = [];
   o.orderIds = [];
   o.vendorIds = [];
@@ -91,20 +96,25 @@ export function refreshOrder(o: IoOrder) {
     if (!o.orderTypes.includes(item.orderType))
       o.orderTypes.push(item.orderType);
     if (!o.prodTypes.includes(item.prodType)) o.prodTypes.push(item.prodType);
-    if (!o.paids.includes(item.amount.paid)) o.paids.push(item.amount.paid);
+    if (!o.paids.includes(item.prodAmount.paid))
+      o.paids.push(item.prodAmount.paid);
 
     if (item.cancellation) o.cancellations.push(item.cancellation);
 
     if (item.shipmentId && !o.shipmentIds.includes(item.shipmentId))
       o.shipmentIds.push(item.shipmentId);
     o.itemIds.push(item.id);
-
     o.orderCnts += item.orderCnt;
     o.activeCnts += item.activeCnt;
     o.pendingCnts += item.pendingCnt;
-    mergeOrderAmount(o.amount, item.amount);
+    refreshAmount(item.prodAmount);
+    // #REMARK
+    if (mergeAmounts) mergeAmount(o.prodAmount, item.prodAmount);
   }
   o.isDone = o.states.every((state) => DONE_STATES.includes(state));
+  refreshAmount(o.pickAmount);
+  refreshAmount(o.prodAmount);
+  refreshAmount(o.shipAmount);
   isValidOrder(o);
 }
 export function mergeOrderItem(origin: Partial<OrderItem>, y: OrderItem) {
@@ -115,37 +125,13 @@ export function mergeOrderItem(origin: Partial<OrderItem>, y: OrderItem) {
   origin.pendingCnt = origin.pendingCnt
     ? origin.pendingCnt + y.pendingCnt
     : y.pendingCnt;
-  if (!origin.amount) origin.amount = emptyAmount();
-  mergeOrderAmount(origin.amount, y.amount);
-}
-export function mergeOrderAmount(origin: OrderAmount, y: OrderAmount) {
-  origin.shipFeeAmount += y.shipFeeAmount;
-  origin.shipFeeDiscountAmount += y.shipFeeDiscountAmount;
-  origin.pickFeeAmount += y.pickFeeAmount;
-  origin.pickFeeDiscountAmount += y.pickFeeDiscountAmount;
-  origin.tax += y.tax;
-  origin.paidAmount += y.paidAmount;
-  origin.paid = y.paid;
-  origin.pureAmount += y.pureAmount;
-  origin.orderAmount += y.orderAmount;
+  if (!origin.prodAmount) origin.prodAmount = newPayAmount({});
+  mergeAmount(origin.prodAmount!, y.prodAmount);
 }
 
-export function emptyAmount(): OrderAmount {
-  return {
-    shipFeeAmount: 0,
-    shipFeeDiscountAmount: 0,
-    pickFeeAmount: 0,
-    pickFeeDiscountAmount: 0,
-    tax: 0,
-    paidAmount: 0,
-    paid: PAID_INFO.NO,
-    pureAmount: 0,
-    orderAmount: 0,
-    paymentConfirm: false,
-  };
-}
 function emptyOrder(shopId: string): IoOrder {
   const currDate = new Date();
+  const amount = newPayAmount({});
   return {
     createdAt: currDate,
     updatedAt: currDate,
@@ -165,6 +151,9 @@ function emptyOrder(shopId: string): IoOrder {
     orderCnts: 0,
     activeCnts: 0,
     pendingCnts: 0,
-    amount: emptyAmount(),
+    prodAmount: amount,
+    shipAmount: amount,
+    pickAmount: amount,
+    isDirectToShip: false,
   };
 }

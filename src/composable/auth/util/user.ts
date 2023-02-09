@@ -11,11 +11,9 @@ import {
   commonToJson,
   dateToTimeStamp,
   IoFireApp,
-  IoUser,
   IoUserInfo,
   loadDate,
   SHIP_METHOD,
-  UncleInfo,
   USER_DB,
   USER_PROVIDER,
   USER_ROLE,
@@ -24,6 +22,7 @@ import { ioFireStore } from "@/plugin/firebase";
 import { newProdQuantityOpt, saleAvgOpt } from "@/util";
 import { uuidv4 } from "@firebase/util";
 import { DEFAULT_PROFILE_IMG } from "@/constants";
+import { IoUser, UncleInfo } from "@/composable";
 
 export const getUserLocate = (u: IoUser) => {
   if (!u.companyInfo || u.companyInfo.locations.length < 1) return null;
@@ -51,7 +50,8 @@ export function availUncleAdvertise(u: IoUser) {
     i.pickupLocates.length > 0 &&
     i.shipLocates.length > 0 &&
     Object.keys(i.amountBySize).length > 0 &&
-    Object.keys(i.amountByWeight).length > 0
+    Object.keys(i.amountByWeight).length > 0 &&
+    i.shipPendingAmount > 0
   );
 }
 
@@ -134,6 +134,7 @@ export const uncleInfoEmpty = (): UncleInfo => ({
   shipLocates: [],
   amountBySize: {},
   amountByWeight: {},
+  shipPendingAmount: 0,
 });
 
 export async function userUpdate(user: IoUser, login = true) {

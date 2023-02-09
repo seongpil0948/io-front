@@ -3,16 +3,54 @@
 import { useAuthStore } from "@/store";
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
+import { USER_DB, useCommon, catchError } from "@/composable";
+import { ioFireStore } from "@/plugin/firebase";
+import { parseCurrencyStr, formatCurrency } from "@/util";
 
 const currTab = ref<string>("SHIP_AREA");
+const { msg, makeMsgOpt } = useCommon();
 const authStore = useAuthStore();
 const { user: u } = storeToRefs(authStore);
+async function updatePendingAmount() {
+  if (u.value && u.value.uncleInfo) {
+    return USER_DB.updateUser(ioFireStore, u.value)
+      .then(() => {
+        msg.success("업데이트 성공!", makeMsgOpt());
+        authStore.setUser(u.value!);
+      })
+      .catch((err) =>
+        catchError({
+          err,
+          msg,
+          prefix: "업데이트 실패",
+        })
+      );
+  }
+  msg.error("유저 업데이트 실패", makeMsgOpt());
+}
 </script>
 <template>
-  <n-card>
+  <n-card title="활동지역 관리">
     <n-space item-style="width: 100%">
-      <n-h1>활동지역 관리</n-h1>
       <n-tabs v-model:value="currTab">
+        <n-tab-pane display-directive="show:lazy" tab="공통 설정" name="COMMON">
+          <n-space vertical align="start" style="min-height: 300px">
+            <ship-pending-amount-tooltip type="info" />
+            <n-space v-if="u && u.uncleInfo">
+              <n-input-number
+                v-model:value="u.uncleInfo.shipPendingAmount"
+                :min="1000"
+                :show-button="false"
+                :parse="parseCurrencyStr"
+                :format="formatCurrency"
+                placeholder="기본배송보류금액"
+              >
+                <template #suffix> 원 </template>
+              </n-input-number>
+              <n-button @click="updatePendingAmount"> 수정 </n-button>
+            </n-space>
+          </n-space>
+        </n-tab-pane>
         <n-tab-pane
           display-directive="show:lazy"
           tab="배송 지역 설정"

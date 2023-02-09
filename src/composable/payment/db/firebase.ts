@@ -6,10 +6,9 @@ import {
   onSnapshot,
   setDoc,
 } from "@firebase/firestore";
-import { getIoCollection, IoCollection } from "@io-boxies/js-lib";
 import { ref } from "vue";
-import { PaymentDB, IoPay } from "..";
-import { ioFireStore } from "@/plugin/firebase";
+import { PaymentDB, IoPay, PayHistoryCRT } from "..";
+import { ioFireStore, getIoCollection, IoCollection } from "@/plugin/firebase";
 
 export const IopayFB: PaymentDB = {
   getIoPayByUserListen: function (uid: string) {
@@ -55,6 +54,12 @@ export const IopayFB: PaymentDB = {
     const docRef = getDocRef(uid);
     const docData = await getDoc(docRef);
     return await getPayFromDoc(docData, uid);
+  },
+  addPayHistory: async function (h: PayHistoryCRT) {
+    const docRef = doc(
+      getIoCollection(ioFireStore, { c: "PAY_HISTORY", uid: h.userId })
+    );
+    return setDoc(docRef, h);
   },
 };
 

@@ -80,6 +80,7 @@ export interface PaymentDB {
     unsubscribe: () => void;
   };
   getIoPaysListen(): { usersPay: Ref<IoPay[]>; unsubscribe: () => void };
+  addPayHistory(h: PayHistoryCRT): Promise<void>;
 }
 
 export interface IoPayCRT {
@@ -88,7 +89,6 @@ export interface IoPayCRT {
   userId: string;
   budget: number;
   pendingBudget: number;
-  history: PayHistoryCRT[];
 }
 export type PAY_HIST_STATE =
   | "CHARGE"
@@ -96,9 +96,14 @@ export type PAY_HIST_STATE =
   | "USE"
   | "ADMIN_MODIFY"
   | "APPROVE_PICKUP"
+  | "APPROVE_PICKUP_FEE"
   | "ORDER_GARMENT"
+  | "ORDER_GARMENT_FEE"
   | "ORDER_APPROVE"
-  | "ORDER_REJECT";
+  | "ORDER_APPROVE_FEE"
+  | "ORDER_REJECT"
+  | "REQUEST_PICKUP"
+  | "ORDER_DONE";
 
 export const PAY_HIST_STATE: { [key in PAY_HIST_STATE]: string } = {
   CHARGE: "충전",
@@ -106,9 +111,14 @@ export const PAY_HIST_STATE: { [key in PAY_HIST_STATE]: string } = {
   USE: "사용",
   ADMIN_MODIFY: "관리자수정",
   ORDER_GARMENT: "도매처주문",
+  ORDER_GARMENT_FEE: "도매처주문이용료",
   ORDER_APPROVE: "도매처주문승인",
+  ORDER_APPROVE_FEE: "도매처주문승인이용료",
   ORDER_REJECT: "도매처주문거절",
   APPROVE_PICKUP: "픽업승인",
+  APPROVE_PICKUP_FEE: "픽업승인이용료",
+  REQUEST_PICKUP: "픽업요청",
+  ORDER_DONE: "주문완료",
 };
 
 export interface PayHistoryCRT {

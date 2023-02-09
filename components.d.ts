@@ -155,6 +155,8 @@ declare module '@vue/runtime-core' {
     ShipAreaTable: typeof import('./src/component/table/uncle/ShipAreaTable.vue')['default']
     ShipHistory: typeof import('./src/view/uncle/page/ShipHistory.vue')['default']
     ShipmentTable: typeof import('./src/component/table/uncle/ShipmentTable.vue')['default']
+    ShipPendingAmountTooltip: typeof import('./src/component/tooltip/ShipPendingAmountTooltip.vue')['default']
+    ShipPendingAmountToolTip: typeof import('./src/component/tooltip/ShipPendingAmountToolTip.vue')['default']
     ShipUnitList: typeof import('./src/component/card/uncle/ShipUnitList.vue')['default']
     ShopAddOrderTable: typeof import('./src/component/table/ShopAddOrderTable.vue')['default']
     ShopAddProdCard: typeof import('./src/component/card/shop/ShopAddProdCard.vue')['default']

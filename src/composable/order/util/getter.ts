@@ -1,8 +1,5 @@
 import { IoOrder, OrderItem } from "../domain";
 
-export const getPureAmount = (orderCnt: number, prodPrice: number) =>
-  orderCnt * prodPrice;
-
 export const getPendingCnt = (
   stockCnt: number,
   orderCnt: number,
@@ -15,19 +12,6 @@ export function getActiveCnt(orderCnt: number, pendingCnt: number) {
   else if (orderCnt - pendingCnt < 0) throw new Error("invalid cnt");
   return orderCnt - pendingCnt;
 }
-
-export const getOrderAmount = (a: {
-  pureAmount: number;
-  shipFeeAmount: number;
-  shipFeeDiscountAmount: number;
-  pickFeeAmount: number;
-  pickFeeDiscountAmount: number;
-  tax: number;
-}) =>
-  a.pureAmount +
-  (a.shipFeeAmount - a.shipFeeDiscountAmount) +
-  (a.pickFeeAmount - a.pickFeeDiscountAmount) +
-  a.tax;
 
 export function getOrderItems(d: {
   order: IoOrder;

@@ -1,23 +1,11 @@
-import { ref, computed, watch } from "vue";
+import { ref, computed } from "vue";
 import { useAuthStore } from "@/store";
-import { IoUser, USER_DB, getUserName } from "@io-boxies/js-lib";
-import { ioFireStore } from "@/plugin/firebase";
-
+import { getUserName } from "@io-boxies/js-lib";
+import { storeToRefs } from "pinia";
 export function useContactUncle() {
   const auth = useAuthStore();
-  const u = auth.currUser();
+  const { contractUncles } = storeToRefs(auth);
   const targetUncleId = ref<string | null>(null);
-  const contractUncles = ref<IoUser[]>([]);
-
-  watch(
-    () => u.shopInfo?.uncleUserIds,
-    async function (ids, prev) {
-      console.log("uncleUserIds: ", u, ids);
-      if (!ids || ids === prev) return;
-      contractUncles.value = await USER_DB.getUserByIds(ioFireStore, ids);
-    },
-    { immediate: true, deep: true }
-  );
 
   const contactUncleOpts = computed(() =>
     contractUncles.value.map((x) => {

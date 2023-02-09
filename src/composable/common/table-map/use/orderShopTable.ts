@@ -36,7 +36,7 @@ export function useOrderTable(d: orderTableParam) {
     "vendorProd.userInfo.displayName",
     "orderCnt",
     "vendorProd.vendorPrice",
-    "amount.orderAmount",
+    "prodAmount.amount",
     "shopProd.size",
     "shopProd.color",
   ].map((c) => {
@@ -76,7 +76,7 @@ export function useOrderTable(d: orderTableParam) {
           {
             default: () =>
               row.items
-                .reduce((acc, curr) => acc + curr.amount.orderAmount, 0)
+                .reduce((acc, curr) => acc + curr.prodAmount.amount, 0)
                 .toLocaleString(),
           }
         ),

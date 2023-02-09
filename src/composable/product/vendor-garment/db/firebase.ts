@@ -1,5 +1,4 @@
 import {
-  collectionGroup,
   getDoc,
   getDocs,
   increment,
@@ -42,7 +41,7 @@ import {
 import { ref } from "vue";
 import { VendorProdSame, VendorUserGarment } from "../domain";
 import { CollectionReference } from "firebase/firestore";
-import { ioFireStore } from "@/plugin/firebase";
+import { getIoCollectionGroup, ioFireStore } from "@/plugin/firebase";
 
 export const VendorGarmentFB: VendorGarmentDB = {
   incrementStockCnt: async function (cnt: number, vendorProdId: string) {
@@ -168,7 +167,7 @@ export const VendorGarmentFB: VendorGarmentDB = {
     const docSnap = await getDoc(doc(vendorProdC, vendorProdId));
     if (!docSnap.exists()) {
       const virtualVendorProdQ = query(
-        collectionGroup(ioFireStore, "virtualVendorProduct").withConverter(
+        getIoCollectionGroup(ioFireStore, "VIRTUAL_VENDOR_PROD").withConverter(
           VendorGarment.fireConverter()
         ),
         where("vendorProdId", "==", vendorProdId)
