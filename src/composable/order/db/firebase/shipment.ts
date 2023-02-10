@@ -11,6 +11,8 @@ import {
   checkOrderShipLocate,
   validateUser,
   newPayHistory,
+  defrayAmount,
+  refreshOrder,
 } from "@/composable";
 import {
   getIoCollection,
@@ -26,7 +28,7 @@ import { ioFireStore } from "@/plugin/firebase";
 export const ShipmentFB: ShipDB<IoOrder> = {
   approvePickUp: async function (row: IoOrder, expectedReduceCoin: number) {
     isValidOrder(row);
-    const { getOrdRef, converterGarment, getPayDocRef, getPayHistDocRef } =
+    const { getOrdRef, orderFireConverter, getPayDocRef, getPayHistDocRef } =
       getSrc();
     if (!row.shipManagerId) throw new Error("shipManagerId is null");
     const unclePay = await IO_PAY_DB.getIoPayByUser(row.shipManagerId);
@@ -34,7 +36,7 @@ export const ShipmentFB: ShipDB<IoOrder> = {
     if (unclePay.budget < expectedReduceCoin)
       throw new Error("보유 금액이 부족합니다.");
     const ordRef = getOrdRef(row.shopId);
-    const ordDocRef = doc(ordRef, row.dbId).withConverter(converterGarment);
+    const ordDocRef = doc(ordRef, row.dbId).withConverter(orderFireConverter);
     return runTransaction(ioFireStore, async (t) => {
       // >>> read order
       const ordDoc = await t.get(ordDocRef);
@@ -52,12 +54,32 @@ export const ShipmentFB: ShipDB<IoOrder> = {
       const uncle = validateUser(uncleDoc.data(), ord.shipManagerId!);
       const shop = validateUser(shopDoc.data(), ord.shopId);
       const shipPendingAmount = ord.shipAmount.pendingAmount;
-      const price = ord.pickAmount.pendingAmount + (shipPendingAmount ?? 0);
+      let price = ord.pickAmount.pendingAmount + (shipPendingAmount ?? 0);
+      if (ord.isDirectToShip) {
+        // 대납가격이 포함되어 있기 때문에
+        price -= ord.prodAmount.amount;
+        ord.items.forEach((item) => {
+          const { newAmount } = defrayAmount(
+            item.prodAmount,
+            { paidAmount: item.prodAmount.amount },
+            false
+          );
+          item.prodAmount = newAmount;
+        });
+
+        if (price < 0) throw new Error("invalid process amount");
+      }
       if (!uncle.uncleInfo) throw new Error("엉클정보가 없습니다.");
-      else if (price < shopPay.pendingBudget)
+      else if (shopPay.pendingBudget < price)
         throw new Error(
           `유저 보류캐쉬(${shopPay.pendingBudget})가 필요캐쉬(${price}) 보다 작습니다.`
         );
+      const { newAmount } = defrayAmount(
+        ord.pickAmount,
+        { paidAmount: ord.pickAmount.amount },
+        false
+      );
+      ord.pickAmount = newAmount;
       console.log(
         "before shop/uncle Pay: ",
         JSON.parse(JSON.stringify(shopPay)),
@@ -140,7 +162,8 @@ export const ShipmentFB: ShipDB<IoOrder> = {
         // setState(ord, item.id, "BEFORE_ASSIGN_PICKUP");
         setState(ord, item.id, "BEFORE_ASSIGN_PICKUP");
       }
-      t.update(ordDocRef, converterGarment.toFirestore(ord));
+      refreshOrder(ord);
+      t.set(ordDocRef, ord);
       t.update(
         doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), unclePay.userId),
         {

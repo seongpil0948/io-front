@@ -9,10 +9,10 @@ import {
   QueryConstraint,
   runTransaction,
   where,
-  WithFieldValue,
   writeBatch,
   deleteDoc,
   increment,
+  setDoc,
 } from "@firebase/firestore";
 import { Ref } from "vue";
 import {
@@ -189,7 +189,6 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         );
       }
       console.info("pick price: ", pickPrice, "agg info: ", cnt);
-
       cOrder.pickAmount = newPayAmount({
         pureAmount: pickPrice,
       });
@@ -234,7 +233,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       });
 
       cOrder.shipManagerId = uncleId;
-      refreshOrder(cOrder, false);
+      refreshOrder(cOrder);
       t.set(doc(getOrdRef(shopId), cOrder.dbId), cOrder);
 
       // >>> furbish combined items >>>
@@ -311,8 +310,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
 
     let vendorId: string | null = null;
     await runTransaction(ioFireStore, async (transaction) => {
-      const { getOrdRef, converterGarment, getPayDocRef, getPayHistDocRef } =
-        getSrc();
+      const { getOrdRef, getPayDocRef, getPayHistDocRef } = getSrc();
       // 2. update order state, reduce shop coin
       for (let i = 0; i < orders.length; i++) {
         const o = orders[i];
@@ -324,10 +322,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
             (item.state === "BEFORE_APPROVE" || item.state === "BEFORE_PAYMENT")
           ) {
             setState(o, item.id, "BEFORE_ORDER");
-            transaction.update(
-              doc(getOrdRef(o.shopId), o.dbId),
-              converterGarment.toFirestore(o)
-            );
+            transaction.set(doc(getOrdRef(o.shopId), o.dbId), o);
             processedShops[o.shopId] += 1;
           }
         }
@@ -370,8 +365,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       return acc;
     }, {} as { [shopId: string]: number });
     await runTransaction(ioFireStore, async (transaction) => {
-      const { getOrdRef, converterGarment, getPayDocRef, getPayHistDocRef } =
-        getSrc();
+      const { getOrdRef, getPayDocRef, getPayHistDocRef } = getSrc();
       // 1. vendor pay
       const vendorPay = await IO_PAY_DB.getIoPayByUser(vendorId);
       const vReduceCoin = shopIds.length * IO_COSTS.APPROVE_ORDER;
@@ -401,10 +395,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
             item.state === "BEFORE_APPROVE"
           ) {
             setState(o, item.id, "BEFORE_PAYMENT");
-            transaction.update(
-              doc(getOrdRef(o.shopId), o.dbId),
-              converterGarment.toFirestore(o)
-            );
+            transaction.set(doc(getOrdRef(o.shopId), o.dbId), o);
             processedShops[o.shopId] += 1;
           }
         }
@@ -444,7 +435,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     orderItemIds: string[],
     shopId: string
   ) {
-    const { getOrdRef, converterGarment, getPayDocRef, getPayHistDocRef } =
+    const { getOrdRef, orderFireConverter, getPayDocRef, getPayHistDocRef } =
       getSrc();
     const constraints = [where("dbId", "in", orderDbIds)];
     const orders = await getOrders(constraints);
@@ -459,7 +450,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         isValidOrder(order);
         const ordRef = getOrdRef(order.shopId);
         const ordDocRef = doc(ordRef, order.dbId).withConverter(
-          converterGarment
+          orderFireConverter
         );
         const ordDoc = await transaction.get(ordDocRef);
         if (!ordDoc.exists()) throw new Error("order doc does not exist!");
@@ -500,10 +491,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
 
       for (let k = 0; k < newOrds.length; k++) {
         const newOrd = newOrds[k];
-        transaction.update(
-          doc(getOrdRef(newOrd.shopId), newOrd.dbId),
-          converterGarment.toFirestore(newOrd)
-        );
+        transaction.set(doc(getOrdRef(newOrd.shopId), newOrd.dbId), newOrd);
       }
       transaction.update(getPayDocRef(userPay.userId), {
         pendingBudget: userPay.pendingBudget + reduceCoin,
@@ -525,7 +513,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
   },
   batchCreate: async function (uid: string, orders: IoOrder[]) {
     return await runTransaction(ioFireStore, async (transaction) => {
-      const { getOrdRef, getOrderNumberRef, converterGarment } = getSrc();
+      const { getOrdRef, getOrderNumberRef } = getSrc();
       const ordRef = getOrdRef(uid);
       const ordNumRef = getOrderNumberRef(uid);
       const ordIds = await this.getExistOrderIds(uid);
@@ -576,19 +564,11 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
             }
           }
           if (exist) {
-            transaction.update(
-              doc(ordRef, exist.dbId),
-              converterGarment.toFirestore(exist)
-            );
+            transaction.set(doc(ordRef, exist.dbId), exist);
           }
         }
         if (order.items.length > 0) {
-          transaction.set<IoOrder | null>(
-            doc(ordRef, order.dbId),
-            converterGarment.toFirestore(
-              order
-            ) as WithFieldValue<IoOrder | null>
-          );
+          transaction.set<IoOrder | null>(doc(ordRef, order.dbId), order);
           existOrders.push(order);
         }
         order.orderIds.forEach((oid) =>
@@ -799,7 +779,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     orderDbIds: string[],
     orderItemIds: string[]
   ): Promise<void> {
-    const { getOrdRef, converterGarment } = getSrc();
+    const { getOrdRef } = getSrc();
     const data: { [shopId: string]: ORDER_STATE } = {};
     await runTransaction(ioFireStore, async (transaction) => {
       const orders = await OrderGarmentFB.batchRead(orderDbIds);
@@ -810,10 +790,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
           if (orderItemIds.includes(item.id)) {
             const state = item.beforeState ?? "BEFORE_PICKUP";
             setState(o, item.id, state);
-            transaction.update(
-              doc(getOrdRef(o.shopId), o.dbId),
-              converterGarment.toFirestore(o)
-            );
+            transaction.set(doc(getOrdRef(o.shopId), o.dbId), o);
             data[o.shopId] = state;
           }
         }
@@ -846,7 +823,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       return i!;
     };
 
-    const { getOrdRef, converterGarment } = getSrc();
+    const { getOrdRef } = getSrc();
     const order = await OrderGarmentFB.readById(shopId, orderDbId);
     if (!order) throw new Error("주문 데이터 정보가 없습니다.");
     const item = validate(
@@ -865,10 +842,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         setState(order, i.id, "CANCEL");
       }
       refreshOrder(order);
-      await updateDoc(
-        doc(getOrdRef(order.shopId), order.dbId),
-        converterGarment.toFirestore(order)
-      );
+      await setDoc(doc(getOrdRef(order.shopId), order.dbId), order);
       mergeSameOrders("CANCEL", "shopId");
     };
 
@@ -944,13 +918,12 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
 };
 
 export function getSrc() {
-  const converterGarment = orderFireConverter;
   const batch = writeBatch(ioFireStore);
   const getOrdRef = (shopId: string) =>
     getIoCollection(ioFireStore, {
       c: IoCollection.ORDER_PROD,
       uid: shopId,
-    }).withConverter(converterGarment);
+    }).withConverter(orderFireConverter);
   const getOrderNumberRef = (shopId: string) =>
     getIoCollection(ioFireStore, {
       c: IoCollection.ORDER_PROD_NUMBER,
@@ -971,7 +944,7 @@ export function getSrc() {
     batch,
     getOrdRef,
     getOrderNumberRef,
-    converterGarment,
+    orderFireConverter,
     getUserDocRef,
     getPayDocRef,
     getPayHistDocRef,
@@ -987,7 +960,7 @@ async function stateModify(d: {
 }) {
   const orders = await OrderGarmentFB.batchRead(d.orderDbIds);
 
-  const { getOrdRef, converterGarment } = getSrc();
+  const { getOrdRef } = getSrc();
   const shopIds: string[] = [];
   await runTransaction(ioFireStore, async (transaction) => {
     for (let i = 0; i < orders.length; i++) {
@@ -1016,10 +989,7 @@ async function stateModify(d: {
         setState(o, item.id, d.afterState);
       }
       refreshOrder(o);
-      transaction.set(
-        doc(getOrdRef(o.shopId), o.dbId),
-        converterGarment.toFirestore(o)
-      );
+      transaction.set(doc(getOrdRef(o.shopId), o.dbId), o);
     }
   });
   await Promise.all(shopIds.map((x) => mergeSameOrders(d.afterState, x)));
@@ -1027,7 +997,7 @@ async function stateModify(d: {
 
 async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
   return await runTransaction(ioFireStore, async (transaction) => {
-    const { getOrdRef, converterGarment } = getSrc();
+    const { getOrdRef } = getSrc();
     const ordRef = getOrdRef(shopId);
     const orders: IoOrder[] = await getOrders([
       where("shopId", "==", shopId),
@@ -1073,16 +1043,10 @@ async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
                 exist.itemIds = uniqueArr([...order.itemIds, ...exist.itemIds]);
                 transaction.delete(doc(ordRef, order.dbId));
               } else {
-                transaction.update(
-                  doc(ordRef, order.dbId),
-                  orderFireConverter.toFirestore(order)
-                );
+                transaction.set(doc(ordRef, order.dbId), order);
               }
               if (exist) {
-                transaction.update(
-                  doc(ordRef, exist.dbId),
-                  converterGarment.toFirestore(exist)
-                );
+                transaction.set(doc(ordRef, exist.dbId), exist);
               }
               break;
             }

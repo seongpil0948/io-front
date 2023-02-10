@@ -53,8 +53,10 @@ export function defrayAmount(
     t.isPending = true;
   } else {
     t.paidAmount = d.paidAmount ?? t.amount;
-    t.pendingAmount -= t.paidAmount;
-    t.isPending = t.pendingAmount > 0;
+    if (t.pendingAmount > 0 || t.isPending) {
+      t.pendingAmount -= t.paidAmount;
+      t.isPending = t.pendingAmount > 0;
+    }
   }
   t.paidAt = new Date();
   t.paymentConfirm = true;
@@ -70,6 +72,11 @@ export function mergeAmount(origin: PayAmount, y: PayAmount) {
   origin.paid = y.paid;
   origin.pureAmount += y.pureAmount;
   origin.amount += y.amount;
+  origin.paymentConfirm = origin.paymentConfirm && y.paymentConfirm;
+  origin.paymentMethod = y.paymentMethod ?? origin.paymentMethod;
+  origin.discountAmount += y.discountAmount;
+  origin.pendingAmount += y.pendingAmount;
+  origin.isPending = origin.isPending && y.isPending;
 }
 
 export function refreshAmount(t: PayAmount) {

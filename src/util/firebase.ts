@@ -30,6 +30,7 @@ export function handleReadSnap<T>(
   return arr;
 }
 
+// No Save with toFirestore directly (date will saved as timestamp object)
 export const fireConverter = <T>() => ({
   toFirestore: (data: WithFieldValue<T>) => commonToJson(data),
   fromFirestore: (snap: QueryDocumentSnapshot) =>

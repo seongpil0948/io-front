@@ -149,10 +149,14 @@ export const pickReqDetailCols = computed(() => {
       render: (row) =>
         row.orderType === "RETURN"
           ? row.shopProd.companyInfo && row.shopProd.companyInfo.shipLocate
-            ? row.shopProd.companyInfo.shipLocate.detailLocate
+            ? row.shopProd.companyInfo.shipLocate.detailLocate +
+              " " +
+              row.shopProd.companyInfo.shipLocate.alias
             : null
           : row.vendorProd.companyInfo && row.vendorProd.companyInfo.shipLocate
-          ? row.vendorProd.companyInfo.shipLocate.detailLocate
+          ? row.vendorProd.companyInfo.shipLocate.detailLocate +
+            " " +
+            row.vendorProd.companyInfo.shipLocate.alias
           : null,
     },
     {

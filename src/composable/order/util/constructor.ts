@@ -74,7 +74,7 @@ export function newOrdFromItem(
   return order;
 }
 
-export function refreshOrder(o: IoOrder, mergeAmounts = true) {
+export function refreshOrder(o: IoOrder) {
   o.itemIds = [];
   o.orderIds = [];
   o.vendorIds = [];
@@ -84,6 +84,7 @@ export function refreshOrder(o: IoOrder, mergeAmounts = true) {
   o.orderCnts = 0;
   o.activeCnts = 0;
   o.pendingCnts = 0;
+  o.prodAmount = newPayAmount({});
   for (let i = 0; i < o.items.length; i++) {
     const item = o.items[i];
     item.orderDbId = o.dbId;
@@ -108,8 +109,7 @@ export function refreshOrder(o: IoOrder, mergeAmounts = true) {
     o.activeCnts += item.activeCnt;
     o.pendingCnts += item.pendingCnt;
     refreshAmount(item.prodAmount);
-    // #REMARK
-    if (mergeAmounts) mergeAmount(o.prodAmount, item.prodAmount);
+    mergeAmount(o.prodAmount, item.prodAmount);
   }
   o.isDone = o.states.every((state) => DONE_STATES.includes(state));
   refreshAmount(o.pickAmount);
