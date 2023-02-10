@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { useUncleWorkers } from "@/composable";
+import { useUncleOrderStore } from "@/store";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
 import { computed, ref, toRefs, watchEffect } from "vue";
-
+import { storeToRefs } from "pinia";
 const props = defineProps<{
   openModal: boolean;
 }>();
 const { openModal } = toRefs(props);
 const msg = useMessage();
-const { workers } = useUncleWorkers();
+const uncleStore = useUncleOrderStore();
+const { workers } = storeToRefs(uncleStore);
 const emits = defineEmits<{
   (e: "worker:selected", value: IoUser): void;
   (e: "update:openModal", value: boolean): void;

@@ -1,4 +1,3 @@
-import { useUncleWorkers } from "@/composable/auth";
 import { useAuthStore, useUncleOrderStore } from "@/store";
 import {
   getUserName,
@@ -20,6 +19,7 @@ import { ref, computed, watchEffect, h, watch } from "vue";
 import { ORDER_STATE, ShipOrder, ShipOrderByShop } from "../domain";
 import { IoShipment } from "../model";
 import { ioFireStore } from "@/plugin/firebase";
+import { storeToRefs } from "pinia";
 
 export function useShipmentUncle(inStates: ORDER_STATE[]) {
   const auth = useAuthStore();
@@ -29,7 +29,7 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
   const ioOrders = ordStore.getFilteredOrder(inStates);
   const ioOrdersByShop = ordStore.getGarmentOrdersByShop(ioOrders);
   const orderShips = ref<ShipOrder[]>([]);
-  const { imageById, workers } = useUncleWorkers();
+  const { imageById, workers } = storeToRefs(ordStore);
 
   const checkedKeys = ref<DataTableRowKey[]>([]);
   function onCheckRow(keys: DataTableRowKey[]) {

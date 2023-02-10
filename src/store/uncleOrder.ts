@@ -9,24 +9,30 @@ import {
   OrderItemByShop,
   VENDOR_GARMENT_DB,
   VendorGarment,
+  userFireConverter,
+  onFirestoreCompletion,
+  onFirestoreErr,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { Unsubscribe } from "@firebase/util";
 import { defineStore } from "pinia";
 import { ref, computed, watchEffect } from "vue";
 import { useAuthStore } from "./auth";
-import { IoUser } from "@io-boxies/js-lib";
+import { IoUser, usersFromSnap } from "@io-boxies/js-lib";
 import {
   batchInQuery,
+  getIoCollection,
   getIoCollectionGroup,
   ioFireStore,
 } from "@/plugin/firebase";
+import { onSnapshot, query, where } from "@firebase/firestore";
 
 export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
   console.log(`=== called useUncleOrderStore ===`);
   const authStore = useAuthStore();
   const inStates = ref<ORDER_STATE[]>([]);
   const uncleId = ref<string | null>(null);
+  // >>> order logic >>>
   const _orders = ref<IoOrder[]>([]);
   let orderUnSub: null | Unsubscribe = null;
   const shopProds = ref<ShopUserGarment[]>([]);
@@ -130,7 +136,35 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
       ]);
     }
   });
+  // <<< order logic <<< >>> workers >>>
+  const workers = ref<IoUser[]>([]);
 
+  const imageById = computed(() =>
+    workers.value.reduce((acc, curr) => {
+      acc[curr.userInfo.userId] = curr.userInfo.profileImg ?? "/img/x.png";
+      return acc;
+    }, {} as { [uid: string]: string })
+  );
+  const c = getIoCollection(ioFireStore, {
+    c: "USER",
+  }).withConverter(userFireConverter);
+  const name = "uncleWorkers snapshot";
+  const unsubscribeWorkers = onSnapshot(
+    query(
+      c,
+      where("userInfo.role", "==", "UNCLE_WORKER"),
+      where("userInfo.managerId", "==", authStore.currUser().userInfo.userId)
+    ),
+    (snapshot) => {
+      workers.value = usersFromSnap(snapshot);
+    },
+    async (err) => {
+      await onFirestoreErr(name, err);
+      throw err;
+    },
+    () => onFirestoreCompletion(name)
+  );
+  // <<< workers <<<
   const unsubscribeAuth = authStore.$onAction(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ({ name, store, args, after, onError }) => {
@@ -177,6 +211,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
       orderUnSub();
       orderUnSub = null;
     }
+    unsubscribeWorkers();
     shopProds.value = [];
     inStates.value = [];
     uncleId.value = null;
@@ -194,5 +229,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
     getOrdersByShop,
     shopProds,
     _ioOrders,
+    workers,
+    imageById,
   };
 });

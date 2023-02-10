@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { useUncleWorkers } from "@/composable";
 import { inWork } from "@io-boxies/js-lib";
 import { ref, watch } from "vue";
+import { storeToRefs } from "pinia";
+import { useUncleOrderStore } from "@/store";
 
 const rightCollapsed = ref(false);
 const width = 320;
-const { workers } = useUncleWorkers();
+const uncleStore = useUncleOrderStore();
+const { workers } = storeToRefs(uncleStore);
 const statusCnts = ref({
   inWork: 0,
   leave: 0,

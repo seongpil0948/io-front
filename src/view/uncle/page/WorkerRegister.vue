@@ -18,11 +18,13 @@ import {
 import { getCurrentInstance, ref } from "vue";
 import { useLogger } from "vue-logger-plugin";
 import { ioFireStore } from "@/plugin/firebase";
+import { useRouter } from "vue-router";
 
 const auth = useAuthStore();
 const msg = useMessage();
 const inst = getCurrentInstance();
 const log = useLogger();
+const router = useRouter();
 const name = ref("");
 const userId = ref<string | null>(null);
 const displayName = ref<string | null>(null);
@@ -32,6 +34,7 @@ const pw = ref<string | null>(null);
 const profileImg = ref(null);
 const account = ref<IoAccount | null>(null);
 const workerInfo = ref<WorkerInfo | null>(null);
+
 function onSubmitAccount(acc: IoAccount) {
   account.value = acc;
   msg.info("계좌정보 저장 완료!");
@@ -147,53 +150,63 @@ async function onSignUp() {
     await setWorkerId(auth.currUser(), userId.value!);
     msg.success("가입 완료! 사장님 믿고 있었다구!", makeMsgOpt());
     authed.value = false;
+    router.push({ name: "WorkerHistory" });
   }
 }
 const width = "35vw";
 </script>
 <template>
-  <n-h1>근로자 신규 등록</n-h1>
-  <n-space vertical align="start">
-    <n-space :style="`width: ${width}`">
-      <n-button type="primary" @click="onKakaoAuth"> Kakao 인증 </n-button>
-      <n-button type="primary" @click="onGoogleAuth"> Google 인증 </n-button>
-      <n-button type="primary" @click="onEmailAuth"> 이메일 인증 </n-button>
-      <n-checkbox :checked="authed" />
+  <n-card hoverable segmented title="근로자 신규 등록">
+    <n-space vertical align="start" item-style="width: 90%">
+      <n-space :style="`width: ${width}`">
+        <n-button :disabled="authed" type="primary" @click="onKakaoAuth">
+          Kakao 인증
+        </n-button>
+        <n-button :disabled="authed" type="primary" @click="onGoogleAuth">
+          Google 인증
+        </n-button>
+        <n-button :disabled="authed" type="primary" @click="onEmailAuth">
+          이메일 인증
+        </n-button>
+        <n-checkbox :checked="authed" />
+      </n-space>
+      <n-input
+        v-model:value="email"
+        :style="`width: ${width}`"
+        placeholder="이메일 입력"
+      />
+      <n-input
+        v-model:value="pw"
+        :style="`width: ${width}`"
+        placeholder="비밀번호 입력"
+      />
+      <n-input
+        v-model:value="displayName"
+        :style="`width: ${width}`"
+        placeholder="실명입력"
+      >
+        <template #prefix>
+          <n-gradient-text type="info"> 이름 </n-gradient-text>
+        </template>
+      </n-input>
+      <n-input
+        v-model:value="phone"
+        :style="`width: ${width}`"
+        placeholder="휴대전화번호"
+      >
+        <template #prefix>
+          <n-gradient-text type="info"> 연락처 </n-gradient-text>
+        </template>
+      </n-input>
+      <bank-account-form @submit:account="onSubmitAccount" />
+      <n-checkbox :checked="account !== null"> 계좌 제출여부 </n-checkbox>
+      <worker-info-form @submit:worker-info="onSubmitWorker" />
+      <n-checkbox :checked="workerInfo !== null">
+        근로자정보 제출여부
+      </n-checkbox>
+      <n-button :style="`width: ${width}`" @click="onSignUp">
+        가입하기
+      </n-button>
     </n-space>
-    <n-input
-      v-model:value="email"
-      :style="`width: ${width}`"
-      placeholder="이메일 입력"
-    />
-    <n-input
-      v-model:value="pw"
-      :style="`width: ${width}`"
-      placeholder="비밀번호 입력"
-    />
-    <n-input
-      v-model:value="displayName"
-      :style="`width: ${width}`"
-      placeholder="실명입력"
-    >
-      <template #prefix>
-        <n-gradient-text type="info"> 이름 </n-gradient-text>
-      </template>
-    </n-input>
-    <n-input
-      v-model:value="phone"
-      :style="`width: ${width}`"
-      placeholder="휴대전화번호"
-    >
-      <template #prefix>
-        <n-gradient-text type="info"> 연락처 </n-gradient-text>
-      </template>
-    </n-input>
-    <bank-account-form @submit:account="onSubmitAccount" />
-    <n-checkbox :checked="account !== null"> 계좌 제출여부 </n-checkbox>
-    <worker-info-form @submit:worker-info="onSubmitWorker" />
-    <n-checkbox :checked="workerInfo !== null">
-      근로자정보 제출여부
-    </n-checkbox>
-    <n-button :style="`width: ${width}`" @click="onSignUp"> 가입하기 </n-button>
-  </n-space>
+  </n-card>
 </template>
