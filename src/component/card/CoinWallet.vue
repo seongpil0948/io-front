@@ -211,8 +211,9 @@ async function reqEncashment() {
             </n-button>
           </template>
           <template #header> 보류 금액이란? </template>
-          샘플요청등의 사유로 담보중인 금액 으로서 샘플반납등의 담보해제 사건을
-          조건으로 정상 금액 으로의 이전이 가능합니다.
+          아직 완료되지 않은 주문건 혹은 샘플출고가 되었을 경우 보류금액이<br />
+          발생됩니다. 주문 완료처리가 될 경우 샘플 결제가 될경우 출금 가능
+          금액으로 변경 됩니다.
         </n-tooltip>
         <n-text strong> 보류 금액 : </n-text>
       </div>

@@ -33,7 +33,11 @@ async function updatePendingAmount() {
   <n-card title="활동지역 관리">
     <n-space item-style="width: 100%">
       <n-tabs v-model:value="currTab">
-        <n-tab-pane display-directive="show:lazy" tab="공통 설정" name="COMMON">
+        <n-tab-pane
+          display-directive="show:lazy"
+          tab="보류금액 설정"
+          name="COMMON"
+        >
           <n-space vertical align="start" style="min-height: 300px">
             <ship-pending-amount-tooltip type="info" />
             <n-space v-if="u && u.uncleInfo">
@@ -72,11 +76,11 @@ async function updatePendingAmount() {
         >
           <n-space justify="center">
             <n-space vertical>
-              <n-h2>사이즈별 비용</n-h2>
+              <n-h2>부피별 비용</n-h2>
               <ship-unit-list :u="u" :edit="true" unit-key="amountBySize" />
             </n-space>
             <n-space vertical>
-              <n-h2>중량별 비용</n-h2>
+              <n-h2>무게별 비용</n-h2>
               <ship-unit-list :u="u" :edit="true" unit-key="amountByWeight" />
             </n-space>
           </n-space>

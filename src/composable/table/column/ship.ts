@@ -68,21 +68,21 @@ export function useShipAreaCols() {
   const msg = useMessage();
   const shipAreaCols: DataTableColumns<LocateAmount> = [
     {
-      title: "도",
+      title: "도/시",
       key: "locate.city",
       sorter(rowA, rowB) {
         return rowA.locate.city!.length - rowB.locate.city!.length;
       },
     },
     {
-      title: "시",
+      title: "군/구",
       key: "locate.county",
       sorter(rowA, rowB) {
         return rowA.locate.county!.length - rowB.locate.county!.length;
       },
     },
     {
-      title: "군/구",
+      title: "읍/면/동",
       key: "locate.town",
       sorter: "default",
       filter: true,

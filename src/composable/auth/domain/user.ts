@@ -27,8 +27,8 @@ const USER_PROVIDER: { [key in string]: USER_PROVIDER } = Object.freeze({
 });
 type SHIP_METHOD = "UNCLE" | "SHIP" | "NO_SHIP";
 const SHIP_METHOD: { [key in SHIP_METHOD]: string } = Object.freeze({
-  UNCLE: "사입삼춘",
-  SHIP: "당택/일반택배/퀵",
+  UNCLE: "사입삼촌",
+  SHIP: "당택/택배/퀵",
   NO_SHIP: "직접사입",
 });
 type SALE_MANAGE = "HAND_WRITE" | "ONLINE";

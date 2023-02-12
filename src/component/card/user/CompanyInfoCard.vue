@@ -14,7 +14,7 @@ const emits = defineEmits<{
   <n-card>
     <n-space vertical style="width: 100%">
       <div class="io-row">
-        <n-text strong> 업체명 </n-text>
+        <n-text strong> 상호명 </n-text>
         <n-text>{{ user.companyInfo!.companyName }}</n-text>
       </div>
       <div class="io-row">

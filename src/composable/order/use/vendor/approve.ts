@@ -213,9 +213,7 @@ export function useApproveOrder(p: ApproveParam) {
         await smtp.sendAlarm({
           toUserIds: shopIds,
           subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${getUserName(
-            auth.currUser()
-          )} 에서 주문 요청을 승인하였습니다. `,
+          body: `${getUserName(auth.currUser())} 에서 주문이 승인 되었습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
           sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
@@ -263,7 +261,7 @@ export function useApproveOrder(p: ApproveParam) {
           subject: `inoutbox 주문 처리내역 알림.`,
           body: `${getUserName(
             auth.currUser()
-          )} 에서 주문 요청을 거절 하였습니다. `,
+          )} 에서 주문 요청을 거절 되었습니다. `,
           notiLoadUri: "/",
           uriArgs: {},
           sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
@@ -408,29 +406,29 @@ export function useApproveOrder(p: ApproveParam) {
     cols.push(
       ...([
         {
-          title: "거래처명",
+          title: "거래처 명",
           key: "name",
           render: (row) => row.shopName,
         },
         {
-          title: "품목수량",
+          title: "품목 수량",
           key: "age",
           render: (row) => row.items.length,
         },
         {
-          title: "주문수량",
+          title: "주문 수량",
           key: "orderCnt",
           render: (row) =>
             row.items.reduce((acc, curr) => acc + curr.orderCnt, 0),
         },
         {
-          title: "미송개수",
+          title: "미송 수량",
           key: "pendingCnt",
           render: (row) =>
             row.items.reduce((acc, curr) => acc + curr.pendingCnt, 0),
         },
         {
-          title: "상품결제금액",
+          title: "결제금액",
           key: "prodAmount",
           render: (row) =>
             row.items

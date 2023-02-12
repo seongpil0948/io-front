@@ -5,11 +5,11 @@ import {
   defaultCompanyInfo,
   defaultShopOper,
   defaultVendorOper,
+  IoUser,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { deadOpt, shipMethodOpt } from "@/util";
 import {
-  IoUser,
   VendorOperInfo,
   SALE_MANAGE,
   ShopOperInfo,
@@ -110,7 +110,7 @@ async function onClickProfile() {
     <n-collapse-item title="사업자정보" name="1">
       <n-space v-if="authModel.companyInfo" vertical style="width: 100%">
         <div class="io-row">
-          <n-text strong> 업체명 </n-text>
+          <n-text strong> 상호명 </n-text>
           <n-text>{{ authModel.companyInfo.companyName }}</n-text>
         </div>
         <div class="io-row">

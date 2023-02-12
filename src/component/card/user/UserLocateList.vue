@@ -37,9 +37,9 @@ function setShipAddr(l: Locate) {
   //   await user.update();
 }
 const locateKey = [
-  ["도", "city"],
-  ["시", "county"],
-  ["군/구", "town"],
+  ["도/시", "city"],
+  ["군/구", "county"],
+  ["읍/면/동", "town"],
   ["우편번호", "postalCode"],
   ["상세주소", "detailLocate"],
   ["성", "firstName"],

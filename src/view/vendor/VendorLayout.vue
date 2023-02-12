@@ -51,7 +51,7 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(ShoppingCart),
     children: [
       {
-        label: () => renderRoute("거래처 요청 주문", "BeforeApproveList"),
+        label: () => renderRoute("거래처 주문 요청", "BeforeApproveList"),
         key: "BeforeApproveList",
       },
       {
@@ -91,12 +91,12 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(News16Regular),
   },
   {
-    label: () => renderRoute("포장리스트", "PackingList"),
+    label: () => renderRoute("출고리스트", "PackingList"),
     key: "PackingList",
     icon: renderIcon(ShoppingBag20Filled),
   },
   {
-    label: () => renderRoute("매장/포스 관리", "BuildingPosMng"),
+    label: () => renderRoute("포스 관리", "BuildingPosMng"),
     key: "BuildingPosMng",
     icon: renderIcon(CashRegister),
   },

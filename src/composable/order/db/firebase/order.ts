@@ -178,6 +178,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         const vendorIds: string[] = Object.keys(curr[1].byVendor);
         return acc + priceByBuild * vendorIds.length;
       }, 0);
+      // FIXME APP 데이터로 봤을때 적용이 안되는 것 같다 paidAt 이런것들 업데이트 확인 요망
       const goDefray = (amount: PayAmount) => {
         const { newAmount } = defrayAmount(amount, {}, true);
         return newAmount;

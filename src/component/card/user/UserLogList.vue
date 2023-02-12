@@ -65,7 +65,7 @@ const infoLogRef = getLogs(infoLogs);
         </n-tooltip>
       </div>
     </n-tab-pane>
-    <n-tab-pane name="error" tab="에러로그">
+    <n-tab-pane name="error" tab="에러내역">
       <div
         v-for="(txt, idx) in errorLogRef"
         :key="idx"

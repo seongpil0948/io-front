@@ -308,8 +308,8 @@ const operOpts = [
             </template>
           </n-button>
         </template>
-        선택 주문완료처리는 쇼핑몰 내부적으로 주문을 완료 처리 합니다. <br />
-        저장된 주문번호는 재수집 되지 않으므로 주의해서 사용 해주세용.
+        선택 주문완료 처리가 되면 주문번호는 다시 수집되지 않습니다! <br />
+        완료 처리할 주문번호를 신중히 확인해주세요.
       </n-tooltip>
     </template>
 
@@ -354,7 +354,7 @@ const operOpts = [
           전체보기
         </n-button>
         <n-button v-else @click="() => switchFilter(true)">
-          매칭실패만보기
+          매칭실패만 보기
         </n-button>
       </n-space>
       <n-data-table
@@ -371,7 +371,7 @@ const operOpts = [
       />
       <template #action>
         <n-space justify="end">
-          <n-button @click="onSaveMatch"> 주문데이터로 넘기기 </n-button>
+          <n-button @click="onSaveMatch"> 주문데이터 넘기기 </n-button>
         </n-space>
       </template>
     </n-card>

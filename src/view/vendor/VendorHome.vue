@@ -9,7 +9,7 @@ const currTab = ref<string>("BEFORE_APPROVE");
       <n-tabs v-model:value="currTab">
         <n-tab-pane
           display-directive="show:lazy"
-          tab="거래처 주문 요청"
+          tab="주문 요청"
           name="BEFORE_APPROVE"
         >
           <order-by-shop-expand-table :in-states="['BEFORE_APPROVE']" />
@@ -32,7 +32,7 @@ const currTab = ref<string>("BEFORE_APPROVE");
       <n-grid-item>
         <n-card class="button-card">
           <template #header>
-            <n-text>요청주문수</n-text>
+            <n-text>주문요청수</n-text>
           </template>
           <template #header-extra>
             <n-text>{{ getCurrDate() }}</n-text>
