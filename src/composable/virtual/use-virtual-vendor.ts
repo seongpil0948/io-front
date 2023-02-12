@@ -2,7 +2,7 @@ import { onFirestoreCompletion, onFirestoreErr } from "@/composable";
 import { getIoCollection, IoUser } from "@io-boxies/js-lib";
 import { handleReadSnap, fireConverter } from "@/util";
 import { onSnapshot } from "@firebase/firestore";
-import { onBeforeUnmount, ref, watchEffect, shallowRef } from "vue";
+import { ref, watchEffect, shallowRef } from "vue";
 import { ioFireStore } from "@/plugin/firebase";
 
 export function useVirtualVendor(uid: string) {
@@ -39,7 +39,6 @@ export function useVirtualVendor(uid: string) {
     },
     () => onFirestoreCompletion(name)
   );
-  onBeforeUnmount(() => unsubscribeVirtual());
 
   return {
     virVendorC,

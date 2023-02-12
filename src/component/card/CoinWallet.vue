@@ -197,7 +197,7 @@ async function reqEncashment() {
     <n-h2>In-Coin 월렛</n-h2>
     <n-space justify="space-between">
       <n-text strong> 금액 보유량 : </n-text>
-      <n-text type="info"> {{ userPay.budget }} 원 </n-text>
+      <n-text type="info"> {{ userPay.budget.toLocaleString() }} 원 </n-text>
     </n-space>
     <n-divider />
     <n-space justify="space-between">

@@ -48,7 +48,11 @@ export const useShopProdStore = defineStore("ShopProdStore", () => {
       uid,
       c: "VIRTUAL_VENDOR_PROD",
     }).withConverter(VendorGarment.fireConverter());
-  const { virtualVendors, virtualVendorById } = useVirtualVendor(uid);
+  const {
+    virtualVendors,
+    virtualVendorById,
+    unsubscribeVirtual: unsubscribeVVendor,
+  } = useVirtualVendor(uid);
   const virVendorProds = ref<VendorGarment[]>([]);
   const unsubscribeVirtual = onSnapshot(
     query(virVendorProdC(), orderBy("createdAt", "desc")),
@@ -160,6 +164,7 @@ export const useShopProdStore = defineStore("ShopProdStore", () => {
       shopGarmentUnSub = null;
     }
     unsubscribeVirtual();
+    unsubscribeVVendor();
     unsubscribeShopProd();
     unsubscribe();
   }

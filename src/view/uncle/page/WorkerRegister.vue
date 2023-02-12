@@ -10,7 +10,6 @@ import {
   NButton,
   NCheckbox,
   NGradientText,
-  NH1,
   NInput,
   NSpace,
   useMessage,

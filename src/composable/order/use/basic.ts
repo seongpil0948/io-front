@@ -192,36 +192,32 @@ export function useOrderBasic(
     direct: boolean;
   }) {
     p.uncle.uncleInfo?.pickupLocates;
-    return new Promise((resolve) => {
-      if (p.orderDbIds.size < 1 || p.orderItemIds.size < 1) {
-        return msg.error("주문을 선택 해주세요");
-      }
-      validateUser(p.shop, p.shop.userInfo.userId);
-      ORDER_GARMENT_DB.reqPickup(
-        [...p.orderDbIds],
-        [...p.orderItemIds],
-        p.uncle.userInfo.userId,
-        p.shop.userInfo.userId,
-        p.direct
-      ).then(async (result) => {
-        msg.success("픽업 요청 성공!");
-        console.log("result of request pickup: ", result);
-        let evt = "order_pickup_request";
-        if (p.direct) evt += "_directed";
-        logEvent(getAnalytics(ioFire.app), evt, {
-          len: p.orderItemIds.size,
-        });
-        resolve("");
-        smtp.sendAlarm({
-          toUserIds: [p.uncle.userInfo.userId],
-          subject: `inoutbox 주문 처리내역 알림.`,
-          body: `${getUserName(p.shop)} 으로부터 픽업요청이 도착하였습니다. `,
-          notiLoadUri: "/",
-          uriArgs: {},
-          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
-          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
-        });
-      });
+    if (p.orderDbIds.size < 1 || p.orderItemIds.size < 1) {
+      return msg.error("주문을 선택 해주세요");
+    }
+    validateUser(p.shop, p.shop.userInfo.userId);
+    const result = await ORDER_GARMENT_DB.reqPickup(
+      [...p.orderDbIds],
+      [...p.orderItemIds],
+      p.uncle.userInfo.userId,
+      p.shop.userInfo.userId,
+      p.direct
+    );
+    msg.success("픽업 요청 성공!");
+    console.log("result of request pickup: ", result);
+    let evt = "order_pickup_request";
+    if (p.direct) evt += "_directed";
+    logEvent(getAnalytics(ioFire.app), evt, {
+      len: p.orderItemIds.size,
+    });
+    smtp.sendAlarm({
+      toUserIds: [p.uncle.userInfo.userId],
+      subject: `inoutbox 주문 처리내역 알림.`,
+      body: `${getUserName(p.shop)} 으로부터 픽업요청이 도착하였습니다. `,
+      notiLoadUri: "/",
+      uriArgs: {},
+      sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+      pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
     });
   }
   return {

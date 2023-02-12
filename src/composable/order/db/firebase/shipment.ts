@@ -6,7 +6,6 @@ import {
   isValidOrder,
   setState,
   VENDOR_GARMENT_DB,
-  PayHistoryCRT,
   USER_DB,
   checkOrderShipLocate,
   validateUser,

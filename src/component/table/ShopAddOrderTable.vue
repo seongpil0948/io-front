@@ -59,24 +59,22 @@ function pickupRequest() {
       if (!uncle) return msg.error("엉클을 선택 해주세요");
       const shop = auth.currUser();
       d.loading = true;
-      try {
-        return reqPickupRequest({
-          uncle,
-          shop,
-          orderDbIds: targetOrdDbIds.value,
-          orderItemIds: targetIds.value,
-          direct: true,
-        });
-      } catch (err) {
-        catchError({
-          prefix: "픽업 요청 실패.",
-          err,
-          msg,
-          uid: shop.userInfo.userId,
-        });
-      } finally {
-        d.loading = false;
-      }
+      return reqPickupRequest({
+        uncle,
+        shop,
+        orderDbIds: targetOrdDbIds.value,
+        orderItemIds: targetIds.value,
+        direct: true,
+      })
+        .catch((err) =>
+          catchError({
+            prefix: "픽업 요청 실패.",
+            err,
+            msg,
+            uid: shop.userInfo.userId,
+          })
+        )
+        .finally(() => (d.loading = false));
     },
   });
 }

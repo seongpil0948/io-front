@@ -14,6 +14,10 @@ import {
 } from "@firebase/firestore";
 import { commonToJson } from "@io-boxies/js-lib";
 import { ioFireStore } from "@/plugin/firebase";
+export interface ShipDoneInfo {
+  photos: string[];
+  memo: string;
+}
 export class IoShipment extends CommonField {
   shippingId: string;
   orderDbId: string;
@@ -36,6 +40,7 @@ export class IoShipment extends CommonField {
   receiveAddress: Locate;
   wishedDeliveryTime: Date;
   managerId: string; // 엉클관리자 아이디
+  doneInfo?: ShipDoneInfo;
   constructor(d: {
     [k in keyof Omit<
       IoShipment,
@@ -69,6 +74,7 @@ export class IoShipment extends CommonField {
     this.receiveAddress = d.receiveAddress;
     this.wishedDeliveryTime = d.wishedDeliveryTime;
     this.managerId = d.managerId;
+    this.doneInfo = d.doneInfo;
   }
   get pickAmount() {
     if (
