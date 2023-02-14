@@ -7,6 +7,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithCustomToken,
+  signInWithEmailAndPassword,
 } from "@firebase/auth";
 import {
   getUserName,
@@ -105,12 +106,20 @@ export function useSignup() {
           e.password
         );
         afterSignup({ credential });
-      } catch (e: any) {
-        if (e && typeof e.code === "string") {
-          if (e.code.includes("email-already-in-use"))
-            msg.error("이미 존재하는 이메일 입니다.", makeMsgOpt());
+      } catch (err1: any) {
+        if (err1 && typeof err1.code === "string") {
+          if (err1.code.includes("email-already-in-use")) {
+            return signInWithEmailAndPassword(auth, e.email, e.password)
+              .then((credential) => {
+                return afterSignup({ credential });
+              })
+              .catch((err2) => {
+                msg.error("이미 존재하는 이메일 입니다.", makeMsgOpt());
+                throw err2;
+              });
+          }
         }
-        throw e;
+        throw err1;
       }
     });
   }
