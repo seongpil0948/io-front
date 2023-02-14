@@ -1,4 +1,4 @@
-import { VENDOR_GARMENT_DB } from "@/composable";
+import { VENDOR_GARMENT_DB, IoUser } from "@/composable";
 import { OrderItem } from "@/composable/order";
 import {
   USER_DB,
@@ -7,7 +7,6 @@ import {
   dataFromSnap,
   getIoCollection,
   IoCollection,
-  IoUser,
 } from "@io-boxies/js-lib";
 import { where, QueryConstraint } from "firebase/firestore";
 import { StockCntObj } from "../shop-garment";
@@ -84,15 +83,15 @@ export async function vendorUserProdFromOrders(
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     const sp = item.shopProd;
-    if (!sp.visible || sp.visible === "GLOBAL") {
+    const virVendor = virtualVendors.find(
+      (v) => sp.vendorId === v.userInfo.userId
+    );
+    if (virVendor) {
+      // sp.visible === "ME";
+      vendorProds.push(Object.assign({}, item.vendorProd, virVendor));
+    } else {
+      // !sp.visible || sp.visible === "GLOBAL"
       vendorProdIds.push(item.vendorProd.vendorProdId);
-    } else if (sp.visible === "ME") {
-      const vendor = virtualVendors.find(
-        (v) => sp.vendorId === v.userInfo.userId
-      );
-      if (vendor) {
-        vendorProds.push(Object.assign({}, item.vendorProd, vendor));
-      }
     }
   }
 

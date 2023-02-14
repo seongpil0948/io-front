@@ -3,14 +3,12 @@ import {
   getPickReqCols,
   pickReqDetailCols,
   OrderItemByShop,
-  OrderItemCombined,
   SHIPMENT_DB,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ShipOrder,
   useShipmentUncle,
   catchError,
 } from "@/composable";
-import { IO_COSTS } from "@/constants";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
 import { NButton, useMessage } from "naive-ui";
@@ -22,7 +20,6 @@ const {
   orders,
   checkedKeys,
   ioOrdersByShop,
-  ioOrders,
   onCheckDetailRow,
   onCheckRow,
   checkedDetailKeys,
@@ -33,29 +30,17 @@ function onClickDetail(data: OrderItemByShop) {
   selectedData.value = data;
 }
 
-const showApprovePickup = ref(false);
-const orderTargets = ref<OrderItemCombined[]>([]);
-function updateReqOrderShow(val: boolean) {
-  if (!val) orderTargets.value = [];
-  showApprovePickup.value = val;
-}
 const msg = useMessage();
 const auth = useAuthStore();
-const expectedReduceCoin = computed(
-  () => IO_COSTS.APPROVE_PICKUP * orderTargets.value.length
-);
 const u = auth.currUser();
 
 async function onReqOrderConfirm() {
-  approveLoading.value = true;
   // orderItemIds
-  const ids = orderTargets.value.map((x) => x.id);
+  const ids = [...targetIds.value];
   const targetOrd = orders.value.filter((y) =>
     y.items.some((item) => ids.includes(item.id))
   );
-  return Promise.all(
-    targetOrd.map((t) => SHIPMENT_DB.approvePickUp(t, expectedReduceCoin.value))
-  )
+  return Promise.all(targetOrd.map((t) => SHIPMENT_DB.approvePickUp(t)))
     .then(async () => {
       msg.success("픽업 승인완료.", makeMsgOpt());
       selectedData.value = null;
@@ -80,12 +65,7 @@ async function onReqOrderConfirm() {
         prefix: "픽업 승인 실패.",
         uid: u.userInfo.userId,
       })
-    )
-    .finally(() => {
-      orderTargets.value = [];
-      showApprovePickup.value = false;
-      approveLoading.value = false;
-    });
+    );
 }
 
 const targetIds = computed(() => {
@@ -105,18 +85,14 @@ const targetIds = computed(() => {
   // return ioOrders.value.filter((z) => itemIds.has(z.id));
   return itemIds;
 });
-const approveLoading = ref(false);
-function approveSelected() {
-  orderTargets.value = ioOrders.value.filter((x) => targetIds.value.has(x.id));
-  showApprovePickup.value = true;
-}
+// orderTargets.value = ioOrders.value.filter((x) => targetIds.value.has(x.id));
 
 const reqCols = getPickReqCols(onClickDetail);
 </script>
 <template>
   <n-card>
     <n-space justify="end" style="margin-bottom: 1vh">
-      <n-button size="small" type="primary" @click="approveSelected">
+      <n-button size="small" type="primary" @click="onReqOrderConfirm">
         선택승인
       </n-button>
     </n-space>
@@ -127,19 +103,6 @@ const reqCols = getPickReqCols(onClickDetail);
       :row-key="(row: OrderItemByShop) => row.shopId"
       @update:checked-row-keys="onCheckRow"
     />
-    <coin-reduce-confirm-modal
-      v-if="ioOrdersByShop.length > 0"
-      :show-modal="showApprovePickup"
-      :user-id="u.userInfo.userId"
-      :loading="approveLoading"
-      :expected-reduce-coin="expectedReduceCoin"
-      @update:show-modal="updateReqOrderShow"
-      @on-confirm="onReqOrderConfirm"
-    >
-      <template #default>
-        픽업 승인 완료처리가 되면 품목별 1원이 소모됩니다.
-      </template>
-    </coin-reduce-confirm-modal>
   </n-card>
   <n-card v-if="selectedData" :bordered="false" :title="selectedData.shopName">
     <n-data-table

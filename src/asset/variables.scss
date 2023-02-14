@@ -190,3 +190,18 @@ table th {
         --n-title-font-size: 8;
     }
 }
+
+.io-row {
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+    text-align: start;
+
+    > :nth-child(1) {
+        max-width: 30%;
+    }
+
+    :nth-child(2) {
+        max-width: 50%;
+    }
+}

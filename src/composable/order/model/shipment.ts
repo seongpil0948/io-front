@@ -134,6 +134,7 @@ export class IoShipment extends CommonField {
       receiveAddress: d.receiveAddress,
       wishedDeliveryTime: d.wishedDeliveryTime,
       managerId: d.managerId,
+      doneInfo: d.doneInfo,
     });
   }
 

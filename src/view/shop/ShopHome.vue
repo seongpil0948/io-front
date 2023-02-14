@@ -7,21 +7,22 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const shopOrderStore = useShopOrderStore();
-const { ioOrders } = storeToRefs(shopOrderStore);
+const { orders } = storeToRefs(shopOrderStore);
 
 const numOfApprove = computed(
-  () => ioOrders.value.filter((x) => x.state === "BEFORE_PAYMENT").length
+  () => orders.value.filter((x) => x.states.includes("BEFORE_PAYMENT")).length
 );
 const numOfNotApprove = computed(
   () =>
-    ioOrders.value.filter((x) =>
-      ["BEFORE_ORDER", "BEFORE_APPROVE"].includes(x.state)
+    orders.value.filter((x) =>
+      x.states.some((y) => ["BEFORE_ORDER", "BEFORE_APPROVE"].includes(y))
     ).length
 );
 const amountNotPaid = computed(() => {
-  return ioOrders.value
-    .map((x) => x.prodAmount)
+  return orders.value
+    .flatMap((x) => [x.prodAmount, x.shipAmount, x.pickAmount])
     .reduce((acc, curr) => {
+      if (!curr) return 0;
       const notPaidAmount = curr.amount - curr.paidAmount;
       return acc + notPaidAmount;
     }, 0)
@@ -29,18 +30,20 @@ const amountNotPaid = computed(() => {
 });
 const numOfShipping = computed(
   () =>
-    ioOrders.value.filter((x) =>
-      [
-        "BEFORE_APPROVE_PICKUP",
-        "BEFORE_ASSIGN_PICKUP",
-        "BEFORE_PICKUP",
-        "ONGOING_PICKUP",
-        "PICKUP_COMPLETE",
-        "BEFORE_SHIP",
-        "SHIPPING",
-        "SHIPPING_PENDING",
-        "SHIPPING_WAIT",
-      ].includes(x.state)
+    orders.value.filter((x) =>
+      x.states.some((y) =>
+        [
+          "BEFORE_APPROVE_PICKUP",
+          "BEFORE_ASSIGN_PICKUP",
+          "BEFORE_PICKUP",
+          "ONGOING_PICKUP",
+          "PICKUP_COMPLETE",
+          "BEFORE_SHIP",
+          "SHIPPING",
+          "SHIPPING_PENDING",
+          "SHIPPING_WAIT",
+        ].includes(y)
+      )
     ).length
 );
 </script>

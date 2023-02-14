@@ -19,21 +19,27 @@ import {
   userFireConverter,
 } from "@io-boxies/js-lib";
 import { uuidv4 } from "@firebase/util";
-import { doc, runTransaction } from "firebase/firestore";
+import { doc, getDoc, runTransaction } from "firebase/firestore";
 import { getSrc } from "./order";
 import { ioFireStore } from "@/plugin/firebase";
 // import { uuidv4 } from "@firebase/util";
 
 export const ShipmentFB: ShipDB<IoOrder> = {
-  approvePickUp: async function (row: IoOrder, expectedReduceCoin: number) {
+  getShipment: async function (uncleId: string, shipId: string) {
+    const docRef = doc(
+      getIoCollection(ioFireStore, { c: "SHIPMENT", uid: uncleId }),
+      shipId
+    ).withConverter(IoShipment.fireConverter());
+    const result = await getDoc(docRef);
+    return result.data() ?? null;
+  },
+  approvePickUp: async function (row: IoOrder) {
     isValidOrder(row);
     const { getOrdRef, orderFireConverter, getPayDocRef, getPayHistDocRef } =
       getSrc();
     if (!row.shipManagerId) throw new Error("shipManagerId is null");
     const unclePay = await IO_PAY_DB.getIoPayByUser(row.shipManagerId);
     const shopPay = await IO_PAY_DB.getIoPayByUser(row.shopId);
-    if (unclePay.budget < expectedReduceCoin)
-      throw new Error("보유 금액이 부족합니다.");
     const ordRef = getOrdRef(row.shopId);
     const ordDocRef = doc(ordRef, row.dbId).withConverter(orderFireConverter);
     return runTransaction(ioFireStore, async (t) => {
@@ -53,10 +59,9 @@ export const ShipmentFB: ShipDB<IoOrder> = {
       const uncle = validateUser(uncleDoc.data(), ord.shipManagerId!);
       const shop = validateUser(shopDoc.data(), ord.shopId);
       const shipPendingAmount = ord.shipAmount.pendingAmount;
-      let price = ord.pickAmount.pendingAmount + (shipPendingAmount ?? 0);
+      const price = ord.pickAmount.pendingAmount + (shipPendingAmount ?? 0);
       if (ord.isDirectToShip) {
         // 대납가격이 포함되어 있기 때문에
-        price -= ord.prodAmount.amount;
         ord.items.forEach((item) => {
           const { newAmount } = defrayAmount(
             item.prodAmount,
@@ -79,11 +84,6 @@ export const ShipmentFB: ShipDB<IoOrder> = {
         false
       );
       ord.pickAmount = newAmount;
-      console.log(
-        "before shop/uncle Pay: ",
-        JSON.parse(JSON.stringify(shopPay)),
-        JSON.parse(JSON.stringify(unclePay))
-      );
       shopPay.pendingBudget -= price;
       unclePay.pendingBudget += price;
 
@@ -113,7 +113,6 @@ export const ShipmentFB: ShipDB<IoOrder> = {
         pendingBudget: unclePay.pendingBudget,
         updatedAt: new Date(),
       });
-      console.log("after shop/uncle Pay: ", shopPay, unclePay);
       for (let i = 0; i < ord.items.length; i++) {
         const item = ord.items[i];
         const prod = await VENDOR_GARMENT_DB.getById(
@@ -163,25 +162,65 @@ export const ShipmentFB: ShipDB<IoOrder> = {
       }
       refreshOrder(ord);
       t.set(ordDocRef, ord);
-      t.update(
-        doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), unclePay.userId),
-        {
-          pendingBudget: unclePay.pendingBudget + expectedReduceCoin,
-          budget: unclePay.budget - expectedReduceCoin,
-        }
-      );
-      t.set(
-        getPayHistDocRef(unclePay.userId),
-        newPayHistory({
-          createdAt: new Date(),
-          userId: unclePay.userId,
-          amount: -expectedReduceCoin,
-          pendingAmount: +expectedReduceCoin,
-          state: "APPROVE_PICKUP_FEE",
-        })
-      );
 
       return ord;
+    });
+  },
+  doneShipOrder: async function (o, itemId) {
+    if (!o.shipManagerId) throw new Error("엉클 관리자 계정이 없습니다.");
+    const item = o.items.find((x) => x.id === itemId)!;
+    const shipDocRef = doc(
+      getIoCollection(ioFireStore, { uid: o.shipManagerId, c: "SHIPMENT" }),
+      item.shipmentId
+    ).withConverter(IoShipment.fireConverter());
+    const { getOrdRef, getPayDocRef, getPayHistDocRef } = getSrc();
+    return runTransaction(ioFireStore, async (t) => {
+      const shipSnap = await t.get(shipDocRef);
+      const ship = shipSnap.data();
+      if (!ship) throw Error("None ship data");
+      console.log("before order: ", JSON.stringify(o));
+      setState(o, item.id, "ORDER_DONE");
+      refreshOrder(o);
+      if (o.states.every((state) => state === "ORDER_DONE")) {
+        const shopPay = await IO_PAY_DB.getIoPayByUser(o.shopId);
+        console.log("before shopPay: ", JSON.stringify(shopPay));
+        const returnAmount = o.shipAmount.pendingAmount;
+        const shopPayHist = newPayHistory({
+          createdAt: new Date(),
+          userId: shopPay.userId,
+          amount: returnAmount,
+          state: "ORDER_DONE",
+        });
+        t.set(getPayHistDocRef(shopPay.userId), shopPayHist);
+        t.update(getPayDocRef(shopPay.userId), {
+          budget: shopPay.budget + returnAmount,
+          updatedAt: new Date(),
+        });
+        const unclePay = await IO_PAY_DB.getIoPayByUser(o.shipManagerId!);
+        console.log("before unclePay: ", JSON.stringify(unclePay));
+        const purePrice = o.shipAmount.amount + o.pickAmount.amount;
+        const differ = o.shipAmount.amount - returnAmount;
+        const added = differ + o.pickAmount.amount;
+        const unclePayHist = newPayHistory({
+          createdAt: new Date(),
+          userId: unclePay.userId,
+          amount: added,
+          pendingAmount: -purePrice,
+          state: "ORDER_DONE",
+        });
+        t.set(getPayHistDocRef(unclePay.userId), unclePayHist);
+        t.update(getPayDocRef(unclePay.userId), {
+          pendingBudget: unclePay.pendingBudget - purePrice,
+          budget: unclePay.budget + added,
+          updatedAt: new Date(),
+        });
+        console.log("after unclePay: ", unclePay);
+        console.log("after shopPay: ", shopPay);
+      }
+
+      const orderRef = doc(getOrdRef(o.shopId), o.dbId);
+      t.set(orderRef, o);
+      console.log("after order: ", o);
     });
   },
 };

@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { ORDER_STATE, useOrderTable } from "@/composable";
+import {
+  catchError,
+  IoShipment,
+  OrderItemCombined,
+  ORDER_STATE,
+  SHIPMENT_DB,
+  useOrderTable,
+} from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
-import { onBeforeMount, computed, h } from "vue";
+import { onBeforeMount, computed, h, ref } from "vue";
 import { storeToRefs } from "pinia";
-import { NGradientText } from "naive-ui";
+import { DataTableColumns, NButton, NGradientText, useMessage } from "naive-ui";
 
 const auth = useAuthStore();
+const msg = useMessage();
 const shopOrderStore = useShopOrderStore();
 onBeforeMount(() => shopOrderStore.init(auth.currUser().userInfo.userId));
 const { ioOrders, orders } = storeToRefs(shopOrderStore);
@@ -16,8 +24,31 @@ const { tableCol, tableRef } = useOrderTable({
   updateOrderCnt: false,
   useChecker: false,
 });
-const columns = computed(() => {
+const showModal = ref(false);
+const columns = computed<DataTableColumns<OrderItemCombined>>(() => {
   const cols = tableCol.value;
+  cols.unshift({
+    title: "상세보기",
+    key: "detail",
+    render: (row) =>
+      h(
+        NButton,
+        {
+          disabled: !row.shipManagerId || !row.shipmentId,
+          onClick: async () => {
+            if (!row.shipManagerId || !row.shipmentId) return;
+            showModal.value = true;
+            selectedItem.value.item = row;
+            selectedItem.value.ship = await SHIPMENT_DB.getShipment(
+              row.shipManagerId,
+              row.shipmentId
+            );
+            if (!selectedItem.value.ship) msg.error("배송정보가 없습니다.");
+          },
+        },
+        { default: () => "상세보기" }
+      ),
+  });
   cols.unshift({
     title: "주문상태",
     key: "state",
@@ -41,6 +72,33 @@ const columns = computed(() => {
   });
   return cols;
 });
+const selectedItem = ref<{
+  item: OrderItemCombined | null;
+  ship: IoShipment | null;
+}>({
+  item: null,
+  ship: null,
+});
+
+const si = computed(() => selectedItem.value.item);
+const ss = computed(() => selectedItem.value.ship);
+function doneOrder() {
+  if (!selectedItem.value.item) return;
+  const selectedOrder = orders.value.find(
+    (o) => o.dbId === selectedItem.value.item!.orderDbId
+  );
+  if (!selectedOrder)
+    return msg.error("주문 아이템은 있지만 주문 정보가 존재하지 않습니다");
+  SHIPMENT_DB.doneShipOrder(selectedOrder, selectedItem.value.item.id)
+    .then(() => {
+      selectedItem.value.item = null;
+      selectedItem.value.ship = null;
+      showModal.value = false;
+    })
+    .catch((err) =>
+      catchError({ err, msg, uid: auth.currUser().userInfo.userId })
+    );
+}
 </script>
 <template>
   <n-card
@@ -71,6 +129,30 @@ const columns = computed(() => {
     v-else
     style="margin-top: 30%"
     status="error"
-    title="주문 전 데이터가 없습니다"
+    title="주문 데이터가 없습니다"
   />
+  <n-modal v-model:show="showModal">
+    <n-card
+      style="width: 80vw"
+      title="배송상세"
+      size="huge"
+      role="card"
+      aria-modal="true"
+    >
+      <template #header-extra> hi~ </template>
+      <n-h4>소매처</n-h4>
+      <n-divider />
+      <user-basic-card v-if="si" :user="si.shopProd" />
+      <n-h4>도매처</n-h4>
+      <n-divider />
+      <user-basic-card v-if="si" :user="si.vendorProd" />
+      <n-h4>배송정보</n-h4>
+      <n-divider />
+      <shipment-card v-if="ss" :shipment="ss"></shipment-card>
+
+      <template #action>
+        <n-button @click="doneOrder"> 수령 완료 </n-button>
+      </template>
+    </n-card>
+  </n-modal>
 </template>

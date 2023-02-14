@@ -1,9 +1,8 @@
-import { onFirestoreCompletion, onFirestoreErr } from "@/composable";
-import { getIoCollection, IoUser } from "@io-boxies/js-lib";
+import { onFirestoreCompletion, onFirestoreErr, IoUser } from "@/composable";
 import { handleReadSnap, fireConverter } from "@/util";
 import { onSnapshot } from "@firebase/firestore";
 import { ref, watchEffect, shallowRef } from "vue";
-import { ioFireStore } from "@/plugin/firebase";
+import { ioFireStore, getIoCollection } from "@/plugin/firebase";
 
 export function useVirtualVendor(uid: string) {
   const name = "VirtualVendor snapshot";

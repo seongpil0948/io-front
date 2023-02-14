@@ -145,83 +145,82 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       );
       const vendors = vs.filter((y) => y !== null) as IoUser[];
 
-      const cnt = {} as {
-        [pickId: string]: {
-          price: number;
-          byVendor: { [vid: string]: OrderItem[] };
-        };
-      };
+      const pickPriceCnt: PriceCnt = {};
+      const shipPriceCnt: PriceCnt = {};
       for (let i = 0; i < cOrder.items.length; i++) {
         const item = cOrder.items[i];
         const vendor = vendors.find((v) => v.userInfo.userId === item.vendorId);
         if (!vendor) throw new Error("도매 유저가 존재하지 않습니다.");
-        const { pickLocateUncle } = checkOrderShipLocate(
+        const { pickLocateUncle, shipLocateUncle } = checkOrderShipLocate(
           item,
           shop,
           vendor,
           uncle
         );
+        const shipId = shipLocateUncle.locate.code;
+        if (!shipId) throw new Error("ship locate id not exist");
         const pickId = getPickId(pickLocateUncle.locate);
-        if (!cnt[pickId]) {
-          cnt[pickId] = { price: pickLocateUncle.amount, byVendor: {} };
-          cnt[pickId].byVendor[item.vendorId] = [item];
-        } else if (!cnt[pickId].byVendor[item.vendorId]) {
-          cnt[pickId].byVendor[item.vendorId] = [item];
-        } else if (cnt[pickId] && cnt[pickId].byVendor[item.vendorId]) {
-          cnt[pickId].byVendor[item.vendorId].push(item);
-        }
+        _setCnt(pickPriceCnt, pickId, item, pickLocateUncle.amount);
+        _setCnt(shipPriceCnt, shipId, item, shipLocateUncle.amount);
+
         item.shipManagerId = uncleId;
         setState(cOrder, item.id, "BEFORE_APPROVE_PICKUP");
       }
-      let pickPrice = Object.entries(cnt).reduce((acc, curr) => {
-        const priceByBuild = curr[1].price;
-        const vendorIds: string[] = Object.keys(curr[1].byVendor);
-        return acc + priceByBuild * vendorIds.length;
-      }, 0);
-      // FIXME APP 데이터로 봤을때 적용이 안되는 것 같다 paidAt 이런것들 업데이트 확인 요망
       const goDefray = (amount: PayAmount) => {
         const { newAmount } = defrayAmount(amount, {}, true);
         return newAmount;
       };
+
+      // initial as pickPrice
+      let pickupPrice = Object.entries(pickPriceCnt).reduce((acc, curr) => {
+        const priceByBuild = curr[1].price;
+        const vendorIds: string[] = Object.keys(curr[1].byVendor);
+        return acc + priceByBuild * vendorIds.length;
+      }, 0);
       if (cOrder.isDirectToShip) {
-        pickPrice += cOrder.prodAmount.amount;
+        pickupPrice += cOrder.prodAmount.amount;
         cOrder.items.forEach(
           (item) => (item.prodAmount = goDefray(item.prodAmount))
         );
       }
-      console.info("pick price: ", pickPrice, "agg info: ", cnt);
-      cOrder.pickAmount = newPayAmount({
-        pureAmount: pickPrice,
-      });
+      const shipPrice = Object.entries(shipPriceCnt).reduce((acc, curr) => {
+        const priceByBuild = curr[1].price;
+        const vendorIds: string[] = Object.keys(curr[1].byVendor);
+        return acc + priceByBuild * vendorIds.length;
+      }, 0);
+      pickupPrice += shipPrice;
+      cOrder.pickAmount = newPayAmount({ pureAmount: pickupPrice });
+      cOrder.pickAmount = goDefray(cOrder.pickAmount);
+      let totalPrice = cOrder.pickAmount.pendingAmount;
       console.log(
         "before defray pick amount: ",
         JSON.parse(JSON.stringify(cOrder.pickAmount))
       );
-      cOrder.pickAmount = goDefray(cOrder.pickAmount);
-      console.log("after defray pick amount: ", cOrder.pickAmount);
+
       cOrder.shipAmount = newPayAmount({
         pureAmount: (uncle as IoUser).uncleInfo?.shipPendingAmount,
       });
       cOrder.shipAmount = goDefray(cOrder.shipAmount);
+      totalPrice += cOrder.shipAmount.amount;
+
+      console.log("after defray pick amount: ", cOrder.pickAmount);
+      console.info("totalPrice: ", totalPrice, "shipPrice: ", shipPrice);
       console.log("before shop pay: ", JSON.parse(JSON.stringify(shopPay)));
-      const shipPendingAmount = cOrder.shipAmount.amount;
-      const price = cOrder.pickAmount.amount + (shipPendingAmount ?? 0);
-      console.info(
-        `total price: ${price}, shipPendingAmount: ${shipPendingAmount}`
-      );
+      console.info(`total price: ${totalPrice}`);
+
       if (!uncle.uncleInfo) throw new Error("엉클정보가 없습니다.");
-      else if (!shipPendingAmount || shipPendingAmount < 1000)
+      else if (!cOrder.shipAmount.amount || cOrder.shipAmount.amount < 1000)
         throw new Error("배송 보류금액을 1000원 이상으로 설정 해주세요.");
-      else if (shopPay.budget < price)
+      else if (shopPay.budget < totalPrice)
         throw new Error(
-          `유저캐쉬(${shopPay.budget})가 필요캐쉬(${price}) 보다 작습니다.`
+          `유저캐쉬(${shopPay.budget})가 필요캐쉬(${totalPrice}) 보다 작습니다.`
         );
-      shopPay.budget -= price;
-      shopPay.pendingBudget += price;
+      shopPay.budget -= totalPrice;
+      shopPay.pendingBudget += totalPrice;
       console.log("after shop pay: ", shopPay);
       const h = newPayHistory({
-        amount: -price,
-        pendingAmount: price,
+        amount: -totalPrice,
+        pendingAmount: totalPrice,
         userId: shopPay.userId,
         state: "REQUEST_PICKUP",
       });
@@ -588,6 +587,9 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
   }) {
     throw new Error("batchUpdate is not implemented");
   },
+  /***
+   TODO 주문건삭제시 shipment, , orderNumber, shipDoneImages(Storage) 도 지워져야함
+   */
   batchDelete: async function (ords: IoOrder[]) {
     const { batch, getOrdRef, getOrderNumberRef } = getSrc();
     for (let i = 0; i < ords.length; i++) {
@@ -1056,4 +1058,25 @@ async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
       }
     }
   });
+}
+
+type PriceCnt = {
+  [pickId: string]: {
+    price: number;
+    byVendor: { [vid: string]: OrderItem[] };
+  };
+};
+
+function _setCnt(obj: PriceCnt, id: string, item: OrderItem, amount: number) {
+  if (!obj[id]) {
+    obj[id] = {
+      price: amount,
+      byVendor: {},
+    };
+    obj[id].byVendor[item.vendorId] = [item];
+  } else if (!obj[id].byVendor[item.vendorId]) {
+    obj[id].byVendor[item.vendorId] = [item];
+  } else if (obj[id] && obj[id].byVendor[item.vendorId]) {
+    obj[id].byVendor[item.vendorId].push(item);
+  }
 }

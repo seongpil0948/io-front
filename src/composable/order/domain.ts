@@ -323,5 +323,7 @@ export interface OrderDB<T> {
 }
 
 export interface ShipDB<T> {
-  approvePickUp(row: IoOrder, expectedReduceCoin: number): Promise<T | Error>;
+  getShipment(uncleId: string, shipId: string): Promise<IoShipment | null>;
+  approvePickUp(row: IoOrder): Promise<T | Error>;
+  doneShipOrder(order: IoOrder, itemId: string): Promise<void>;
 }

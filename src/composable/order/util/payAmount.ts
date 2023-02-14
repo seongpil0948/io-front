@@ -70,13 +70,15 @@ export function mergeAmount(origin: PayAmount, y: PayAmount) {
   origin.tax += y.tax;
   origin.paidAmount += y.paidAmount;
   origin.paid = y.paid;
+  origin.paidAt = y.paidAt ?? origin.paidAt;
   origin.pureAmount += y.pureAmount;
   origin.amount += y.amount;
-  origin.paymentConfirm = origin.paymentConfirm && y.paymentConfirm;
+  origin.paymentConfirm =
+    origin.paymentConfirm === true && y.paymentConfirm === true;
   origin.paymentMethod = y.paymentMethod ?? origin.paymentMethod;
   origin.discountAmount += y.discountAmount;
   origin.pendingAmount += y.pendingAmount;
-  origin.isPending = origin.isPending && y.isPending;
+  origin.isPending = origin.isPending === false && y.isPending === false;
 }
 
 export function refreshAmount(t: PayAmount) {

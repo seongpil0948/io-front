@@ -41,7 +41,7 @@ async function fillStock() {
     orderItem.value.vendorProd.stockCnt,
     orderItem.value.vendorProd.allowPending,
     false,
-    orderItem.value.amount.paid
+    orderItem.value.prodAmount.paid
   );
   ioOrder.value.items.splice(
     ioOrder.value.items.findIndex((x) => x.id === orderItem.value.id),
@@ -67,8 +67,8 @@ async function fillStock() {
     <n-text v-else :type="'primary'">, 주문개수: {{ orderItem.orderCnt }} </n-text> -->
     <shop-order-cnt :order="ioOrder" :order-item="orderItem" />
     <n-text>, 주문상태: {{ ORDER_STATE[orderItem.state] }} </n-text>
-    <n-text v-if="orderItem.amount.paidAt">
-      , 결제일: {{ timeToDate(orderItem.amount.paidAt, "MIN") }}
+    <n-text v-if="orderItem.prodAmount.paidAt">
+      , 결제일: {{ timeToDate(orderItem.prodAmount.paidAt, "MIN") }}
     </n-text>
     <n-button v-if="fillRequired" size="small" type="error" @click="fillStock"
       >재고채우기</n-button

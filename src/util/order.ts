@@ -1,12 +1,20 @@
+import { dataFromSnap, uniqueArr } from "@/util";
 import {
   IoOrder,
   ShopUserGarment,
-  VendorUserGarment,
   OrderItemCombined,
+  VendorGarment,
+  IoUser,
+  VendorUserGarment,
   getPendingCnt,
   getActiveCnt,
 } from "@/composable";
 
+import {
+  batchInQuery,
+  getIoCollectionGroup,
+  ioFireStore,
+} from "@/plugin/firebase";
 export function extractGarmentOrd(
   orders: IoOrder[],
   shopProds: ShopUserGarment[],
@@ -28,7 +36,7 @@ export function extractGarmentOrd(
       const vId = order.items[i].vendorProd.vendorProdId;
       const vendorProd = vendorProds.find((k) => k.vendorProdId === vId);
       if (!vendorProd) {
-        // console.warn(`not matched order(${order.dbId}) vendor garment(${vId})`);
+        console.warn(`not matched order(${order.dbId}) vendor garment(${vId})`);
         continue;
       } else if (!vendorProd.userInfo) {
         console.warn("not vendor user garment", vendorProd);
@@ -50,4 +58,30 @@ export function extractGarmentOrd(
     }
   });
   return ioOrders;
+}
+
+export async function getVirVendorProdsByVendors(vendorIds: string[]) {
+  const virVendorGarmentSnap = await batchInQuery<VendorGarment>(
+    vendorIds,
+    getIoCollectionGroup(ioFireStore, "VIRTUAL_VENDOR_PROD"),
+    "vendorId"
+  );
+  const virVendorGarments = virVendorGarmentSnap.flatMap(
+    dataFromSnap<VendorGarment>
+  );
+  const virVendorSnap = await batchInQuery<IoUser>(
+    uniqueArr(virVendorGarments.map((x) => x.vendorId)),
+    getIoCollectionGroup(ioFireStore, "VIRTUAL_USER"),
+    "userInfo.userId"
+  );
+  const virVendors = virVendorSnap.flatMap(dataFromSnap<IoUser>);
+  const virVendorUserGarment: VendorUserGarment[] = [];
+  for (let i = 0; i < virVendorGarments.length; i++) {
+    const vvg = virVendorGarments[i];
+    const vu = virVendors.find((x) => x.userInfo.userId === vvg.vendorId);
+    if (vu) {
+      virVendorUserGarment.push(Object.assign({}, vvg, vu));
+    }
+  }
+  return virVendorUserGarment;
 }

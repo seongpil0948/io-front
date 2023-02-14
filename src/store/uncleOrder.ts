@@ -1,4 +1,8 @@
-import { dataFromSnap, extractGarmentOrd, uniqueArr } from "@/util";
+import {
+  extractGarmentOrd,
+  getVirVendorProdsByVendors,
+  uniqueArr,
+} from "@/util";
 import {
   ORDER_STATE,
   IoOrder,
@@ -8,23 +12,18 @@ import {
   SHOP_GARMENT_DB,
   OrderItemByShop,
   VENDOR_GARMENT_DB,
-  VendorGarment,
   userFireConverter,
   onFirestoreCompletion,
   onFirestoreErr,
+  IoUser,
+  usersFromSnap,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { Unsubscribe } from "@firebase/util";
 import { defineStore } from "pinia";
 import { ref, computed, watchEffect } from "vue";
 import { useAuthStore } from "./auth";
-import { IoUser, usersFromSnap } from "@io-boxies/js-lib";
-import {
-  batchInQuery,
-  getIoCollection,
-  getIoCollectionGroup,
-  ioFireStore,
-} from "@/plugin/firebase";
+import { getIoCollection, ioFireStore } from "@/plugin/firebase";
 import { onSnapshot, query, where } from "@firebase/firestore";
 
 export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
@@ -108,28 +107,7 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
       shopProds.value = await SHOP_GARMENT_DB.getBatchShopProds(shopIds);
       const vendorIds = uniqueArr(orders.value.flatMap((x) => x.vendorIds));
       const vendorProds = await VENDOR_GARMENT_DB.listByVendorIds(vendorIds);
-      const virVendorGarmentSnap = await batchInQuery<VendorGarment>(
-        vendorIds,
-        getIoCollectionGroup(ioFireStore, "VIRTUAL_VENDOR_PROD"),
-        "vendorId"
-      );
-      const virVendorGarments = virVendorGarmentSnap.flatMap(
-        dataFromSnap<VendorGarment>
-      );
-      const virVendorSnap = await batchInQuery<IoUser>(
-        uniqueArr(virVendorGarments.map((x) => x.vendorId)),
-        getIoCollectionGroup(ioFireStore, "VIRTUAL_USER"),
-        "userInfo.userId"
-      );
-      const virVendors = virVendorSnap.flatMap(dataFromSnap<IoUser>);
-      const virVendorUserGarment: typeof vendorProds = [];
-      for (let i = 0; i < virVendorGarments.length; i++) {
-        const vvg = virVendorGarments[i];
-        const vu = virVendors.find((x) => x.userInfo.userId === vvg.vendorId);
-        if (vu) {
-          virVendorUserGarment.push(Object.assign({}, vvg, vu));
-        }
-      }
+      const virVendorUserGarment = await getVirVendorProdsByVendors(vendorIds);
       _ioOrders.value = extractGarmentOrd(orders.value, shopProds.value, [
         ...vendorProds,
         ...virVendorUserGarment,

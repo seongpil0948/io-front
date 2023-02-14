@@ -9,8 +9,8 @@ import {
   PayAmount,
   OrderItem,
   PaginateParam,
+  IoUser,
 } from "@/composable";
-import { IoUser } from "@io-boxies/js-lib";
 import { Ref } from "vue";
 
 export interface VendorGarmentCrt extends VendorProdCrt {

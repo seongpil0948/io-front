@@ -1,6 +1,5 @@
-import { IoUser } from "@io-boxies/js-lib";
 import { Unsubscribe } from "@firebase/firestore";
-import { API_SERVICE_EX } from "@/composable";
+import { API_SERVICE_EX, IoUser } from "@/composable";
 import { Ref } from "vue";
 import { ProductCrt, PRODUCT_SIZE } from "../domain";
 import { ShopGarment } from "./model";

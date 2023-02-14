@@ -252,20 +252,3 @@ async function onClickProfile() {
     </n-collapse-item>
   </n-collapse>
 </template>
-
-<style scoped lang="scss">
-.io-row {
-  display: inline-flex;
-  justify-content: space-between;
-  width: 100%;
-  text-align: start;
-
-  > :nth-child(1) {
-    max-width: 30%;
-  }
-
-  :nth-child(2) {
-    max-width: 50%;
-  }
-}
-</style>
