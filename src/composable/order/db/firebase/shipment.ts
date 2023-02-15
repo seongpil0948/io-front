@@ -24,14 +24,26 @@ import { getSrc } from "./order";
 import { ioFireStore } from "@/plugin/firebase";
 // import { uuidv4 } from "@firebase/util";
 
+const getSc = (uncleId: string) =>
+  getIoCollection(ioFireStore, { c: "SHIPMENT", uid: uncleId });
 export const ShipmentFB: ShipDB<IoOrder> = {
   getShipment: async function (uncleId: string, shipId: string) {
-    const docRef = doc(
-      getIoCollection(ioFireStore, { c: "SHIPMENT", uid: uncleId }),
-      shipId
-    ).withConverter(IoShipment.fireConverter());
+    const docRef = doc(getSc(uncleId), shipId).withConverter(
+      IoShipment.fireConverter()
+    );
     const result = await getDoc(docRef);
     return result.data() ?? null;
+  },
+  batchUpdate: async function (ships: Partial<IoShipment>[]) {
+    const { batch } = getSrc();
+    for (let i = 0; i < ships.length; i++) {
+      const s = ships[i];
+      if (!s.managerId || !s.shippingId)
+        throw new Error(`there is null between shippingId and managerId`);
+      const docRef = doc(getSc(s.managerId), s.shippingId);
+      batch.update(docRef, s);
+    }
+    await batch.commit();
   },
   approvePickUp: async function (row: IoOrder) {
     isValidOrder(row);

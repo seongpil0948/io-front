@@ -1,6 +1,5 @@
 import { useAuthStore, useUncleOrderStore } from "@/store";
 import {
-  getUserName,
   batchInQuery,
   getIoCollection,
   IoCollection,
@@ -15,11 +14,12 @@ import {
   NText,
 } from "naive-ui";
 import ag from "naive-ui/es/avatar-group/src/AvatarGroup";
-import { ref, computed, watchEffect, h, watch } from "vue";
+import { ref, computed, watchEffect, h } from "vue";
 import { ORDER_STATE, ShipOrder, ShipOrderByShop } from "../domain";
 import { IoShipment } from "../model";
 import { ioFireStore } from "@/plugin/firebase";
 import { storeToRefs } from "pinia";
+import { getUserName } from "@/composable";
 
 export function useShipmentUncle(inStates: ORDER_STATE[]) {
   const auth = useAuthStore();
@@ -45,25 +45,10 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
   }
   const openWorkerModal = ref(false);
 
-  watch(
-    () => openWorkerModal.value,
-    (val) => {
-      if (val === false) {
-        selectedData.value = null;
-      }
-    }
-  );
-
   function renderWorker(row: ShipOrder) {
     const worker = workers.value.find((x) => x.userInfo.userId === row.uncleId);
-    const btn = h(
-      NText,
-      // {
-      //   onClick: () => (openWorkerModal.value = true),
-      // },
-      { default: () => (worker ? getUserName(worker) : "미배정") }
-    );
-    return btn;
+    if (!worker) return "";
+    return getUserName(worker);
   }
 
   const orderShipsByShop = computed<ShipOrderByShop[]>(() =>

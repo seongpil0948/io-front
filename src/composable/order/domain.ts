@@ -324,6 +324,7 @@ export interface OrderDB<T> {
 
 export interface ShipDB<T> {
   getShipment(uncleId: string, shipId: string): Promise<IoShipment | null>;
+  batchUpdate(shipments: Partial<IoShipment>[]): Promise<void>;
   approvePickUp(row: IoOrder): Promise<T | Error>;
   doneShipOrder(order: IoOrder, itemId: string): Promise<void>;
 }

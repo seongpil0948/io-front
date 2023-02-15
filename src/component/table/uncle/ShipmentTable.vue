@@ -9,6 +9,7 @@ import {
   ShipOrder,
   ORDER_GARMENT_DB,
   setState,
+  SHIPMENT_DB,
 } from "@/composable";
 import { axiosConfig } from "@/plugin/axios";
 import { IoUser, getUserName } from "@io-boxies/js-lib";
@@ -42,18 +43,27 @@ async function onSelectWorker(val: IoUser) {
     checkedDetailKeys.value.includes(x.shippingId)
   );
   const userIds = new Set<string>();
+  const data: Partial<IoShipment>[] = [];
+
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    const shipment = IoShipment.fromJson(item);
-    shipment.uncleId = val.userInfo.userId;
-    const order = orders.value.find((x) => x.dbId === shipment.orderDbId);
+    userIds.add(val.userInfo.userId);
+    item.uncleId = val.userInfo.userId;
+    data.push({
+      managerId: item.managerId,
+      shippingId: item.shippingId,
+      uncleId: item.uncleId,
+    });
+
+    const order = orders.value.find((x) => x.dbId === item.orderDbId);
     if (!order) throw new Error("order not exist");
-    setState(order, item.id, "BEFORE_PICKUP");
-    await Promise.all([ORDER_GARMENT_DB.updateOrder(order), shipment.update()]);
-    [order.shopId, ...order.vendorIds, val.userInfo.userId].forEach((uid) =>
-      userIds.add(uid)
-    );
+    [order.shopId, ...order.vendorIds].forEach((uid) => userIds.add(uid));
+    if (item.state === "BEFORE_ASSIGN_PICKUP") {
+      setState(order, item.id, "BEFORE_PICKUP");
+      await ORDER_GARMENT_DB.updateOrder(order);
+    }
   }
+  await SHIPMENT_DB.batchUpdate(data);
   msg.success("담당자 배정이 완료되었습니다.");
   await smtp.sendAlarm({
     toUserIds: [...userIds],
