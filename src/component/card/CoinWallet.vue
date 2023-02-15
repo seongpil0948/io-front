@@ -188,8 +188,16 @@ const dd = (p: number) => (Number(p) ^ hh) - zz;
 
 // >>> encashment >>>
 const encash = ref(0);
+const maxEncash = computed(
+  () => userPay.value?.budget ?? 0 - (userPay.value?.pendingBudget ?? -1)
+);
 async function reqEncashment() {
-  console.log("reqEncashment: ", encash.value);
+  // if (maxEncash.value < encash.value)
+  //   return msg.error(`${maxEncash.value}원 이하로 출금요청 가능합니다.`);
+  // else return msg.success(`${encash.value}원 출금요청 완료.`);
+  msg.error(
+    "현재 개발중인 관계로 inoutboxpayment@gmail.com로 이메일 주시면 처리가능합니다!"
+  );
 }
 </script>
 <template>
@@ -225,55 +233,75 @@ async function reqEncashment() {
         <template #header>
           <n-text strong>금액충전</n-text>
         </template>
-        <n-space justify="space-between">
-          <n-text strong> 충전 금액 </n-text>
-          <n-input-number
-            v-model:value="chargeCoin"
-            :step="10"
-            :validator="chargeValidator"
-          />
-        </n-space>
-        <n-space justify="end">
-          <n-text depth="3"> 10원 단위로 입력 </n-text>
-        </n-space>
-        <n-space justify="space-between">
-          <n-button
-            v-for="m in [100, 1000, 2000, 5000, 10000, 10000].map((x) =>
-              IoPay.moneyToCoin(x)
-            )"
-            :key="m"
-            @click="chargeCoin += m"
-          >
-            {{ m.toLocaleString() }}
-          </n-button>
-        </n-space>
-        <n-space justify="space-between" style="line-height: 2rem">
-          <div>
-            <n-text strong> 결제금액: </n-text>
-            <n-text>{{ chargeString }} </n-text>
-          </div>
+        <n-space vertical>
+          <n-space justify="space-between">
+            <n-text strong> 충전 금액 </n-text>
+            <n-input-number
+              v-model:value="chargeCoin"
+              :step="10"
+              :validator="chargeValidator"
+            />
+          </n-space>
+          <n-space justify="end">
+            <n-text depth="3"> 10원 단위로 입력 </n-text>
+          </n-space>
+          <n-space justify="space-between">
+            <n-button
+              v-for="m in [100, 1000, 2000, 5000, 10000, 100000].map((x) =>
+                IoPay.moneyToCoin(x)
+              )"
+              :key="m"
+              @click="chargeCoin += m"
+            >
+              {{ m.toLocaleString() }}
+            </n-button>
+          </n-space>
+          <n-space justify="space-between" style="line-height: 2rem">
+            <div>
+              <n-text strong> 결제금액: </n-text>
+              <n-text>{{ chargeString }} </n-text>
+            </div>
 
-          <n-button @click="reqPay">
-            충전하기<coin-image size="1.6rem" />
-          </n-button>
+            <n-button @click="reqPay">
+              충전하기<coin-image size="1.6rem" />
+            </n-button>
+          </n-space>
         </n-space>
       </n-collapse-item>
       <n-collapse-item name="2">
         <template #header>
           <n-text strong>출금하기</n-text>
         </template>
-        <n-space justify="space-between">
-          <n-text strong> 출금 금액 </n-text>
-          <n-input-number
-            v-model:value="encash"
-            :step="10"
-            :max="userPay.budget"
-          />
-        </n-space>
-        <n-space justify="space-between" style="line-height: 2rem">
-          <n-button @click="reqEncashment">
-            출금 요청<coin-image size="1.6rem" />
-          </n-button>
+        <n-space v-if="user.userInfo.account" vertical>
+          <n-space justify="space-between">
+            <n-text strong>
+              {{ user.userInfo.account.bank }} /
+              {{ user.userInfo.account.accountName }} <br />
+            </n-text>
+            <n-text type="info">{{
+              user.userInfo.account.accountNumber
+            }}</n-text>
+          </n-space>
+
+          <n-divider></n-divider>
+          <n-space justify="space-between">
+            <n-text strong> 출금 가능 금액 </n-text>
+            <n-text type="info">{{ maxEncash < 0 ? 0 : maxEncash }} </n-text>
+          </n-space>
+          <n-space justify="space-between">
+            <n-text strong> 출금 금액 </n-text>
+            <n-input-number
+              v-model:value="encash"
+              :step="100"
+              :min="0"
+              :max="maxEncash"
+            />
+          </n-space>
+          <n-space justify="space-between" style="line-height: 2rem">
+            <n-button @click="reqEncashment">
+              출금 요청<coin-image size="1.6rem" />
+            </n-button>
+          </n-space>
         </n-space>
       </n-collapse-item>
     </n-collapse>
