@@ -45,7 +45,7 @@ export const ShipmentFB: ShipDB<IoOrder> = {
     }
     await batch.commit();
   },
-  approvePickUp: async function (row: IoOrder) {
+  approvePickUp: async function (row) {
     isValidOrder(row);
     const { getOrdRef, orderFireConverter, getPayDocRef, getPayHistDocRef } =
       getSrc();

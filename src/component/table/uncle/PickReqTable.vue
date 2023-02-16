@@ -5,7 +5,7 @@ import {
   OrderItemByShop,
   SHIPMENT_DB,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ShipOrder,
+  // ShipOrder,
   useShipmentUncle,
   catchError,
 } from "@/composable";
@@ -20,7 +20,7 @@ const {
   orders,
   checkedKeys,
   ioOrdersByShop,
-  onCheckDetailRow,
+  // onCheckDetailRow,
   onCheckRow,
   checkedDetailKeys,
 } = useShipmentUncle(["BEFORE_APPROVE_PICKUP"]);
@@ -109,8 +109,8 @@ const reqCols = getPickReqCols(onClickDetail);
       :bordered="false"
       :columns="pickReqDetailCols"
       :data="selectedData.items"
-      :row-key="(row: ShipOrder) => row.id"
-      @update:checked-row-keys="onCheckDetailRow"
     />
+    <!-- :row-key="(row: ShipOrder) => row.id"
+      @update:checked-row-keys="onCheckDetailRow"     -->
   </n-card>
 </template>

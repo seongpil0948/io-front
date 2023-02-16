@@ -125,9 +125,9 @@ export function getPickReqCols(onClickDetail: (data: OrderItemByShop) => void) {
 
 export const pickReqDetailCols = computed(() => {
   const cols = [
-    {
-      type: "selection",
-    },
+    // {
+    //   type: "selection",
+    // },
     {
       title: "도매처명",
       key: "vendorName",
