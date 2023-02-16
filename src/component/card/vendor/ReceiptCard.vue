@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { formatDate, getUserName, IoUser, USER_DB } from "@io-boxies/js-lib";
+import { formatDate } from "@io-boxies/js-lib";
+import { IoUser, getUserName, USER_DB } from "@/composable";
 import { toRefs, onBeforeUnmount, computed } from "vue";
 import { useMessage } from "naive-ui";
 import { OrderItem } from "@/composable";

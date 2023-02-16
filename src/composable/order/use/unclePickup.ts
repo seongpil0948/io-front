@@ -19,7 +19,7 @@ import { ORDER_STATE, ShipOrder, ShipOrderByShop } from "../domain";
 import { IoShipment } from "../model";
 import { ioFireStore } from "@/plugin/firebase";
 import { storeToRefs } from "pinia";
-import { getUserName } from "@/composable";
+import { getUserName, PopOrderDate } from "@/composable";
 
 export function useShipmentUncle(inStates: ORDER_STATE[]) {
   const auth = useAuthStore();
@@ -181,6 +181,11 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
         title: "담당자",
         key: "shipManager",
         render: renderWorker,
+      },
+      {
+        title: "일자정보",
+        key: "orderDate",
+        render: (row) => h(PopOrderDate, { od: row.od }),
       },
       {
         title: "도매",

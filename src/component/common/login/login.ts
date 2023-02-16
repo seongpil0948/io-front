@@ -10,16 +10,18 @@ import { intervalToDuration } from "date-fns";
 import { logEvent, getAnalytics } from "@firebase/analytics";
 import { type Firestore } from "@firebase/firestore";
 import {
-  FcmToken,
-  getFcmToken,
   IoFireApp,
-  IoUser,
   KAKAO_CHANNEL_ID,
   loadDate,
-  USER_DB,
-  USER_PROVIDER,
   type IO_ENV,
 } from "@io-boxies/js-lib";
+import {
+  FcmToken,
+  getFcmToken,
+  IoUser,
+  USER_DB,
+  USER_PROVIDER,
+} from "@/composable";
 import { onBeforeMount } from "vue";
 import axios from "axios";
 import { useKakao } from "@io-boxies/vue-lib";

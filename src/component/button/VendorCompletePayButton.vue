@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { ORDER_GARMENT_DB, OrderItem, useCompletePay } from "@/composable";
+import {
+  ORDER_GARMENT_DB,
+  OrderItem,
+  useCompletePay,
+  getUserName,
+  IoUser,
+  USER_DB,
+} from "@/composable";
 import { logger } from "@/plugin/logger";
 import { useAuthStore } from "@/store";
-import { getUserName, IoUser, USER_DB } from "@io-boxies/js-lib";
 import { makeMsgOpt, useAlarm } from "@io-boxies/vue-lib";
 import { NButton, useMessage } from "naive-ui";
 import { Size, Type } from "naive-ui/es/button/src/interface";

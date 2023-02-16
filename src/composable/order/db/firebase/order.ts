@@ -88,7 +88,11 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     const { getOrdRef } = getSrc();
     await deleteDoc(doc(getOrdRef(order.shopId), order.dbId));
   },
-  updateOrder: async function (order) {
+  updateOrder: async function (order, itemId) {
+    if (itemId) {
+      const item = order.items.find((x) => x.id === itemId);
+      if (item) item.od.updatedAt = new Date();
+    }
     return insertById<IoOrder>(
       order,
       getIoCollection(ioFireStore, {

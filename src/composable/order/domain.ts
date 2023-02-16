@@ -1,5 +1,4 @@
 import { IoShipment, DefrayParam } from "@/composable";
-import { CommonField } from "@io-boxies/js-lib";
 import { QueryConstraint } from "@firebase/firestore";
 import { Ref } from "vue";
 import {
@@ -25,16 +24,12 @@ export interface PayAmount {
   pendingAmount: number;
   isPending: boolean; // 보류 금액으로 채워진 상태인지.
 }
-
-export interface IoOrder extends CommonField {
+export type OrderDateMap = {
+  [key in ORDER_STATE]?: Date;
+} & { createdAt?: Date; updatedAt?: Date; tossAt?: Date };
+export interface IoOrder {
   // only used OrderItem Aggregation
-  createdAt?: Date;
-  updatedAt?: Date;
-  approvedAt?: Date;
-  paidAt?: Date;
-  tossAt?: Date;
-  DoneAt?: Date;
-
+  od: OrderDateMap;
   isDone?: boolean;
   isDirectToShip: boolean; // direct to uncle
   dbId: string;
@@ -63,6 +58,7 @@ export interface IoOrder extends CommonField {
 }
 
 export interface OrderItem {
+  od: OrderDateMap;
   id: string;
   orderIds: string[];
   vendorId: string;
@@ -245,7 +241,7 @@ export interface OrderCancel extends Claim {
 }
 
 export interface OrderDB<T> {
-  updateOrder(order: IoOrder): Promise<void>;
+  updateOrder(order: IoOrder, itemId?: string): Promise<void>;
   deleteOrder(order: IoOrder): Promise<void>;
   orderGarment(
     orderDbIds: string[],

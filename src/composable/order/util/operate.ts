@@ -63,9 +63,12 @@ export function setItemCnt(
 export function setState(order: IoOrder, itemId: string, state: ORDER_STATE) {
   const ts = getOrderItems({ order, itemId });
   if (ts && ts.length > 0) {
+    const currDate = new Date();
     ts[0].beforeState = ts[0].state;
     ts[0].state = state;
+    ts[0].od[state] = currDate;
     order.states = uniqueArr(order.items.map((x) => x.state));
+    order.od[state] = currDate;
   } else {
     throw new Error(`order item id ${itemId} not exist`);
   }

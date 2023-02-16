@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { locateToStr, IoUser } from "@io-boxies/js-lib";
+import { locateToStr } from "@io-boxies/js-lib";
 import { h, ref, toRefs } from "vue";
 import {
   NText,
@@ -9,7 +9,7 @@ import {
   NDataTable,
   useMessage,
 } from "naive-ui";
-import { usePopSelTable } from "@/composable";
+import { usePopSelTable, IoUser } from "@/composable";
 import { makeMsgOpt } from "@/util";
 
 const props = defineProps<{

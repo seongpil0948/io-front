@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useUncleOrderStore } from "@/store";
-import { IoUser, getUserName } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
 import { computed, ref, toRefs, watchEffect } from "vue";
 import { storeToRefs } from "pinia";
+import { IoUser, getUserName } from "@/composable";
 const props = defineProps<{
   openModal: boolean;
 }>();

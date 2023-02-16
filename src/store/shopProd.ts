@@ -8,6 +8,8 @@ import {
   useVirtualVendor,
   VendorGarment,
   VENDOR_GARMENT_DB,
+  getUserName,
+  USER_DB,
 } from "@/composable";
 import { defineStore } from "pinia";
 import { ref, computed, Ref, watch, onBeforeMount } from "vue";
@@ -21,12 +23,7 @@ import {
 } from "@firebase/firestore";
 import { logger } from "@/plugin/logger";
 import { ioFireStore } from "@/plugin/firebase";
-import {
-  getIoCollection,
-  getUserName,
-  uniqueArr,
-  USER_DB,
-} from "@io-boxies/js-lib";
+import { getIoCollection, uniqueArr } from "@io-boxies/js-lib";
 import { shopProdC } from "@/composable/product/shop-garment/db/firebase";
 import { handleReadSnap } from "@/util";
 

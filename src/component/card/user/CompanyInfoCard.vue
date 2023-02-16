@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IoUser } from "@io-boxies/js-lib";
+import { IoUser } from "@/composable";
 import { toRefs } from "vue";
 const props = defineProps<{
   user: IoUser;

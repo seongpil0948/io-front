@@ -7,10 +7,11 @@ import {
   reverseMapping,
   mapTxt,
   catchError,
+  getUserName,
+  IoUser,
 } from "@/composable";
 import { useExcel } from "@/plugin/xlsx";
 import { useCommonStore, useShopOrderStore } from "@/store";
-import { getUserName, IoUser } from "@io-boxies/js-lib";
 import { NButton } from "naive-ui";
 import { ref, computed, h, shallowRef, toRefs, triggerRef } from "vue";
 import { utils } from "xlsx";

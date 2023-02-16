@@ -10,9 +10,11 @@ import {
   ORDER_GARMENT_DB,
   setState,
   SHIPMENT_DB,
+  IoUser,
+  getUserName,
 } from "@/composable";
 import { axiosConfig } from "@/plugin/axios";
-import { IoUser, getUserName } from "@io-boxies/js-lib";
+
 import { useAlarm } from "@io-boxies/vue-lib";
 import { useMessage } from "naive-ui";
 

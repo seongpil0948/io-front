@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import {
-  getIoCollection,
-  Locate,
-  locateToStr,
-  IoUser,
-} from "@io-boxies/js-lib";
-import { getDefaultUser, usePickArea } from "@/composable";
+import { Locate, locateToStr } from "@io-boxies/js-lib";
+import { getDefaultUser, usePickArea, IoUser } from "@/composable";
 import { ref, watch } from "vue";
 import {
   NText,
@@ -19,7 +14,7 @@ import {
 import { fireConverter, notNullRule, strLenRule } from "@/util";
 import { useAuthStore } from "@/store";
 import { setDoc, doc } from "@firebase/firestore";
-import { ioFireStore } from "@/plugin/firebase";
+import { getIoCollection, ioFireStore } from "@/plugin/firebase";
 
 const auth = useAuthStore();
 const virVendorConverter = fireConverter<IoUser>();

@@ -8,9 +8,13 @@ import {
 } from "@/composable";
 import { PAID_INFO } from "@/composable/common";
 import { VendorGarmentCrt, ShopGarmentCrt } from "@/composable/product";
-import { fireConverter } from "@/util/firebase";
+import {
+  QueryDocumentSnapshot,
+  Timestamp,
+  WithFieldValue,
+} from "@firebase/firestore";
 import { uuidv4 } from "@firebase/util";
-import { uniqueArr } from "@io-boxies/js-lib";
+import { dateToTimeStamp, loadDate, uniqueArr } from "@io-boxies/js-lib";
 import {
   ORDER_STATE,
   ORDER_TYPE,
@@ -18,11 +22,61 @@ import {
   OrderItemCombined,
   IoOrder,
   DONE_STATES,
+  OrderDateMap,
 } from "../domain";
 import { isValidOrder } from "./validate";
 
-export const orderFireConverter = fireConverter<IoOrder>();
+export const orderFireConverter = {
+  toFirestore: (data: WithFieldValue<IoOrder>) => {
+    data.od = orderDateToJson(data.od as OrderDateMap);
+    const items = [...(data.items as OrderItem[])];
 
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      item.od = orderDateToJson(item.od);
+    }
+    data.items = items;
+    return data;
+  },
+  fromFirestore: (snap: QueryDocumentSnapshot<IoOrder>) => {
+    const data = snap.data();
+    if (!data) throw new Error("no data");
+    data.od = orderDateFromJson(data.od);
+    const items = [...(data.items as OrderItem[])];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      item.od = orderDateFromJson(item.od);
+    }
+    return data;
+  },
+};
+const orderDateToJson = (od: OrderDateMap) => {
+  const dateKeys = Object.keys(od);
+  const j = {} as { [k: string]: Timestamp };
+  dateKeys.forEach((k) => {
+    if (od[k as keyof OrderDateMap]) {
+      j[k] = dateToTimeStamp(od[k as keyof OrderDateMap]);
+    }
+  });
+  return j;
+};
+const orderDateFromJson = (od?: OrderDateMap) => {
+  if (!od) {
+    od = defaultOrderDate();
+  }
+  (Object.keys(od) as (keyof OrderDateMap)[]).forEach((k) => {
+    od![k] = loadDate(od![k]);
+  });
+  return od;
+};
+const defaultOrderDate = () => {
+  const currDate = new Date();
+  return {
+    createdAt: currDate,
+    updatedAt: currDate,
+  };
+};
 export function newOrdItem(d: {
   vendorProd: VendorGarmentCrt;
   shopProd: ShopGarmentCrt;
@@ -44,6 +98,7 @@ export function newOrdItem(d: {
 }): OrderItem {
   const pureAmount = getPureAmount(d.orderCnt, d.vendorProd.vendorPrice);
   return {
+    od: defaultOrderDate(),
     id: uuidv4(),
     vendorId: d.vendorProd.vendorId,
     shopId: d.shopProd.shopId,
@@ -130,11 +185,9 @@ export function mergeOrderItem(origin: Partial<OrderItem>, y: OrderItem) {
 }
 
 function emptyOrder(shopId: string): IoOrder {
-  const currDate = new Date();
   const amount = newPayAmount({});
   return {
-    createdAt: currDate,
-    updatedAt: currDate,
+    od: defaultOrderDate(),
     shopId,
     dbId: uuidv4(),
     orderIds: [],

@@ -6,6 +6,7 @@ import {
   ORDER_STATE,
   SHIPMENT_DB,
   useOrderTable,
+  PopOrderDate,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { onBeforeMount, computed, h, ref } from "vue";
@@ -148,7 +149,9 @@ function doneOrder() {
       <user-basic-card v-if="si" :user="si.vendorProd" />
       <n-h4>배송정보</n-h4>
       <n-divider />
-      <shipment-card v-if="ss" :shipment="ss"></shipment-card>
+      <pop-order-date v-if="si" :od="si.od" />
+      <n-divider />
+      <shipment-card v-if="ss" :shipment="ss" />
 
       <template #action>
         <n-button @click="doneOrder"> 수령 완료 </n-button>

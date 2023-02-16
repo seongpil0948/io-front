@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { uncleAvailShip } from "@/composable";
+import { uncleAvailShip, IoUser } from "@/composable";
 import { useAuthStore } from "@/store";
-import { IoUser } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
 import { storeToRefs } from "pinia";
 import { computed, onBeforeMount, toRefs } from "vue";

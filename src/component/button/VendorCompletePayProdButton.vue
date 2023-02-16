@@ -7,12 +7,12 @@ import {
   ShopVendorGarment,
   ORDER_GARMENT_DB,
   setItemCnt,
+  IoUser,
 } from "@/composable";
 import { uuidv4 } from "@firebase/util";
 import { toRefs, watch, ref } from "vue";
 import { Size, Type } from "naive-ui/es/button/src/interface";
 import type ReceiptCard from "@/component/card/vendor/ReceiptCard.vue";
-import { IoUser } from "@io-boxies/js-lib";
 
 const props = defineProps<{
   products: ShopVendorGarment[];

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { IoUser, inWork, getUserName } from "@io-boxies/js-lib";
+import { inWork } from "@io-boxies/js-lib";
+import { IoUser, getUserName } from "@/composable";
 import { toRefs } from "vue";
 
 const props = defineProps<{ worker: IoUser }>();

@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { useShipUnitCols } from "@/composable";
+import { useShipUnitCols, IoUser, getUserName, USER_DB } from "@/composable";
 import { useAuthStore } from "@/store";
 import { strLenRule } from "@/util";
-import { IoUser, getUserName, USER_DB } from "@io-boxies/js-lib";
 import { NButton, FormInst, useMessage } from "naive-ui";
 import { computed, ref, toRefs } from "vue";
 import { useLogger } from "vue-logger-plugin";

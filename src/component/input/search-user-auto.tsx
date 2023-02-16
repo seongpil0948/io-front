@@ -1,9 +1,9 @@
-import { IoUser, IO_ENV, USER_ROLE, USER_DB } from "@io-boxies/js-lib";
 import throttle from "lodash.throttle";
 import { NAutoComplete, AutoCompleteOption, NSpace, NSelect } from "naive-ui";
 import { ref, PropType, defineComponent } from "vue";
 import { type Firestore } from "@firebase/firestore";
-import { useElasticSearch } from "@/composable";
+import { useElasticSearch, IoUser, USER_ROLE, USER_DB } from "@/composable";
+import { IO_ENV } from "@io-boxies/js-lib";
 export interface UserSearchResult {
   id: string;
   createdat: string;
