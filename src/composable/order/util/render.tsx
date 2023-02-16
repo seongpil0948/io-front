@@ -59,6 +59,7 @@ export const PopOrderDate = defineComponent({
   },
   render() {
     const { od } = this;
+    if (!od.createdAt) return "-";
     return (
       <NPopover>
         {{

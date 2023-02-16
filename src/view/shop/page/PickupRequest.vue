@@ -36,7 +36,6 @@ const {
   targetIds,
   targetOrdDbIds,
   tableCol,
-  targetOrdItems,
 } = useOrderTable({
   ioOrders: filteredOrders,
   orders,
