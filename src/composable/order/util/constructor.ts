@@ -28,6 +28,7 @@ import { isValidOrder } from "./validate";
 
 export const orderFireConverter = {
   toFirestore: (data: WithFieldValue<IoOrder>) => {
+    data = JSON.parse(JSON.stringify(data));
     data.od = orderDateToJson(data.od as OrderDateMap);
     const items = [...(data.items as OrderItem[])];
 
