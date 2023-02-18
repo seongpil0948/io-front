@@ -1,5 +1,5 @@
 import { formatDate, loadDate } from "@io-boxies/js-lib";
-import { NButton, NCard, NPopover, NSpace, NText } from "naive-ui";
+import { NButton, NPopover, NSpace, NText } from "naive-ui";
 import { defineComponent, PropType } from "vue";
 import { OrderDateMap, ORDER_STATE } from "../domain";
 

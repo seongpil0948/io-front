@@ -18,19 +18,6 @@ export const newPayAmount = (p: Partial<PayAmount>): PayAmount => ({
 export const getPureAmount = (orderCnt: number, prodPrice: number) =>
   orderCnt * prodPrice;
 
-export const getTotalAmount = (a: {
-  pureAmount: number;
-  shipFeeAmount: number;
-  shipFeeDiscountAmount: number;
-  pickFeeAmount: number;
-  pickFeeDiscountAmount: number;
-  tax: number;
-}) =>
-  a.pureAmount +
-  (a.shipFeeAmount - a.shipFeeDiscountAmount) +
-  (a.pickFeeAmount - a.pickFeeDiscountAmount) +
-  a.tax;
-
 export const getAmount = (a: { pureAmount: number; tax: number }) =>
   a.pureAmount + a.tax;
 
