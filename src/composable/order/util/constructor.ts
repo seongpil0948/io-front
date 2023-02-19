@@ -165,7 +165,7 @@ export function refreshOrder(o: IoOrder) {
     o.activeCnts += item.activeCnt;
     o.pendingCnts += item.pendingCnt;
     refreshAmount(item.prodAmount);
-    mergeAmount(o.prodAmount, item.prodAmount);
+    o.prodAmount = mergeAmount(o.prodAmount, item.prodAmount);
   }
   o.isDone = o.states.every((state) => DONE_STATES.includes(state));
   refreshAmount(o.pickAmount);
@@ -182,7 +182,7 @@ export function mergeOrderItem(origin: Partial<OrderItem>, y: OrderItem) {
     ? origin.pendingCnt + y.pendingCnt
     : y.pendingCnt;
   if (!origin.prodAmount) origin.prodAmount = newPayAmount({});
-  mergeAmount(origin.prodAmount!, y.prodAmount);
+  origin.prodAmount = mergeAmount(origin.prodAmount!, y.prodAmount);
 }
 
 function emptyOrder(shopId: string): IoOrder {

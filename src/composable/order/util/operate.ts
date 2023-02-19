@@ -1,8 +1,9 @@
 import { PAID_INFO } from "@/composable/common";
+import { doc, DocumentReference } from "@firebase/firestore";
 import { uuidv4 } from "@firebase/util";
 import { uniqueArr } from "@io-boxies/js-lib";
 import cloneDeep from "lodash.clonedeep";
-import { getAmount, getPureAmount, refreshOrder } from ".";
+import { getAmount, getPureAmount, mergeAmount, refreshOrder } from ".";
 import { ORDER_GARMENT_DB } from "../db";
 import { IoOrder, OrderItem, OrderItemCombined, ORDER_STATE } from "../domain";
 import { getPendingCnt, getActiveCnt, getOrderItems } from "./getter";
@@ -141,4 +142,71 @@ export function deleteItem(d: { order: IoOrder; itemId: string }) {
   // } else {
   //   await ORDER_GARMENT_DB.deleteOrder(d.order);
   // }
+}
+
+export function addExistItem(o: IoOrder, itemId: string, item: OrderItem) {
+  setOrderCnt({
+    order: o,
+    orderItemId: itemId,
+    orderCnt: item.orderCnt,
+    add: true,
+  });
+  const it = o.items.find((x) => x.id === itemId)!;
+  it.prodAmount = mergeAmount(it.prodAmount, item.prodAmount);
+  return o;
+}
+
+export function addExistItems(
+  orders: IoOrder[],
+  onSet: (order: IoOrder) => Promise<void>,
+  onDelete: (dbId: string) => Promise<void>,
+  isTargetItem: (a: OrderItem) => boolean
+) {
+  for (let i = 0; i < orders.length; i++) {
+    const order = orders[i];
+    const vendorIds = order.vendorIds;
+    const tarOrds = orders.filter((x) =>
+      x.vendorIds.some((y) => vendorIds.includes(y))
+    );
+    for (let j = 0; j < order.items.length; j++) {
+      const item = order.items[j];
+      let exist: typeof order | null = null;
+      for (let k = 0; k < tarOrds.length; k++) {
+        const o = tarOrds[k];
+        if (order.dbId === o.dbId || order.shipManagerId !== o.shipManagerId)
+          continue;
+        for (let z = 0; z < o.items.length; z++) {
+          const existItem = o.items[z];
+          if (!isTargetItem(existItem)) continue;
+          else if (
+            item.vendorProd.vendorProdId === item.vendorProd.vendorProdId &&
+            item.shopProd.shopProdId === existItem.shopProd.shopProdId &&
+            item.orderType === existItem.orderType &&
+            existItem.state == item.state
+          ) {
+            exist = addExistItem(o, existItem.id, item);
+            order.items.splice(j, 1);
+            order.itemIds.splice(
+              order.itemIds.findIndex((oid) => oid === item.id),
+              1
+            );
+            if (order.items.length < 1) {
+              exist.orderIds = uniqueArr([
+                ...order.orderIds,
+                ...exist.orderIds,
+              ]);
+              exist.itemIds = uniqueArr([...order.itemIds, ...exist.itemIds]);
+              onDelete(order.dbId);
+            } else {
+              onSet(order);
+            }
+            if (exist) {
+              onSet(exist);
+            }
+            break;
+          }
+        }
+      }
+    }
+  }
 }

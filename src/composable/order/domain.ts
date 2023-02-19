@@ -301,7 +301,7 @@ export interface OrderDB<T> {
     uncleId: string,
     shopId: string,
     isDirect: boolean
-  ): Promise<IoOrder>;
+  ): Promise<void>;
   returnReq(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
   returnApprove(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
   returnReject(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
@@ -321,6 +321,6 @@ export interface OrderDB<T> {
 export interface ShipDB<T> {
   getShipment(uncleId: string, shipId: string): Promise<IoShipment | null>;
   batchUpdate(shipments: Partial<IoShipment>[]): Promise<void>;
-  approvePickUp(row: IoOrder): Promise<T | Error>;
+  approvePickUp(row: IoOrder): Promise<void>;
   doneShipOrder(order: IoOrder, itemId: string): Promise<void>;
 }

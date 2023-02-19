@@ -3,6 +3,8 @@ import {
   IoOrder,
   validateUser,
   vendorUserProdFromOrders,
+  IoUser,
+  getUserName,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
@@ -12,7 +14,7 @@ import { useLogger } from "vue-logger-plugin";
 import { ORDER_GARMENT_DB } from "../db";
 import { OrderItemCombined } from "../domain";
 import { useDialog } from "naive-ui";
-import { IoUser, getUserName, locateToStr } from "@io-boxies/js-lib";
+import { locateToStr } from "@io-boxies/js-lib";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { axiosConfig } from "@/plugin/axios";
 import { getAnalytics, logEvent } from "@firebase/analytics";
@@ -196,7 +198,7 @@ export function useOrderBasic(
       return msg.error("주문을 선택 해주세요");
     }
     validateUser(p.shop, p.shop.userInfo.userId);
-    const result = await ORDER_GARMENT_DB.reqPickup(
+    await ORDER_GARMENT_DB.reqPickup(
       [...p.orderDbIds],
       [...p.orderItemIds],
       p.uncle.userInfo.userId,
@@ -204,7 +206,6 @@ export function useOrderBasic(
       p.direct
     );
     msg.success("픽업 요청 성공!");
-    console.log("result of request pickup: ", result);
     let evt = "order_pickup_request";
     if (p.direct) evt += "_directed";
     logEvent(getAnalytics(ioFire.app), evt, {

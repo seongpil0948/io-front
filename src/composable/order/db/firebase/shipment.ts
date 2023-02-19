@@ -12,6 +12,7 @@ import {
   newPayHistory,
   defrayAmount,
   refreshOrder,
+  ORDER_STATE,
 } from "@/composable";
 import {
   getIoCollection,
@@ -20,7 +21,7 @@ import {
 } from "@io-boxies/js-lib";
 import { uuidv4 } from "@firebase/util";
 import { doc, getDoc, runTransaction } from "firebase/firestore";
-import { getSrc } from "./order";
+import { getSrc, mergeSameOrders } from "./order";
 import { ioFireStore } from "@/plugin/firebase";
 // import { uuidv4 } from "@firebase/util";
 
@@ -47,6 +48,7 @@ export const ShipmentFB: ShipDB<IoOrder> = {
   },
   approvePickUp: async function (row) {
     isValidOrder(row);
+    const afterState: ORDER_STATE = "BEFORE_ASSIGN_PICKUP";
     const { getOrdRef, orderFireConverter, getPayDocRef, getPayHistDocRef } =
       getSrc();
     if (!row.shipManagerId) throw new Error("shipManagerId is null");
@@ -54,7 +56,7 @@ export const ShipmentFB: ShipDB<IoOrder> = {
     const shopPay = await IO_PAY_DB.getIoPayByUser(row.shopId);
     const ordRef = getOrdRef(row.shopId);
     const ordDocRef = doc(ordRef, row.dbId).withConverter(orderFireConverter);
-    return runTransaction(ioFireStore, async (t) => {
+    await runTransaction(ioFireStore, async (t) => {
       // >>> read order
       const ordDoc = await t.get(ordDocRef);
       if (!ordDoc.exists()) throw new Error("order doc does not exist!");
@@ -170,13 +172,14 @@ export const ShipmentFB: ShipDB<IoOrder> = {
         );
         item.shipmentId = shipment.shippingId;
         // setState(ord, item.id, "BEFORE_ASSIGN_PICKUP");
-        setState(ord, item.id, "BEFORE_ASSIGN_PICKUP");
+        setState(ord, item.id, afterState);
       }
       refreshOrder(ord);
       t.set(ordDocRef, ord);
 
       return ord;
     });
+    return mergeSameOrders(afterState, row.shopId);
   },
   doneShipOrder: async function (o, itemId) {
     if (!o.shipManagerId) throw new Error("엉클 관리자 계정이 없습니다.");

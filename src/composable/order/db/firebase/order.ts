@@ -45,6 +45,8 @@ import {
   USER_DB,
   PayAmount,
   userFireConverter,
+  addExistItem,
+  addExistItems,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import {
@@ -117,8 +119,8 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     const { getUserDocRef, getOrdRef, getPayDocRef, getPayHistDocRef } =
       getSrc();
     const orders = await OrderGarmentFB.batchRead(orderDbIds);
-    console.log("before orders combine", JSON.parse(JSON.stringify(orders)));
-    return runTransaction<IoOrder>(ioFireStore, async (t) => {
+    const afterState: ORDER_STATE = "BEFORE_APPROVE_PICKUP";
+    runTransaction<IoOrder>(ioFireStore, async (t) => {
       // >>> combine items >>>
       const targetItems: OrderItem[] = [];
       for (let i = 0; i < orders.length; i++) {
@@ -150,7 +152,10 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       const vendors = vs.filter((y) => y !== null) as IoUser[];
 
       const pickPriceCnt: PriceCnt = {};
-      const shipPriceCnt: PriceCnt = {};
+      let shipPrice = 0;
+      let shipPendingPrice = (uncle as IoUser).uncleInfo?.shipPendingAmount;
+      if (!cOrder.shipAmount.amount || cOrder.shipAmount.amount < 1000)
+        throw new Error("배송 보류금액을 1000원 이상으로 설정 해주세요.");
       for (let i = 0; i < cOrder.items.length; i++) {
         const item = cOrder.items[i];
         const vendor = vendors.find((v) => v.userInfo.userId === item.vendorId);
@@ -163,18 +168,52 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         );
         const shipId = shipLocateUncle.locate.code;
         if (!shipId) throw new Error("ship locate id not exist");
+        console.log("initial pickPriceCnt: ", pickPriceCnt);
+        console.log("shipPrice: ", shipPrice);
         const pickId = getPickId(pickLocateUncle.locate);
         _setCnt(pickPriceCnt, pickId, item, pickLocateUncle.amount);
-        _setCnt(shipPriceCnt, shipId, item, shipLocateUncle.amount);
+        shipPrice = shipLocateUncle.amount;
+        // _setCnt(shipPriceCnt, shipId, item, shipLocateUncle.amount);
 
         item.shipManagerId = uncleId;
-        setState(cOrder, item.id, "BEFORE_APPROVE_PICKUP");
+        setState(cOrder, item.id, afterState);
       }
       const goDefray = (amount: PayAmount) => {
         const { newAmount } = defrayAmount(amount, {}, true);
         return newAmount;
       };
-
+      const targetState: ORDER_STATE[] = [
+        afterState,
+        "BEFORE_ASSIGN_PICKUP",
+        "ONGOING_PICKUP",
+      ];
+      const existOrders: IoOrder[] = await getOrders([
+        where("shopId", "==", shopId),
+        where("shipManagerId", "==", uncleId),
+        where("states", "array-contains-any", targetState),
+      ]);
+      if (existOrders.length > 0) {
+        // 동일 픽업 건물 있을 경우: 픽업료 미부과
+        shipPrice = 0;
+        shipPendingPrice = 0;
+        for (let k = 0; k < existOrders.length; k++) {
+          const exist = existOrders[k];
+          for (let z = 0; z < exist.items.length; z++) {
+            const existItem = exist.items[z];
+            if (targetState.includes(existItem.state)) {
+              for (let b = 0; b < Object.values(pickPriceCnt).length; b++) {
+                const pickObj = Object.values(pickPriceCnt)[b];
+                if (pickObj.byVendor[existItem.vendorId]) {
+                  delete pickObj.byVendor[existItem.vendorId];
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+      console.log("after pickPriceCnt: ", pickPriceCnt);
+      console.log("after shipPrice: ", shipPrice);
       // initial as pickPrice
       let pickupPrice = Object.entries(pickPriceCnt).reduce((acc, curr) => {
         const priceByBuild = curr[1].price;
@@ -187,41 +226,24 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
           (item) => (item.prodAmount = goDefray(item.prodAmount))
         );
       }
-      const shipPrice = Object.entries(shipPriceCnt).reduce((acc, curr) => {
-        const priceByBuild = curr[1].price;
-        const vendorIds: string[] = Object.keys(curr[1].byVendor);
-        return acc + priceByBuild * vendorIds.length;
-      }, 0);
       pickupPrice += shipPrice;
+      console.log("pick amount; ", pickupPrice);
+      console.log("before defray cOrder: ", JSON.parse(JSON.stringify(cOrder)));
       cOrder.pickAmount = newPayAmount({ pureAmount: pickupPrice });
       cOrder.pickAmount = goDefray(cOrder.pickAmount);
       let totalPrice = cOrder.pickAmount.pendingAmount;
-      console.log(
-        "before defray pick amount: ",
-        JSON.parse(JSON.stringify(cOrder.pickAmount))
-      );
-
-      cOrder.shipAmount = newPayAmount({
-        pureAmount: (uncle as IoUser).uncleInfo?.shipPendingAmount,
-      });
+      cOrder.shipAmount = newPayAmount({ pureAmount: shipPendingPrice });
       cOrder.shipAmount = goDefray(cOrder.shipAmount);
       totalPrice += cOrder.shipAmount.amount;
-
-      console.log("after defray pick amount: ", cOrder.pickAmount);
-      console.info("totalPrice: ", totalPrice, "shipPrice: ", shipPrice);
-      console.log("before shop pay: ", JSON.parse(JSON.stringify(shopPay)));
-      console.info(`total price: ${totalPrice}`);
-
+      console.log("totalPrice: ", totalPrice);
+      console.log("after defray cOrder: ", JSON.parse(JSON.stringify(cOrder)));
       if (!uncle.uncleInfo) throw new Error("엉클정보가 없습니다.");
-      else if (!cOrder.shipAmount.amount || cOrder.shipAmount.amount < 1000)
-        throw new Error("배송 보류금액을 1000원 이상으로 설정 해주세요.");
       else if (shopPay.budget < totalPrice)
         throw new Error(
           `유저캐쉬(${shopPay.budget})가 필요캐쉬(${totalPrice}) 보다 작습니다.`
         );
       shopPay.budget -= totalPrice;
       shopPay.pendingBudget += totalPrice;
-      console.log("after shop pay: ", shopPay);
       const h = newPayHistory({
         amount: -totalPrice,
         pendingAmount: totalPrice,
@@ -252,6 +274,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       // <<< furbish combined items <<<
       return cOrder;
     });
+    return mergeSameOrders(afterState, shopId);
   },
   completePay: async function (
     orderDbIds: string[],
@@ -1002,7 +1025,7 @@ async function stateModify(d: {
   await Promise.all(shopIds.map((x) => mergeSameOrders(d.afterState, x)));
 }
 
-async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
+export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
   return await runTransaction(ioFireStore, async (transaction) => {
     const { getOrdRef } = getSrc();
     const ordRef = getOrdRef(shopId);
@@ -1010,57 +1033,16 @@ async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
       where("shopId", "==", shopId),
       where("states", "array-contains", state),
     ]);
-    for (let i = 0; i < orders.length; i++) {
-      const order = orders[i];
-      const vendorIds = order.vendorIds;
-      const tarOrds = orders.filter((x) =>
-        x.vendorIds.some((y) => vendorIds.includes(y))
-      );
-      for (let j = 0; j < order.items.length; j++) {
-        const item = order.items[j];
-        let exist: typeof order | null = null;
-        for (let k = 0; k < tarOrds.length; k++) {
-          const o = tarOrds[k];
-          if (order.dbId === o.dbId) continue;
-          for (let z = 0; z < o.items.length; z++) {
-            const existItem = o.items[z];
-            if (existItem.state !== state) continue;
-            else if (
-              item.vendorProd.vendorProdId === item.vendorProd.vendorProdId &&
-              item.shopProd.shopProdId === existItem.shopProd.shopProdId &&
-              item.orderType === existItem.orderType
-            ) {
-              exist = o;
-              setOrderCnt({
-                order: exist,
-                orderItemId: existItem.id,
-                orderCnt: item.orderCnt,
-                add: true,
-              });
-              order.items.splice(j, 1);
-              order.itemIds.splice(
-                order.itemIds.findIndex((oid) => oid === item.id),
-                1
-              );
-              if (order.items.length < 1) {
-                exist.orderIds = uniqueArr([
-                  ...order.orderIds,
-                  ...exist.orderIds,
-                ]);
-                exist.itemIds = uniqueArr([...order.itemIds, ...exist.itemIds]);
-                transaction.delete(doc(ordRef, order.dbId));
-              } else {
-                transaction.set(doc(ordRef, order.dbId), order);
-              }
-              if (exist) {
-                transaction.set(doc(ordRef, exist.dbId), exist);
-              }
-              break;
-            }
-          }
-        }
-      }
-    }
+    addExistItems(
+      orders,
+      async (o) => {
+        transaction.set(doc(ordRef, o.dbId), o);
+      },
+      async (dbId) => {
+        transaction.delete(doc(ordRef, dbId));
+      },
+      (a) => a.state === state
+    );
   });
 }
 

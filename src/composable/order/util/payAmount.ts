@@ -53,20 +53,19 @@ export function defrayAmount(
   return { newAmount: t, creditAmount };
 }
 
-export function mergeAmount(origin: PayAmount, y: PayAmount) {
-  origin.tax += y.tax;
-  origin.paidAmount += y.paidAmount;
-  origin.paid = y.paid;
-  origin.paidAt = y.paidAt ?? origin.paidAt;
-  origin.pureAmount += y.pureAmount;
-  origin.amount += y.amount;
-  origin.paymentConfirm =
-    origin.paymentConfirm === true && y.paymentConfirm === true;
-  origin.paymentMethod = y.paymentMethod ?? origin.paymentMethod;
-  origin.discountAmount += y.discountAmount;
-  origin.pendingAmount += y.pendingAmount;
-  origin.isPending = origin.isPending === false && y.isPending === false;
-}
+export const mergeAmount = (origin: PayAmount, y: PayAmount): PayAmount => ({
+  tax: y.tax + origin.tax,
+  paidAmount: y.paidAmount + origin.paidAmount,
+  paid: y.paid,
+  paidAt: y.paidAt ?? origin.paidAt,
+  pureAmount: y.pureAmount + origin.pureAmount,
+  amount: y.amount + origin.amount,
+  paymentConfirm: origin.paymentConfirm === true && y.paymentConfirm === true,
+  paymentMethod: y.paymentMethod,
+  discountAmount: y.discountAmount + origin.discountAmount,
+  pendingAmount: y.pendingAmount + origin.pendingAmount,
+  isPending: origin.isPending === false && y.isPending === false,
+});
 
 export function refreshAmount(t: PayAmount) {
   if (t.amount === t.paidAmount) {
