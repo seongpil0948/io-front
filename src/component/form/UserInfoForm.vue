@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { catchError, IoAccount } from "@/composable";
+import { IoUserInfo, catchError, IoAccount } from "@/composable";
 import { emailRule, nameLenRule } from "@/util";
 import { ioFire } from "@/plugin/firebase";
 import { getAuth } from "@firebase/auth";
-import { IoUserInfo, getFcmToken, FcmToken } from "@io-boxies/js-lib";
+import { getFcmToken, FcmToken } from "@io-boxies/js-lib";
 import { FormInst, useMessage } from "naive-ui";
 import { ref, toRefs, watchEffect } from "vue";
 

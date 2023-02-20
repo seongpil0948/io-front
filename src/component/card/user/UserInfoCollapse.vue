@@ -6,18 +6,15 @@ import {
   defaultShopOper,
   defaultVendorOper,
   IoUser,
-} from "@/composable";
-import { useAuthStore } from "@/store";
-import { deadOpt, shipMethodOpt } from "@/util";
-import {
   VendorOperInfo,
   SALE_MANAGE,
   ShopOperInfo,
   USER_DB,
-  getParentRef,
-  IoFireApp,
-  uploadFile,
-} from "@io-boxies/js-lib";
+  IoAccount,
+} from "@/composable";
+import { useAuthStore } from "@/store";
+import { deadOpt, shipMethodOpt } from "@/util";
+import { getParentRef, IoFireApp, uploadFile } from "@io-boxies/js-lib";
 import { useMessage } from "naive-ui";
 import { ioFireStore } from "@/plugin/firebase";
 import { DEFAULT_PROFILE_IMG } from "@/constants";
@@ -57,6 +54,7 @@ onBeforeMount(async () => {
 // );
 async function updateUser(useMsg = true) {
   if (authModel.value) {
+    console.log("authModel: ", authModel.value);
     await USER_DB.updateUser(ioFireStore, authModel.value);
     authStore.setUser(authModel.value);
     if (useMsg) msg.info("변경 완료.");
@@ -97,6 +95,12 @@ async function onClickProfile() {
   const u = getAuth().currentUser;
   if (u) await updateProfile(u, { photoURL: imgs[0] });
   msg.info("변경 완료.");
+}
+async function onSubmitAccount(acc: IoAccount) {
+  if (!authModel.value) return msg.error("다시 시도해주세요");
+  authModel.value.userInfo.account = acc;
+  console.log("new account : ", acc);
+  return updateUser();
 }
 </script>
 
@@ -249,6 +253,16 @@ async function onClickProfile() {
           />
         </div>
       </n-space>
+    </n-collapse-item>
+    <n-collapse-item
+      v-if="authModel && authModel.userInfo"
+      title="계좌정보"
+      name="4"
+    >
+      <bank-account-form
+        :acc="authModel.userInfo.account"
+        @submit:account="onSubmitAccount"
+      />
     </n-collapse-item>
   </n-collapse>
 </template>

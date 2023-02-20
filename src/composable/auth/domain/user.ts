@@ -2,7 +2,8 @@ import { UserCredential } from "@firebase/auth";
 import { Firestore } from "@firebase/firestore";
 import { FcmToken } from ".";
 import { OutputData } from "@editorjs/editorjs/types/data-formats";
-import { IoAccount, Locate } from "@io-boxies/js-lib";
+import { Locate } from "@io-boxies/js-lib";
+import { IoAccount } from "@/composable";
 type USER_ROLE =
   | "SHOP"
   | "VENDOR"

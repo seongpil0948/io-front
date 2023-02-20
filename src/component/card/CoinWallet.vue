@@ -2,41 +2,43 @@
 import { computed, getCurrentInstance, h, ref } from "vue";
 import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
-import { IoPay, useUserPay } from "@/composable";
+import { ReqEncash, useUserPay } from "@/composable";
 import { Bootpay } from "@bootpay/client-js";
 import { uuidv4 } from "@firebase/util";
 import { useLogger } from "vue-logger-plugin";
 import { useMessage, useDialog, NSpace, NText } from "naive-ui";
 import { formatDate, loadDate, locateToStr } from "@io-boxies/js-lib";
+import { getIoCollection, ioFireStore } from "@/plugin/firebase";
+import { doc, setDoc } from "@firebase/firestore";
 
 const inst = getCurrentInstance();
 const APP_ID = "62b45e0fe38c3000215aec6b";
 const authStore = useAuthStore();
-const user = authStore.currUser();
-const { userPay } = useUserPay(user.userInfo.userId);
+const user = computed(() => authStore.currUser());
+const { userPay } = useUserPay(user.value.userInfo.userId);
 const log = useLogger();
-const uid = user.userInfo.userId;
+const uid = user.value.userInfo.userId;
 const msg = useMessage();
 const dialog = useDialog();
 async function reqPay() {
   const uuid = uuidv4();
   const date = new Date();
-  const price = IoPay.coinToMoney(chargeCoin.value);
+  const price = chargePrice.value;
   try {
     const resp = await Bootpay.requestPayment({
       price,
       application_id: APP_ID,
-      order_name: `order in-coin ${chargeCoin.value} 개`,
+      order_name: `order in-coin ${chargePrice.value} 개`,
       order_id: "charge_" + uuid, //고유 주문번호로, 생성하신 값을 보내주셔야 합니다
       uuid,
       user: {
         id: uid,
-        username: user.userInfo.userName,
-        email: user.userInfo.email,
-        addr: user.companyInfo?.shipLocate
-          ? locateToStr(user.companyInfo?.shipLocate)
+        username: user.value.userInfo.userName,
+        email: user.value.userInfo.email,
+        addr: user.value.companyInfo?.shipLocate
+          ? locateToStr(user.value.companyInfo?.shipLocate)
           : undefined,
-        phone: user.userInfo.phone ?? "",
+        phone: user.value.userInfo.phone ?? "",
       },
       metadata: {
         uid,
@@ -157,16 +159,14 @@ async function reqPay() {
 const fillCoin = (data: any) => {
   const price = data.price;
   const dPrice = dd(Number(data.metadata.m));
-  console.log("data:", data, "\n userPay: ", userPay.value);
   console.assert(price === dPrice, "invalid price in coin");
-  const coin = IoPay.moneyToCoin(price);
   if (!userPay.value) {
     return log.error(
       uid,
-      `userPay is null in fillCoin, required charge coin is: ${coin}`
+      `userPay is null in fillCoin, required charge coin is: ${price}`
     );
   }
-  userPay.value.budget += coin;
+  userPay.value.budget += price;
   userPay.value
     .update()
     .then(() => {
@@ -176,9 +176,8 @@ const fillCoin = (data: any) => {
       msg.error("충전실패!");
     });
 };
-const minCharge = IoPay.moneyToCoin(5000);
-const chargeCoin = ref(minCharge);
-const chargeString = computed(() => IoPay.toMoneyString(chargeCoin.value));
+const minCharge = 100;
+const chargePrice = ref(minCharge);
 const chargeValidator = (x: number) => x % 10 === 0;
 
 const zz = 1224512435;
@@ -187,17 +186,24 @@ const ee = (p: number) => (Number(p) + zz) ^ hh;
 const dd = (p: number) => (Number(p) ^ hh) - zz;
 
 // >>> encashment >>>
-const encash = ref(0);
 const maxEncash = computed(
   () => userPay.value?.budget ?? 0 - (userPay.value?.pendingBudget ?? -1)
 );
+const encash = ref(maxEncash.value);
 async function reqEncashment() {
-  // if (maxEncash.value < encash.value)
-  //   return msg.error(`${maxEncash.value}원 이하로 출금요청 가능합니다.`);
-  // else return msg.success(`${encash.value}원 출금요청 완료.`);
-  msg.error(
-    "현재 개발중인 관계로 inoutboxpayment@gmail.com로 이메일 주시면 처리가능합니다!"
-  );
+  if (!userPay.value) return msg.error("다시 시도해주세요");
+  else if (maxEncash.value < encash.value)
+    return msg.error(`${maxEncash.value}원 이하로 출금요청 가능합니다.`);
+  else if (!user.value.userInfo.account || !user.value.userInfo.account.code) {
+    return msg.error("계좌 정보를 업데이트 해주십시오.");
+  }
+  const obj: ReqEncash = {
+    createdAt: new Date(),
+    amount: encash.value,
+    userId: userPay.value!.userId,
+  };
+  await setDoc(doc(getIoCollection(ioFireStore, { c: "REQUEST_ENCASH" })), obj);
+  return msg.success(`${encash.value}원 출금요청 완료.`);
 }
 </script>
 <template>
@@ -237,8 +243,9 @@ async function reqEncashment() {
           <n-space justify="space-between">
             <n-text strong> 충전 금액 </n-text>
             <n-input-number
-              v-model:value="chargeCoin"
+              v-model:value="chargePrice"
               :step="10"
+              :min="minCharge"
               :validator="chargeValidator"
             />
           </n-space>
@@ -247,11 +254,9 @@ async function reqEncashment() {
           </n-space>
           <n-space justify="space-between">
             <n-button
-              v-for="m in [100, 1000, 2000, 5000, 10000, 100000].map((x) =>
-                IoPay.moneyToCoin(x)
-              )"
+              v-for="m in [100, 1000, 2000, 5000, 10000, 100000]"
               :key="m"
-              @click="chargeCoin += m"
+              @click="chargePrice += m"
             >
               {{ m.toLocaleString() }}
             </n-button>
@@ -259,7 +264,7 @@ async function reqEncashment() {
           <n-space justify="space-between" style="line-height: 2rem">
             <div>
               <n-text strong> 결제금액: </n-text>
-              <n-text>{{ chargeString }} </n-text>
+              <n-text>{{ chargePrice?.toLocaleString() + " 원" }} </n-text>
             </div>
 
             <n-button @click="reqPay">
