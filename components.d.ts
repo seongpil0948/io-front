@@ -128,6 +128,7 @@ declare module '@vue/runtime-core' {
     PackingList: typeof import('./src/view/vendor/page/PackingList.vue')['default']
     PaidOrder: typeof import('./src/view/vendor/page/PaidOrder.vue')['default']
     PayAmountCard: typeof import('./src/component/card/PayAmountCard.vue')['default']
+    PayAmountsCard: typeof import('./src/component/card/PayAmountsCard.vue')['default']
     PayHistory: typeof import('./src/view/shop/page/PayHistory.vue')['default']
     PayMng: typeof import('./src/view/vendor/page/PayMng.vue')['default']
     PendingOrderList: typeof import('./src/view/shop/page/PendingOrderList.vue')['default']

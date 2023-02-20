@@ -45,7 +45,6 @@ import {
   USER_DB,
   PayAmount,
   userFireConverter,
-  addExistItem,
   addExistItems,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
@@ -107,7 +106,11 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
     );
   },
   /**
-   * @param isDirect - 도매처 없이 바로 픽업요청 여부
+   * 요청한 주문 아이템들을 모아 한개의 주문건을 생성.
+   * 픽업료 산정: 픽업건물[도매처ID] = [OrderItem]
+   * targetState 에 속한 주문건들이 이미 존재할 경우
+   *  지역별 배송 금액은 0원, 건물별픽업금액은  도매처 ID를 삭제후 계산한다.
+   * @beta
    */
   reqPickup: async function (
     orderDbIds: string[],
@@ -120,7 +123,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       getSrc();
     const orders = await OrderGarmentFB.batchRead(orderDbIds);
     const afterState: ORDER_STATE = "BEFORE_APPROVE_PICKUP";
-    runTransaction<IoOrder>(ioFireStore, async (t) => {
+    await runTransaction(ioFireStore, async (t) => {
       // >>> combine items >>>
       const targetItems: OrderItem[] = [];
       for (let i = 0; i < orders.length; i++) {
@@ -154,7 +157,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       const pickPriceCnt: PriceCnt = {};
       let shipPrice = 0;
       let shipPendingPrice = (uncle as IoUser).uncleInfo?.shipPendingAmount;
-      if (!cOrder.shipAmount.amount || cOrder.shipAmount.amount < 1000)
+      if (!shipPendingPrice || shipPendingPrice < 1000)
         throw new Error("배송 보류금액을 1000원 이상으로 설정 해주세요.");
       for (let i = 0; i < cOrder.items.length; i++) {
         const item = cOrder.items[i];
@@ -1038,8 +1041,8 @@ export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
       async (o) => {
         transaction.set(doc(ordRef, o.dbId), o);
       },
-      async (dbId) => {
-        transaction.delete(doc(ordRef, dbId));
+      async (o) => {
+        transaction.delete(doc(ordRef, o.dbId));
       },
       (a) => a.state === state
     );

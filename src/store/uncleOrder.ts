@@ -17,6 +17,9 @@ import {
   onFirestoreErr,
   IoUser,
   usersFromSnap,
+  mergeAmount,
+  PayAmount,
+  OrderItemByShopUncle,
 } from "@/composable";
 import { logger } from "@/plugin/logger";
 import { Unsubscribe } from "@firebase/util";
@@ -56,6 +59,22 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
         : _ioOrders.value
     );
   }
+  const priceByShop = computed(() => {
+    return orders.value.reduce((acc, curr) => {
+      if (!acc[curr.shopId]) {
+        acc[curr.shopId] = {
+          prodAmount: curr.prodAmount,
+          pickAmount: curr.pickAmount,
+          shipAmount: curr.shipAmount,
+        };
+      } else {
+        mergeAmount(acc[curr.shopId].prodAmount, curr.prodAmount);
+        mergeAmount(acc[curr.shopId].pickAmount, curr.pickAmount);
+        mergeAmount(acc[curr.shopId].shipAmount, curr.shipAmount);
+      }
+      return acc;
+    }, {} as { [shopId: string]: { prodAmount: PayAmount; pickAmount: PayAmount; shipAmount: PayAmount } });
+  });
   function getGarmentOrdersByShop(ioOrders: typeof _ioOrders) {
     return computed(() =>
       ioOrders.value.reduce((acc, curr) => {
@@ -69,12 +88,15 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
                 curr.shopProd.userInfo.userName
               : "-",
             items: [curr],
+            prodAmount: priceByShop.value[curr.shopId].prodAmount,
+            pickAmount: priceByShop.value[curr.shopId].pickAmount,
+            shipAmount: priceByShop.value[curr.shopId].shipAmount,
           });
           return acc;
         }
         exist.items.push(curr);
         return acc;
-      }, [] as OrderItemByShop[])
+      }, [] as OrderItemByShopUncle[])
     );
   }
   function getOrdersByShop(ioOrders: typeof _ioOrders) {
@@ -209,5 +231,6 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
     _ioOrders,
     workers,
     imageById,
+    priceByShop,
   };
 });

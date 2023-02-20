@@ -12,15 +12,18 @@ import {
   NAvatarGroup,
   DataTableRowKey,
   NText,
+  NPopover,
 } from "naive-ui";
 import ag from "naive-ui/es/avatar-group/src/AvatarGroup";
-import { ref, computed, watchEffect, h } from "vue";
+import { ref, computed, watchEffect, h, defineAsyncComponent } from "vue";
 import { ORDER_STATE, ShipOrder, ShipOrderByShop } from "../domain";
 import { IoShipment } from "../model";
 import { ioFireStore } from "@/plugin/firebase";
 import { storeToRefs } from "pinia";
 import { getUserName, PopOrderDate } from "@/composable";
-
+const PayAmountsCard = defineAsyncComponent(
+  () => import("@/component/card/PayAmountsCard.vue")
+);
 export function useShipmentUncle(inStates: ORDER_STATE[]) {
   const auth = useAuthStore();
   const u = auth.currUser();
@@ -29,7 +32,7 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
   const ioOrders = ordStore.getFilteredOrder(inStates);
   const ioOrdersByShop = ordStore.getGarmentOrdersByShop(ioOrders);
   const orderShips = ref<ShipOrder[]>([]);
-  const { imageById, workers } = storeToRefs(ordStore);
+  const { imageById, workers, priceByShop } = storeToRefs(ordStore);
 
   const checkedKeys = ref<DataTableRowKey[]>([]);
   function onCheckRow(keys: DataTableRowKey[]) {
@@ -62,6 +65,9 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
             curr.shopProd.userInfo.userName,
           items: [curr],
           uncleImgs: [imageById.value[curr.uncleId!]],
+          prodAmount: priceByShop.value[curr.shopId].prodAmount,
+          pickAmount: priceByShop.value[curr.shopId].pickAmount,
+          shipAmount: priceByShop.value[curr.shopId].shipAmount,
         });
         return acc;
       } else {
@@ -162,6 +168,29 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
               size: "small",
             },
             { default: () => "상세보기" }
+          ),
+      },
+      {
+        title: "결제 정보",
+        key: "amounts",
+        render: (row) =>
+          h(
+            NPopover,
+            {
+              overlap: true,
+              placement: "left",
+            },
+            {
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                  },
+                  { default: () => "결제 정보" }
+                ),
+              default: () => h(PayAmountsCard, { amounts: row }),
+            }
           ),
       },
     ] as DataTableColumns<ShipOrderByShop>;

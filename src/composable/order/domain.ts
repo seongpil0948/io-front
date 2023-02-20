@@ -27,7 +27,7 @@ export interface PayAmount {
 export type OrderDateMap = {
   [key in ORDER_STATE]?: Date;
 } & { createdAt?: Date; updatedAt?: Date; tossAt?: Date };
-export interface IoOrder {
+export interface IoOrder extends OrderAmounts {
   // only used OrderItem Aggregation
   od: OrderDateMap;
   isDone?: boolean;
@@ -51,10 +51,6 @@ export interface IoOrder {
   prodTypes: PROD_TYPE[];
   paids: PAID_INFO[]; // product paid
   orderTypes: ORDER_TYPE[];
-  // 결제완료(completePay)이후 건들면 안댐
-  prodAmount: PayAmount;
-  shipAmount: PayAmount;
-  pickAmount: PayAmount;
 }
 
 export interface OrderItem {
@@ -202,17 +198,23 @@ export interface ShipOrder
   extends Omit<IoShipment, "orderDbId">,
     OrderItemCombined {}
 
-export interface ShipOrderByShop {
-  shopId: string;
-  shopName: string;
-  uncleImgs: string[];
-  items: ShipOrder[];
-}
 export interface OrderItemByShop {
   shopId: string;
   shopName: string;
   items: OrderItemCombined[];
 }
+export interface ShipOrderByShop extends OrderItemByShop, OrderAmounts {
+  uncleImgs: string[];
+  items: ShipOrder[];
+}
+
+export interface OrderAmounts {
+  prodAmount: PayAmount;
+  pickAmount: PayAmount;
+  shipAmount: PayAmount;
+}
+export type OrderItemByShopUncle = OrderItemByShop & OrderAmounts;
+
 export interface OrderItemByVendor {
   vendorId: string;
   vendorName: string;
@@ -301,7 +303,7 @@ export interface OrderDB<T> {
     uncleId: string,
     shopId: string,
     isDirect: boolean
-  ): Promise<void>;
+  ): Promise<any>;
   returnReq(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
   returnApprove(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
   returnReject(orderDbIds: string[], orderItemIds: string[]): Promise<void>;

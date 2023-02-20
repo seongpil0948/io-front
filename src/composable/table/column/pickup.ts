@@ -1,11 +1,17 @@
 import { storeToRefs } from "pinia";
 import { isSamePickLocate } from "@/composable";
-import { OrderItemByShop, OrderItemCombined } from "@/composable/order";
+import { OrderItemByShopUncle, OrderItemCombined } from "@/composable/order";
 import { useAuthStore } from "@/store";
 import { uniqueArr } from "@/util";
 import { LocateAmount, USER_DB } from "@io-boxies/js-lib";
-import { DataTableColumns, NText, NButton, useMessage } from "naive-ui";
-import { computed, h } from "vue";
+import {
+  DataTableColumns,
+  NText,
+  NButton,
+  useMessage,
+  NPopover,
+} from "naive-ui";
+import { computed, h, defineAsyncComponent } from "vue";
 import { ioFireStore } from "@/plugin/firebase";
 
 export function usePickAreaCols() {
@@ -71,8 +77,12 @@ export function usePickAreaCols() {
   ];
   return { pickAreaCols };
 }
-
-export function getPickReqCols(onClickDetail: (data: OrderItemByShop) => void) {
+const PayAmountsCard = defineAsyncComponent(
+  () => import("@/component/card/PayAmountsCard.vue")
+);
+export function getPickReqCols(
+  onClickDetail: (data: OrderItemByShopUncle) => void
+) {
   return computed(() => {
     const cols = [
       {
@@ -113,7 +123,29 @@ export function getPickReqCols(onClickDetail: (data: OrderItemByShop) => void) {
             { default: () => "상세보기" }
           ),
       },
-    ] as DataTableColumns<OrderItemByShop>;
+      {
+        title: "결제 정보",
+        key: "amounts",
+        render: (row) =>
+          h(
+            NPopover,
+            {
+              overlap: true,
+            },
+            {
+              trigger: () =>
+                h(
+                  NButton,
+                  {
+                    size: "small",
+                  },
+                  { default: () => "결제 정보" }
+                ),
+              default: () => h(PayAmountsCard, { amounts: row }),
+            }
+          ),
+      },
+    ] as DataTableColumns<OrderItemByShopUncle>;
     return cols.map((x: any) => {
       if (!["selection", "expand"].includes(x.type)) {
         x.sorter = "default";

@@ -7,18 +7,15 @@ import {
   ProdInnerIdSrc,
   VendorGarment,
   mapTxt,
+  getUserName,
+  IoUser,
+  USER_DB,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { isMobile } from "@/util";
 import { NModal, NButton, NCard, NDataTable, NInput, NSpace } from "naive-ui";
 import { ref, computed, defineAsyncComponent, watchEffect } from "vue";
-import {
-  getIoCollection,
-  getUserName,
-  IoUser,
-  USER_DB,
-} from "@io-boxies/js-lib";
-import { ioFireStore } from "@/plugin/firebase";
+import { getIoCollection, ioFireStore } from "@/plugin/firebase";
 import { logger } from "@/plugin/logger";
 import { getDoc, doc } from "@firebase/firestore";
 const BatchCreateVirProd = defineAsyncComponent(
@@ -151,7 +148,7 @@ async function submitEdit() {
   <n-space vertical justify="center" align="center" item-style="width: 100%">
     <n-card style="width: 100%">
       <n-space vertical justify="center" align="end" item-style="width: 100%">
-        <n-space justify="end" style="max-height: 40vh; overflow: auto">
+        <n-space style="max-height: 40vh; overflow: auto">
           <n-input v-model:value="searchInputVal" placeholder="상품검색" />
           <n-button @click="search"> 검색 </n-button>
           <batch-create-vir-prod

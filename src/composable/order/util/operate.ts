@@ -1,9 +1,14 @@
 import { PAID_INFO } from "@/composable/common";
-import { doc, DocumentReference } from "@firebase/firestore";
 import { uuidv4 } from "@firebase/util";
 import { uniqueArr } from "@io-boxies/js-lib";
 import cloneDeep from "lodash.clonedeep";
-import { getAmount, getPureAmount, mergeAmount, refreshOrder } from ".";
+import {
+  getAmount,
+  getPureAmount,
+  mergeAmount,
+  refreshAmount,
+  refreshOrder,
+} from ".";
 import { ORDER_GARMENT_DB } from "../db";
 import { IoOrder, OrderItem, OrderItemCombined, ORDER_STATE } from "../domain";
 import { getPendingCnt, getActiveCnt, getOrderItems } from "./getter";
@@ -159,7 +164,7 @@ export function addExistItem(o: IoOrder, itemId: string, item: OrderItem) {
 export function addExistItems(
   orders: IoOrder[],
   onSet: (order: IoOrder) => Promise<void>,
-  onDelete: (dbId: string) => Promise<void>,
+  onDelete: (order: IoOrder) => Promise<void>,
   isTargetItem: (a: OrderItem) => boolean
 ) {
   for (let i = 0; i < orders.length; i++) {
@@ -196,11 +201,15 @@ export function addExistItems(
                 ...exist.orderIds,
               ]);
               exist.itemIds = uniqueArr([...order.itemIds, ...exist.itemIds]);
-              onDelete(order.dbId);
+              mergeAmount(exist.pickAmount, order.pickAmount);
+              mergeAmount(exist.shipAmount, order.shipAmount);
+              onDelete(order);
             } else {
+              refreshOrder(order);
               onSet(order);
             }
             if (exist) {
+              refreshOrder(exist);
               onSet(exist);
             }
             break;

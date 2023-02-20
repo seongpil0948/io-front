@@ -204,22 +204,32 @@ export function useOrderBasic(
       p.uncle.userInfo.userId,
       p.shop.userInfo.userId,
       p.direct
-    );
-    msg.success("픽업 요청 성공!");
-    let evt = "order_pickup_request";
-    if (p.direct) evt += "_directed";
-    logEvent(getAnalytics(ioFire.app), evt, {
-      len: p.orderItemIds.size,
-    });
-    smtp.sendAlarm({
-      toUserIds: [p.uncle.userInfo.userId],
-      subject: `inoutbox 주문 처리내역 알림.`,
-      body: `${getUserName(p.shop)} 으로부터 픽업요청이 도착하였습니다. `,
-      notiLoadUri: "/",
-      uriArgs: {},
-      sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
-      pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
-    });
+    )
+      .then(() => {
+        msg.success("픽업 요청 성공!");
+        let evt = "order_pickup_request";
+        if (p.direct) evt += "_directed";
+        logEvent(getAnalytics(ioFire.app), evt, {
+          len: p.orderItemIds.size,
+        });
+        smtp.sendAlarm({
+          toUserIds: [p.uncle.userInfo.userId],
+          subject: `inoutbox 주문 처리내역 알림.`,
+          body: `${getUserName(p.shop)} 으로부터 픽업요청이 도착하였습니다. `,
+          notiLoadUri: "/",
+          uriArgs: {},
+          sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+          pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
+        });
+      })
+      .catch((err) =>
+        catchError({
+          prefix: "픽업 요청 실패.",
+          err,
+          msg,
+          uid: p.shop.userInfo.userId,
+        })
+      );
   }
   return {
     orderAll,

@@ -10,7 +10,6 @@ import {
   VENDOR_GARMENT_DB,
   useMatch,
   useContactUncle,
-  catchError,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
 import { ref, shallowRef, watchEffect, defineAsyncComponent, h } from "vue";
@@ -65,16 +64,7 @@ function pickupRequest() {
         orderDbIds: targetOrdDbIds.value,
         orderItemIds: targetIds.value,
         direct: true,
-      })
-        .catch((err) =>
-          catchError({
-            prefix: "픽업 요청 실패.",
-            err,
-            msg,
-            uid: shop.userInfo.userId,
-          })
-        )
-        .finally(() => (d.loading = false));
+      }).finally(() => (d.loading = false));
     },
   });
 }
