@@ -4,13 +4,9 @@ import {
   onFirestoreErr,
   ShopGarmentDB,
   ShopUserGarment,
-} from "@/composable";
-import {
   USER_DB,
-  batchInQuery,
-  getIoCollection,
-  IoCollection,
-} from "@io-boxies/js-lib";
+} from "@/composable";
+
 import { logger } from "@/plugin/logger";
 import {
   query,
@@ -27,7 +23,7 @@ import { Ref, ref } from "vue";
 import { dataFromSnap } from "@/util";
 import { getDoc } from "firebase/firestore";
 import { ShopGarment } from "@/composable/product/shop-garment/model";
-import { ioFireStore } from "@/plugin/firebase";
+import { batchInQuery, getIoCollection, ioFireStore } from "@/plugin/firebase";
 
 export const ShopGarmentFB: ShopGarmentDB = {
   getShopGarments: async function (d) {
@@ -57,7 +53,7 @@ export const ShopGarmentFB: ShopGarmentDB = {
   idExist: async function (id: string) {
     const q = doc(
       getIoCollection(ioFireStore, {
-        c: IoCollection.SHOP_PROD,
+        c: "SHOP_PROD",
       }),
       id
     );
@@ -147,6 +143,6 @@ export const ShopGarmentFB: ShopGarmentDB = {
   },
 };
 export const shopProdC = getIoCollection(ioFireStore, {
-  c: IoCollection.SHOP_PROD,
+  c: "SHOP_PROD",
 }).withConverter(ShopGarment.fireConverter());
 // shopProdId;

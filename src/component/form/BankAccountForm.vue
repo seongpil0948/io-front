@@ -19,6 +19,9 @@ async function onSubmit(e: MouseEvent) {
   e.preventDefault();
   formRef.value?.validate(async (errors) => {
     if (errors) return msg.error("올바르게 작성 해주세요", makeMsgOpt());
+    else if (!account.value.bank || !IO_BANKS[account.value.bank]) {
+      return msg.error("은행을 올바르게 선택 해주세요.");
+    }
     account.value.code = IO_BANKS[account.value.bank];
     emits("submit:account", account.value);
   });

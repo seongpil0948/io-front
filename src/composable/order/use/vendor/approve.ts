@@ -1,4 +1,3 @@
-import { getUserName, getIoCollection } from "@io-boxies/js-lib";
 import {
   IoOrder,
   IoPay,
@@ -10,6 +9,7 @@ import {
   OrderItem,
   catchError,
   IO_PAY_DB,
+  getUserName,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import { makeMsgOpt, uniqueArr } from "@/util";
@@ -25,7 +25,7 @@ import { useAuthStore } from "@/store";
 import { doc, updateDoc } from "@firebase/firestore";
 import { axiosConfig } from "@/plugin/axios";
 import { useAlarm } from "@io-boxies/vue-lib";
-import { ioFire, ioFireStore } from "@/plugin/firebase";
+import { getIoCollection, ioFire, ioFireStore } from "@/plugin/firebase";
 import { logEvent, getAnalytics } from "@firebase/analytics";
 
 const GarmentOrderRow = defineAsyncComponent(
