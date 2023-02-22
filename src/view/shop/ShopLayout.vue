@@ -8,6 +8,7 @@ import { LocalShippingRound } from "@vicons/material";
 import { People16Regular, News16Regular } from "@vicons/fluent";
 import { onBeforeMount, h, defineAsyncComponent } from "vue";
 import { logoutMenuOpt } from "@/component/button/logout-menu-opt";
+import { cashNavMenu } from "@/plugin/router/common";
 const LogoImageVue = defineAsyncComponent(
   () => import("@/component/common/LogoImage.vue")
 );
@@ -117,6 +118,7 @@ const menuOptions: MenuOption[] = [
       },
     ],
   },
+  cashNavMenu("Shop"),
   {
     label: () => renderRoute("고객지원", "CsHome"),
     key: "CsHome",

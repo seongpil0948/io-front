@@ -1,6 +1,6 @@
 // TODO: Require Refactoring
 import { ioFireStore } from "@/plugin/firebase";
-import { fireConverter } from "@/util";
+import { fireConverter } from "@/util/firebase";
 import {
   doc,
   getDoc,

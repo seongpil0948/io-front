@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from "vue-router";
+import { cashRoutes } from "./common";
 
 export const routes: Array<RouteRecordRaw> = [
   {
@@ -174,6 +175,7 @@ export const routes: Array<RouteRecordRaw> = [
     name: "ShopLayout",
     component: () => import("@/view/shop/ShopLayout.vue"),
     children: [
+      cashRoutes("Shop"),
       {
         path: "",
         name: "ShopHome",

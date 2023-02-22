@@ -147,6 +147,7 @@ declare module '@vue/runtime-core' {
     ProductManage: typeof import('./src/view/shop/page/ProductManage.vue')['default']
     ProductRegister: typeof import('./src/view/vendor/page/ProductRegister.vue')['default']
     ReceiptCard: typeof import('./src/component/card/vendor/ReceiptCard.vue')['default']
+    ReqEncashList: typeof import('./src/view/cash/ReqEncashList.vue')['default']
     RequestHistory: typeof import('./src/view/uncle/page/RequestHistory.vue')['default']
     ReturnExchange: typeof import('./src/view/vendor/page/ReturnExchange.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

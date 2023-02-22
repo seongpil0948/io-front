@@ -261,7 +261,7 @@ async function reqEncashment() {
             <n-button
               v-for="m in [100, 1000, 2000, 5000, 10000, 100000]"
               :key="m"
-              @click="chargePrice += m"
+              @click="() => (chargePrice += m)"
             >
               {{ m.toLocaleString() }}
             </n-button>
@@ -282,7 +282,7 @@ async function reqEncashment() {
         <template #header>
           <n-text strong>출금하기</n-text>
         </template>
-        <n-space v-if="user.userInfo.account" vertical>
+        <n-space v-if="user?.userInfo.account" vertical>
           <n-space justify="space-between">
             <n-text strong>
               {{ user.userInfo.account.bank }} /
