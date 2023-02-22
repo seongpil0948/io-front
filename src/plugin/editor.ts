@@ -13,6 +13,9 @@ import Table from "@editorjs/table";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import Embed from "@editorjs/embed";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import ImageTool from "@editorjs/image";
 import { uuidv4 } from "@firebase/util";
 
 export interface IoEditorParam {
@@ -89,6 +92,9 @@ export function getEditor(c: IoEditorParam) {
         //     coub: true,
         //   },
         // },
+      },
+      image: {
+        class: ImageTool,
       },
     },
   });

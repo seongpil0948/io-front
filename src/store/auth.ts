@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { getAuth, signOut } from "firebase/auth";
-import { IoUser, userFromJson, USER_DB } from "@/composable";
+import { IoUser, userFromJson, USER_DB, USER_ROLE } from "@/composable";
 import { getActivePinia } from "pinia";
 import { ioFire, ioFireStore } from "@/plugin/firebase";
 import router from "@/plugin/router";
@@ -19,7 +19,7 @@ export const useAuthStore = defineStore("auth", () => {
     contractUncles.value = await USER_DB.getUserByIds(ioFireStore, ids);
   });
 
-  const currUser = () => {
+  const currUser = (): IoUser => {
     if (!user.value) {
       const userStr = localStorage.getItem(userKey);
       if (userStr) {
@@ -28,10 +28,16 @@ export const useAuthStore = defineStore("auth", () => {
           router.replace({ name: "Login" });
         }
         user.value = u!;
-        return user.value!;
       } else {
         router.replace({ name: "Login" });
       }
+    }
+    if (
+      !(["SHOP", "VENDOR", "UNCLE"] as USER_ROLE[]).includes(
+        user.value?.userInfo.role ?? "ANONYMOUSE"
+      )
+    ) {
+      router.replace({ name: "Login" });
     }
     return user.value as IoUser;
   };

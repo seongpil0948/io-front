@@ -37,6 +37,7 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz"
   },
   "devDependencies": {
+    "@editorjs/image": "^2.8.1",
     "@types/kakao-js-sdk": "^1.39.1",
     "@types/lodash.clonedeep": "^4.5.7",
     "@types/lodash.debounce": "^4.0.7",
