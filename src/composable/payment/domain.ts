@@ -217,9 +217,12 @@ export interface PayHistoryCRT {
 }
 
 export interface ReqEncash {
+  dbId: string;
   createdAt: Date;
   approvedAt?: Date;
-  isDone?: boolean;
+  rejectedAt?: Date;
+  isDone: boolean;
+  result?: "approve" | "rejected";
   adminMemo?: string;
   amount: number;
   userId: string;

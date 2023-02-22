@@ -199,10 +199,15 @@ async function reqEncashment() {
   }
   const obj: ReqEncash = {
     createdAt: new Date(),
+    dbId: uuidv4(),
     amount: encash.value,
     userId: userPay.value!.userId,
+    isDone: false,
   };
-  await setDoc(doc(getIoCollection(ioFireStore, { c: "REQUEST_ENCASH" })), obj);
+  await setDoc(
+    doc(getIoCollection(ioFireStore, { c: "REQUEST_ENCASH" }), obj.dbId),
+    obj
+  );
   return msg.success(`${encash.value}원 출금요청 완료.`);
 }
 </script>
