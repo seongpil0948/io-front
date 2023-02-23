@@ -268,6 +268,8 @@ export async function downOrderItems(
         사이즈: x.vendorProd.size,
         도매처:
           x.vendorProd.userInfo.displayName ?? x.vendorProd.userInfo.userName,
+        "도매처 연락처": vendor.userInfo.phone,
+        "도매처 회사 연락처": vendor.companyInfo.companyPhone,
         주문수량: x.orderCnt,
         미송수량: x.pendingCnt,
         도매가: x.vendorProd.vendorPrice,
@@ -275,7 +277,7 @@ export async function downOrderItems(
         "도매처 건물명": locate.alias,
         "도매처 상세주소": locate.detailLocate ?? "",
         "도매처 주소": locateToStr(locate),
-        핸드폰번호: locate.phone,
+        "주소 연락처": locate.phone,
       };
     })
     .filter((z) => z);

@@ -57,7 +57,11 @@ const locateKey = [
   >
     <n-tooltip v-for="(i, idx) in locates" :key="idx" trigger="hover">
       <template #trigger>
-        <n-tag round :closable="!readonly" @close="onLocateClose(i as Locate)">
+        <n-tag
+          round
+          :closable="!readonly"
+          @close="() => onLocateClose(i as Locate)"
+        >
           {{ i.alias }}
         </n-tag>
       </template>
@@ -72,7 +76,7 @@ const locateKey = [
               !readonly
             "
             size="small"
-            @click="setShipAddr(i as Locate)"
+            @click="() => setShipAddr(i as Locate)"
           >
             배송지 선정
           </n-button>

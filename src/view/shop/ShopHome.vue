@@ -46,6 +46,7 @@ const numOfShipping = computed(
       )
     ).length
 );
+const disable = import.meta.env.MODE === "production";
 </script>
 <template>
   <n-space
@@ -62,7 +63,7 @@ const numOfShipping = computed(
       responsive="screen"
       style="margin-bottom: 2%"
     >
-      <n-grid-item>
+      <n-grid-item v-if="!disable">
         <n-card
           class="button-card"
           @click="router.push({ name: 'OrderComplete' })"
@@ -76,7 +77,7 @@ const numOfShipping = computed(
           {{ numOfApprove }}건
         </n-card>
       </n-grid-item>
-      <n-grid-item>
+      <n-grid-item v-if="!disable">
         <n-card
           class="button-card"
           style="border-color: var(--primary-color)"
@@ -89,18 +90,15 @@ const numOfShipping = computed(
         </n-card>
       </n-grid-item>
       <n-grid-item>
-        <n-card
-          class="button-card"
-          style="border-color: #70c0e8"
-          @click="router.push({ name: 'OrderComplete' })"
-        >
+        <!-- @click="() => router.push({ name: 'OrderComplete' })" -->
+        <n-card class="button-card" style="border-color: #70c0e8">
           <template #header>
             <n-text style="font-color: #70c0e8"> 미결제금액 </n-text>
           </template>
           {{ amountNotPaid }} 원
         </n-card>
       </n-grid-item>
-      <n-grid-item>
+      <n-grid-item v-if="!disable">
         <n-card
           class="button-card"
           style="border-color: #e88080"

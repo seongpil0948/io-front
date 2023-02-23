@@ -100,7 +100,7 @@ function updateShow(val: boolean) {
       size="medium"
     >
       <n-grid cols="1">
-        <n-form-item-gi label="주소 타입" path="locateType">
+        <n-form-item-gi label="위치" path="locateType">
           <n-select
             v-model:value="formModel.locateType"
             :options="locateTypeOpt"
@@ -125,7 +125,7 @@ function updateShow(val: boolean) {
         <n-form-item-gi label="상세주소" path="detailLocate">
           <n-input
             v-model:value="formModel.detailLocate"
-            placeholder="상세주소 입력"
+            placeholder="ex) 테헤란로 6길 16, 1동 1301호"
           />
         </n-form-item-gi>
         <n-form-item-gi label="받는분 성함(성)" path="firstName">

@@ -6,23 +6,26 @@ import {
   FirestoreDataConverter,
 } from "@firebase/firestore";
 import { useAuthStore } from "@/store";
+
+import { ioFireStore } from "@/plugin/firebase";
+import { commonFromJson, newProdQuantityOpt, saleAvgOpt } from "@/util";
+import { uuidv4 } from "@firebase/util";
+import { DEFAULT_PROFILE_IMG } from "@/constants";
 import {
-  commonFromJson,
-  commonToJson,
-  dateToTimeStamp,
-  IoFireApp,
+  IoUser,
   IoUserInfo,
-  loadDate,
   SHIP_METHOD,
+  UncleInfo,
   USER_DB,
   USER_PROVIDER,
   USER_ROLE,
+} from "@/composable";
+import {
+  commonToJson,
+  dateToTimeStamp,
+  IoFireApp,
+  loadDate,
 } from "@io-boxies/js-lib";
-import { ioFireStore } from "@/plugin/firebase";
-import { newProdQuantityOpt, saleAvgOpt } from "@/util";
-import { uuidv4 } from "@firebase/util";
-import { DEFAULT_PROFILE_IMG } from "@/constants";
-import { IoUser, UncleInfo } from "@/composable";
 
 export const getUserLocate = (u: IoUser) => {
   if (!u.companyInfo || u.companyInfo.locations.length < 1) return null;

@@ -268,6 +268,14 @@ const cols = computed(() => [
     ],
   })),
 ]);
+function downSampleXlsx() {
+  const a = document.createElement("a");
+  // a.href = url
+  a.href = "/example/sample-batch-mapping.xlsx";
+  a.download = "sample-batch-mapping.xlsx";
+  a.click();
+  a.remove();
+}
 </script>
 <template>
   <input
@@ -277,7 +285,8 @@ const cols = computed(() => [
     type="file"
     @change.stop.prevent="handleFileChange"
   />
-  <n-button @click="onClick"> 엑셀 일괄 매핑 </n-button>
+  <n-button @click="onClick"> 엑셀 일괄매핑 </n-button>
+  <n-button @click="downSampleXlsx"> 일괄매핑양식다운 </n-button>
   <n-modal v-model:show="showParseModal" style="margin: 5%">
     <n-card title="파싱 프리뷰">
       <template #header-extra>

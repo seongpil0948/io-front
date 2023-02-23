@@ -1,6 +1,6 @@
-import { getAmount } from "@/composable";
+import { getAmount, IoUser } from "@/composable";
 import { isSamePickLocate, uncleAvailShip } from "@/composable/locate";
-import { IoUser, locateToStr } from "@io-boxies/js-lib";
+import { locateToStr } from "@io-boxies/js-lib";
 import { IoOrder, OrderItem, OrderItemCombined, PayAmount } from "../domain";
 
 export function isValidOrder(o: IoOrder): void {

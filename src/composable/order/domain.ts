@@ -320,7 +320,7 @@ export interface OrderDB<T> {
   orderDone(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
 }
 
-export interface ShipDB<T> {
+export interface ShipDB {
   getShipment(uncleId: string, shipId: string): Promise<IoShipment | null>;
   batchUpdate(shipments: Partial<IoShipment>[]): Promise<void>;
   approvePickUp(row: IoOrder): Promise<void>;

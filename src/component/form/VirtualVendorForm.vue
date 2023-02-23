@@ -91,7 +91,10 @@ function handleValidateClick(e: MouseEvent) {
         </n-text>
         <n-space>
           <pick-area-selector v-model:pickId="pickId" :office-opt="officeOpt" />
-          <n-input v-model:value="addDetailStr" placeholder="상세주소 입력" />
+          <n-input
+            v-model:value="addDetailStr"
+            placeholder="ex) 테헤란로 6길 16, 1동 1301호"
+          />
         </n-space>
       </n-space>
     </n-form-item>
