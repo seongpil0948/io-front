@@ -2,7 +2,7 @@ import { NPopselect, NButton } from "naive-ui";
 import { shallowRef, watchEffect, h } from "vue";
 
 export function usePopSelTable<T>(d: {
-  onDelete?: (p: T) => Promise<void>;
+  onDelete?: (p: T) => Promise<any>;
   onEdit?: (p: T) => void;
 }) {
   const selectedRow = shallowRef<T | null>(null);
@@ -21,8 +21,22 @@ export function usePopSelTable<T>(d: {
   const optionCol = {
     title: "옵션",
     key: "option",
-    render: (row: T) =>
-      h(
+    render: (row: T) => {
+      const opts: any[] = [];
+      if (d.onEdit) {
+        opts.push({
+          label: "수정",
+          value: "Edit",
+        });
+      }
+      if (d.onDelete) {
+        opts.push({
+          label: "삭제",
+          value: "Delete",
+        });
+      }
+
+      return h(
         NPopselect,
         {
           value: popVal.value,
@@ -30,16 +44,7 @@ export function usePopSelTable<T>(d: {
             popVal.value = val;
             selectedRow.value = row;
           },
-          options: [
-            {
-              label: "수정",
-              value: "Edit",
-            },
-            {
-              label: "삭제",
-              value: "Delete",
-            },
-          ],
+          options: opts,
           scrollable: true,
           // "render-label": (opt: SelectBaseOption) =>
           //   h(NButton, {}, { default: () => opt.label }),
@@ -55,7 +60,8 @@ export function usePopSelTable<T>(d: {
               { default: () => "선택" }
             ),
         }
-      ),
+      );
+    },
   };
 
   return {

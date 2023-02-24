@@ -9,52 +9,76 @@ import {
   NDataTable,
   useMessage,
 } from "naive-ui";
-import { usePopSelTable, IoUser } from "@/composable";
-import { makeMsgOpt } from "@/util";
+import {
+  usePopSelTable,
+  IoUser,
+  ShopGarment,
+  deleteVirGarments,
+} from "@/composable";
+import { fireConverter, makeMsgOpt } from "@/util";
+import {
+  doc,
+  getCountFromServer,
+  getDocs,
+  query,
+  runTransaction,
+  where,
+} from "@firebase/firestore";
+import { getIoCollection, ioFireStore } from "@/plugin/firebase";
+import { useAuthStore } from "@/store";
 
 const props = defineProps<{
   virtualVendors: IoUser[];
 }>();
 const { virtualVendors } = toRefs(props);
-// const auth = useAuthStore();
+const auth = useAuthStore();
 const msg = useMessage();
-// const virVendorConverter = fireConverter<IoUser>();
-// const virVendorC = getIoCollection(ioFireStore, {
-//   uid: auth.uid,
-//   c: "VIRTUAL_USER",
-// }).withConverter(virVendorConverter);
+const virVendorConverter = fireConverter<IoUser>();
+const virVendorC = getIoCollection(ioFireStore, {
+  uid: auth.uid,
+  c: "VIRTUAL_USER",
+}).withConverter(virVendorConverter);
 
 const { optionCol } = usePopSelTable<IoUser>({
-  onDelete: (p) => {
+  onDelete: async (p) => {
     console.log("onDelete: ", p);
-    msg.info("준비중.. 찡끗 ㅇ_<", makeMsgOpt());
-    return Promise.resolve();
-    // FIXME: 주문건에 엮이면서 함부로 삭제 할 수 없다.
-    // runTransaction(ioFireStore, async (t) => {
-    //   const targetUid = p.userInfo.userId;
-    //   const snap = await getDocs(
-    //     query(
-    //       getIoCollection(ioFireStore, { c: "SHOP_PROD" }).withConverter(
-    //         fireConverter<ShopGarment>()
-    //       ),
-    //       where("visible", "==", "ME"),
-    //       where("vendorId", "==", targetUid)
-    //     )
-    //   );
-    //   const delProdIds: string[] = [];
-    //   snap.forEach((doc) => {
-    //     const data = doc.data();
-    //     console.log("delete target vir prod: ", data);
-    //     if (data) {
-    //       delProdIds.push(data.shopProdId);
-    //     }
-    //   });
-    //   await deleteVirGarments(auth.uid, delProdIds);
-    //   t.delete(doc(virVendorC, targetUid));
-    // });
+    const snapshot = await getCountFromServer(
+      query(
+        getIoCollection(ioFireStore, {
+          c: "VIRTUAL_VENDOR_PROD",
+          uid: auth.uid,
+        }),
+        where("vendorId", "==", p.userInfo.userId)
+      )
+    );
+    const cnt = snapshot.data().count;
+    if (cnt > 0) {
+      msg.error("가상상품이 존재하는 가상도매 입니다.");
+      return;
+    }
+    return runTransaction(ioFireStore, async (t) => {
+      const targetUid = p.userInfo.userId;
+      const snap = await getDocs(
+        query(
+          getIoCollection(ioFireStore, { c: "SHOP_PROD" }).withConverter(
+            fireConverter<ShopGarment>()
+          ),
+          where("visible", "==", "ME"),
+          where("vendorId", "==", targetUid)
+        )
+      );
+      const delProdIds: string[] = [];
+      snap.forEach((doc) => {
+        const data = doc.data();
+        console.log("delete target vir prod: ", data);
+        if (data) {
+          delProdIds.push(data.shopProdId);
+        }
+      });
+      await deleteVirGarments(auth.uid, delProdIds);
+      t.delete(doc(virVendorC, targetUid));
+    });
   },
-
-  onEdit: () => msg.info("준비중.. 찡끗 ㅇ_<", makeMsgOpt()),
 });
 const virVendorCols = [
   {

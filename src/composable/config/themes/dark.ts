@@ -11,6 +11,7 @@ const darkColors = {
 };
 export const darkThemeOver: GlobalThemeOverrides = {
   common: {
+    borderRadius: "10px",
     textColor1: darkColors.primary,
     textColor2: darkColors.primary,
     textColor3: darkColors.primary,
@@ -27,5 +28,8 @@ export const darkThemeOver: GlobalThemeOverrides = {
         textColor: darkColors.primary,
       },
     },
+  },
+  Tooltip: {
+    borderRadius: "10px",
   },
 };

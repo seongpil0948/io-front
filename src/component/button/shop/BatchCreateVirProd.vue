@@ -285,8 +285,10 @@ function downSampleXlsx() {
     type="file"
     @change.stop.prevent="handleFileChange"
   />
-  <n-button @click="onClick"> 엑셀 일괄매핑 </n-button>
-  <n-button @click="downSampleXlsx"> 일괄매핑양식다운 </n-button>
+  <n-space>
+    <n-button @click="onClick"> 엑셀 일괄매핑 </n-button>
+    <n-button @click="downSampleXlsx"> 일괄매핑양식다운 </n-button>
+  </n-space>
   <n-modal v-model:show="showParseModal" style="margin: 5%">
     <n-card title="파싱 프리뷰">
       <template #header-extra>

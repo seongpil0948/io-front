@@ -18,8 +18,11 @@
     "@elastic/elasticsearch": "^8.5.0",
     "@google-cloud/firestore": "^6.4.1",
     "@google-cloud/storage": "^6.6.0",
+    "@slack/web-api": "^6.8.1",
     "firebase-admin": "^10.0.2",
-    "firebase-functions": "^4.1.1"
+    "firebase-functions": "^4.1.1",
+    "i": "^0.3.7",
+    "npm": "^9.5.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.12.0",

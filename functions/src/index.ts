@@ -9,9 +9,40 @@ import {
   DocumentData,
 } from "firebase-admin/firestore";
 import { initializeApp } from "firebase-admin/app";
+import { WebClient } from "@slack/web-api";
 
 const store = new v1.FirestoreAdminClient();
 const backupBucket = "gs://io-archives/backups/io-box/";
+const slackToken = "xoxb-4848836930724-4848596172262-kXRLFB7E9LkIWNCBhSiLBGO9";
+
+exports.onCreateUser = functions
+  .region("asia-northeast3")
+  .firestore.document("user/{docId}")
+  .onCreate(async (snap, context) => {
+    const web = new WebClient(slackToken);
+    const val = snap.data();
+    await web.chat.postMessage({
+      text: `유저(${context.params.docId}) 신규가입! 승인해라 닝겐 \n 아자`,
+      channel: "#new-users",
+    });
+    console.log("onCreateUser success ", val);
+  });
+exports.onCreateRequestEncash = functions
+  .region("asia-northeast3")
+  .firestore.document("requestEncash/{docId}")
+  .onCreate(async (snap, context) => {
+    const web = new WebClient(slackToken);
+    const val = snap.data();
+    let text = `출금요청(${context.params.docId}) 도착!`;
+    if (val.amount) {
+      text += `\n 출금요청액: ${val.amount}`;
+    }
+    await web.chat.postMessage({
+      text,
+      channel: "#new-request-encash",
+    });
+    console.log("onCreateRequestEncash success ", val);
+  });
 
 exports.scheduledElasticHealthCheck = functions
   .region("asia-northeast3")

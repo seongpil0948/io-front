@@ -12,19 +12,27 @@ import {
   ShopUserGarment,
   SHOP_GARMENT_DB,
   usePopSelTable,
+  catchError,
+  getUserName,
+  IoUser,
 } from "@/composable";
-import { getIoCollection, getUserName, IoUser } from "@io-boxies/js-lib";
 import {
   createGarments,
   existSameProduct,
   getSimilarProducts,
 } from "@/composable/product/vendor-garment/db/firebase";
 import { ref, computed } from "vue";
-import { runTransaction, doc } from "firebase/firestore";
+import {
+  runTransaction,
+  doc,
+  getCountFromServer,
+  query,
+  where,
+} from "firebase/firestore";
 import { uuidv4 } from "@firebase/util";
 import { makeMsgOpt } from "@io-boxies/vue-lib";
 import { useMessage } from "naive-ui";
-import { ioFireStore } from "@/plugin/firebase";
+import { ioFireStore, getIoCollection } from "@/plugin/firebase";
 import { useShopProdStore } from "@/store/shopProd";
 import { storeToRefs } from "pinia";
 
@@ -77,10 +85,29 @@ export function useShopVirtualProd(user: IoUser) {
   const { selectedRow, popVal, optionCol } = usePopSelTable<ShopUserGarment>({
     onDelete: (p) => {
       console.log("in onDelete: ", p);
-      msg.info("준비중.. 찡끗 ㅇ_<", makeMsgOpt());
-      return Promise.resolve();
-      // FIXME: 주문건에 엮이면서 함부로 삭제 할 수 없다.
-      // deleteVirGarments(uid, [p.shopProdId]);
+      return new Promise((resolve, reject) => {
+        const query_ = query(
+          getIoCollection(ioFireStore, {
+            c: "ORDER_PROD",
+            uid: uid,
+          }),
+          where("vendorIds", "array-contains", p.vendorId)
+        );
+        getCountFromServer(query_)
+          .then((snapshot) => {
+            const cnt = snapshot.data().count;
+            if (cnt > 0) throw new Error("거래중인 상품 입니다.");
+            deleteVirGarments(uid, [p.shopProdId])
+              .then(() => {
+                msg.info("삭제성공", makeMsgOpt());
+                resolve("");
+              })
+              .catch((err) => reject(err));
+          })
+          .catch((err) => reject(err));
+      }).catch((err) =>
+        catchError({ msg, err, uid: p.userInfo.userId, opt: makeMsgOpt() })
+      );
     },
     onEdit: (p) =>
       (virProdEditTarget.value =
