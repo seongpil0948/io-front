@@ -1,6 +1,6 @@
 <template>
   <n-data-table
-    v-if="title && posts.length > 0"
+    v-if="posts.length > 0"
     :columns="columns(title)"
     :data="showPosts"
     :pagination="{
@@ -46,7 +46,7 @@ function goDetail(detailPost: CsPost) {
   });
 }
 
-const columns = (title: string) =>
+const columns = (title?: string) =>
   [
     {
       title,

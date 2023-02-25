@@ -28,7 +28,7 @@ const currPostType = ref(state.ctgr);
     style="margin-top: 1%"
   >
     <n-space justify="start">
-      <n-button @click="router.replace({ name: 'CsHome' })">
+      <n-button @click="() => router.replace({ name: 'CsHome' })">
         <template #icon>
           <n-icon>
             <ArrowBack />
@@ -41,7 +41,7 @@ const currPostType = ref(state.ctgr);
       <n-tabs v-model:value="currPostType">
         <template #suffix>
           <n-input v-model:value="searchInputVal" placeholder="상품검색" />
-          <n-button @click="csStore.search"> 검색 </n-button>
+          <n-button @click="() => csStore.search"> 검색 </n-button>
         </template>
         <n-tab-pane
           v-for="(ctgr, i) in faqCtgrList"

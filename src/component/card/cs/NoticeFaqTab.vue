@@ -27,7 +27,7 @@ const { faqPosts, noticePosts } = storeToRefs(csStore);
       <n-tab-pane display-directive="show:lazy" tab="공지사항" name="notice">
         <cs-post-table :posts="noticePosts" />
       </n-tab-pane>
-      <n-tab-pane display-directive="show:lazy" tab="사용tip" name="faq">
+      <n-tab-pane display-directive="show:lazy" tab="사용Tip" name="faq">
         <cs-post-table :posts="faqPosts" />
       </n-tab-pane>
     </n-tabs>

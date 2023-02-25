@@ -46,7 +46,6 @@ const numOfShipping = computed(
       )
     ).length
 );
-const disable = import.meta.env.MODE === "production";
 </script>
 <template>
   <n-space
@@ -63,10 +62,10 @@ const disable = import.meta.env.MODE === "production";
       responsive="screen"
       style="margin-bottom: 2%"
     >
-      <n-grid-item v-if="!disable">
+      <n-grid-item>
         <n-card
           class="button-card"
-          @click="router.push({ name: 'OrderComplete' })"
+          @click="() => router.push({ name: 'OrderComplete' })"
         >
           <template #header>
             <n-text>승인주문수</n-text>
@@ -77,11 +76,11 @@ const disable = import.meta.env.MODE === "production";
           {{ numOfApprove }}건
         </n-card>
       </n-grid-item>
-      <n-grid-item v-if="!disable">
+      <n-grid-item>
         <n-card
           class="button-card"
           style="border-color: var(--primary-color)"
-          @click="router.push({ name: 'OrderRequire' })"
+          @click="() => router.push({ name: 'OrderRequire' })"
         >
           <template #header>
             <n-text>미승인주문수</n-text>
@@ -98,11 +97,11 @@ const disable = import.meta.env.MODE === "production";
           {{ amountNotPaid }} 원
         </n-card>
       </n-grid-item>
-      <n-grid-item v-if="!disable">
+      <n-grid-item>
         <n-card
           class="button-card"
           style="border-color: #e88080"
-          @click="router.push({ name: 'PayHistory' })"
+          @click="() => router.push({ name: 'PayHistory' })"
         >
           <template #header>
             <n-text style="font-color: #e88080"> 배송중인수량 </n-text>

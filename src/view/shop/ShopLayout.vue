@@ -22,7 +22,6 @@ const user = authStore.currUser();
 const shopOrderStore = useShopOrderStore();
 onBeforeMount(() => shopOrderStore.init(user.userInfo.userId));
 
-const disable = import.meta.env.MODE === "production";
 const menuOptions: MenuOption[] = [
   {
     label: "상품 관리",
@@ -30,9 +29,8 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(ProductHunt),
     children: [
       {
-        label: () => renderRoute("도매 상품 등록", "ProductAdd", disable),
+        label: () => renderRoute("도매 상품 등록", "ProductAdd"),
         key: "ProductAdd",
-        disabled: disable,
       },
       {
         label: () => renderRoute("등록 상품 조회", "ProductManage"),
@@ -50,30 +48,24 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(ShoppingCart),
     children: [
       {
-        label: () => renderRoute("주문 해야할 주문", "OrderRequire", disable),
+        label: () => renderRoute("주문 해야할 주문", "OrderRequire"),
         key: "OrderRequire",
-        disabled: disable,
       },
       {
-        label: () => renderRoute("승인 완료된 주문", "OrderComplete", disable),
+        label: () => renderRoute("승인 완료된 주문", "OrderComplete"),
         key: "OrderComplete",
-        disabled: disable,
       },
       {
-        label: () => renderRoute("미송 주문 조회", "PendingOrderList", disable),
+        label: () => renderRoute("미송 주문 조회", "PendingOrderList"),
         key: "PendingOrderList",
-        disabled: disable,
       },
       {
-        label: () =>
-          renderRoute("교환/반품 관리", "ShopReturnExchange", disable),
+        label: () => renderRoute("교환/반품 관리", "ShopReturnExchange"),
         key: "ShopReturnExchange",
-        disabled: disable,
       },
       {
-        label: () => renderRoute("샘플요청", "SampleReq", disable),
+        label: () => renderRoute("샘플요청", "SampleReq"),
         key: "SampleReq",
-        disabled: disable,
       },
       {
         label: () => renderRoute("결제내역 조회", "PayHistory"),
@@ -93,7 +85,6 @@ const menuOptions: MenuOption[] = [
     label: "배송/엉클",
     key: "ShipUncle",
     icon: renderIcon(LocalShippingRound),
-    disabled: disable,
     children: [
       {
         label: () => renderRoute("엉클 관리(계약)", "ShopUncleManage"),
@@ -113,7 +104,6 @@ const menuOptions: MenuOption[] = [
     label: "거래처 관리",
     key: "PartnerManage",
     icon: renderIcon(People16Regular),
-    disabled: disable,
     children: [
       {
         label: () => renderRoute("거래처 관리", "FollowPartner"),

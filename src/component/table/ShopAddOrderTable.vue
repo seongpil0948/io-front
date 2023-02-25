@@ -231,17 +231,14 @@ async function handleOperSelect(key: string | number) {
       break;
   }
 }
-const disable = import.meta.env.MODE === "production";
 const operOpts = [
   {
     label: "선택 주문",
     key: "orderChecked",
-    disabled: disable,
   },
   {
     label: "전체 주문",
     key: "orderAll",
-    disabled: disable,
   },
   {
     label: "선택 주문완료처리",
@@ -262,7 +259,6 @@ const operOpts = [
   {
     label: "선택 픽업요청",
     key: "pickupRequest",
-    disabled: disable,
   },
 ];
 </script>
