@@ -52,7 +52,17 @@ export function useEditor(c: IoEditorParam) {
     }
   }
 
-  return { editor, saveEditor, clearEditor, getEditor, toggleEditor };
+  async function render(data: OutputData) {
+    console.log("in editor render: ", editor.value, data);
+    if (editor.value) {
+      console.log("hi");
+      return editor.value.isReady.then(async () => {
+        await editor.value!.render(data);
+      });
+    }
+  }
+
+  return { editor, saveEditor, clearEditor, getEditor, toggleEditor, render };
 }
 
 export function getEditor(c: IoEditorParam) {
@@ -61,7 +71,6 @@ export function getEditor(c: IoEditorParam) {
     const date = new Date();
     data = {
       time: date.valueOf(),
-      version: "2.25.0",
       blocks: c.data.split(/\r?\n/).map((text) => ({
         data: { text },
         id: uuidv4(),

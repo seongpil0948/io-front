@@ -7,24 +7,24 @@ import {
   useSearch,
 } from "@/composable";
 import { defineStore } from "pinia";
-import { onBeforeMount, ref, computed } from "vue";
+import { onBeforeMount, ref, computed, shallowRef } from "vue";
 import { useAuthStore } from "./auth";
 import { logger } from "@/plugin/logger";
 
 export const useCsStore = defineStore("csStore", () => {
   const authStore = useAuthStore();
-  const faqPosts = ref<CsPost[]>([]);
-  const noticePosts = ref<CsPost[]>([]);
-  const eventPosts = ref<CsPost[]>([]);
+  const faqPosts = shallowRef<CsPost[]>([]);
+  const noticePosts = shallowRef<CsPost[]>([]);
+  const eventPosts = shallowRef<CsPost[]>([]);
   const detailPost = ref<CsPost | null>(null);
-  let initial = true;
+  const initial = ref(true);
 
   onBeforeMount(async () => {
     searchInputVal.value = null;
     await init();
   });
 
-  const posts = computed(() =>
+  const posts = computed<CsPost[]>(() =>
     faqPosts.value.concat(noticePosts.value).concat(eventPosts.value)
   );
   const validIds = computed(() => searchedData.value.map((d) => d.no));
@@ -61,7 +61,7 @@ export const useCsStore = defineStore("csStore", () => {
           }
         } else if (name === "logout") {
           discard();
-        } else if (!u && !initial) {
+        } else if (!u && !initial.value) {
           discard();
         }
       });
@@ -75,11 +75,11 @@ export const useCsStore = defineStore("csStore", () => {
   async function init() {
     const role = authStore.currUserRole;
     console.log(`===init useCsStore === role: ${role}`);
-    if (!initial || role === "ANONYMOUSE") return;
+    if (!initial.value || role === "ANONYMOUSE") return;
     faqPosts.value = await getCsFaq(role);
     noticePosts.value = await getCsNotice(role);
     eventPosts.value = await getCsEvents();
-    initial = false;
+    initial.value = false;
   }
 
   function discard() {
@@ -88,7 +88,7 @@ export const useCsStore = defineStore("csStore", () => {
     faqPosts.value = [];
     noticePosts.value = [];
     eventPosts.value = [];
-    initial = true;
+    initial.value = true;
   }
 
   return {
@@ -103,5 +103,7 @@ export const useCsStore = defineStore("csStore", () => {
     searchedData,
     searchInputVal,
     validIds,
+    initial,
+    init,
   };
 });

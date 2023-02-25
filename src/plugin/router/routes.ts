@@ -34,7 +34,7 @@ export const routes: Array<RouteRecordRaw> = [
         component: () => import("@/view/cs/FaqByCtgr.vue"),
       },
       {
-        path: "detail",
+        path: "detail/:no",
         name: "CsDetail",
         component: () => import("@/view/cs/CsDetail.vue"),
       },

@@ -38,7 +38,12 @@ const showPosts = computed(() =>
 );
 function goDetail(detailPost: CsPost) {
   csStore.$patch({ detailPost });
-  router.push({ name: "CsDetail" });
+  router.push({
+    name: "CsDetail",
+    params: {
+      no: detailPost.no,
+    },
+  });
 }
 
 const columns = (title: string) =>
