@@ -4,14 +4,6 @@ import { CloudLogging } from "@vicons/carbon";
 // eslint-disable-next-line
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@/store";
-
-const auth = useAuthStore();
-auth.$onAction(() => {
-  handleWalletClose();
-  handlePersonalClose();
-  handleUserLogClose();
-});
 
 const walletShow = ref(false);
 const handleWalletClose = () => (walletShow.value = false);
