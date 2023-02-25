@@ -2,7 +2,6 @@
 import { lightTheme } from "naive-ui";
 import { lightThemeOver, useNaiveConfig } from "@/composable/config";
 import { onBeforeUnmount, ref } from "vue";
-
 import {
   useSignup,
   AsyncUserInfoForm,
@@ -10,10 +9,24 @@ import {
   AsyncShopOperInfoVue,
   AsyncVendorOperInfoVue,
   UserInfoInst,
+  USER_DB,
+  ShopOperInfo,
+  VendorOperInfo,
+  IoUser,
+  SignupStep,
 } from "@/composable";
-import { USER_DB, ShopOperInfo, VendorOperInfo } from "@io-boxies/js-lib";
 import { ioFireStore } from "@/plugin/firebase";
 
+console.log("signup route history: ", history);
+const { initialStep, userStr } = history.state;
+const initUser =
+  typeof userStr === "string" && userStr.length > 10
+    ? (JSON.parse(userStr) as IoUser)
+    : undefined;
+const initStep: SignupStep | undefined =
+  typeof initialStep === "string" && initialStep.length > 3
+    ? (initialStep as SignupStep)
+    : undefined;
 const { naiveLocate } = useNaiveConfig();
 const userInfoRef = ref<UserInfoInst | null>(null);
 const companyInfoRef = ref<InstanceType<typeof AsyncCompanyInfoForm> | null>(
@@ -29,6 +42,7 @@ async function toCompanyInfo() {
   const { userInfo } = await v.getUserInfo();
   if (!userInfo) return;
   user.value.userInfo = userInfo;
+  console.log("new user: ", user.value);
   await USER_DB.updateUser(ioFireStore, user.value);
   step.value = "companyInfo";
 }
@@ -79,7 +93,7 @@ const {
   acceptTerms,
   onSignUp,
   stop,
-} = useSignup();
+} = useSignup(initUser, initStep);
 onBeforeUnmount(() => stop());
 </script>
 <template>
@@ -198,6 +212,7 @@ onBeforeUnmount(() => stop());
                   style="width: 30vw"
                   placeholder="비밀번호 입력"
                   type="password"
+                  :input-props="{ autoComplete: 'on' }"
                   data-test="input-pw"
                 />
               </n-form-item>

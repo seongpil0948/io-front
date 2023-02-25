@@ -196,6 +196,7 @@ export default defineComponent({
                       value={modelRef.password}
                       onUpdateValue={(val) => (modelRef.password = val)}
                       type="password"
+                      input-props={{ autoComplete: "on" }}
                       data-test="input-pw"
                     ></NInput>
                   </NFormItem>,

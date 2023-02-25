@@ -2,19 +2,9 @@
 import { WalletOutline, PersonCircleOutline } from "@vicons/ionicons5";
 import { CloudLogging } from "@vicons/carbon";
 // eslint-disable-next-line
-import { ref, defineAsyncComponent } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/store";
-
-const UserInfoCollapse = defineAsyncComponent(
-  () => import("@/component/card/user/UserInfoCollapse.vue")
-);
-const CoinWallet = defineAsyncComponent(
-  () => import("@/component/card/CoinWallet.vue")
-);
-const UserLogList = defineAsyncComponent(
-  () => import("@/component/card/user/UserLogList.vue")
-);
 
 const auth = useAuthStore();
 auth.$onAction(() => {
@@ -74,7 +64,7 @@ const router = useRouter();
           </n-icon>
         </template>
         <expand-card @click-close="handlePersonalClose">
-          <UserInfoCollapse />
+          <user-info-collapse />
         </expand-card>
       </n-popover>
 

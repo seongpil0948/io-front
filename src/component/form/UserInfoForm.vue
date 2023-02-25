@@ -48,7 +48,7 @@ async function getUserInfo(): Promise<{
         uInfo.value.fcmTokens =
           auth.currentUser && token ? [token!] : ([] as FcmToken[]);
         console.info("return uInfo.value", uInfo.value);
-        resolve({ userInfo: formModel.value });
+        resolve({ userInfo: uInfo.value });
       });
     });
   }).catch((err) => {

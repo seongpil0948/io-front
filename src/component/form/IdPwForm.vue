@@ -52,6 +52,7 @@ async function handleSubmit(e: MouseEvent) {
           v-model:value="formValue.pw"
           placeholder="Password 입력"
           type="password"
+          :input-props="{ autoComplete: 'on' }"
           show-password-on="click"
         />
       </n-form-item>

@@ -9,16 +9,7 @@ import {
   signInWithCustomToken,
   signInWithEmailAndPassword,
 } from "@firebase/auth";
-import {
-  getUserName,
-  IoUser,
-  IoUserInfo,
-  IO_ENV,
-  userFromCredential,
-  USER_DB,
-  USER_PROVIDER,
-  USER_ROLE,
-} from "@io-boxies/js-lib";
+import { IO_ENV } from "@io-boxies/js-lib";
 import {
   getGoogleAuthProvider,
   useLogin,
@@ -34,12 +25,23 @@ import {
 } from "@/util";
 import { useRouter } from "vue-router";
 import { useLogger } from "vue-logger-plugin";
-import { catchError, mapUserProvider, useEmailPwForm } from "@/composable";
+import {
+  catchError,
+  mapUserProvider,
+  useEmailPwForm,
+  getUserName,
+  IoUser,
+  IoUserInfo,
+  userFromCredential,
+  USER_DB,
+  USER_PROVIDER,
+  USER_ROLE,
+} from "@/composable";
 import { getAnalytics, logEvent } from "@firebase/analytics";
 
-export function useSignup() {
+export function useSignup(u?: IoUser, initialStep?: SignupStep) {
   const userRole = ref<USER_ROLE | null>(null);
-  const step = ref<SignupStep>("selectRole");
+  const step = ref<SignupStep>(initialStep ?? "selectRole");
   const router = useRouter();
   const dialog = useDialog();
   const msg = useMessage();
@@ -52,7 +54,7 @@ export function useSignup() {
     import.meta.env.MODE === "production" ? "io-prod" : ("io-dev" as IO_ENV),
     `${axiosConfig.baseURL}/auth/customToken`
   );
-  const user = ref<IoUser | null>(null);
+  const user = ref<IoUser | null>(u ?? null);
   watch(
     () => step.value,
     (val) => {
@@ -271,7 +273,7 @@ export interface UserInfoInst {
   }>;
 }
 
-type SignupStep =
+export type SignupStep =
   | "selectRole"
   | "selectMethod"
   | "showInputEmail"

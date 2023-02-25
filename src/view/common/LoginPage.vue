@@ -3,13 +3,13 @@ import { lightThemeOver, useNaiveConfig } from "@/composable/config";
 import { lightTheme, NSpace, useMessage } from "naive-ui";
 import { useAuthStore } from "@/store";
 import { useRouter } from "vue-router";
-import { getUserName, USER_ROLE } from "@io-boxies/js-lib";
 import { makeMsgOpt } from "@/util";
 import { useLogger } from "vue-logger-plugin";
 import { axiosConfig } from "@/plugin/axios";
 import { ioFireStore } from "@/plugin/firebase";
 import { defineAsyncComponent } from "vue";
 import { LoginReturn } from "@/component/common/login/login";
+import { getUserName, USER_ROLE } from "@/composable";
 
 const LoginView = defineAsyncComponent(
   () => import("@/component/common/login/login-view")
@@ -27,8 +27,21 @@ async function onLogin(data: LoginReturn | undefined) {
   if (!data) return msg.error("문제가 발생했습니다. 문의 주세요..!");
   else if (data.wrongPassword) return msg.error("비밀번호가 틀렸습니다.");
   else if (data.userNotFound) return msg.error("존재하지 않는 유저입니다.");
-  else if (data.noConfirm) return msg.error("관리자가 검토중인 계정입니다.");
-  else if (data.user) {
+  else if (
+    data.user &&
+    (!data.user.companyInfo || !data.user.userInfo.account)
+  ) {
+    const params: any = {
+      userStr: data.user ? JSON.stringify(data.user) : undefined,
+      initialStep: !data.user.userInfo.account ? "userInfo" : "companyInfo",
+    };
+    router.push({
+      name: "SignUp",
+      state: params,
+    });
+  } else if (data.noConfirm) {
+    return msg.error("관리자가 검토중인 계정입니다.");
+  } else if (data.user) {
     const role = data.user.userInfo.role;
     if (validRoles.includes(role)) {
       msg.success(`안녕하세요 ${getUserName(data.user)}님`, makeMsgOpt());
