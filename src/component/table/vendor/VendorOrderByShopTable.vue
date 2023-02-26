@@ -163,7 +163,7 @@ function onClickOrder(keys: string[]) {
       <br />
       나머지 개수는 미송 주문건으로 이동됩니다.
       <br />
-      (승인시 {{ IO_COSTS.REQ_ORDER }} 원이 소모 됩니다.)
+      (승인시 {{ IO_COSTS.APPROVE_ORDER }} 원이 소모 됩니다.)
     </template>
   </coin-reduce-confirm-modal>
   <coin-reduce-confirm-modal

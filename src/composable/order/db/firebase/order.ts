@@ -435,7 +435,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       for (let k = 0; k < entries.length; k++) {
         const [shopId, cnt] = entries[k];
         const shopPay = await IO_PAY_DB.getIoPayByUser(shopId);
-        const cost = IO_COSTS.REQ_ORDER * cnt;
+        const cost = IO_COSTS.APPROVE_ORDER * cnt;
         if (shopPay.pendingBudget < cost)
           throw new Error(
             `shop(${shopId}) not enough pendingBudget(${cost}) for request order`
