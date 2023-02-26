@@ -76,6 +76,9 @@ export function getIoCollection(
     case IoCollection.REQUEST_ENCASH:
       str = `requestEncash`;
       break;
+    case IoCollection.REQUEST_CHARGE:
+      str = `requestCharge`;
+      break;
     default:
       throw Error(`IoCollection Enum Member ${p.c.toString()} is not Exist`);
   }
@@ -100,6 +103,9 @@ export function getIoCollectionGroup(store: Firestore, c: IoCollection) {
       break;
     case IoCollection.PAY_HISTORY:
       str = `history`;
+      break;
+    case IoCollection.SHIPMENT:
+      str = `shipment`;
       break;
     default:
       throw Error(`IoCollection Enum Member ${c.toString()} is not Exist`);

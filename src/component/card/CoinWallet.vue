@@ -1,195 +1,194 @@
 <script setup lang="ts">
-import { computed, getCurrentInstance, h, ref } from "vue";
+import { computed, ref } from "vue";
 import { useAuthStore } from "@/store";
 import { QuestionCircleRegular } from "@vicons/fa";
 import { ReqEncash, useUserPay } from "@/composable";
-import { Bootpay } from "@bootpay/client-js";
+// import { Bootpay } from "@bootpay/client-js";
 import { uuidv4 } from "@firebase/util";
-import { useLogger } from "vue-logger-plugin";
-import { useMessage, useDialog, NSpace, NText } from "naive-ui";
-import { formatDate, loadDate, locateToStr } from "@io-boxies/js-lib";
+// import { useLogger } from "vue-logger-plugin";
+import { useMessage, NSpace, NText } from "naive-ui";
+// import { formatDate, loadDate, locateToStr } from "@io-boxies/js-lib";
 import { getIoCollection, ioFireStore } from "@/plugin/firebase";
 import { doc, setDoc } from "@firebase/firestore";
 
-const inst = getCurrentInstance();
-const APP_ID = "62b45e0fe38c3000215aec6b";
+// const inst = getCurrentInstance();
+// const APP_ID = "62b45e0fe38c3000215aec6b";
 const authStore = useAuthStore();
 const user = computed(() => authStore.currUser());
 const { userPay } = useUserPay(user.value.userInfo.userId);
-const log = useLogger();
-const uid = user.value.userInfo.userId;
+// const log = useLogger();
+// const uid = user.value.userInfo.userId;
 const msg = useMessage();
-const dialog = useDialog();
-async function reqPay() {
-  const uuid = uuidv4();
-  const date = new Date();
-  const price = chargePrice.value;
-  try {
-    const resp = await Bootpay.requestPayment({
-      price,
-      application_id: APP_ID,
-      order_name: `order in-coin ${chargePrice.value} 개`,
-      order_id: "charge_" + uuid, //고유 주문번호로, 생성하신 값을 보내주셔야 합니다
-      uuid,
-      user: {
-        id: uid,
-        username: user.value.userInfo.userName,
-        email: user.value.userInfo.email,
-        addr: user.value.companyInfo?.shipLocate
-          ? locateToStr(user.value.companyInfo?.shipLocate)
-          : undefined,
-        phone: user.value.userInfo.phone ?? "",
-      },
-      metadata: {
-        uid,
-        m: ee(price),
-      },
-      extra: {
-        separately_confirmed: true, // 승인(done) 전 서버확인(confirm) 이벤트가 호출됨
-        display_error_result: true,
-        test_deposit: true,
-        deposit_expiration: date
-          .toLocaleDateString()
-          .split(".")
-          .filter((x) => x)
-          .map((x) => x.trim())
-          .join("-"),
-      },
-    });
-    console.log("bootpay resp ", resp);
-    const pre = "in Bootpay.requestPayment >";
-    if (resp.event === "issued") {
-      log.warn(uid, pre + "issued");
-    } else if (resp.event === "confirm") {
-      console.log("in confirm", resp.receipt_id, "\n", resp.order_id);
-      const http = inst?.appContext.config.globalProperties.$http;
-      if (!http) {
-        return log.error(uid, pre + "confirm, $http is null");
-      }
-      const verifyResp = await http.get(
-        `/payment/verifyReceipt?price=${price}&receiptId=${resp.receipt_id}&order_id=${resp.order_id}`
-      );
-      console.log(null, "/payment/verifyReceipt Response: ", verifyResp);
-      const ok = verifyResp.data === "sp"; // 재고 수량 관리 로직 혹은 다른 처리
-      if (ok) {
-        const confirmedResp = await Bootpay.confirm(); //결제를 승인한다
-        console.log("confirmedResp", confirmedResp);
-        if (confirmedResp.event === "done") {
-          fillCoin(confirmedResp.data);
-        } else if (confirmedResp.event === "error") {
-          log.error(uid, "error in confirmedResp: ", confirmedResp);
-        } else if (confirmedResp.event === "issued") {
-          // 가상계좌 발급
-          log.debug(null, pre + "issued: ", confirmedResp);
-          if (confirmedResp.data.vbank_data) {
-            const bank = confirmedResp.data.vbank_data;
-            dialog.info({
-              title: "입금정보(완료시 자동충전)",
-              content: () =>
-                h(
-                  NSpace,
-                  {
-                    vertical: true,
-                    style: { "padding-left": "5%" },
-                  },
-                  {
-                    default: () => [
-                      h(
-                        NText,
-                        {
-                          type: "info",
-                        },
-                        {
-                          default: () => `은행: ${bank.bank_name}`,
-                        }
-                      ),
-                      h(
-                        NText,
-                        {
-                          type: "success",
-                        },
-                        {
-                          default: () => `계좌: ${bank.bank_account}`,
-                        }
-                      ),
-                      h(
-                        NText,
-                        {
-                          type: "warning",
-                        },
-                        {
-                          default: () => `금액: ${price.toLocaleString()}원`,
-                        }
-                      ),
-                      h(
-                        NText,
-                        {
-                          type: "error",
-                        },
-                        {
-                          default: () =>
-                            `기한: ${formatDate(loadDate(bank.expired_at))}`,
-                        }
-                      ),
-                    ],
-                  }
-                ),
-            });
-          }
-        }
-      } else {
-        Bootpay.destroy(); //결제창을 닫는다.
-      }
-    } else {
-      console.error("unexpected response : ", resp);
-    }
-  } catch (e: any) {
-    console.log(e);
-    if (e.event === "error") {
-      // case "cancel": // 사용자가 결제창을 닫을때 호출
-      log.error(
-        null,
-        `pg_error_code: ${e.pg_error_code} \n e.error_code: ${e.error_code} \n e.message: ${e.message}`
-      );
-    }
-    Bootpay.destroy(); //결제창을 닫는다.
-  }
-}
-
-const fillCoin = (data: any) => {
-  const price = data.price;
-  const dPrice = dd(Number(data.metadata.m));
-  console.assert(price === dPrice, "invalid price in coin");
-  if (!userPay.value) {
-    return log.error(
-      uid,
-      `userPay is null in fillCoin, required charge coin is: ${price}`
-    );
-  }
-  userPay.value.budget += price;
-  userPay.value
-    .update()
-    .then(() => {
-      msg.info("충전완료!");
-    })
-    .catch(() => {
-      msg.error("충전실패!");
-    });
-};
-const minCharge = 100;
-const chargePrice = ref(minCharge);
-const chargeValidator = (x: number) => x % 10 === 0;
-
-const zz = 1224512435;
-const hh = 234567890987654;
-const ee = (p: number) => (Number(p) + zz) ^ hh;
-const dd = (p: number) => (Number(p) ^ hh) - zz;
+// const dialog = useDialog();
+// With PG
+// async function reqPay() {
+//   const uuid = uuidv4();
+//   const date = new Date();
+//   const price = chargePrice.value;
+//   try {
+//     const resp = await Bootpay.requestPayment({
+//       price,
+//       application_id: APP_ID,
+//       order_name: `order in-coin ${chargePrice.value} 개`,
+//       order_id: "charge_" + uuid, //고유 주문번호로, 생성하신 값을 보내주셔야 합니다
+//       uuid,
+//       user: {
+//         id: uid,
+//         username: user.value.userInfo.userName,
+//         email: user.value.userInfo.email,
+//         addr: user.value.companyInfo?.shipLocate
+//           ? locateToStr(user.value.companyInfo?.shipLocate)
+//           : undefined,
+//         phone: user.value.userInfo.phone ?? "",
+//       },
+//       metadata: {
+//         uid,
+//         m: ee(price),
+//       },
+//       extra: {
+//         separately_confirmed: true, // 승인(done) 전 서버확인(confirm) 이벤트가 호출됨
+//         display_error_result: true,
+//         test_deposit: true,
+//         deposit_expiration: date
+//           .toLocaleDateString()
+//           .split(".")
+//           .filter((x) => x)
+//           .map((x) => x.trim())
+//           .join("-"),
+//       },
+//     });
+//     console.log("bootpay resp ", resp);
+//     const pre = "in Bootpay.requestPayment >";
+//     if (resp.event === "issued") {
+//       log.warn(uid, pre + "issued");
+//     } else if (resp.event === "confirm") {
+//       console.log("in confirm", resp.receipt_id, "\n", resp.order_id);
+//       const http = inst?.appContext.config.globalProperties.$http;
+//       if (!http) {
+//         return log.error(uid, pre + "confirm, $http is null");
+//       }
+//       const verifyResp = await http.get(
+//         `/payment/verifyReceipt?price=${price}&receiptId=${resp.receipt_id}&order_id=${resp.order_id}`
+//       );
+//       console.log(null, "/payment/verifyReceipt Response: ", verifyResp);
+//       const ok = verifyResp.data === "sp"; // 재고 수량 관리 로직 혹은 다른 처리
+//       if (ok) {
+//         const confirmedResp = await Bootpay.confirm(); //결제를 승인한다
+//         console.log("confirmedResp", confirmedResp);
+//         if (confirmedResp.event === "done") {
+//           fillCoin(confirmedResp.data);
+//         } else if (confirmedResp.event === "error") {
+//           log.error(uid, "error in confirmedResp: ", confirmedResp);
+//         } else if (confirmedResp.event === "issued") {
+//           // 가상계좌 발급
+//           log.debug(null, pre + "issued: ", confirmedResp);
+//           if (confirmedResp.data.vbank_data) {
+//             const bank = confirmedResp.data.vbank_data;
+//             dialog.info({
+//               title: "입금정보(완료시 자동충전)",
+//               content: () =>
+//                 h(
+//                   NSpace,
+//                   {
+//                     vertical: true,
+//                     style: { "padding-left": "5%" },
+//                   },
+//                   {
+//                     default: () => [
+//                       h(
+//                         NText,
+//                         {
+//                           type: "info",
+//                         },
+//                         {
+//                           default: () => `은행: ${bank.bank_name}`,
+//                         }
+//                       ),
+//                       h(
+//                         NText,
+//                         {
+//                           type: "success",
+//                         },
+//                         {
+//                           default: () => `계좌: ${bank.bank_account}`,
+//                         }
+//                       ),
+//                       h(
+//                         NText,
+//                         {
+//                           type: "warning",
+//                         },
+//                         {
+//                           default: () => `금액: ${price.toLocaleString()}원`,
+//                         }
+//                       ),
+//                       h(
+//                         NText,
+//                         {
+//                           type: "error",
+//                         },
+//                         {
+//                           default: () =>
+//                             `기한: ${formatDate(loadDate(bank.expired_at))}`,
+//                         }
+//                       ),
+//                     ],
+//                   }
+//                 ),
+//             });
+//           }
+//         }
+//       } else {
+//         Bootpay.destroy(); //결제창을 닫는다.
+//       }
+//     } else {
+//       console.error("unexpected response : ", resp);
+//     }
+//   } catch (e: any) {
+//     console.log(e);
+//     if (e.event === "error") {
+//       // case "cancel": // 사용자가 결제창을 닫을때 호출
+//       log.error(
+//         null,
+//         `pg_error_code: ${e.pg_error_code} \n e.error_code: ${e.error_code} \n e.message: ${e.message}`
+//       );
+//     }
+//     Bootpay.destroy(); //결제창을 닫는다.
+//   }
+// }
+// const fillCoin = (data: any) => {
+//   const price = data.price;
+//   const dPrice = dd(Number(data.metadata.m));
+//   console.assert(price === dPrice, "invalid price in coin");
+//   if (!userPay.value) {
+//     return log.error(
+//       uid,
+//       `userPay is null in fillCoin, required charge coin is: ${price}`
+//     );
+//   }
+//   userPay.value.budget += price;
+//   userPay.value
+//     .update()
+//     .then(() => {
+//       msg.info("충전완료!");
+//     })
+//     .catch(() => {
+//       msg.error("충전실패!");
+//     });
+// };
+// const minCharge = 100;
+// const chargePrice = ref(minCharge);
+// const chargeValidator = (x: number) => x % 10 === 0;
+// const zz = 1224512435;
+// const hh = 234567890987654;
+// const ee = (p: number) => (Number(p) + zz) ^ hh;
+// const dd = (p: number) => (Number(p) ^ hh) - zz;
 
 // >>> encashment >>>
 const maxEncash = computed(
   () => userPay.value?.budget ?? 0 - (userPay.value?.pendingBudget ?? -1)
 );
-const encash = ref(maxEncash.value);
+const encash = ref(0);
 async function reqEncashment() {
   if (!userPay.value) return msg.error("다시 시도해주세요");
   else if (maxEncash.value < encash.value)
@@ -209,6 +208,23 @@ async function reqEncashment() {
     obj
   );
   return msg.success(`${encash.value}원 출금요청 완료.`);
+}
+
+// >>> manual charge >>>
+const charge = ref(1000);
+async function reqCharge() {
+  const obj: ReqEncash = {
+    createdAt: new Date(),
+    dbId: uuidv4(),
+    amount: charge.value,
+    userId: userPay.value!.userId,
+    isDone: false,
+  };
+  await setDoc(
+    doc(getIoCollection(ioFireStore, { c: "REQUEST_CHARGE" }), obj.dbId),
+    obj
+  );
+  return msg.success(`${charge.value}원 출금요청 완료.`);
 }
 </script>
 <template>
@@ -240,6 +256,7 @@ async function reqEncashment() {
     </n-space>
     <n-divider />
     <n-collapse arrow-placement="right" accordion>
+      <!-- With PG
       <n-collapse-item name="1">
         <template #header>
           <n-text strong>금액충전</n-text>
@@ -277,6 +294,43 @@ async function reqEncashment() {
             </n-button>
           </n-space>
         </n-space>
+      </n-collapse-item> -->
+      <n-collapse-item name="1">
+        <template #header>
+          <n-text strong>금액충전</n-text>
+        </template>
+        <n-space vertical>
+          <n-space justify="space-between">
+            <div style="position: relative">
+              <n-tooltip trigger="hover" :width="400">
+                <template #trigger>
+                  <n-button circle text style="position: absolute; left: -30%">
+                    <template #icon>
+                      <n-icon><QuestionCircleRegular /></n-icon>
+                    </template>
+                  </n-button>
+                </template>
+                <template #header> 주의 사항 </template>
+                요청 후 10분 이내로 결제가 되어야 원활하게 충전이 됩니다.<br />
+                10분이 초과될 경우 010-8070-8600 해당 번호의 카카오톡으로 문의를
+                남겨주세요.<br />
+                또 입금 완료 후 30분 이내로 충전이 완료됩니다.<br />
+              </n-tooltip>
+              <n-text strong> IBK / 송준회 </n-text>
+            </div>
+            <n-text type="info">12345-21251513531</n-text>
+          </n-space>
+          <n-divider></n-divider>
+          <n-space justify="space-between">
+            <n-text strong> 요청금액 </n-text>
+            <n-input-number v-model:value="charge" :step="100" :min="1000" />
+          </n-space>
+          <n-space justify="end" style="line-height: 2rem">
+            <n-button @click="reqCharge">
+              충전 요청<coin-image size="1.6rem" />
+            </n-button>
+          </n-space>
+        </n-space>
       </n-collapse-item>
       <n-collapse-item name="2">
         <template #header>
@@ -286,7 +340,7 @@ async function reqEncashment() {
           <n-space justify="space-between">
             <n-text strong>
               {{ user.userInfo.account.bank }} /
-              {{ user.userInfo.account.accountName }} <br />
+              {{ user.userInfo.account.accountName }}
             </n-text>
             <n-text type="info">{{
               user.userInfo.account.accountNumber
@@ -307,7 +361,7 @@ async function reqEncashment() {
               :max="maxEncash"
             />
           </n-space>
-          <n-space justify="space-between" style="line-height: 2rem">
+          <n-space justify="end" style="line-height: 2rem">
             <n-button @click="reqEncashment">
               출금 요청<coin-image size="1.6rem" />
             </n-button>
