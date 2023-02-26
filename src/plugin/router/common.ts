@@ -20,7 +20,7 @@ export const cashNavMenu = (name: string): MenuOption => ({
   icon: renderIcon(CashOutline),
   children: [
     {
-      label: () => renderRoute("거래처 출금 요청내역", name + "ReqEncashList"),
+      label: () => renderRoute("입/출금 요청내역", name + "ReqEncashList"),
       key: name + "ReqEncashList",
     },
   ],

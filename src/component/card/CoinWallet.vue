@@ -225,7 +225,7 @@ async function reqCharge() {
     doc(getIoCollection(ioFireStore, { c: "REQUEST_CHARGE" }), obj.dbId),
     obj
   );
-  return msg.success(`${charge.value}원 출금요청 완료.`);
+  return msg.success(`${charge.value}원 충전요청 완료.`);
 }
 </script>
 <template>

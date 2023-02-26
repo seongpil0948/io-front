@@ -3,7 +3,7 @@ import { onFirestoreCompletion, onFirestoreErr, ReqEncash } from "@/composable";
 import { getIoCollection, ioFireStore } from "@/plugin/firebase";
 import { useAuthStore } from "@/store";
 import { fireConverter, handleReadSnap } from "@/util/firebase";
-import { onSnapshot, query, where } from "@firebase/firestore";
+import { limit, onSnapshot, query, where } from "@firebase/firestore";
 import { formatDate, loadDate } from "@io-boxies/js-lib";
 import { NText } from "naive-ui";
 import { TableColumns } from "naive-ui/es/data-table/src/interface";
@@ -96,7 +96,7 @@ const c = getIoCollection(ioFireStore, { c: "REQUEST_ENCASH" }).withConverter(
 const encashList = ref<ReqEncash[]>([]);
 const name = "Request Encash List";
 const unsubscribe = onSnapshot(
-  query(c, where("userId", "==", auth.currUser().userInfo.userId)),
+  query(c, where("userId", "==", auth.currUser().userInfo.userId), limit(100)),
   (snap) => handleReadSnap<ReqEncash>(snap, encashList.value, (x) => x.dbId),
   async (err) => {
     await onFirestoreErr(name, err);
@@ -104,21 +104,69 @@ const unsubscribe = onSnapshot(
   },
   () => onFirestoreCompletion(name)
 );
-onBeforeUnmount(() => unsubscribe());
+const enchargeList = ref<ReqEncash[]>([]);
+const nameCharge = "Request Encharge List";
+const unsubscribeCharge = onSnapshot(
+  query(
+    getIoCollection(ioFireStore, { c: "REQUEST_CHARGE" }).withConverter(
+      reqEncashConverter
+    ),
+    where("userId", "==", auth.currUser().userInfo.userId),
+    limit(100)
+  ),
+  (snap) => handleReadSnap<ReqEncash>(snap, enchargeList.value, (x) => x.dbId),
+  async (err) => {
+    await onFirestoreErr(nameCharge, err);
+    throw err;
+  },
+  () => onFirestoreCompletion(nameCharge)
+);
+onBeforeUnmount(() => {
+  unsubscribe();
+  unsubscribeCharge();
+});
 </script>
 <template>
-  <n-card title="출금 요청내역">
-    <template #header-extra>
-      최근 100건 조회({{ encashList.length }})
-    </template>
-    <n-data-table
-      ref="table"
-      :columns="columns"
-      :data="encashList"
-      :pagination="{
-        showSizePicker: true,
-        pageSizes: [5, 10, 25, 50],
-      }"
-    />
-  </n-card>
+  <n-tabs
+    animated
+    default-value="encash"
+    size="large"
+    style="margin: 0 -4px"
+    pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
+  >
+    <n-tab-pane name="encash" tab="출금 요청내역">
+      <n-card title="">
+        <template #header-extra>
+          최근 100건 조회({{ encashList.length }})
+        </template>
+        <n-data-table
+          ref="table"
+          :columns="columns"
+          :data="encashList"
+          :pagination="{
+            showSizePicker: true,
+            pageSizes: [5, 10, 25, 50],
+          }"
+          :row-key="(row: ReqEncash) => row.dbId"
+        />
+      </n-card>
+    </n-tab-pane>
+    <n-tab-pane name="encharge" tab="충전 요청내역">
+      <n-card title="">
+        <template #header-extra>
+          최근 100건 조회({{ enchargeList.length }})
+        </template>
+        <n-data-table
+          ref="table"
+          :columns="columns"
+          :data="enchargeList"
+          :pagination="{
+            showSizePicker: true,
+            pageSizes: [5, 10, 25, 50],
+          }"
+          :row-key="(row: ReqEncash) => row.dbId"
+        />
+      </n-card>
+    </n-tab-pane>
+  </n-tabs>
 </template>
