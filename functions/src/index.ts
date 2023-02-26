@@ -43,6 +43,22 @@ exports.onCreateRequestEncash = functions
     });
     console.log("onCreateRequestEncash success ", val);
   });
+exports.onCreateRequestEnCharge = functions
+  .region("asia-northeast3")
+  .firestore.document("requestCharge/{docId}")
+  .onCreate(async (snap, context) => {
+    const web = new WebClient(slackToken);
+    const val = snap.data();
+    let text = `충전요청(${context.params.docId}) 도착!`;
+    if (val.amount) {
+      text += `\n 요청액: ${val.amount}`;
+    }
+    await web.chat.postMessage({
+      text,
+      channel: "#new-request-encharge",
+    });
+    console.log("onCreateRequestEnCharge success ", val);
+  });
 
 exports.scheduledElasticHealthCheck = functions
   .region("asia-northeast3")
