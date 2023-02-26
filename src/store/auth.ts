@@ -13,17 +13,21 @@ export const useAuthStore = defineStore("auth", () => {
   const contractUncles = shallowRef<IoUser[]>([]);
 
   watchEffect(async () => {
+    console.log("watch auth store user: ", user.value);
     if (!user.value || !user.value?.shopInfo) return;
     const ids = user.value?.shopInfo?.uncleUserIds;
+    console.log("watch uncleUserIds: ", ids);
     if (!ids) return;
     contractUncles.value = await USER_DB.getUserByIds(ioFireStore, ids);
   });
 
   const currUser = (): IoUser => {
-    if (!user.value) {
+    if (user.value) return user.value;
+    else {
       const userStr = localStorage.getItem(userKey);
       if (userStr) {
         const u = userFromJson(JSON.parse(userStr));
+        console.log("get user from localStorage", u);
         if (!u) {
           router.replace({ name: "Login" });
         }
@@ -50,19 +54,22 @@ export const useAuthStore = defineStore("auth", () => {
       : user.value.userInfo.userId
   );
   function setUser(u: IoUser) {
+    console.log("user in serUser: ", u);
     user.value = u;
     localStorage.setItem(userKey, JSON.stringify(user.value));
-    setUserId(getAnalytics(ioFire.app), u.userInfo.userId);
   }
   function login(u: IoUser) {
+    console.log("user in login: ", u);
     if (user.value) {
       if (user.value.userInfo.userId === u.userInfo.userId) return;
       else clearUser();
     }
+    setUserId(getAnalytics(ioFire.app), u.userInfo.userId);
     setUser(u);
   }
 
   function clearUser() {
+    console.log("user in clearUser: ", user.value);
     localStorage.clear();
     user.value = null;
   }

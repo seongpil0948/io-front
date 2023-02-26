@@ -11,31 +11,33 @@ import {
   NText,
   useMessage,
 } from "naive-ui";
-import { computed, onBeforeMount, ref } from "vue";
-import { storeToRefs } from "pinia";
+import { computed, onBeforeMount, ref, watch } from "vue";
 import { ioFireStore } from "@/plugin/firebase";
+import { storeToRefs } from "pinia";
+import cloneDeep from "lodash.clonedeep";
 
 const msg = useMessage();
 const auth = useAuthStore();
 const { user } = storeToRefs(auth);
+watch(
+  () => user.value,
+  (val) => {
+    console.log("user in watch: ", val);
+  }
+);
 const availUncles = computed(() =>
   allUncles.value.filter((x) => availUncleAdvertise(x))
 );
-const otherUncles = computed(() =>
-  availUncles.value.filter(
-    (y) => !user.value?.shopInfo?.uncleUserIds.includes(y.userInfo.userId)
-  )
-);
-const myUncles = computed(() =>
-  availUncles.value.filter((y) =>
-    user.value?.shopInfo?.uncleUserIds.includes(y.userInfo.userId)
-  )
-);
+const otherUncles = computed(() => {
+  const uncleIds = auth.contractUncles.map((x) => x.userInfo.userId);
+  return availUncles.value.filter((y) => !uncleIds.includes(y.userInfo.userId));
+});
+const myUncles = computed(() => {
+  const uncleIds = auth.contractUncles.map((x) => x.userInfo.userId);
+  return availUncles.value.filter((y) => uncleIds.includes(y.userInfo.userId));
+});
 const allUncles = ref<IoUser[]>([]);
 onBeforeMount(async () => {
-  if (!user.value) {
-    user.value = auth.currUser();
-  }
   allUncles.value = await USER_DB.getUsersByRole(ioFireStore, "UNCLE");
 });
 // modal
@@ -50,31 +52,36 @@ function onDetail(uncle: IoUser) {
   showModal.value = true;
 }
 async function onDelete() {
+  const u = cloneDeep(user.value);
+  if (!u || !u.shopInfo || !u.shopInfo.uncleUserIds) return;
   const uId = selectedUser.value!.userInfo.userId;
-  user.value!.shopInfo?.uncleUserIds.splice(
-    user.value!.shopInfo?.uncleUserIds.findIndex((x) => x === uId),
+  u.shopInfo.uncleUserIds.splice(
+    u.shopInfo.uncleUserIds.findIndex((x) => x === uId),
     1
   );
-  await USER_DB.updateUser(ioFireStore, user.value!);
-  auth.setUser(user.value!);
+  await USER_DB.updateUser(ioFireStore, u);
+  auth.setUser(u);
   msg.success("삭제 완료.");
 }
 async function onContract() {
-  if (!selectedUser.value) return;
+  const u = cloneDeep(user.value!);
+  if (!selectedUser.value || !u || !u.shopInfo || !u.shopInfo.uncleUserIds)
+    return;
   const uId = selectedUser.value.userInfo.userId;
-  if (!user.value!.shopInfo) {
-    user.value!.shopInfo = {
+  if (u.shopInfo && u.shopInfo.uncleUserIds.includes(uId)) {
+    return msg.error("이미 계약된 유저입니다.");
+  }
+
+  if (!u.shopInfo) {
+    u.shopInfo = {
       uncleUserIds: [uId],
     };
-    msg.success("추가 완료.");
-  } else if (!user.value!.shopInfo.uncleUserIds.includes(uId)) {
-    user.value!.shopInfo?.uncleUserIds.push(uId);
-    await USER_DB.updateUser(ioFireStore, user.value!);
-    auth.setUser(user.value!);
-    msg.success("추가 완료.");
-  } else {
-    msg.error("이미 계약된 유저입니다.");
   }
+
+  u.shopInfo.uncleUserIds.push(uId);
+  await USER_DB.updateUser(ioFireStore, u);
+  auth.setUser(u);
+  msg.success("추가 완료.");
   showModal.value = false;
 }
 function onClose() {
@@ -98,7 +105,10 @@ const showModal = ref(false);
         responsive="screen"
       >
         <n-grid-item v-for="(uncle, idx) in myUncles" :key="idx">
-          <uncle-thum-info :uncle-user="uncle" @on-detail="onDetail(uncle)" />
+          <uncle-thum-info
+            :uncle-user="uncle"
+            @on-detail="() => onDetail(uncle)"
+          />
         </n-grid-item>
       </n-grid>
     </n-card>
@@ -111,7 +121,10 @@ const showModal = ref(false);
         responsive="screen"
       >
         <n-grid-item v-for="(uncle, idx) in otherUncles" :key="idx">
-          <uncle-thum-info :uncle-user="uncle" @on-detail="onDetail(uncle)" />
+          <uncle-thum-info
+            :uncle-user="uncle"
+            @on-detail="() => onDetail(uncle)"
+          />
         </n-grid-item>
       </n-grid>
     </n-card>
@@ -173,12 +186,18 @@ const showModal = ref(false);
     </div>
 
     <template #action>
-      <n-space justify="space-around">
+      <n-space
+        v-if="
+          selectedUser && user && user.shopInfo && user.shopInfo.uncleUserIds
+        "
+        justify="space-around"
+      >
         <n-button @click="onClose"> 닫기 </n-button>
         <n-button
           v-if="
-            selectedUser &&
-            !user?.shopInfo?.uncleUserIds.includes(selectedUser.userInfo.userId)
+            !auth.contractUncles
+              .map((x) => x.userInfo.userId)
+              .includes(selectedUser.userInfo.userId)
           "
           @click="onContract"
         >
@@ -186,6 +205,7 @@ const showModal = ref(false);
         </n-button>
         <n-button v-else @click="onDelete"> 해지하기 </n-button>
       </n-space>
+      <n-button v-else @click="onClose"> 닫기 </n-button>
     </template>
   </n-modal>
 </template>
