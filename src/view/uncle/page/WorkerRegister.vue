@@ -62,6 +62,7 @@ function onKakaoAuth() {
           name.value = res.properties.nickname;
 
           authed.value = true;
+          providerId = "KAKAO";
         },
         fail,
       });
@@ -84,7 +85,7 @@ async function onGoogleAuth() {
   profileImg.value = u.photoURL ?? "";
   userId.value = uid;
   name.value = u.displayName ?? "";
-
+  providerId = "GOOGLE";
   authed.value = true;
 }
 async function onEmailAuth() {
@@ -100,6 +101,7 @@ async function onEmailAuth() {
     );
     userId.value = credential.user.uid;
     authed.value = true;
+    providerId = "EMAIL";
     log.info(null, "createUserWithEmailAndPassword: ", credential);
   } catch (e: any) {
     if (typeof e.code === "string") {
@@ -112,8 +114,9 @@ async function onEmailAuth() {
     authed.value = false;
   }
 }
+let providerId: USER_PROVIDER | null = null;
 async function onSignUp() {
-  if (!authed.value) {
+  if (!authed.value || !providerId) {
     return msg.error("소셜 인증이 필요합니다.");
   } else if (!displayName.value) {
     return msg.error("이름을 입력해주세요.");
@@ -124,7 +127,6 @@ async function onSignUp() {
   } else if (!workerInfo.value) {
     return msg.error("근로자 정보를 입력 및 제출해주세요.");
   } else {
-    const providerId = USER_PROVIDER.KAKAO;
     const user: IoUser = {
       userInfo: {
         createdAt: new Date(),
