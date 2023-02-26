@@ -1,13 +1,4 @@
-// amount * COIN_PAY_RATIO ->  num of coin
-export const COIN_PAY_RATIO = 1;
-export const COIN_FEE = 0.0;
 export const KAKAO_CHANNEL_ID = "_lwnyb";
-export const IO_COSTS = {
-  REQ_ORDER: 10,
-  APPROVE_ORDER: 20,
-  APPROVE_PICKUP: 10,
-};
-
 const pw = "0525cc";
 export const TESTERS = {
   SHOP: {
@@ -32,3 +23,12 @@ export const TESTERS = {
 
 export const LOGO = "https://inout-box.com/logo.png";
 export const DEFAULT_PROFILE_IMG = LOGO;
+
+export const IO_COSTS = {
+  REQ_ORDER: 10,
+  APPROVE_ORDER: 20,
+  APPROVE_PICKUP: 10,
+};
+
+export const feeEncash = 1000; // minus
+export const feeCharge = 3; // percent

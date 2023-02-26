@@ -10,6 +10,7 @@ import { useMessage, NSpace, NText } from "naive-ui";
 // import { formatDate, loadDate, locateToStr } from "@io-boxies/js-lib";
 import { getIoCollection, ioFireStore } from "@/plugin/firebase";
 import { doc, setDoc } from "@firebase/firestore";
+import { feeCharge, feeEncash } from "@/constants";
 
 // const inst = getCurrentInstance();
 // const APP_ID = "62b45e0fe38c3000215aec6b";
@@ -188,7 +189,7 @@ const msg = useMessage();
 const maxEncash = computed(
   () => userPay.value?.budget ?? 0 - (userPay.value?.pendingBudget ?? -1)
 );
-const encash = ref(0);
+const encash = ref(2000);
 async function reqEncashment() {
   if (!userPay.value) return msg.error("다시 시도해주세요");
   else if (maxEncash.value < encash.value)
@@ -211,7 +212,7 @@ async function reqEncashment() {
 }
 
 // >>> manual charge >>>
-const charge = ref(1000);
+const charge = ref(2000);
 async function reqCharge() {
   const obj: ReqEncash = {
     createdAt: new Date(),
@@ -323,9 +324,25 @@ async function reqCharge() {
           <n-divider></n-divider>
           <n-space justify="space-between">
             <n-text strong> 요청금액 </n-text>
-            <n-input-number v-model:value="charge" :step="100" :min="1000" />
+            <n-input-number v-model:value="charge" :step="100" :min="2000" />
           </n-space>
-          <n-space justify="end" style="line-height: 2rem">
+          <n-space justify="space-between" style="line-height: 2rem">
+            <div style="position: relative">
+              <n-tooltip trigger="hover" :width="400">
+                <template #trigger>
+                  <n-button circle text style="position: absolute; left: -30%">
+                    <template #icon>
+                      <n-icon><QuestionCircleRegular /></n-icon>
+                    </template>
+                  </n-button>
+                </template>
+                결제 수수로(PG) {{ feeCharge }}%가 별도 부과됩니다.
+              </n-tooltip>
+              <n-text strong> 결제금액 </n-text>
+            </div>
+            <n-text type="info">
+              {{ (charge + charge * (feeCharge / 100)).toLocaleString() }} 원
+            </n-text>
             <n-button @click="reqCharge">
               충전 요청<coin-image size="1.6rem" />
             </n-button>
@@ -357,11 +374,28 @@ async function reqCharge() {
             <n-input-number
               v-model:value="encash"
               :step="100"
-              :min="0"
+              :min="2000"
               :max="maxEncash"
             />
           </n-space>
-          <n-space justify="end" style="line-height: 2rem">
+          <n-space justify="space-between" style="line-height: 2rem">
+            <div style="position: relative">
+              <n-tooltip trigger="hover" :width="400">
+                <template #trigger>
+                  <n-button circle text style="position: absolute; left: -30%">
+                    <template #icon>
+                      <n-icon><QuestionCircleRegular /></n-icon>
+                    </template>
+                  </n-button>
+                </template>
+                송금 안전 서비스 {{ feeEncash }}원이 제외된 나머지 금액이 출금
+                됩니다.
+              </n-tooltip>
+              <n-text strong> 정산 금액 </n-text>
+            </div>
+            <n-text type="info">
+              {{ (encash - feeEncash).toLocaleString() }} 원
+            </n-text>
             <n-button @click="reqEncashment">
               출금 요청<coin-image size="1.6rem" />
             </n-button>
