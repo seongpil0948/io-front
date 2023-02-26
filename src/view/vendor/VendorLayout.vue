@@ -12,6 +12,7 @@ import { useAuthStore, useCommonStore, useVendorOrderStore } from "@/store";
 import { onBeforeMount, h, defineAsyncComponent } from "vue";
 import { useRouter } from "vue-router";
 import { logoutMenuOpt } from "@/component/button/logout-menu-opt";
+import { cashNavMenu } from "@/plugin/router/common";
 const LogoImageVue = defineAsyncComponent(
   () => import("@/component/common/LogoImage.vue")
 );
@@ -85,6 +86,7 @@ const menuOptions: MenuOption[] = [
     key: "VendorPartnerMng",
     icon: renderIcon(People16Regular),
   },
+  cashNavMenu("Vendor"),
   {
     label: () => renderRoute("고객지원", "CsHome"),
     key: "CsHome",

@@ -48,6 +48,7 @@ export const routes: Array<RouteRecordRaw> = [
       allowRoles: ["VENDOR", "ADMIN"],
     },
     children: [
+      cashRoutes("Vendor"),
       {
         path: "",
         name: "VendorHome",
@@ -335,6 +336,7 @@ export const routes: Array<RouteRecordRaw> = [
     name: "UncleLayout",
     component: () => import("@/view/uncle/UncleLayout.vue"),
     children: [
+      cashRoutes("Uncle"),
       {
         path: "",
         name: "UncleHome",
