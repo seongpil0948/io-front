@@ -76,11 +76,13 @@ async function onSelectWorker(val: IoUser) {
     sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
     pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
   });
+  selectedData.value = null;
+  checkedDetailKeys.value = [];
   openWorkerModal.value = false;
 }
 function tryOpen() {
   if (checkedDetailKeys.value.length < 1) {
-    msg.error("배송건을 한개이상 선택해주세요!");
+    return msg.error("배송건을 한개이상 선택해주세요!");
   }
   openWorkerModal.value = true;
 }

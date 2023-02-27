@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuthStore } from "@/store";
+import { useAuthStore, useShopOrderStore } from "@/store";
 import { IoUser, USER_DB, availUncleAdvertise } from "@/composable";
 import {
   NButton,
@@ -68,17 +68,17 @@ async function onContract() {
   if (!selectedUser.value || !u || !u.shopInfo || !u.shopInfo.uncleUserIds)
     return;
   const uId = selectedUser.value.userInfo.userId;
-  if (u.shopInfo && u.shopInfo.uncleUserIds.includes(uId)) {
-    return msg.error("이미 계약된 유저입니다.");
-  }
-
   if (!u.shopInfo) {
     u.shopInfo = {
       uncleUserIds: [uId],
     };
+  } else if (u.shopInfo.uncleUserIds.includes(uId)) {
+    return msg.error("이미 계약된 유저입니다.");
+  } else {
+    console.log("add userId");
+    u.shopInfo.uncleUserIds = [...u.shopInfo.uncleUserIds, uId];
   }
 
-  u.shopInfo.uncleUserIds.push(uId);
   await USER_DB.updateUser(ioFireStore, u);
   auth.setUser(u);
   msg.success("추가 완료.");
@@ -93,9 +93,33 @@ const bodyStyle = {
 };
 
 const showModal = ref(false);
+const shopOrderStore = useShopOrderStore();
+const { ioOrders } = storeToRefs(shopOrderStore);
+const orderLocates = computed(() => {
+  return ioOrders.value.reduce((acc, curr) => {
+    const com = curr.vendorProd.companyInfo;
+    if (!com || !com.shipLocate) return acc;
+    const alias = com.shipLocate.alias;
+    if (!acc.includes(alias)) {
+      acc.push(alias);
+    }
+    return acc;
+  }, [] as string[]);
+});
 </script>
 <template>
   <n-space vertical>
+    <n-space justify="start" inline style="overflow-x: auto; width: 100%">
+      <n-p> 주문에 속한 픽업주소 -> </n-p>
+      <n-tag
+        v-for="(alias, idx) in orderLocates"
+        :key="idx"
+        :bordered="false"
+        type="info"
+      >
+        {{ alias }}
+      </n-tag>
+    </n-space>
     <n-card v-if="myUncles.length > 0" title="나의 소중한 엉클들">
       <n-grid
         style="width: 70vw"

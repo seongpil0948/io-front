@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { onRenderTracked, onRenderTriggered } from "vue";
+// import { onRenderTracked, onRenderTriggered } from "vue";
 import { useNaiveConfig } from "./composable/config";
 import { darkTheme, lightTheme } from "naive-ui";
 
 const { isDark, currTheme, naiveLocate } = useNaiveConfig();
 
-onRenderTracked((event) => {
-  console.log("on App RenderTracked: ", event);
-});
+// onRenderTracked((event) => {
+//   console.log("on App RenderTracked: ", event);
+// });
 
-onRenderTriggered((event) => {
-  console.log("on App RenderTriggered: ", event);
-});
+// onRenderTriggered((event) => {
+//   console.log("on App RenderTriggered: ", event);
+// });
 </script>
 
 <template>

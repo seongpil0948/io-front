@@ -36,7 +36,9 @@ const shipAmount = computed(() => {
   const availLocate = uncleLocates.find((x) =>
     uncleAvailShip(x.locate, userLocate)
   );
-  return availLocate ? availLocate.amount.toLocaleString() : "배송불가";
+  return availLocate
+    ? availLocate.amount.toLocaleString() + "(배송가능)"
+    : "배송불가";
 });
 
 const emits = defineEmits<{
