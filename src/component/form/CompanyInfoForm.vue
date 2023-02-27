@@ -13,11 +13,7 @@ const props = defineProps<{
 const { companyInfo, userId } = toRefs(props);
 const formRef = ref<FormInst | null>(null);
 const formModel = ref<{ [k in keyof CompanyInfo]: CompanyInfo[k] }>(
-  defaultCompanyInfo()
-);
-watch(
-  () => companyInfo?.value,
-  (val) => Object.assign(formModel.value, val)
+  Object.assign(defaultCompanyInfo(), companyInfo?.value)
 );
 const rule = {
   companyName: nameLenRule,

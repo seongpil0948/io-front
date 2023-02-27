@@ -125,17 +125,25 @@ onBeforeUnmount(() => stop());
           >
             <n-p class="txt-small"> 해당되는 역할을 클릭 해주세요! </n-p>
             <n-space justify="center">
-              <n-button class="role-btn txt" round @click="selectRole('SHOP')">
+              <n-button
+                class="role-btn txt"
+                round
+                @click="() => selectRole('SHOP')"
+              >
                 소매
               </n-button>
               <n-button
                 class="role-btn txt"
                 round
-                @click="selectRole('VENDOR')"
+                @click="() => selectRole('VENDOR')"
               >
                 도매
               </n-button>
-              <n-button class="role-btn txt" round @click="selectRole('UNCLE')">
+              <n-button
+                class="role-btn txt"
+                round
+                @click="() => selectRole('UNCLE')"
+              >
                 엉클
               </n-button>
             </n-space>
@@ -149,7 +157,7 @@ onBeforeUnmount(() => stop());
               strong
               secondary
               round
-              @click="step = 'showInputEmail'"
+              @click="() => (step = 'showInputEmail')"
             >
               Sign up with email
             </n-button>
@@ -183,7 +191,7 @@ onBeforeUnmount(() => stop());
               <n-button
                 text
                 type="info"
-                @click="router.replace({ name: 'Login' })"
+                @click="() => router.replace({ name: 'Login' })"
               >
                 로그인
               </n-button>
@@ -241,7 +249,10 @@ onBeforeUnmount(() => stop());
               :user-id="user.userInfo.userId"
             />
             <template #action>
-              <n-button @click="toOperInfo"> 다음 </n-button>
+              <n-space>
+                <n-button @click="() => (step = 'userInfo')"> 이전 </n-button>
+                <n-button @click="toOperInfo"> 다음 </n-button>
+              </n-space>
             </template>
           </n-card>
         </Transition>
@@ -252,7 +263,12 @@ onBeforeUnmount(() => stop());
               :shop-oper-info="(user.operInfo as ShopOperInfo)"
             />
             <template #action>
-              <n-button @click="shopToTerm"> 다음 </n-button>
+              <n-space>
+                <n-button @click="() => (step = 'companyInfo')">
+                  이전
+                </n-button>
+                <n-button @click="shopToTerm"> 다음 </n-button>
+              </n-space>
             </template>
           </n-card>
         </Transition>
@@ -311,7 +327,7 @@ onBeforeUnmount(() => stop());
             <n-button
               style="margin-top: 3vh; font-size: larger"
               text
-              @click.stop="router.replace({ name: 'Login' })"
+              @click.stop="() => router.replace({ name: 'Login' })"
             >
               바로 이용하기 >
             </n-button>
@@ -348,8 +364,9 @@ onBeforeUnmount(() => stop());
   height: 25vw;
   max-width: 300px;
   max-height: 300px;
-  min-width: 100px;
-  min-height: 100px;
+  min-width: 75px;
+  min-height: 75px;
+  font-size: 1.5rem;
 }
 #signup-page-container {
   justify-content: center !important;

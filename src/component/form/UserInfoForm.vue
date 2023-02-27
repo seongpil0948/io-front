@@ -95,7 +95,10 @@ const rule = {
         <n-input v-model:value="formModel.email" disabled />
       </n-form-item-gi>
       <n-form-item-gi path="account">
-        <bank-account-form @submit:account="onSubmitAccount" />
+        <bank-account-form
+          :acc="formModel.account"
+          @submit:account="onSubmitAccount"
+        />
       </n-form-item-gi>
     </n-grid>
   </n-form>
