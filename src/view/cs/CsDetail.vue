@@ -1,25 +1,23 @@
 <template>
-  <n-space
-    vertical
-    item-style="width: 100%; height: 100%; margin-left: 1.5%; margin-right: 1.5%;"
-  >
-    <n-space justify="start" style="margin-top: 3%">
-      <n-button @click="() => router.replace({ name: 'CsHome' })">
-        <template #icon>
-          <n-icon>
-            <ArrowBack />
-          </n-icon>
-        </template>
-        홈으로
-      </n-button>
-    </n-space>
-    <n-card style="text-align: start; margin-bottom: 0.5%">
+  <n-card style="text-align: start; margin-bottom: 0.5%">
+    <n-space vertical item-style="width: 100%; height: 100%; ">
+      <n-space justify="start" style="margin-top: 3%">
+        <n-button @click="() => router.replace({ name: 'CsHome' })">
+          <template #icon>
+            <n-icon>
+              <ArrowBack />
+            </n-icon>
+          </template>
+          홈으로
+        </n-button>
+      </n-space>
+
       <n-h2 prefix="bar">
         {{ detailPost?.title }}
       </n-h2>
       <div id="io-editor" style="min-height: 70vh" />
-    </n-card>
-  </n-space>
+    </n-space>
+  </n-card>
 </template>
 
 <script setup lang="ts">

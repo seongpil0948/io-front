@@ -109,14 +109,16 @@ body {
 }
 
 #io-editor {
-    width: 90%;
-    margin: auto;
     text-align: start;
-    max-width: 780px;
     box-shadow: 0 3px 10px rgb(0 0 0 / 20%);
     border-radius: 1rem;
-    padding-left: 5%;
-    padding-top: 3%;
+    iframe {
+        max-width: 700px;
+    }
+}
+.ce-block__content,
+.ce-toolbar__content {
+    max-width: unset;
 }
 
 .center-txt {

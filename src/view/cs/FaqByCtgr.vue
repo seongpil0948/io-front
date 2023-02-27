@@ -40,7 +40,7 @@ const currPostType = ref(state.ctgr);
     <n-card>
       <n-tabs v-model:value="currPostType">
         <template #suffix>
-          <n-input v-model:value="searchInputVal" placeholder="상품검색" />
+          <n-input v-model:value="searchInputVal" placeholder="검색" />
           <n-button @click="() => csStore.search"> 검색 </n-button>
         </template>
         <n-tab-pane
