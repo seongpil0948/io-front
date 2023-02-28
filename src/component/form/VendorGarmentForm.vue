@@ -356,8 +356,11 @@ async function onRegister() {
           </n-card>
         </n-space>
       </n-grid-item>
-      <n-form-item-gi span="2" label="상품정보" path="info">
-        <div id="io-editor" />
+      <n-form-item-gi span="2" path="info">
+        <n-space vertical item-style="width: 100%" style="width: 100%">
+          <n-text>상품정보</n-text>
+          <div id="io-editor" />
+        </n-space>
       </n-form-item-gi>
       <n-form-item-gi
         v-if="!minimal"

@@ -96,7 +96,7 @@ function doneOrder() {
       selectedItem.value.ship = null;
       showModal.value = false;
     })
-    .catch((err) =>
+    .catch((err: any) =>
       catchError({ err, msg, uid: auth.currUser().userInfo.userId })
     );
 }
@@ -135,7 +135,7 @@ function doneOrder() {
   <n-modal v-model:show="showModal">
     <n-card
       style="width: 80vw"
-      title="배송상세"
+      title="배송상세 / 명세서"
       size="huge"
       role="card"
       aria-modal="true"
@@ -149,7 +149,10 @@ function doneOrder() {
       <user-basic-card v-if="si" :user="si.vendorProd" />
       <n-h4>배송정보</n-h4>
       <n-divider />
-      <pop-order-date v-if="si" :od="si.od" />
+      <n-space v-if="si">
+        <n-text type="info">시간정보 </n-text>
+        <pop-order-date :od="si.od" />
+      </n-space>
       <n-divider />
       <shipment-card v-if="ss" :shipment="ss" />
 

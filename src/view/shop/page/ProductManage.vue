@@ -9,7 +9,7 @@ import {
   VendorGarment,
 } from "@/composable";
 import { useAuthStore } from "@/store";
-import { makeMsgOpt, isMobile } from "@/util";
+import { makeMsgOpt } from "@/util";
 import {
   NButton,
   NCard,
@@ -106,7 +106,6 @@ function updateOrderId(arr: string[]) {
       </template>
       <template #header-extra>
         <n-button
-          v-if="!isMobile()"
           size="small"
           round
           type="primary"
@@ -115,13 +114,7 @@ function updateOrderId(arr: string[]) {
         >
           선택 상품 삭제
         </n-button>
-        <n-button
-          v-if="!isMobile()"
-          size="small"
-          round
-          type="primary"
-          @click="onCheckedOrder"
-        >
+        <n-button size="small" round type="primary" @click="onCheckedOrder">
           선택 상품 주문
         </n-button>
       </template>
@@ -152,6 +145,6 @@ function updateOrderId(arr: string[]) {
   <shop-prod-modify-modal
     v-if="popVal === 'Edit'"
     v-model:userProd="selectedRow"
-    @on-close="selectedRow = null"
+    @on-close="() => (selectedRow = null)"
   />
 </template>

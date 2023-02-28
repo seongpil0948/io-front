@@ -109,6 +109,8 @@ body {
 }
 
 #io-editor {
+    width: 100%;
+    min-width: 300px;
     text-align: start;
     box-shadow: 0 3px 10px rgb(0 0 0 / 20%);
     border-radius: 1rem;

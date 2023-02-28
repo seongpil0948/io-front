@@ -9,11 +9,35 @@ const T = Object.assign(
   ORDER_STATE
 );
 export const renderOrderDateMap = (m: OrderDateMap) => {
-  const keys = Object.keys(m).filter(
-    (k) => m[k as keyof OrderDateMap]
-  ) as (keyof OrderDateMap)[];
+  const keys: (keyof OrderDateMap)[] = [
+    "BEFORE_ORDER",
+    "BEFORE_APPROVE",
+    "BEFORE_PAYMENT",
+    "BEFORE_READY",
+    "BEFORE_PICKUP_REQ",
+    "BEFORE_APPROVE_PICKUP",
+    "BEFORE_ASSIGN_PICKUP",
+    "BEFORE_PICKUP",
+    "ONGOING_PICKUP",
+    "PICKUP_COMPLETE",
+    "BEFORE_SHIP",
+    "SHIPPING",
+    "SHIPPING_PENDING",
+    "SHIPPING_WAIT",
+    "SHIPPING_COMPLETE",
+    "RETURN_REQ",
+    "RETURN_APPROVED",
+    "RETURN_DONE",
+    "REFUND",
+    "REFUND_DONE",
+    "CHANGE",
+    "CHANGE_DONE",
+    "CANCEL",
+    "ORDER_DONE",
+  ];
   const rows = keys.reduce((acc, curr) => {
     const date = m[curr];
+    if (!date) return acc;
     const state = curr;
     const row = (
       <NSpace vertical justify="space-between" itemStyle={{ width: "100%" }}>
@@ -41,6 +65,10 @@ export const renderOrderDateMap = (m: OrderDateMap) => {
       vertical
       align="center"
       justify="center"
+      style={{
+        maxHeight: "50vh",
+        overflow: "auto",
+      }}
       itemStyle={{ width: "100%" }}
     >
       {{

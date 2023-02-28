@@ -12,7 +12,6 @@ import {
   USER_DB,
 } from "@/composable";
 import { useAuthStore } from "@/store";
-import { isMobile } from "@/util";
 import { NModal, NButton, NCard, NDataTable, NInput, NSpace } from "naive-ui";
 import { ref, computed, defineAsyncComponent, watchEffect } from "vue";
 import { getIoCollection, ioFireStore } from "@/plugin/firebase";
@@ -159,9 +158,7 @@ async function submitEdit() {
             @select="onClickId"
           />
           <n-button @click="changeRegitProdModal">가상 도매 상품등록</n-button>
-          <n-button v-if="!isMobile()" @click="onCheckedOrder">
-            선택 상품 주문
-          </n-button>
+          <n-button @click="onCheckedOrder"> 선택 상품 주문 </n-button>
         </n-space>
         <n-data-table
           ref="tableRef"
