@@ -77,12 +77,14 @@ export async function getFcmToken() {
 }
 
 export function userFromJson(data: { [x: string]: any }): IoUser | null {
-  if (
-    data.userInfo &&
-    (data.userInfo.role as USER_ROLE) === "UNCLE" &&
-    !data.uncleInfo
-  ) {
-    data.uncleInfo = uncleInfoEmpty();
+  if (data.userInfo && (data.userInfo.role as USER_ROLE) === "UNCLE") {
+    if (!data.uncleInfo) data.uncleInfo = uncleInfoEmpty();
+    if (!data.uncleInfo.amountBySize["0원처리"]) {
+      data.uncleInfo.amountBySize["0원처리"] = 0;
+    }
+    if (!data.uncleInfo.amountByWeight["0원처리"]) {
+      data.uncleInfo.amountByWeight["0원처리"] = 0;
+    }
   }
   data.userInfo.createdAt = loadDate(data.userInfo.createdAt);
   data.userInfo.updatedAt = loadDate(data.userInfo.updatedAt);
@@ -135,8 +137,12 @@ export async function userFromCredential(
 export const uncleInfoEmpty = (): UncleInfo => ({
   pickupLocates: [],
   shipLocates: [],
-  amountBySize: {},
-  amountByWeight: {},
+  amountBySize: {
+    "0원처리": 0,
+  },
+  amountByWeight: {
+    "0원처리": 0,
+  },
   shipPendingAmount: 0,
 });
 

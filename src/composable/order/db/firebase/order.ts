@@ -45,7 +45,6 @@ import {
   USER_DB,
   PayAmount,
   userFireConverter,
-  addExistItems,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import {
@@ -165,9 +164,9 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         if (!vendor) throw new Error("도매 유저가 존재하지 않습니다.");
         const { pickLocateUncle, shipLocateUncle } = checkOrderShipLocate(
           item,
-          shop,
+          shop as IoUser,
           vendor,
-          uncle
+          uncle as IoUser
         );
         const shipId = shipLocateUncle.locate.code;
         if (!shipId) throw new Error("ship locate id not exist");
@@ -963,11 +962,8 @@ export function getSrc() {
       uid: shopId,
     });
   const getUserDocRef = (uid: string) =>
-    doc(
-      getIoCollection(ioFireStore, { c: "USER" }).withConverter(
-        userFireConverter
-      ),
-      uid
+    doc(getIoCollection(ioFireStore, { c: "USER" }), uid).withConverter(
+      userFireConverter
     );
   const getPayDocRef = (uid: string) =>
     doc(getIoCollection(ioFireStore, { c: "IO_PAY" }), uid);
@@ -1028,6 +1024,27 @@ async function stateModify(d: {
   await Promise.all(shopIds.map((x) => mergeSameOrders(d.afterState, x)));
 }
 
+// export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
+//   return await runTransaction(ioFireStore, async (transaction) => {
+//     const { getOrdRef } = getSrc();
+//     const ordRef = getOrdRef(shopId);
+//     const orders: IoOrder[] = await getOrders([
+//       where("shopId", "==", shopId),
+//       where("states", "array-contains", state),
+//     ]);
+//     addExistItems(
+//       orders,
+//       async (o) => {
+//         transaction.set(doc(ordRef, o.dbId), o);
+//       },
+//       async (o) => {
+//         transaction.delete(doc(ordRef, o.dbId));
+//       },
+//       (a) => a.state === state
+//     );
+//   });
+// }
+
 export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
   return await runTransaction(ioFireStore, async (transaction) => {
     const { getOrdRef } = getSrc();
@@ -1036,16 +1053,57 @@ export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
       where("shopId", "==", shopId),
       where("states", "array-contains", state),
     ]);
-    addExistItems(
-      orders,
-      async (o) => {
-        transaction.set(doc(ordRef, o.dbId), o);
-      },
-      async (o) => {
-        transaction.delete(doc(ordRef, o.dbId));
-      },
-      (a) => a.state === state
-    );
+    for (let i = 0; i < orders.length; i++) {
+      const order = orders[i];
+      const vendorIds = order.vendorIds;
+      const tarOrds = orders.filter((x) =>
+        x.vendorIds.some((y) => vendorIds.includes(y))
+      );
+      for (let j = 0; j < order.items.length; j++) {
+        const item = order.items[j];
+        let exist: typeof order | null = null;
+        for (let k = 0; k < tarOrds.length; k++) {
+          const o = tarOrds[k];
+          if (order.dbId === o.dbId) continue;
+          for (let z = 0; z < o.items.length; z++) {
+            const existItem = o.items[z];
+            if (existItem.state !== state) continue;
+            else if (
+              item.vendorProd.vendorProdId === item.vendorProd.vendorProdId &&
+              item.shopProd.shopProdId === existItem.shopProd.shopProdId &&
+              item.orderType === existItem.orderType
+            ) {
+              exist = o;
+              setOrderCnt({
+                order: exist,
+                orderItemId: existItem.id,
+                orderCnt: item.orderCnt,
+                add: true,
+              });
+              order.items.splice(j, 1);
+              order.itemIds.splice(
+                order.itemIds.findIndex((oid) => oid === item.id),
+                1
+              );
+              if (order.items.length < 1) {
+                exist.orderIds = uniqueArr([
+                  ...order.orderIds,
+                  ...exist.orderIds,
+                ]);
+                exist.itemIds = uniqueArr([...order.itemIds, ...exist.itemIds]);
+                transaction.delete(doc(ordRef, order.dbId));
+              } else {
+                transaction.set(doc(ordRef, order.dbId), order);
+              }
+              if (exist) {
+                transaction.set(doc(ordRef, exist.dbId), exist);
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
   });
 }
 

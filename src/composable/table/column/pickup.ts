@@ -1,9 +1,17 @@
 import { storeToRefs } from "pinia";
-import { isSamePickLocate } from "@/composable";
-import { OrderItemByShopUncle, OrderItemCombined } from "@/composable/order";
+import {
+  isSamePickLocate,
+  LocateAmount,
+  USER_DB,
+  VendorGarment,
+} from "@/composable";
+import {
+  OrderItemByShopUncle,
+  OrderItemCombined,
+  PopOrderDate,
+} from "@/composable/order";
 import { useAuthStore } from "@/store";
 import { uniqueArr } from "@/util";
-import { LocateAmount, USER_DB } from "@io-boxies/js-lib";
 import {
   DataTableColumns,
   NText,
@@ -13,6 +21,7 @@ import {
 } from "naive-ui";
 import { computed, h, defineAsyncComponent } from "vue";
 import { ioFireStore } from "@/plugin/firebase";
+import { PopVendorProdCard } from "@/component/card/vendor/render";
 
 export function usePickAreaCols() {
   const auth = useAuthStore();
@@ -191,9 +200,19 @@ export const pickReqDetailCols = computed(() => {
             row.vendorProd.companyInfo.shipLocate.alias
           : null,
     },
+
     {
       title: "상품명",
       key: "vendorProd.vendorProdName",
+      render: (row) =>
+        h(PopVendorProdCard, {
+          vendorProd: VendorGarment.fromJson(row.vendorProd)!,
+        }),
+    },
+    {
+      title: "일자정보",
+      key: "orderDate",
+      render: (row) => h(PopOrderDate, { od: row.od }),
     },
     {
       title: "픽업수량",

@@ -20,7 +20,8 @@ import { ORDER_STATE, ShipOrder, ShipOrderByShop } from "../domain";
 import { IoShipment } from "../model";
 import { ioFireStore } from "@/plugin/firebase";
 import { storeToRefs } from "pinia";
-import { getUserName, PopOrderDate } from "@/composable";
+import { getUserName, PopOrderDate, VendorGarment } from "@/composable";
+import { PopVendorProdCard } from "@/component/card/vendor/render";
 const PayAmountsCard = defineAsyncComponent(
   () => import("@/component/card/PayAmountsCard.vue")
 );
@@ -212,17 +213,21 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
         render: renderWorker,
       },
       {
-        title: "일자정보",
-        key: "orderDate",
-        render: (row) => h(PopOrderDate, { od: row.od }),
-      },
-      {
         title: "도매",
         key: "vendorProd.userInfo.displayName",
       },
       {
         title: "상품명",
         key: "vendorProd.vendorProdName",
+        render: (row) =>
+          h(PopVendorProdCard, {
+            vendorProd: VendorGarment.fromJson(row.vendorProd)!,
+          }),
+      },
+      {
+        title: "일자정보",
+        key: "orderDate",
+        render: (row) => h(PopOrderDate, { od: row.od }),
       },
       {
         title: "상태",

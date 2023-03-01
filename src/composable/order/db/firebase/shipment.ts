@@ -1,6 +1,5 @@
 import {
   IoShipment,
-  IoOrder,
   IO_PAY_DB,
   ShipDB,
   isValidOrder,
@@ -13,21 +12,18 @@ import {
   defrayAmount,
   refreshOrder,
   ORDER_STATE,
-} from "@/composable";
-import {
-  getIoCollection,
-  IoCollection,
   userFireConverter,
-} from "@io-boxies/js-lib";
+  IoUser,
+} from "@/composable";
 import { uuidv4 } from "@firebase/util";
 import { doc, getDoc, runTransaction } from "firebase/firestore";
+import { getIoCollection, IoCollection, ioFireStore } from "@/plugin/firebase";
 import { getSrc, mergeSameOrders } from "./order";
-import { ioFireStore } from "@/plugin/firebase";
 // import { uuidv4 } from "@firebase/util";
 
 const getSc = (uncleId: string) =>
   getIoCollection(ioFireStore, { c: "SHIPMENT", uid: uncleId });
-export const ShipmentFB: ShipDB<IoOrder> = {
+export const ShipmentFB: ShipDB = {
   getShipment: async function (uncleId: string, shipId: string) {
     const docRef = doc(getSc(uncleId), shipId).withConverter(
       IoShipment.fireConverter()
@@ -70,8 +66,8 @@ export const ShipmentFB: ShipDB<IoOrder> = {
 
       const uncleDoc = await t.get(doc(uConverter, ord.shipManagerId));
       const shopDoc = await t.get(doc(uConverter, ord.shopId));
-      const uncle = validateUser(uncleDoc.data(), ord.shipManagerId!);
-      const shop = validateUser(shopDoc.data(), ord.shopId);
+      const uncle = validateUser(uncleDoc.data() as IoUser, ord.shipManagerId!);
+      const shop = validateUser(shopDoc.data() as IoUser, ord.shopId);
       const shipPendingAmount = ord.shipAmount.pendingAmount;
       const price = ord.pickAmount.pendingAmount + (shipPendingAmount ?? 0);
       if (ord.isDirectToShip) {
