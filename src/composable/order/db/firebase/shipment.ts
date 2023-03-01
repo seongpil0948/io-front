@@ -189,12 +189,12 @@ export const ShipmentFB: ShipDB = {
       const shipSnap = await t.get(shipDocRef);
       const ship = shipSnap.data();
       if (!ship) throw Error("None ship data");
-      console.log("before order: ", JSON.stringify(o));
+      console.log("before order: ", JSON.stringify(o, undefined, 4));
       setState(o, item.id, "ORDER_DONE");
       refreshOrder(o);
       if (o.states.every((state) => state === "ORDER_DONE")) {
         const shopPay = await IO_PAY_DB.getIoPayByUser(o.shopId);
-        console.log("before shopPay: ", JSON.stringify(shopPay));
+        console.log("before shopPay: ", JSON.stringify(shopPay, undefined, 4));
         const returnAmount = o.shipAmount.pendingAmount;
         const shopPayHist = newPayHistory({
           createdAt: new Date(),
@@ -208,7 +208,10 @@ export const ShipmentFB: ShipDB = {
           updatedAt: new Date(),
         });
         const unclePay = await IO_PAY_DB.getIoPayByUser(o.shipManagerId!);
-        console.log("before unclePay: ", JSON.stringify(unclePay));
+        console.log(
+          "before unclePay: ",
+          JSON.stringify(unclePay, undefined, 4)
+        );
         const purePrice = o.shipAmount.amount + o.pickAmount.amount;
         const differ = o.shipAmount.amount - returnAmount;
         const added = differ + o.pickAmount.amount;
@@ -227,8 +230,14 @@ export const ShipmentFB: ShipDB = {
         });
         console.log("after unclePay: ", unclePay);
         console.log("after shopPay: ", shopPay);
+        const { newAmount } = defrayAmount(
+          o.shipAmount,
+          { paidAmount: o.shipAmount.amount },
+          false
+        );
+        newAmount.pendingAmount = 0;
+        o.shipAmount = newAmount;
       }
-
       const orderRef = doc(getOrdRef(o.shopId), o.dbId);
       t.set(orderRef, o);
       console.log("after order: ", o);

@@ -157,7 +157,9 @@ function doneOrder() {
       <shipment-card v-if="ss" :shipment="ss" />
 
       <template #action>
-        <n-button @click="doneOrder"> 수령 완료 </n-button>
+        <n-button v-if="si && si.state !== 'ORDER_DONE'" @click="doneOrder">
+          수령 완료
+        </n-button>
       </template>
     </n-card>
   </n-modal>
