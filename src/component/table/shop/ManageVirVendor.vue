@@ -15,7 +15,7 @@ import {
   ShopGarment,
   deleteVirGarments,
 } from "@/composable";
-import { fireConverter, makeMsgOpt } from "@/util";
+import { fireConverter } from "@/util";
 import {
   doc,
   getCountFromServer,

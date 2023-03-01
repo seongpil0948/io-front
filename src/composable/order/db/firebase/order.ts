@@ -1053,6 +1053,8 @@ export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
       where("shopId", "==", shopId),
       where("states", "array-contains", state),
     ]);
+    console.log("same orders:", orders);
+
     for (let i = 0; i < orders.length; i++) {
       const order = orders[i];
       const vendorIds = order.vendorIds;
@@ -1069,11 +1071,12 @@ export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
             const existItem = o.items[z];
             if (existItem.state !== state) continue;
             else if (
-              item.vendorProd.vendorProdId === item.vendorProd.vendorProdId &&
+              item.state === existItem.state &&
               item.shopProd.shopProdId === existItem.shopProd.shopProdId &&
               item.orderType === existItem.orderType
             ) {
               exist = o;
+              console.log("merge exist ", exist, "with", item);
               setOrderCnt({
                 order: exist,
                 orderItemId: existItem.id,
@@ -1096,6 +1099,7 @@ export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
                 transaction.set(doc(ordRef, order.dbId), order);
               }
               if (exist) {
+                console.log("after merge: ", exist);
                 transaction.set(doc(ordRef, exist.dbId), exist);
               }
               break;

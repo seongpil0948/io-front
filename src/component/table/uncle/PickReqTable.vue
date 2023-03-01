@@ -8,6 +8,7 @@ import {
   // ShipOrder,
   useShipmentUncle,
   catchError,
+  ORDER_STATE,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
@@ -16,6 +17,7 @@ import { computed, ref } from "vue";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { axiosConfig } from "@/plugin/axios";
 const smtp = useAlarm();
+const inState: ORDER_STATE[] = ["BEFORE_APPROVE_PICKUP"];
 const {
   orders,
   checkedKeys,
@@ -23,7 +25,7 @@ const {
   // onCheckDetailRow,
   onCheckRow,
   checkedDetailKeys,
-} = useShipmentUncle(["BEFORE_APPROVE_PICKUP"]);
+} = useShipmentUncle(inState);
 
 const selectedData = ref<OrderItemByShop | null>(null);
 function onClickDetail(data: OrderItemByShop) {
@@ -73,10 +75,15 @@ const targetIds = computed(() => {
   for (let i = 0; i < orders.value.length; i++) {
     const o = orders.value[i];
     if (checkedKeys.value.includes(o.shopId)) {
-      o.items.forEach((x) => itemIds.add(x.id));
+      o.items.forEach((x) => {
+        if (inState.includes(x.state)) {
+          itemIds.add(x.id);
+        }
+      });
     }
     for (let j = 0; j < o.items.length; j++) {
       const item = o.items[j];
+      if (!inState.includes(item.state)) continue;
       if (checkedDetailKeys.value.includes(item.id)) {
         itemIds.add(item.id);
       }

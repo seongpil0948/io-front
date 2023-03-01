@@ -29,7 +29,11 @@ export function useShipmentUncle(inStates: ORDER_STATE[]) {
   const auth = useAuthStore();
   const u = auth.currUser();
   const ordStore = useUncleOrderStore();
-  const orders = computed(() => ordStore.orders);
+  const orders = computed(() =>
+    ordStore.orders.filter((y) =>
+      y.items.some((item) => inStates.includes(item.state))
+    )
+  );
   const ioOrders = ordStore.getFilteredOrder(inStates);
   const ioOrdersByShop = ordStore.getGarmentOrdersByShop(ioOrders);
   const orderShips = ref<ShipOrder[]>([]);

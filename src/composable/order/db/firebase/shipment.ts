@@ -43,6 +43,7 @@ export const ShipmentFB: ShipDB = {
     await batch.commit();
   },
   approvePickUp: async function (row) {
+    console.info("start process approvePickUp: ", row);
     isValidOrder(row);
     const afterState: ORDER_STATE = "BEFORE_ASSIGN_PICKUP";
     const { getOrdRef, orderFireConverter, getPayDocRef, getPayHistDocRef } =
@@ -168,9 +169,13 @@ export const ShipmentFB: ShipDB = {
         );
         item.shipmentId = shipment.shippingId;
         // setState(ord, item.id, "BEFORE_ASSIGN_PICKUP");
+        console.log("before setState: ", JSON.parse(JSON.stringify(ord)));
         setState(ord, item.id, afterState);
+        console.log("after setState: ", JSON.parse(JSON.stringify(ord)));
       }
+      console.log("before refresh: ", JSON.parse(JSON.stringify(ord)));
       refreshOrder(ord);
+      console.log("after refresh: ", JSON.parse(JSON.stringify(ord)));
       t.set(ordDocRef, ord);
 
       return ord;
