@@ -168,14 +168,9 @@ export const ShipmentFB: ShipDB = {
           shipment
         );
         item.shipmentId = shipment.shippingId;
-        // setState(ord, item.id, "BEFORE_ASSIGN_PICKUP");
-        console.log("before setState: ", JSON.parse(JSON.stringify(ord)));
         setState(ord, item.id, afterState);
-        console.log("after setState: ", JSON.parse(JSON.stringify(ord)));
       }
-      console.log("before refresh: ", JSON.parse(JSON.stringify(ord)));
       refreshOrder(ord);
-      console.log("after refresh: ", JSON.parse(JSON.stringify(ord)));
       t.set(ordDocRef, ord);
 
       return ord;

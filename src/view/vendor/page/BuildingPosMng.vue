@@ -9,9 +9,10 @@ import {
   loadPartner,
   VENDOR_GARMENT_DB,
   VendorGarment,
+  IoUser,
+  getUserName,
 } from "@/composable/";
 import { useAuthStore } from "@/store";
-import { IoUser, getUserName } from "@io-boxies/js-lib";
 import { useAlarm } from "@io-boxies/vue-lib";
 import { axiosConfig } from "@/plugin/axios";
 import { ioFireStore } from "@/plugin/firebase";
