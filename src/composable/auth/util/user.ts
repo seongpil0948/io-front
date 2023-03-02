@@ -77,13 +77,21 @@ export async function getFcmToken() {
 }
 
 export function userFromJson(data: { [x: string]: any }): IoUser | null {
-  if (data.userInfo && (data.userInfo.role as USER_ROLE) === "UNCLE") {
-    if (!data.uncleInfo) data.uncleInfo = uncleInfoEmpty();
-    if (!data.uncleInfo.amountBySize["0원처리"]) {
-      data.uncleInfo.amountBySize["0원처리"] = 0;
-    }
-    if (!data.uncleInfo.amountByWeight["0원처리"]) {
-      data.uncleInfo.amountByWeight["0원처리"] = 0;
+  if (data.userInfo) {
+    if ((data.userInfo.role as USER_ROLE) === "UNCLE") {
+      if (!data.uncleInfo) data.uncleInfo = uncleInfoEmpty();
+      if (!data.uncleInfo.amountBySize["0원처리"]) {
+        data.uncleInfo.amountBySize["0원처리"] = 0;
+      }
+      if (!data.uncleInfo.amountByWeight["0원처리"]) {
+        data.uncleInfo.amountByWeight["0원처리"] = 0;
+      }
+    } else if ((data.userInfo.role as USER_ROLE) === "SHOP") {
+      if (!data.shopInfo || !data.shopInfo.uncleUserIds) {
+        data.shopInfo = {
+          uncleUserIds: [],
+        };
+      }
     }
   }
   data.userInfo.createdAt = loadDate(data.userInfo.createdAt);

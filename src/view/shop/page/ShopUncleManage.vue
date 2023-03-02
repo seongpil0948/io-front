@@ -62,6 +62,7 @@ async function onDelete() {
   await USER_DB.updateUser(ioFireStore, u);
   auth.setUser(u);
   msg.success("삭제 완료.");
+  onClose();
 }
 async function onContract() {
   const u = cloneDeep(user.value!);
@@ -82,7 +83,7 @@ async function onContract() {
   await USER_DB.updateUser(ioFireStore, u);
   auth.setUser(u);
   msg.success("추가 완료.");
-  showModal.value = false;
+  onClose();
 }
 function onClose() {
   showModal.value = false;
