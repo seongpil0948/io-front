@@ -37,7 +37,7 @@ const formValue = ref({
 const msg = useMessage();
 const rule: { [path: string]: any } = {
   name: strLenRule(2),
-  phone: strLenRule(11),
+  phone: strLenRule(9),
   locate: notNullRule,
 };
 
