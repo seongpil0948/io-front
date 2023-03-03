@@ -22,6 +22,7 @@ const user = authStore.currUser();
 const shopOrderStore = useShopOrderStore();
 onBeforeMount(() => shopOrderStore.init(user.userInfo.userId));
 
+const isDisableProd = import.meta.env.MODE === "production";
 const menuOptions: MenuOption[] = [
   {
     label: "상품 관리",
@@ -29,12 +30,15 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(ProductHunt),
     children: [
       {
-        label: () => renderRoute("도매 상품 등록", "ProductAdd"),
+        label: () => renderRoute("도매 상품 등록", "ProductAdd", isDisableProd),
         key: "ProductAdd",
+        disabled: isDisableProd,
       },
       {
-        label: () => renderRoute("등록 상품 조회", "ProductManage"),
+        label: () =>
+          renderRoute("등록 상품 조회", "ProductManage", isDisableProd),
         key: "ProductManage",
+        disabled: isDisableProd,
       },
       {
         label: () => renderRoute("가상 상품 관리", "VirtualManage"),
@@ -48,24 +52,33 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(ShoppingCart),
     children: [
       {
-        label: () => renderRoute("주문 해야할 주문", "OrderRequire"),
+        label: () =>
+          renderRoute("주문해야 할 주문", "OrderRequire", isDisableProd),
         key: "OrderRequire",
+        disabled: isDisableProd,
       },
       {
-        label: () => renderRoute("승인 완료된 주문", "OrderComplete"),
+        label: () =>
+          renderRoute("승인 완료된 주문", "OrderComplete", isDisableProd),
         key: "OrderComplete",
+        disabled: isDisableProd,
       },
       {
-        label: () => renderRoute("미송 주문 조회", "PendingOrderList"),
+        label: () =>
+          renderRoute("미송 주문 조회", "PendingOrderList", isDisableProd),
         key: "PendingOrderList",
+        disabled: isDisableProd,
       },
       {
-        label: () => renderRoute("교환/반품 관리", "ShopReturnExchange"),
+        label: () =>
+          renderRoute("교환/반품 관리", "ShopReturnExchange", isDisableProd),
         key: "ShopReturnExchange",
+        disabled: isDisableProd,
       },
       {
-        label: () => renderRoute("샘플요청", "SampleReq"),
+        label: () => renderRoute("샘플요청", "SampleReq", isDisableProd),
         key: "SampleReq",
+        disabled: isDisableProd,
       },
       {
         label: () => renderRoute("결제내역 조회", "PayHistory"),
@@ -91,12 +104,15 @@ const menuOptions: MenuOption[] = [
         key: "ShopUncleManage",
       },
       {
-        label: () => renderRoute("픽업 현황 목록", "UncleStatus"),
+        label: () =>
+          renderRoute("픽업 현황 목록", "UncleStatus", isDisableProd),
         key: "UncleStatus",
+        disabled: isDisableProd,
       },
       {
-        label: () => renderRoute("IO패스트 (준비중)", "IoFast"),
+        label: () => renderRoute("IO패스트", "IoFast", isDisableProd),
         key: "IoFast",
+        disabled: isDisableProd,
       },
     ],
   },
@@ -110,12 +126,15 @@ const menuOptions: MenuOption[] = [
         key: "FollowPartner",
       },
       {
-        label: () => renderRoute("세금계산서 조회", "TaxReport"),
+        label: () => renderRoute("세금계산서 조회", "TaxReport", isDisableProd),
         key: "TaxReport",
+        disabled: isDisableProd,
       },
       {
-        label: () => renderRoute("거래내역 조회", "OrderHistory"),
+        label: () =>
+          renderRoute("거래내역 조회", "OrderHistory", isDisableProd),
         key: "OrderHistory",
+        disabled: isDisableProd,
       },
     ],
   },
