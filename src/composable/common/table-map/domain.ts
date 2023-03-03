@@ -1,10 +1,11 @@
-import type { UserFields, IoUser } from "@io-boxies/js-lib";
 import type {
   PayAmount,
   IoOrder,
   OrderItem,
   VendorGarmentCrt,
   ShopGarmentCrt,
+  UserFields,
+  IoUser,
 } from "@/composable";
 import { TableColumnTitle } from "naive-ui/es/data-table/src/interface";
 import { VNodeChild } from "vue";

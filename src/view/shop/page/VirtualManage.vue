@@ -105,7 +105,10 @@ const {
     const v: typeof searchVal = searchVal;
     return v === null
       ? true
-      : x.size.includes(v) || x.color.includes(v) || x.prodName.includes(v);
+      : x.size.includes(v) ||
+          x.color.includes(v) ||
+          x.prodName.includes(v) ||
+          x.userInfo.userName.includes(v);
   },
 });
 

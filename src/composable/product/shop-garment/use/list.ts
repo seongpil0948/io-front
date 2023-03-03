@@ -45,65 +45,64 @@ export function useShopGarmentTable(
     await deleteGarments(shopId, checkedKeys.value);
   }
 
-  const { columns, mapper, checkedKeys, mapperUpdate } = useTable<
-    Omit<ShopUserGarment, "account">
-  >(
-    {
-      userId: shopId,
-      useChecker: !briefly,
-      keyField: rowIdField,
-      data,
-      siblingFields: ["prodName"],
-      onCheckAll: (to) => {
-        if (tableRef.value) {
-          const idxes = (tableRef.value.paginatedData as any[]).map(
-            (x) => x.index
-          );
-          checkedKeys.value = to
-            ? data.value
-                .filter((o, idx) => idxes.includes(idx))
-                .map((p: any) => p[rowIdField])
-            : [];
-        }
+  const { columns, mapper, checkedKeys, mapperUpdate } =
+    useTable<ShopUserGarment>(
+      {
+        userId: shopId,
+        useChecker: !briefly,
+        keyField: rowIdField,
+        data,
+        siblingFields: ["prodName"],
+        onCheckAll: (to) => {
+          if (tableRef.value) {
+            const idxes = (tableRef.value.paginatedData as any[]).map(
+              (x) => x.index
+            );
+            checkedKeys.value = to
+              ? data.value
+                  .filter((o, idx) => idxes.includes(idx))
+                  .map((p: any) => p[rowIdField])
+              : [];
+          }
+        },
+        colKeys: [
+          { key: "userName" },
+          { key: "titleImgs", imgField: true },
+          {
+            key: "prodName",
+            titleMapping: !briefly,
+            cellMapping: !briefly,
+            rowIdField,
+          },
+          { key: "vendorPrice", rowIdField },
+          {
+            key: "prodPrice",
+            titleMapping: !briefly,
+            rowIdField,
+          },
+          {
+            key: "color",
+            titleMapping: !briefly,
+            cellMapping: !briefly,
+            rowIdField,
+          },
+          {
+            key: "size",
+            titleMapping: !briefly,
+            cellMapping: !briefly,
+            rowIdField,
+          },
+          { key: "stockCnt", rowIdField },
+          { key: "createdAt", rowIdField },
+          { key: "updatedAt", rowIdField },
+        ],
       },
-      colKeys: [
-        { key: "userName" },
-        { key: "titleImgs", imgField: true },
-        {
-          key: "prodName",
-          titleMapping: !briefly,
-          cellMapping: !briefly,
-          rowIdField,
-        },
-        { key: "vendorPrice", rowIdField },
-        {
-          key: "prodPrice",
-          titleMapping: !briefly,
-          rowIdField,
-        },
-        {
-          key: "color",
-          titleMapping: !briefly,
-          cellMapping: !briefly,
-          rowIdField,
-        },
-        {
-          key: "size",
-          titleMapping: !briefly,
-          cellMapping: !briefly,
-          rowIdField,
-        },
-        { key: "stockCnt", rowIdField },
-        { key: "createdAt", rowIdField },
-        { key: "updatedAt", rowIdField },
-      ],
-    },
-    async (p) => {
-      if (selectFunc.value) {
-        selectFunc.value(p).then(() => (openSelectList.value = false));
+      async (p) => {
+        if (selectFunc.value) {
+          selectFunc.value(p).then(() => (openSelectList.value = false));
+        }
       }
-    }
-  );
+    );
   const { selectedRow, popVal, optionCol } = usePopSelTable<ShopUserGarment>({
     onDelete: (p) => deleteGarments(shopId, [p.shopProdId]),
   });
