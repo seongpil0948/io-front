@@ -2,7 +2,7 @@ import { PAID_INFO } from "@/composable/common";
 import { uuidv4 } from "@firebase/util";
 import { uniqueArr } from "@io-boxies/js-lib";
 import cloneDeep from "lodash.clonedeep";
-import { getAmount, getPureAmount, refreshOrder } from ".";
+import { getAmount, getPureAmount, mergeAmount, refreshOrder } from ".";
 import { ORDER_GARMENT_DB } from "../db";
 import { IoOrder, OrderItem, OrderItemCombined, ORDER_STATE } from "../domain";
 import { getPendingCnt, getActiveCnt, getOrderItems } from "./getter";
@@ -15,6 +15,7 @@ export function setOrderCnt(d: {
   add?: boolean;
   paid?: PAID_INFO;
   orderId?: string;
+  refresh?: boolean;
 }) {
   // add = true,
   //   paid = PAID_INFO.NO,
@@ -27,7 +28,7 @@ export function setOrderCnt(d: {
   const v = item.vendorProd;
   setItemCnt(item, d.orderCnt, v.stockCnt, v.allowPending, d.add, d.paid);
   if (d.orderId) item.orderIds.push(d.orderId);
-  refreshOrder(d.order);
+  if (d.refresh) refreshOrder(d.order);
   isValidOrder(d.order);
 }
 export function setItemCnt(
@@ -97,6 +98,7 @@ export async function dividePartial(d: {
     orderCnt: d.orderCnt,
     add: false,
     paid: item.prodAmount.paid,
+    refresh: true,
   });
   const newOrder: OrderItemCombined = (
     d.order.items as OrderItemCombined[]
@@ -107,6 +109,7 @@ export async function dividePartial(d: {
     orderCnt: item.orderCnt - newOrder.orderCnt,
     add: false,
     paid: item.prodAmount.paid,
+    refresh: true,
   });
 
   if (item.orderCnt < 1) {
@@ -141,4 +144,79 @@ export function deleteItem(d: { order: IoOrder; itemId: string }) {
   // } else {
   //   await ORDER_GARMENT_DB.deleteOrder(d.order);
   // }
+}
+
+export function addExistItem(o: IoOrder, itemId: string, item: OrderItem) {
+  const it = o.items.find((x) => x.id === itemId)!;
+  it.orderCnt += item.orderCnt;
+  it.pendingCnt += item.pendingCnt;
+  it.activeCnt += item.activeCnt;
+  it.prodAmount = mergeAmount(it.prodAmount, item.prodAmount);
+  refreshOrder(o);
+  isValidOrder(o);
+  return o;
+}
+
+export function addExistItems(
+  orders: IoOrder[],
+  onSet: (order: IoOrder) => Promise<void>,
+  onDelete: (order: IoOrder) => Promise<void>,
+  isTargetItem: (a: OrderItem) => boolean
+) {
+  for (let i = 0; i < orders.length; i++) {
+    const order = orders[i];
+    const vendorIds = order.vendorIds;
+    const tarOrds = orders.filter((x) =>
+      x.vendorIds.some((y) => vendorIds.includes(y))
+    );
+    for (let j = 0; j < order.items.length; j++) {
+      const item = order.items[j];
+      let exist: typeof order | null = null;
+      for (let k = 0; k < tarOrds.length; k++) {
+        const o = tarOrds[k];
+        if (order.dbId === o.dbId || order.shipManagerId !== o.shipManagerId)
+          continue;
+        for (let z = 0; z < o.items.length; z++) {
+          const existItem = o.items[z];
+          if (!isTargetItem(existItem)) continue;
+          else if (
+            item.vendorProd.vendorProdId === item.vendorProd.vendorProdId &&
+            item.shopProd.shopProdId === existItem.shopProd.shopProdId &&
+            item.orderType === existItem.orderType &&
+            existItem.state == item.state
+          ) {
+            exist = addExistItem(o, existItem.id, item);
+            order.items.splice(j, 1);
+            order.itemIds.splice(
+              order.itemIds.findIndex((oid) => oid === item.id),
+              1
+            );
+            if (order.items.length < 1) {
+              exist.orderIds = uniqueArr([
+                ...order.orderIds,
+                ...exist.orderIds,
+              ]);
+              exist.itemIds = uniqueArr([...order.itemIds, ...exist.itemIds]);
+              exist.pickAmount = mergeAmount(
+                exist.pickAmount,
+                order.pickAmount
+              );
+              exist.shipAmount = mergeAmount(
+                exist.shipAmount,
+                order.shipAmount
+              );
+              onDelete(order);
+            } else {
+              refreshOrder(order);
+              onSet(order);
+            }
+            break;
+          }
+        }
+        if (exist) {
+          onSet(exist);
+        }
+      }
+    }
+  }
 }

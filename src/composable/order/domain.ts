@@ -297,6 +297,7 @@ export interface OrderDB<T> {
     param: { [itemId: string]: DefrayParam }
   ): Promise<void>;
   orderToReady(orderDbIds: string[], orderItemIds: string[]): Promise<void>;
+  rejectPickup(orderDbIds: string[]): Promise<void>;
   reqPickup(
     orderDbIds: string[],
     orderItemIds: string[],

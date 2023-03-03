@@ -68,9 +68,18 @@ export const useUncleOrderStore = defineStore("uncleOrderStore", () => {
           shipAmount: curr.shipAmount,
         };
       } else {
-        mergeAmount(acc[curr.shopId].prodAmount, curr.prodAmount);
-        mergeAmount(acc[curr.shopId].pickAmount, curr.pickAmount);
-        mergeAmount(acc[curr.shopId].shipAmount, curr.shipAmount);
+        acc[curr.shopId].prodAmount = mergeAmount(
+          acc[curr.shopId].prodAmount,
+          curr.prodAmount
+        );
+        acc[curr.shopId].pickAmount = mergeAmount(
+          acc[curr.shopId].pickAmount,
+          curr.pickAmount
+        );
+        acc[curr.shopId].shipAmount = mergeAmount(
+          acc[curr.shopId].shipAmount,
+          curr.shipAmount
+        );
       }
       return acc;
     }, {} as { [shopId: string]: { prodAmount: PayAmount; pickAmount: PayAmount; shipAmount: PayAmount } });

@@ -20,6 +20,7 @@ import { logger } from "@/plugin/logger";
 import { ioFireStore } from "@/plugin/firebase";
 import { getIoCollection } from "@io-boxies/js-lib";
 
+// TODO: to shallow ref
 export const useShopOrderStore = defineStore("shopOrderStore", () => {
   // >>> state >>>
   logger.debug("=== called shopOrderStore ===");
@@ -44,6 +45,9 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
       _orders.value.filter((x) => x.states.some((y) => inStates.includes(y)))
     );
   }
+  /**
+   *  deprecated, it's not responsive
+   */
   function getFilteredOrder(inStates: ORDER_STATE[]) {
     return computed(() =>
       ioOrders.value.filter((x) => inStates.includes(x.state))
@@ -122,6 +126,7 @@ export const useShopOrderStore = defineStore("shopOrderStore", () => {
         vendorProds
       );
     } else {
+      _ioOrders.value = [];
       existOrderIds.value.clear();
     }
   });

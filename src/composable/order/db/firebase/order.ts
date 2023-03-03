@@ -45,6 +45,7 @@ import {
   USER_DB,
   PayAmount,
   userFireConverter,
+  addExistItems,
 } from "@/composable";
 import { IO_COSTS } from "@/constants";
 import {
@@ -122,6 +123,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       getSrc();
     const orders = await OrderGarmentFB.batchRead(orderDbIds);
     const afterState: ORDER_STATE = "BEFORE_APPROVE_PICKUP";
+    if (orders.length < 1) throw new Error("주문건이 없습니다.");
     await runTransaction(ioFireStore, async (t) => {
       // >>> combine items >>>
       const targetItems: OrderItem[] = [];
@@ -184,11 +186,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         const { newAmount } = defrayAmount(amount, {}, true);
         return newAmount;
       };
-      const targetState: ORDER_STATE[] = [
-        afterState,
-        "BEFORE_ASSIGN_PICKUP",
-        "ONGOING_PICKUP",
-      ];
+      const targetState: ORDER_STATE[] = [afterState, "BEFORE_ASSIGN_PICKUP"];
       const existOrders: IoOrder[] = await getOrders([
         where("shopId", "==", shopId),
         where("shipManagerId", "==", uncleId),
@@ -218,7 +216,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       console.log("after shipPrice: ", shipPrice);
       // initial as pickPrice
       let pickupPrice = Object.entries(pickPriceCnt).reduce((acc, curr) => {
-        const priceByBuild = curr[1].price;
+        const priceByBuild: number = curr[1].price;
         const vendorIds: string[] = Object.keys(curr[1].byVendor);
         return acc + priceByBuild * vendorIds.length;
       }, 0);
@@ -277,6 +275,59 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
       return cOrder;
     });
     return mergeSameOrders(afterState, shopId);
+  },
+  rejectPickup: async function (orderDbIds: string[]) {
+    const { getOrdRef, getPayDocRef, getPayHistDocRef } = getSrc();
+    const orders = await OrderGarmentFB.batchRead([...new Set(orderDbIds)]);
+    await runTransaction(ioFireStore, async (t) => {
+      const totalPrice: { [uid: string]: number } = {};
+      for (let i = 0; i < orders.length; i++) {
+        const ord = orders[i];
+        console.log("before reject order: ", JSON.parse(JSON.stringify(ord)));
+        if (!totalPrice[ord.shopId]) {
+          totalPrice[ord.shopId] = 0;
+        }
+        totalPrice[ord.shopId] += ord.pickAmount.amount + ord.shipAmount.amount;
+        ord.shipAmount = newPayAmount({});
+        ord.pickAmount = newPayAmount({});
+        ord.items.forEach((item) => {
+          if (!item.beforeState)
+            throw new Error(
+              `order(${ord.dbId}), item(${item.id}) 이전 주문상태가 없어 거절할 수 없습니다.`
+            );
+          delete ord.shipManagerId;
+          item.prodAmount = newPayAmount({
+            pureAmount: item.prodAmount.pureAmount,
+            amount: item.prodAmount.amount,
+          });
+          setState(ord, item.id, item.beforeState);
+        });
+        refreshOrder(ord);
+        const docRef = doc(getOrdRef(ord.shopId), ord.dbId);
+        console.log("after reject order: ", ord);
+        t.set(docRef, ord);
+      }
+      for (let j = 0; j < Object.keys(totalPrice).length; j++) {
+        const shopId = Object.keys(totalPrice)[j];
+        const shopPay = await IO_PAY_DB.getIoPayByUser(shopId);
+        console.log(
+          `before reject pay(${shopId}): `,
+          JSON.parse(JSON.stringify(shopPay))
+        );
+        const { newPay, history } = shopPay.updateIoPay(
+          "REJECT_PICKUP",
+          totalPrice[shopId],
+          -totalPrice[shopId]
+        );
+        console.log("after reject pay: ", newPay, history);
+        t.set(getPayHistDocRef(history.userId), history);
+        t.update(getPayDocRef(newPay.userId), {
+          budget: newPay.budget,
+          pendingBudget: newPay.pendingBudget,
+          updateAt: newPay.updatedAt ?? new Date(),
+        });
+      }
+    });
   },
   completePay: async function (
     orderDbIds: string[],
@@ -1024,27 +1075,6 @@ async function stateModify(d: {
   await Promise.all(shopIds.map((x) => mergeSameOrders(d.afterState, x)));
 }
 
-// export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
-//   return await runTransaction(ioFireStore, async (transaction) => {
-//     const { getOrdRef } = getSrc();
-//     const ordRef = getOrdRef(shopId);
-//     const orders: IoOrder[] = await getOrders([
-//       where("shopId", "==", shopId),
-//       where("states", "array-contains", state),
-//     ]);
-//     addExistItems(
-//       orders,
-//       async (o) => {
-//         transaction.set(doc(ordRef, o.dbId), o);
-//       },
-//       async (o) => {
-//         transaction.delete(doc(ordRef, o.dbId));
-//       },
-//       (a) => a.state === state
-//     );
-//   });
-// }
-
 export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
   return await runTransaction(ioFireStore, async (transaction) => {
     const { getOrdRef } = getSrc();
@@ -1053,63 +1083,81 @@ export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
       where("shopId", "==", shopId),
       where("states", "array-contains", state),
     ]);
-    console.log("same orders:", orders);
-
-    for (let i = 0; i < orders.length; i++) {
-      const order = orders[i];
-      const vendorIds = order.vendorIds;
-      const tarOrds = orders.filter((x) =>
-        x.vendorIds.some((y) => vendorIds.includes(y))
-      );
-      for (let j = 0; j < order.items.length; j++) {
-        const item = order.items[j];
-        let exist: typeof order | null = null;
-        for (let k = 0; k < tarOrds.length; k++) {
-          const o = tarOrds[k];
-          if (order.dbId === o.dbId) continue;
-          for (let z = 0; z < o.items.length; z++) {
-            const existItem = o.items[z];
-            if (existItem.state !== state) continue;
-            else if (
-              item.state === existItem.state &&
-              item.shopProd.shopProdId === existItem.shopProd.shopProdId &&
-              item.orderType === existItem.orderType
-            ) {
-              exist = o;
-              console.log("merge exist ", exist, "with", item);
-              setOrderCnt({
-                order: exist,
-                orderItemId: existItem.id,
-                orderCnt: item.orderCnt,
-                add: true,
-              });
-              order.items.splice(j, 1);
-              order.itemIds.splice(
-                order.itemIds.findIndex((oid) => oid === item.id),
-                1
-              );
-              if (order.items.length < 1) {
-                exist.orderIds = uniqueArr([
-                  ...order.orderIds,
-                  ...exist.orderIds,
-                ]);
-                exist.itemIds = uniqueArr([...order.itemIds, ...exist.itemIds]);
-                transaction.delete(doc(ordRef, order.dbId));
-              } else {
-                transaction.set(doc(ordRef, order.dbId), order);
-              }
-              if (exist) {
-                console.log("after merge: ", exist);
-                transaction.set(doc(ordRef, exist.dbId), exist);
-              }
-              break;
-            }
-          }
-        }
-      }
-    }
+    addExistItems(
+      orders.filter((ord) => ord.states.length === 1),
+      async (o) => {
+        transaction.set(doc(ordRef, o.dbId), o);
+      },
+      async (o) => {
+        transaction.delete(doc(ordRef, o.dbId));
+      },
+      (a) => a.state === state
+    );
   });
 }
+
+// export async function mergeSameOrders(state: ORDER_STATE, shopId: string) {
+//   return await runTransaction(ioFireStore, async (transaction) => {
+//     const { getOrdRef } = getSrc();
+//     const ordRef = getOrdRef(shopId);
+//     const orders: IoOrder[] = await getOrders([
+//       where("shopId", "==", shopId),
+//       where("states", "array-contains", state),
+//     ]);
+//     for (let i = 0; i < orders.length; i++) {
+//       const order = orders[i];
+//       const vendorIds = order.vendorIds;
+//       const tarOrds = orders.filter((x) =>
+//         x.vendorIds.some((y) => vendorIds.includes(y))
+//       );
+//       for (let j = 0; j < order.items.length; j++) {
+//         const item = order.items[j];
+//         let exist: typeof order | null = null;
+//         for (let k = 0; k < tarOrds.length; k++) {
+//           const o = tarOrds[k];
+//           if (order.dbId === o.dbId) continue;
+//           for (let z = 0; z < o.items.length; z++) {
+//             const existItem = o.items[z];
+//             if (existItem.state !== state) continue;
+//             else if (
+//               item.state === existItem.state &&
+//               item.shopProd.shopProdId === existItem.shopProd.shopProdId &&
+//               item.orderType === existItem.orderType
+//             ) {
+//               exist = o;
+//               setOrderCnt({
+//                 order: exist,
+//                 orderItemId: existItem.id,
+//                 orderCnt: item.orderCnt,
+//                 add: true,
+//                 refresh: false
+//               });
+//               order.items.splice(j, 1);
+//               order.itemIds.splice(
+//                 order.itemIds.findIndex((oid) => oid === item.id),
+//                 1
+//               );
+//               if (order.items.length < 1) {
+//                 exist.orderIds = uniqueArr([
+//                   ...order.orderIds,
+//                   ...exist.orderIds,
+//                 ]);
+//                 exist.itemIds = uniqueArr([...order.itemIds, ...exist.itemIds]);
+//                 transaction.delete(doc(ordRef, order.dbId));
+//               } else {
+//                 transaction.set(doc(ordRef, order.dbId), order);
+//               }
+//               if (exist) {
+//                 transaction.set(doc(ordRef, exist.dbId), exist);
+//               }
+//               break;
+//             }
+//           }
+//         }
+//       }
+//     }
+//   });
+// }
 
 type PriceCnt = {
   [pickId: string]: {

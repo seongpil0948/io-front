@@ -180,6 +180,7 @@ export type PAY_HIST_STATE =
   | "USE"
   | "ADMIN_MODIFY"
   | "APPROVE_PICKUP"
+  | "REJECT_PICKUP"
   | "RETURN_PICKUP_AMOUNT"
   | "APPROVE_PICKUP_FEE"
   | "ORDER_GARMENT"
@@ -201,6 +202,7 @@ export const PAY_HIST_STATE: { [key in PAY_HIST_STATE]: string } = {
   ORDER_APPROVE_FEE: "도매처주문승인이용료",
   ORDER_REJECT: "도매처주문거절",
   APPROVE_PICKUP: "픽업승인",
+  REJECT_PICKUP: "픽업거절",
   RETURN_PICKUP_AMOUNT: "픽업반환금액",
   APPROVE_PICKUP_FEE: "픽업승인이용료",
   REQUEST_PICKUP: "픽업요청",

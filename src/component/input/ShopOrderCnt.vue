@@ -65,6 +65,7 @@ async function onBlur() {
         orderItemId: prod.id,
         orderCnt: ordCnt,
         add: false,
+        refresh: true,
       });
     } else if (prod.state === "BEFORE_READY") {
       await dividePartial({

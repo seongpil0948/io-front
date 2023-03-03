@@ -1,14 +1,9 @@
 import { commonToJson } from "@io-boxies/js-lib";
-import {
-  loadDate,
-  insertById,
-  getIoCollection,
-  IoCollection,
-} from "@io-boxies/js-lib";
+import { loadDate, insertById } from "@io-boxies/js-lib";
 import { DocumentData, DocumentSnapshot } from "firebase/firestore";
 import { CommonField } from "../common";
-import { IO_BANKS, IoPayCRT, PayHistoryCRT } from "./domain";
-import { ioFireStore } from "@/plugin/firebase";
+import { IO_BANKS, IoPayCRT, PayHistoryCRT, PAY_HIST_STATE } from "./domain";
+import { getIoCollection, IoCollection, ioFireStore } from "@/plugin/firebase";
 
 export interface IoAccount {
   accountName: string;
@@ -55,6 +50,25 @@ export class IoPay extends CommonField implements IoPayCRT {
       true,
       IoPay.fireConverter()
     );
+  }
+  updateIoPay(
+    histState: PAY_HIST_STATE,
+    addedBudget: number,
+    addedPendingBudget: number
+  ) {
+    this.budget += addedBudget;
+    this.pendingBudget += addedPendingBudget;
+    this.updatedAt = new Date();
+    const h = newPayHistory({
+      amount: addedBudget,
+      pendingAmount: addedPendingBudget,
+      userId: this.userId,
+      state: histState,
+    });
+    return {
+      newPay: this,
+      history: h,
+    };
   }
   static fireConverter() {
     return {

@@ -12,7 +12,14 @@ import {
   useContactUncle,
 } from "@/composable";
 import { useAuthStore, useShopOrderStore } from "@/store";
-import { ref, shallowRef, watchEffect, defineAsyncComponent, h } from "vue";
+import {
+  ref,
+  shallowRef,
+  watchEffect,
+  defineAsyncComponent,
+  h,
+  computed,
+} from "vue";
 import { IO_COSTS } from "@/constants";
 import { storeToRefs } from "pinia";
 import { ExclamationCircleOutlined } from "@vicons/antd";
@@ -29,8 +36,10 @@ const user = auth.currUser();
 const fileModel = ref<File[]>([]);
 
 const shopOrderStore = useShopOrderStore();
-const { existOrderIds } = storeToRefs(shopOrderStore);
-const filteredOrders = shopOrderStore.getFilteredOrder(props.inStates ?? []);
+const { existOrderIds, ioOrders } = storeToRefs(shopOrderStore);
+const filteredOrders = computed(() =>
+  ioOrders.value.filter((x) => (props.inStates ?? []).includes(x.state))
+);
 const orders = shopOrderStore.getOrders(props.inStates ?? []);
 const { checkedDetailKeys, tableCol, tableRef, targetOrdDbIds, targetIds } =
   useOrderTable({
@@ -40,6 +49,16 @@ const { checkedDetailKeys, tableCol, tableRef, targetOrdDbIds, targetIds } =
   });
 const { targetUncleId, contactUncleOpts, contractUncles } = useContactUncle();
 function pickupRequest() {
+  _pickReq(targetOrdDbIds.value, targetIds.value);
+}
+function pickupRequestAll() {
+  console.log("filteredOrders: ", filteredOrders.value);
+  _pickReq(
+    new Set(filteredOrders.value.map((x) => x.orderDbId!)),
+    new Set(filteredOrders.value.map((x) => x.id))
+  );
+}
+function _pickReq(ordDbIds: Set<string>, itemIds: Set<string>) {
   const d = dialog.success({
     title: "엉클 선택",
     content: () =>
@@ -61,8 +80,8 @@ function pickupRequest() {
       return reqPickupRequest({
         uncle,
         shop,
-        orderDbIds: targetOrdDbIds.value,
-        orderItemIds: targetIds.value,
+        orderDbIds: ordDbIds,
+        orderItemIds: itemIds,
         direct: true,
       }).finally(() => (d.loading = false));
     },
@@ -151,10 +170,10 @@ function downSampleXlsx() {
   a.click();
   a.remove();
 }
-const AsyncDropZone = defineAsyncComponent(
+const DropZoneCard = defineAsyncComponent(
   () => import("@/component/card/DropZoneCard.vue")
 );
-const orderDropZoneRef = shallowRef<null | InstanceType<typeof AsyncDropZone>>(
+const orderDropZoneRef = shallowRef<null | InstanceType<typeof DropZoneCard>>(
   null
 );
 function uploadOrder() {
@@ -229,6 +248,9 @@ async function handleOperSelect(key: string | number) {
     case "pickupRequest":
       pickupRequest();
       break;
+    case "pickupRequestAll":
+      pickupRequestAll();
+      break;
   }
 }
 const operOpts = [
@@ -260,12 +282,16 @@ const operOpts = [
     label: "선택 픽업요청",
     key: "pickupRequest",
   },
+  {
+    label: "전체 픽업요청",
+    key: "pickupRequestAll",
+  },
 ];
 </script>
 <template>
   <drop-zone-card
     ref="orderDropZoneRef"
-    :key="filteredOrders.length > 0"
+    :key="filteredOrders.length"
     v-model:fileModel="fileModel"
     :no-click="filteredOrders.length > 0"
     data-test="order-drop-zone"

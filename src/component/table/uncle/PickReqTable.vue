@@ -9,6 +9,8 @@ import {
   useShipmentUncle,
   catchError,
   ORDER_STATE,
+  ORDER_GARMENT_DB,
+  getUserName,
 } from "@/composable";
 import { useAuthStore } from "@/store";
 import { makeMsgOpt } from "@/util";
@@ -36,6 +38,34 @@ const msg = useMessage();
 const auth = useAuthStore();
 const u = auth.currUser();
 
+async function onReqOrderReject() {
+  const ids = [...targetIds.value];
+  const targetOrds = orders.value.filter((y) =>
+    y.items.some((item) => ids.includes(item.id))
+  );
+  ORDER_GARMENT_DB.rejectPickup(targetOrds.map((x) => x.dbId))
+    .then(async () => {
+      msg.success("픽업 거절 완료.", makeMsgOpt());
+      selectedData.value = null;
+      await smtp.sendAlarm({
+        toUserIds: [...targetOrds.map((x) => x.shopId)],
+        subject: `inoutbox 주문 처리내역 알림.`,
+        body: `${getUserName(u)}으로부터 픽업요청이 거절 되었습니다. `,
+        notiLoadUri: "/",
+        uriArgs: {},
+        sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
+        pushUri: `${axiosConfig.baseURL}/msg/sendPush`,
+      });
+    })
+    .catch((err) =>
+      catchError({
+        err,
+        msg,
+        prefix: "픽업 거절 실패.",
+        uid: u.userInfo.userId,
+      })
+    );
+}
 async function onReqOrderConfirm() {
   // orderItemIds
   const ids = [...targetIds.value];
@@ -53,7 +83,7 @@ async function onReqOrderConfirm() {
           u.userInfo.userId,
         ],
         subject: `inoutbox 주문 처리내역 알림.`,
-        body: `${targetOrd.length} 건의  픽업승인이 완료되었습니다. `,
+        body: `${getUserName(u)}으로부터 픽업승인이 완료 되었습니다. `,
         notiLoadUri: "/",
         uriArgs: {},
         sendMailUri: `${axiosConfig.baseURL}/mail/sendEmail`,
@@ -99,6 +129,9 @@ const reqCols = getPickReqCols(onClickDetail);
 <template>
   <n-card>
     <n-space justify="end" style="margin-bottom: 1vh">
+      <n-button size="small" type="primary" @click="onReqOrderReject">
+        선택거절
+      </n-button>
       <n-button size="small" type="primary" @click="onReqOrderConfirm">
         선택승인
       </n-button>
