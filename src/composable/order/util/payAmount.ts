@@ -37,6 +37,7 @@ export function defrayAmount(
   t.amount = getAmount(t);
   if (isPending) {
     t.pendingAmount = d.paidAmount ?? t.amount;
+    t.paidAmount = d.paidAmount ?? t.amount;
     t.isPending = true;
   } else {
     t.paidAmount = d.paidAmount ?? t.amount;

@@ -311,7 +311,7 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
         const shopId = Object.keys(totalPrice)[j];
         const shopPay = await IO_PAY_DB.getIoPayByUser(shopId);
         console.log(
-          `before reject pay(${shopId}): `,
+          `before reject pay(${shopId}), total price: ${totalPrice[shopId]}`,
           JSON.parse(JSON.stringify(shopPay))
         );
         const { newPay, history } = shopPay.updateIoPay(

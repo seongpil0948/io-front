@@ -240,7 +240,7 @@ async function reqCharge() {
       <div style="position: relative">
         <n-tooltip trigger="hover" :width="400">
           <template #trigger>
-            <n-button circle text style="position: absolute; left: -30%">
+            <n-button circle text style="position: absolute; left: -35%">
               <template #icon>
                 <n-icon><QuestionCircleRegular /></n-icon>
               </template>
@@ -305,7 +305,7 @@ async function reqCharge() {
             <div style="position: relative">
               <n-tooltip trigger="hover" :width="400">
                 <template #trigger>
-                  <n-button circle text style="position: absolute; left: -30%">
+                  <n-button circle text style="position: absolute; left: -35%">
                     <template #icon>
                       <n-icon><QuestionCircleRegular /></n-icon>
                     </template>
@@ -317,9 +317,9 @@ async function reqCharge() {
                 남겨주세요.<br />
                 또 입금 완료 후 30분 이내로 충전이 완료됩니다.<br />
               </n-tooltip>
-              <n-text strong> IBK / 송준회 </n-text>
+              <n-text strong>카카오뱅크 / 송준회(인아웃박스(inoutbox)) </n-text>
             </div>
-            <n-text type="info">12345-21251513531</n-text>
+            <n-text type="info">3333-21-8749760</n-text>
           </n-space>
           <n-divider></n-divider>
           <n-space justify="space-between">
@@ -330,7 +330,7 @@ async function reqCharge() {
             <div style="position: relative">
               <n-tooltip trigger="hover" :width="400">
                 <template #trigger>
-                  <n-button circle text style="position: absolute; left: -30%">
+                  <n-button circle text style="position: absolute; left: -35%">
                     <template #icon>
                       <n-icon><QuestionCircleRegular /></n-icon>
                     </template>
@@ -382,7 +382,7 @@ async function reqCharge() {
             <div style="position: relative">
               <n-tooltip trigger="hover" :width="400">
                 <template #trigger>
-                  <n-button circle text style="position: absolute; left: -30%">
+                  <n-button circle text style="position: absolute; left: -35%">
                     <template #icon>
                       <n-icon><QuestionCircleRegular /></n-icon>
                     </template>
