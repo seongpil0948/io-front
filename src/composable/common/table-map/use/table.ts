@@ -10,6 +10,7 @@ import { formatDate, loadDate } from "@io-boxies/js-lib";
 import { useShopOrderStore } from "@/store";
 import { storeToRefs } from "pinia";
 import { mapTxt } from "@/composable";
+import { valueByDotsKey } from "@/util";
 
 const MapperSaver = defineAsyncComponent(
   () => import("@/component/input/MapperSaver.vue")
@@ -258,6 +259,13 @@ function makeTableCols<T>(colKeys: IoColOptInner<T>[]): TableBaseColumn<T>[] {
             default: () => formatDate(loadDate(row[col.key]), "MIN"),
           }
         );
+    } else if ((["prodAmount.amount", "amount"] as any[]).includes(col.key)) {
+      col.sorter = function (row1: any, row2: any) {
+        return (
+          valueByDotsKey(row1, col.key as string) -
+          valueByDotsKey(row2, col.key as string)
+        );
+      };
     }
     if (opt.cellRender) {
       col.render = opt.cellRender;

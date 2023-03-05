@@ -39,3 +39,11 @@ export function commonFromJson(data: { [k: string]: any }) {
 }
 
 export const v5Namespace = () => v5("https://inout-box.com", v5.URL);
+
+export function valueByDotsKey(obj: any, key: string) {
+  let result: any = null;
+  key.split(".").forEach((k) => {
+    result = result === null ? obj[k] : result[k];
+  });
+  return result;
+}
