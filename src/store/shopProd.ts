@@ -151,6 +151,13 @@ export const useShopProdStore = defineStore("ShopProdStore", () => {
         );
       }
       userProd.value = userProds;
+      userProd.value.sort((a, b) =>
+        !a.createdAt
+          ? -1
+          : !b.createdAt
+          ? 1
+          : b.createdAt.valueOf() - a.createdAt.valueOf()
+      );
     }
   );
 

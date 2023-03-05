@@ -1,9 +1,10 @@
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "@/store";
-import { IoUser, LocateAmount, USER_DB } from "@io-boxies/js-lib";
+import { LocateAmount } from "@io-boxies/js-lib";
 import { DataTableColumns, NText, NButton, useMessage } from "naive-ui";
 import { Ref, h } from "vue";
 import { ioFireStore } from "@/plugin/firebase";
+import { IoUser, USER_DB } from "@/composable";
 
 export function useShipUnitCols(
   showModal: Ref<boolean>,
