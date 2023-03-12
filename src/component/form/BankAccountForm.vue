@@ -38,6 +38,7 @@ watch(
   () => account.value,
   (acc) => {
     if (acc) {
+      acc.code = IO_BANKS[acc.bank];
       emits("update:acc", acc);
     }
   },
