@@ -5,7 +5,7 @@ import { ioFire } from "@/plugin/firebase";
 import { getAuth } from "@firebase/auth";
 import { getFcmToken, FcmToken } from "@io-boxies/js-lib";
 import { FormInst, useMessage } from "naive-ui";
-import { ref, toRefs, watchEffect } from "vue";
+import { ref, toRefs, watch } from "vue";
 
 const auth = getAuth(ioFire.app);
 const props = defineProps<{
@@ -18,16 +18,17 @@ const { uInfo } = toRefs(props);
 defineExpose({ getUserInfo });
 const formRef = ref<FormInst | null>(null);
 const formModel = ref<IoUserInfo>(Object.assign({}, uInfo.value));
-watchEffect(() => {
-  formModel.value = Object.assign({}, uInfo.value, formModel.value);
-});
-const accInfo = ref<IoAccount | null>(null);
+const account = ref<IoAccount | undefined>(uInfo.value.account);
 const msg = useMessage();
 
-function onSubmitAccount(acc: IoAccount) {
-  accInfo.value = acc;
-  msg.info("계좌정보 저장 완료!");
-}
+watch(
+  () => account.value,
+  (acc) => {
+    if (acc) {
+      formModel.value.account = acc;
+    }
+  }
+);
 
 async function getUserInfo(): Promise<{
   userInfo?: IoUserInfo;
@@ -36,15 +37,17 @@ async function getUserInfo(): Promise<{
   return new Promise<{
     userInfo?: IoUserInfo;
   }>((resolve, reject) => {
+    console.log("formModel : ", formModel.value);
     if (!formRef.value) return reject("재시도해주세요.");
+    else if (!formModel.value.account) {
+      return reject("계좌정보 미입력");
+    }
     formRef.value.validate((errors) => {
       if (errors) {
         return reject("잘못된 양식의 작성입니다.");
-      } else if (!accInfo.value) {
-        return reject("계좌정보 미입력");
       }
       getFcmToken().then((token) => {
-        uInfo.value.account = accInfo.value!;
+        Object.assign(uInfo.value, formModel.value);
         uInfo.value.fcmTokens =
           auth.currentUser && token ? [token!] : ([] as FcmToken[]);
         console.info("return uInfo.value", uInfo.value);
@@ -95,10 +98,7 @@ const rule = {
         <n-input v-model:value="formModel.email" disabled />
       </n-form-item-gi>
       <n-form-item-gi path="account">
-        <bank-account-form
-          :acc="formModel.account"
-          @submit:account="onSubmitAccount"
-        />
+        <bank-account-form v-model:acc="account" :use-submit="false" />
       </n-form-item-gi>
     </n-grid>
   </n-form>

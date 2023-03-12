@@ -15,7 +15,6 @@ import {
   batchInQuery,
   insertById,
 } from "@io-boxies/js-lib";
-
 import { IoUser, UserDB, USER_PROVIDER, USER_ROLE } from "../domain";
 import { userFireConverter, userFromCredential } from "../util";
 
@@ -94,6 +93,7 @@ export const UserFB: UserDB = {
     return user;
   },
   updateUser: async function (store: Firestore, u: IoUser) {
+    if (!u.userInfo) throw new Error("userInfo is not exist");
     u.userInfo.updatedAt = new Date();
     await insertById<IoUser>(
       u,

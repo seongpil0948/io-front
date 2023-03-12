@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, toRefs } from "vue";
+import { ref, toRefs } from "vue";
 import { FormInst, useMessage } from "naive-ui";
 import { Certificate } from "@vicons/carbon";
 import { arrLenRule, emailRule, nameLenRule, isMobile } from "@/util";

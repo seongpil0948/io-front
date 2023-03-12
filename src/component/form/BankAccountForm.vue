@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { emptyAccount, IO_BANKS, IoAccount } from "@/composable";
-import { ref, computed, toRefs } from "vue";
+import { ref, computed, toRefs, watch } from "vue";
 import { makeMsgOpt, nameLenRule, notNullRule } from "@/util";
 import { type FormInst, useMessage } from "naive-ui";
 
 const props = defineProps<{
   acc?: IoAccount;
+  useSubmit?: boolean;
 }>();
 const { acc } = toRefs(props);
 const formRef = ref<FormInst | null>(null);
 const account = ref(acc?.value ?? emptyAccount());
 const emits = defineEmits<{
   (e: "submit:account", value: IoAccount): void;
+  (e: "update:acc", value: IoAccount): void;
 }>();
 
 const msg = useMessage();
@@ -26,6 +28,15 @@ async function onSubmit(e: MouseEvent) {
     emits("submit:account", account.value);
   });
 }
+watch(
+  () => account.value,
+  (acc) => {
+    if (acc) {
+      emits("update:acc", acc);
+    }
+  },
+  { deep: true }
+);
 
 const bankOpts = computed(() =>
   Object.keys(IO_BANKS).map((ko) => {
@@ -69,6 +80,6 @@ const rules = {
         placeholder="평생 계좌번호를 입력시 송금 받을때 문제가 생길 수 있어요."
       />
     </n-form-item>
-    <n-button @click="onSubmit"> 계좌정보 저장 </n-button>
+    <n-button v-if="useSubmit" @click="onSubmit"> 계좌정보 저장 </n-button>
   </n-form>
 </template>

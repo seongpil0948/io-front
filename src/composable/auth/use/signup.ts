@@ -72,10 +72,11 @@ export function useSignup(u?: IoUser, initialStep?: SignupStep) {
   }) {
     const exist = await USER_DB.getUserById(ioFireStore, d.credential.user.uid);
     if (!userRole.value) return msg.error(`역할을 선택 해주세요`);
-    else if (exist)
-      return msg.error(
-        `이미 존재하거나 삭제된 유저 입니다. ${getUserName(exist)}`
-      );
+    else if (exist && !exist.userInfo) {
+      console.log("exist:", exist);
+      return msg.error(`이미 존재하거나 삭제된 유저 입니다.`);
+    }
+
     const u = await userFromCredential(
       d.credential,
       d.credential.user.displayName ?? "유저이름",
