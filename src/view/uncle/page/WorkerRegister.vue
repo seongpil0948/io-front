@@ -199,7 +199,7 @@ const width = "35vw";
           <n-gradient-text type="info"> 연락처 </n-gradient-text>
         </template>
       </n-input>
-      <bank-account-form @submit:account="onSubmitAccount" />
+      <bank-account-form :use-submit="true" @submit:account="onSubmitAccount" />
       <n-checkbox :checked="account !== null"> 계좌 제출여부 </n-checkbox>
       <worker-info-form @submit:worker-info="onSubmitWorker" />
       <n-checkbox :checked="workerInfo !== null">

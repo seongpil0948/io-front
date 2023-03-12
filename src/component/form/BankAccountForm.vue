@@ -4,10 +4,16 @@ import { ref, computed, toRefs, watch } from "vue";
 import { makeMsgOpt, nameLenRule, notNullRule } from "@/util";
 import { type FormInst, useMessage } from "naive-ui";
 
-const props = defineProps<{
-  acc?: IoAccount;
-  useSubmit?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    acc?: IoAccount;
+    useSubmit: boolean;
+  }>(),
+  {
+    acc: undefined,
+    useSubmit: true,
+  }
+);
 const { acc } = toRefs(props);
 const formRef = ref<FormInst | null>(null);
 const account = ref(acc?.value ?? emptyAccount());

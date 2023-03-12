@@ -261,6 +261,7 @@ async function onSubmitAccount(acc: IoAccount) {
     >
       <bank-account-form
         :acc="authModel.userInfo.account"
+        :use-submit="true"
         @submit:account="onSubmitAccount"
       />
     </n-collapse-item>
