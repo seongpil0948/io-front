@@ -132,13 +132,13 @@ onBeforeUnmount(() => stop());
               >
                 소매
               </n-button>
-              <n-button
+              <!-- <n-button
                 class="role-btn txt"
                 round
                 @click="() => selectRole('VENDOR')"
               >
                 도매
-              </n-button>
+              </n-button> -->
               <n-button
                 class="role-btn txt"
                 round

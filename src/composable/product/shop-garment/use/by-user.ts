@@ -1,5 +1,10 @@
-import { MapKey, ShopUserGarment, VENDOR_GARMENT_DB } from "@/composable";
-import { getUserName, USER_DB } from "@io-boxies/js-lib";
+import {
+  MapKey,
+  ShopUserGarment,
+  VENDOR_GARMENT_DB,
+  getUserName,
+  USER_DB,
+} from "@/composable";
 import { onBeforeUnmount, Ref, ref, watchEffect, watch } from "vue";
 import { ShopGarment, MatchGarment, SHOP_GARMENT_DB } from "..";
 import { ioFireStore } from "@/plugin/firebase";
