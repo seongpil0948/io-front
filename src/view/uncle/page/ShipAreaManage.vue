@@ -43,7 +43,7 @@ async function updatePendingAmount() {
             <n-space v-if="u && u.uncleInfo">
               <n-input-number
                 v-model:value="u.uncleInfo.shipPendingAmount"
-                :min="1000"
+                :min="0"
                 :show-button="false"
                 :parse="parseCurrencyStr"
                 :format="formatCurrency"

@@ -78,6 +78,8 @@ export function checkOrderShipLocate(
 
   const clientPickL = isReturn ? shopLocate : vendorLocate;
   const clientshipL = isReturn ? vendorLocate : shopLocate;
+  console.log("client pickup locate:", clientPickL);
+  console.log("client ship locate:", clientshipL);
   const clientshipLStr =
     clientshipL.city ?? "" + clientshipL.county + clientshipL.town;
   const clientPickLStr = locateToStr(clientPickL);

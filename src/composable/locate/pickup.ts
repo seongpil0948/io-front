@@ -53,13 +53,12 @@ export function usePickArea() {
   };
 }
 
-export const getPickId = (x: Locate) => `${x.code}__${x.alias}`;
-export const extractPickId = (pickId: string) => ({
-  code: pickId.split("__")[0],
-  alias: pickId.split("__")[1],
-});
-export const isSamePickLocate = (a: Locate, b: Locate) =>
-  getPickId(a) === getPickId(b);
+export const getPickId = (x: Locate) =>
+  `${x.code}__${x.alias.toLowerCase().replace(/ /g, "")}`;
+
+export const isSamePickLocate = (a: Locate, b: Locate) => {
+  return getPickId(a) === getPickId(b);
+};
 
 export function uncleAvailShip(uncleL: Locate, clientL: Locate) {
   if (uncleL.city && uncleL.county && uncleL.town) {

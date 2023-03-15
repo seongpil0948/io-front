@@ -61,7 +61,7 @@ const prodModel = ref({
   ctgr: getCtgrOpts(PART.TOP)[0].value,
   name: "",
   allowPending: [],
-  gender: GENDER.MALE,
+  gender: GENDER.FEMALE,
   price: 1000,
   vendorPrice: 1000,
   primeCost: 1000,

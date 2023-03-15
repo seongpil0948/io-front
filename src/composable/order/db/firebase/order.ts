@@ -157,9 +157,12 @@ export const OrderGarmentFB: OrderDB<IoOrder> = {
 
       const pickPriceCnt: PriceCnt = {};
       let shipPrice = 0;
-      let shipPendingPrice = (uncle as IoUser).uncleInfo?.shipPendingAmount;
-      if (!shipPendingPrice || shipPendingPrice < 1000)
-        throw new Error("배송 보류금액을 1000원 이상으로 설정 해주세요.");
+      let shipPendingPrice =
+        (uncle as IoUser).uncleInfo?.shipPendingAmount ?? 0;
+      if (shipPendingPrice < 0)
+        throw new Error(
+          `배송 보류금액(${shipPendingPrice})을 -1원 이상으로 설정 해주세요.`
+        );
       for (let i = 0; i < cOrder.items.length; i++) {
         const item = cOrder.items[i];
         const vendor = vendors.find((v) => v.userInfo.userId === item.vendorId);

@@ -54,7 +54,7 @@ export function availUncleAdvertise(u: IoUser) {
     i.shipLocates.length > 0 &&
     Object.keys(i.amountBySize).length > 0 &&
     Object.keys(i.amountByWeight).length > 0 &&
-    i.shipPendingAmount > 0
+    i.shipPendingAmount > -1
   );
 }
 
